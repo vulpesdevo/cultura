@@ -99,12 +99,12 @@ export default {
 						class="modal-bg px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
 					>
 						<h3
-							class="text-bebas text-4xl sm:text-7xl leading-6 font-medium text-white"
+							class="text-bebas text-5xl pt-5 sm:text-7xl leading-6 font-medium text-white"
 							id="modal-title"
 						>
 							SIGN UP
 						</h3>
-						<p class="text-mont text-white pt-1 pb-5 text-2xl">
+						<p class="text-mont text-white pt-2 pb-5 text-lg sm:text-2xl">
 							Create your account
 						</p>
 						<form class="mt-2">
