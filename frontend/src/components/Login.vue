@@ -1,5 +1,11 @@
 <script>
-export default {};
+export default {
+	data() {
+		return {
+			showModal: false,
+		};
+	},
+};
 </script>
 
 <template>
@@ -34,27 +40,129 @@ export default {};
 				<input
 					type="text"
 					placeholder="Username"
-					class="pl-5 border border-blue-300 rounded-full mb-4 bg-blue-300 w-80 sm:w-96 h-14"
+					class="pl-5  color-purple rounded-full mb-4  w-80 sm:w-96 h-14"
 				/>
 				<input
 					type="password"
 					placeholder="Password"
-					class="pl-5 border border-blue-300 rounded-full mb-2 bg-blue-300 w-80 sm:w-96 h-14"
+					class="pl-5  color-purple rounded-full mb-2  w-80 sm:w-96 h-14"
 				/>
 				<a href="" class="text-center text-white mb-10 hover:underline"
 					>Forgot passsword?</a
 				>
-				<button
-					class="text-3xl bg-gray-900 text-white p-2 rounded-full w-52 h-14 mb-6 hover:bg-gray-800"
-				>
-					Log in
-				</button>
+				<input
+					type="submit"
+					value="Log in"
+					class="buttons text-3xl bg-gray-300 text-purple p-2 rounded-full w-52 h-14 mb-6 hover:bg-gray-400"
+				/>
 
 				<span class="flex"
 					><p class="text-white">Don't have an account?</p>
-					<a href="" class="pl-3 text-blue-300">Sign Up Now!</a></span
+					<a
+						href=""
+						class="pl-3 text-blue-300"
+						@click.prevent="showModal = true"
+						>Sign Up Now!</a
+					></span
 				>
 			</form>
+		</div>
+		<div
+			class="fixed z-10 inset-0 overflow-y-auto"
+			aria-labelledby="modal-title"
+			role="dialog"
+			aria-modal="true"
+			v-if="showModal"
+		>
+			<div
+				class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+			>
+				<div
+					class="fixed inset-0 bg-black bg-opacity-70 transition-opacity"
+					aria-hidden="true"
+				></div>
+				<span
+					class="hidden sm:inline-block sm:align-middle sm:h-screen"
+					aria-hidden="true"
+					>&#8203;</span
+				>
+				<div
+					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:w-1/2"
+				>
+					<button
+						class="absolute top-0 right-0 m-2 mr-3 text-white text-2xl"
+						@click="showModal = false"
+					>
+						&times;
+					</button>
+					<div
+						class="modal-bg px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
+					>
+						<h3
+							class="text-bebas text-4xl sm:text-7xl leading-6 font-medium text-white"
+							id="modal-title"
+						>
+							SIGN UP
+						</h3>
+						<p class="text-mont text-white pt-1 pb-5 text-2xl">
+							Create your account
+						</p>
+						<form class="mt-2">
+							<div class="flex flex-wrap">
+								<div class="w-full md:w-1/2 px-3">
+									<input
+										type="text"
+										placeholder="Username"
+										class="mt-2 pl-5 w-full rounded-full h-14 color-purple"
+									/>
+									<input
+										type="email"
+										placeholder="Email"
+										class="mt-2 pl-5 w-full rounded-full h-14 color-purple"
+									/>
+									<input
+										type="text"
+										placeholder="Name"
+										class="mt-2 pl-5 w-full rounded-full h-14 color-purple"
+									/>
+								</div>
+								<div class="w-full md:w-1/2 px-3">
+									<input
+										type="text"
+										placeholder="Country"
+										class="mt-2 pl-5 w-full rounded-full h-14 color-purple"
+									/>
+									<input
+										type="password"
+										placeholder="Password"
+										class="mt-2 pl-5 w-full rounded-full h-14 color-purple"
+									/>
+									<input
+										type="password"
+										placeholder="Re-enter Password"
+										class="mt-2 pl-5 w-full rounded-full h-14 color-purple"
+									/>
+								</div>
+							</div>
+
+							<div
+								class="flex flex-col items-center align-middle text-center"
+							>
+								<p class="py-5 text-white text-mont text-xs">
+									By signing up, you agree to the Terms of
+									Service and Privacy Policy, including Cookie
+									Use.
+								</p>
+								<input
+									type="submit"
+									value="SIGN UP"
+									class="buttons text-3xl bg-gray-300 text-purple-800 p-2 rounded-full w-52 h-14 mb-6 hover:bg-gray-400"
+								/>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
 		</div>
 	</section>
 </template>
@@ -63,20 +171,12 @@ export default {};
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
+.modal-bg {
+	background-color: var(--dark-bg-theme);
+}
+
 .login-section {
-	background-color: var(--bg-main-color);
+	background-color: var(--dark-bg-theme);
 }
 
-.cultura-text,
-button {
-	font-family: "Bebas Neue";
-}
-
-.slc,
-input {
-	font-family: "Montserrat";
-}
-input::placeholder {
-	color: #6c6c6e;
-}
 </style>
