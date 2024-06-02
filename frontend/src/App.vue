@@ -1,40 +1,43 @@
-<script>
-import Login from './components/Login.vue';
-
-export default {
-    components: {
-        Login
-    },
-    
-}
-</script>
 
 <template>
-    <main class="h-full">
-        <router-view />
-    </main>
+	<main class="h-full">
+		<router-view />
+	</main>
 </template>
 
-<style >
-:root{
-    --text-color-a: #ffff ;
-    --text-color-b:#B8A3E9;
-    --text-color-b:#B8A3E9;
-    --text-color-c: #2C4760;
-    --bg-main-color: #2C4760;
-    --bg-secondary-color: #2D313D;
-    
-    --purple: #564787;
+<script>
+import Login from "./components/Login.vue";
+import Sidebar from "./components/Sidebar.vue";
+export default {
+	components: {
+		Sidebar,
+	},
+};
+</script>
+<style>
+:root {
+	--text-color-a: #ffff;
+	--text-color-b: #b8a3e9;
+	--text-color-c: #2c4760;
 
+	--bg-main-color: #2c4760;
+	--bg-secondary-color: #2d313d;
 
-    --dark-bg-theme: #1E1E1E;
-    
+	--purple: #564787;
+
+	--dark-bg-theme: #1e1e1e;
 }
 .color-purple {
 	background-color: var(--purple);
 }
-.text-purple{
+.text-purple {
 	color: var(--purple);
+}
+.text-purple-light{
+    color: var(--text-color-b);
+}
+.dark-bg-color{
+    background: var(--dark-bg-theme);
 }
 
 .cultura-text,
@@ -51,5 +54,4 @@ input,
 input::placeholder {
 	color: var(--text-color-a);
 }
-
 </style>

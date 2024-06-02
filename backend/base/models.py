@@ -11,17 +11,15 @@ from djongo.models.fields import ObjectIdField
 class CulturaUser(models.Model):
     _id = models.ObjectIdField()
     user = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=120)
-    last_name = models.CharField(max_length=120)
-    location = models.CharField(max_length=120, blank=True, null=True)
+    fullname = models.CharField(max_length=120)
+    country = models.CharField(max_length=120, blank=True, null=True)
     email = models.EmailField()
-    contact = models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
 
 class Comment(models.Model):
     _id = ObjectIdField()
-    user_id = models.CharField(max_length=255)
+    user_id = models.CharField(max_length=255,)
     author = models.CharField(max_length=255)
     body = models.TextField()
     date_posted = models.DateTimeField(auto_now_add=True)

@@ -104,11 +104,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "djongo",
-        "NAME": "culturalink",
-        "ENFORCE_SCHEMA": False,
-        "CLIENT": {
-            "host": "mongodb+srv://vulpescodev:8t1JzmjnaW2FXXR9@cluster0.okctdpo.mongodb.net/"
-        },
+        "NAME": "cultura",
     }
 }
 

@@ -33,11 +33,8 @@ class UserRegister(APIView):
     def post(self, request):
         data = request.data
 
-        first_name = data["first_name"].strip()
-        last_name = data["last_name"].strip()
-        location = data["location"].strip()
-        contact = data["contact"].strip()
-        email = data["email"].strip()
+        fullname = data["fullname"].strip()
+        country = data["country"].strip()
 
         email = data["email"].strip()
         clean_data = custom_validation(request.data)
@@ -46,12 +43,10 @@ class UserRegister(APIView):
             if user := serializer.create(clean_data):
                 CulturaUser.objects.create(
                     id=user,
-                    first_name=first_name,
-                    last_name=last_name,
+                    fullname=fullname,
+                    country=country,
                     email=email,
-                    contact=contact,
-                    location=location,
-                    #  # Assuming you want to associate the GuestProfile with the created user
+                    #  # Assuming you want to associate the Profile with the created user
                 )
                 login(request, user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

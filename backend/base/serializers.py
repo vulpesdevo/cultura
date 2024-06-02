@@ -18,8 +18,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             password=clean_data["password"],
         )
 
-        user_obj.first_name = clean_data["first_name"]
-        user_obj.last_name = clean_data["last_name"]
+        user_obj.fullname = clean_data["fullname"]
         user_obj.email = clean_data["email"]
         user_obj.save()
         return user_obj
