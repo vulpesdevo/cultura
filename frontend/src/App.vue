@@ -27,18 +27,15 @@ export default {
 
 	--dark-bg-theme: #1e1e1e;
 }
-.color-purple {
-	background-color: var(--purple);
-}
-.text-purple {
-	color: var(--purple);
-}
+
+
 .text-purple-light{
     color: var(--text-color-b);
 }
 .dark-bg-color{
     background: var(--dark-bg-theme);
 }
+.bg-secondary-color
 
 .cultura-text,
 .buttons,

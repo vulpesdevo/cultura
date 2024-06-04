@@ -9,7 +9,7 @@
 				class="mr-3 sm:w-32 sm:h-32"
 			/>
 			<h1
-				class="text-purple-light cultura-text text-4xl text-center mb-3 py-3 tracking-widest"
+				class="text-cl-purple font-bebas-neue text-4xl text-center mb-3 py-3 tracking-widest"
 			>
 				CULTURALINK
 			</h1>
@@ -50,8 +50,10 @@
 			</li>
 		</ul>
 		<div
+		
 			class="hidden sm:flex absolute bottom-0 left-0 w-16 h-16 m-4 p-1 rounded-full border hover:border-purple-900 transition-all duration-500"
-            :class="{ 'border-purple-900': showPopup }"
+			:class="{ 'border-purple-900': showPopup }"
+			@click.self="showPopup = false"
 		>
 			<img
 				src="/sample_img/mark.png"
@@ -63,6 +65,7 @@
 		<div
 			v-if="showPopup"
 			class="hidden sm:flex popup-opt absolute bottom-16 left-20 rounded-lg p-4 w-36 h-40 transition-all duration-500"
+			@click.self="showPopup = false"
 		>
 			<ul class="">
 				<div class="flex flex-col h-20 mb-2">
