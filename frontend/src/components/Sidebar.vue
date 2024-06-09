@@ -1,58 +1,66 @@
 <template>
 	<div
-		class="w-full sm:w-64 h-16 sm:min-h-screen dark-bg-color text-white p-0 sm:p-4 fixed bottom-0 sm:relative sm:bottom-auto"
+		class="w-full sm:w-64 h-14 sm:min-h-screen bg-interface p-0 sm:p-2 fixed  bottom-0 sm:bottom-auto z-10 shadow-lg"
 	>
-		<div class="hidden sm:flex flex-col items-center mb-6 p-5">
+		<div class="hidden sm:flex flex-col items-center p-5">
 			<img
-				src="/login/culturalink_logo.png"
+				src="/culturalink_brand_logo.png"
 				alt="Logo"
-				class="mr-3 sm:w-32 sm:h-32"
+				class="mr-3 sm:w-full sm:h-32"
 			/>
-			<h1
-				class="text-cl-purple font-bebas-neue text-4xl text-center mb-3 py-3 tracking-widest"
-			>
-				CULTURALINK
-			</h1>
+
 			<div class="relative">
 				<input
 					type="search"
 					placeholder="Search..."
-					class="ml-auto pl-10 h-10 outline-none text-black rounded-full"
+					class="ml-auto pl-10 h-9 outline-none text-black rounded-full shadow-md"
 				/>
 				<span
-					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-600"
+					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700"
 					>search</span
 				>
 			</div>
 		</div>
 		<ul class="flex justify-evenly h-full sm:h-72 sm:block">
 			<li
-				class="flex mb-0 sm:mb-4 justify-between"
+				:class="[
+					'flex mb-0 sm:mb-4 justify-between',
+					link.name === 'Itinerary'
+						? 'order-0 sm:order-none'
+						: 'order-2 sm:order-none',
+				]"
 				v-for="(link, index) in links"
 				:key="index"
 			>
 				<router-link
 					active-class="active"
 					:to="link.path"
-					class="flex flex-col sm:flex-row align-middle items-center text-white sm:h-12 w-20 sm:w-full"
+					class="flex flex-col sm:flex-row align-middle items-center text-prime sm:h-12 w-20 sm:w-full"
 				>
 					<span
 						:class="{ active: $route.path === link.path }"
-						class="left-border w-full h-[4px] sm:w-[4px] sm:h-full top-0 left-0 mr-0 mb-5 sm:mb-0 sm:mr-3 z-50"
+						class="left-border w-full h-[4px] sm:w-[4px] sm:h-full top-0 left-0 mr-0 mb-3 sm:mb-0 sm:mr-3 z-50"
 					></span
-					><span class="material-icons-outlined sm:pr-3">{{
-						link.label
-					}}</span>
-					<span class="hidden sm:flex">{{
+					><span
+						:class="{ active: $route.path === link.path }"
+						class="side-icons material-icons-outlined sm:pr-3"
+						>{{ link.label }}</span
+					>
+					<span class="hidden sm:flex font-montserrat">{{
 						link.name
-					}}</span></router-link
+					}}</span
+					><span
+						v-if="link.name === 'Notification'"
+						class="absolute top-1 right-14 sm:relative sm:top-0 sm:right-0 inline-flex items-center justify-center px-2 py-1 ml-16 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
+					>
+						9
+					</span></router-link
 				>
 			</li>
 		</ul>
 		<div
-		
-			class="hidden sm:flex absolute bottom-0 left-0 w-16 h-16 m-4 p-1 rounded-full border hover:border-purple-900 transition-all duration-500"
-			:class="{ 'border-purple-900': showPopup }"
+			class="hidden sm:flex absolute bottom-0 left-0 w-12 h-12 m-4 p-1 rounded-full border hover:border-light-purple transition-all duration-500"
+			:class="{ 'border-light-purple': showPopup }"
 			@click.self="showPopup = false"
 		>
 			<img
@@ -64,7 +72,7 @@
 		</div>
 		<div
 			v-if="showPopup"
-			class="hidden sm:flex popup-opt absolute bottom-16 left-20 rounded-lg p-4 w-36 h-40 transition-all duration-500"
+			class="hidden sm:flex bg-cl-purple text-prime absolute bottom-16 left-20 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg"
 			@click.self="showPopup = false"
 		>
 			<ul class="">
@@ -73,7 +81,8 @@
 						<router-link
 							to="/profile"
 							class="flex align-middle items-start pb-3"
-							><span class="material-icons-outlined pr-2"
+							><span
+								class="text-second material-icons-outlined pr-2"
 								>account_circle</span
 							>
 							<p>Profile</p></router-link
@@ -83,7 +92,8 @@
 						<router-link
 							to="/settings"
 							class="flex align-middle items-start"
-							><span class="material-icons-outlined pr-2"
+							><span
+								class="text-second material-icons-outlined pr-2"
 								>settings</span
 							>
 							<p>Settings</p></router-link
@@ -92,9 +102,10 @@
 				</div>
 				<li>
 					<router-link
-						to="/logout"
-						class="flex align-middle items-start border-t border-gray-500 pt-2"
-						><span class="material-icons-outlined pr-2"
+						to="/login"
+						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
+						@click="submitLogout"
+						><span class="text-second material-icons-outlined pr-2"
 							>logout</span
 						>
 						<p>Logout</p></router-link
@@ -106,6 +117,10 @@
 </template>
 
 <script>
+		
+
+import axios from "axios";
+
 export default {
 	name: "Sidebar",
 	data() {
@@ -115,13 +130,13 @@ export default {
 			links: [
 				{
 					name: "Home",
-					path: "/home",
+					path: "/dashboard",
 					// showIcon: true,
 					label: "home",
 				},
 				{
 					name: "Notification",
-					path: "/",
+					path: "/notifications",
 					// showIcon: true,
 					label: "notifications",
 				},
@@ -132,6 +147,42 @@ export default {
 					label: "explore",
 				},
 			],
+		};
+	},
+	setup() {
+		
+
+		const client = axios.create({
+			baseURL: "http://127.0.0.1:8000",
+			withCredentials: true,
+			timeout: 5000,
+			xsrfCookieName: "csrftoken",
+			xsrfHeaderName: "X-Csrftoken",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+
+		
+		const submitLogout = () => {
+			client.post("/api/logout").then((res) => {
+				console.log("Logged out user:", res.data);
+			});
+		};
+
+		// Watch for changes in currentUser
+		// const updateFormBtn = () => {
+		// 	registrationToggle.value = !registrationToggle.value;
+		// };
+		// const closeModal = () => {
+		// 	showLoginModal.value = false;
+		// 	showRegisterModal.value = false;
+		// };
+
+		return {
+			//login
+			
+			submitLogout,
 		};
 	},
 	methods: {
@@ -146,28 +197,22 @@ export default {
 a {
 	text-decoration: none;
 }
-a:hover {
-	color: var(--text-color-b);
+
+.side-icons.active {
+	color: #6a7fdb;
 }
-a.active {
-	color: var(--text-color-b);
-}
+
 .left-border {
 	transition: all 0.3s ease;
 	border-radius: 15px;
 	background: transparent;
 }
-
 .left-border.active {
 	transition: all 0.3s ease;
-	background: var(--text-color-b);
+	background: #6a7fdb;
 }
 
 input::placeholder {
 	color: gray;
-}
-.popup-opt {
-	background: var(--purple);
-	color: var(--text-color-a);
 }
 </style>

@@ -1,16 +1,46 @@
-
 <template>
-	<main class="h-full">
-		<router-view />
+	<main class="h-full select-none flex ">
+		<Sidebar v-if="user.isAuthenticated"  />
+		<router-view class="overflow-auto"></router-view>
 	</main>
 </template>
-
 <script>
 import Login from "./components/Login.vue";
 import Sidebar from "./components/Sidebar.vue";
+
+import axios from "axios";
+
+import { ref } from "vue";
 export default {
 	components: {
 		Sidebar,
+	},
+	data() {
+		return {
+			user: {
+				isAuthenticated: false,
+			},
+		};
+	},
+	created() {
+		const client = axios.create({
+			baseURL: "http://127.0.0.1:8000",
+		});
+		const token = localStorage.getItem("token");
+		const headers = {
+			Authorization: `Token ${token}`,
+			"Content-Type": "application/json",
+		};
+
+		client
+			.get("api/user", {})
+			.then((res) => {
+				console.log(res.data);
+				user.isAuthenticated = true;
+			})
+			.catch((error) => {
+				console.log("ERROR", error);
+			});
 	},
 };
 </script>
@@ -28,14 +58,12 @@ export default {
 	--dark-bg-theme: #1e1e1e;
 }
 
-
-.text-purple-light{
-    color: var(--text-color-b);
+.text-purple-light {
+	color: var(--text-color-b);
 }
-.dark-bg-color{
-    background: var(--dark-bg-theme);
+.dark-bg-color {
+	background: var(--dark-bg-theme);
 }
-.bg-secondary-color
 
 .cultura-text,
 .buttons,
@@ -49,6 +77,6 @@ input,
 	font-family: "Montserrat";
 }
 input::placeholder {
-	color: var(--text-color-a);
+	color:#1A193F;
 }
 </style>

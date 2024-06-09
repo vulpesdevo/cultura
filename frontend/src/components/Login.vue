@@ -1,6 +1,6 @@
 <template>
 	<section
-		class="bg-dark-theme h-screen flex flex-col justify-center sm:flex-row p-24"
+		class="bg-interface h-screen flex flex-col justify-center sm:flex-row p-24"
 	>
 		<div
 			class="logo-container sm:pl-20 flex justify-center items-center align-middle"
@@ -15,12 +15,13 @@
 			class="flex flex-col justify-center items-center w-full align-middle sm:ml-20"
 		>
 			<h3
-				class="slc pl-2 sm:pl-0 flex text-center text-white text-2xl w-72 sm:text-5xl mb-3 sm:w-auto"
+				class="slc pl-2 sm:pl-0 flex text-center text-prime text-2xl w-72 sm:text-5xl mb-3 sm:w-auto"
 			>
 				Share. Learn. Connect.
 			</h3>
 			<h1
-				class="font-bebas-neue text-6xl text-white text-center mb-6 tracking-widest sm:text-9xl"
+				@click="submitLogout"
+				class="font-bebas-neue text-6xl text-prime text-center mb-6 tracking-widest sm:text-9xl"
 			>
 				Culturalink
 			</h1>
@@ -33,29 +34,29 @@
 					placeholder="Username"
 					name="lusername"
 					v-model="username"
-					class="pl-5 bg-cl-purple rounded-full mb-4 w-80 sm:w-96 h-14"
+					class="pl-5 bg-field rounded-full mb-4 w-80 sm:w-96 h-14"
 				/>
 				<input
 					type="password"
 					name="lpassword"
 					v-model="password"
 					placeholder="Password"
-					class="pl-5 bg-cl-purple rounded-full mb-2 w-80 sm:w-96 h-14"
+					class="pl-5 bg-field rounded-full mb-2 w-80 sm:w-96 h-14"
 				/>
-				<a href="" class="text-center text-white mb-10 hover:underline"
+				<a href="" class="text-center text-second mb-10"
 					>Forgot passsword?</a
 				>
 				<input
 					type="submit"
 					value="Log in"
-					class="buttons text-3xl bg-gray-300 text-cl-purple p-2 rounded-full w-52 h-14 mb-6 hover:bg-gray-400"
+					class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light"
 				/>
 
 				<span class="flex"
-					><p class="text-white">Don't have an account?</p>
+					><p class="text-black">Don't have an account?</p>
 					<a
 						href=""
-						class="pl-3 text-blue-300"
+						class="pl-3 text-second"
 						@click.prevent="showModal = true"
 						>Sign Up Now!</a
 					></span
@@ -85,22 +86,22 @@
 					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:w-1/2"
 				>
 					<button
-						class="absolute top-0 right-0 m-2 mr-3 text-white text-2xl"
+						class="absolute top-0 right-0 m-2 mr-3 text-prime text-2xl"
 						@click="showModal = false"
 					>
 						&times;
 					</button>
 					<div
-						class="bg-dark-theme px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
+						class="bg-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
 					>
 						<h3
-							class="font-bebas-neue text-5xl pt-5 sm:text-7xl leading-6 font-medium text-white"
+							class="font-bebas-neue text-5xl pt-5 sm:text-7xl leading-6 font-medium text-prime"
 							id="modal-title"
 						>
 							SIGN UP
 						</h3>
 						<p
-							class="font-montserrat text-white pt-2 pb-5 text-lg sm:text-2xl"
+							class="font-montserrat text-prime pt-2 pb-5 text-lg sm:text-2xl"
 						>
 							Create your account
 						</p>
@@ -112,21 +113,21 @@
 										placeholder="Username"
 										name="rusername"
 										v-model="rusername"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-cl-purple"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
 									/>
 									<input
 										type="email"
 										placeholder="Email"
 										name="email"
 										v-model="email"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-cl-purple"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
 									/>
 									<input
 										type="text"
 										placeholder="Name"
 										name="name"
 										v-model="rname"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-cl-purple"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
 									/>
 								</div>
 								<div class="w-full md:w-1/2 px-3">
@@ -135,21 +136,21 @@
 										placeholder="Country"
 										name="country"
 										v-model="rcountry"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-cl-purple"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
 									/>
 									<input
 										type="password"
 										placeholder="Password"
 										name="rpassword"
 										v-model="rpassword"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-cl-purple"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
 									/>
 									<input
 										type="password"
 										placeholder="Re-enter Password"
 										name="repassword"
 										v-model="repassword"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-cl-purple"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
 									/>
 								</div>
 							</div>
@@ -167,7 +168,7 @@
 								<input
 									type="submit"
 									value="SIGN UP"
-									class="buttons text-3xl bg-gray-300 text-cl-purple p-2 rounded-full w-52 h-14 mb-6 hover:bg-gray-400"
+									class="font-bebas-neue text-interface text-3xl bg-second p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light"
 								/>
 							</div>
 						</form>
@@ -237,9 +238,11 @@ export default {
 								const token = response.data.token; // Replace with your token
 								localStorage.setItem("token", token);
 								localStorage.setItem(
-									"username",
+								"username",
 									response.data.user.username
 								);
+								document.cookie =
+									"name=value; SameSite=Lax; Secure";
 								console.log("logged in!");
 								// router.push({ name: "home" }).then(() => {
 								// 	window.location.reload();
@@ -315,7 +318,7 @@ export default {
 
 		const submitLogout = () => {
 			client.post("/api/logout").then((res) => {
-				console.log("Logged out user:", response.data);
+				console.log("Logged out user:", res.data);
 			});
 		};
 
@@ -340,7 +343,6 @@ export default {
 			rusername,
 			rpassword,
 			repassword,
-
 			//funstions
 			submitRegistration,
 			submitLogin,
@@ -349,25 +351,25 @@ export default {
 	},
 
 	methods: {},
-	created() {
-		const client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-		});
-		const token = localStorage.getItem("token");
-		const headers = {
-			Authorization: `Token ${token}`,
-			"Content-Type": "application/json",
-		};
+	// created() {
+	// 	const client = axios.create({
+	// 		baseURL: "http://127.0.0.1:8000",
+	// 	});
+	// 	const token = localStorage.getItem("token");
+	// 	const headers = {
+	// 		Authorization: `Token ${token}`,
+	// 		"Content-Type": "application/json",
+	// 	};
 
-		client
-			.get("api/user/", { headers: headers })
-			.then((res) => {
-				console.log(res.data);
-			})
-			.catch((error) => {
-				console.log("ERROR", error);
-			});
-	},
+	// 	client
+	// 		.get("api/user/", { headers: headers })
+	// 		.then((res) => {
+	// 			console.log(res.data);
+	// 		})
+	// 		.catch((error) => {
+	// 			console.log("ERROR", error);
+	// 		});
+	// },
 	mounted() {},
 };
 </script>
