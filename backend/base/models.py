@@ -9,7 +9,6 @@ from djongo.models.fields import ObjectIdField
 
 # Create your models here.
 class CulturaUser(models.Model):
-    _id = models.ObjectIdField()
     user = models.CharField(max_length=255)
     fullname = models.CharField(max_length=120)
     country = models.CharField(max_length=120, blank=True, null=True)

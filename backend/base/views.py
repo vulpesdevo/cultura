@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -21,9 +22,14 @@ class UserView(APIView):
         SessionAuthentication,
         TokenAuthentication,
     )
+
     ##
     def get(self, request):
+        authorization_header = request.headers.get("Authorization")
+        # Print the Authorization header value
+        print("Header Auth: ", authorization_header)
 
+        UserView.token_auth = str(authorization_header).replace("Token", "").strip()
         serializer = UserSerializer(request.user)
 
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
@@ -44,7 +50,7 @@ class UserRegister(APIView):
         if serializer.is_valid(raise_exception=True):
             if user := serializer.create(clean_data):
                 CulturaUser.objects.create(
-                    id=user,
+                    user=user,
                     fullname=fullname,
                     country=country,
                     email=email,
@@ -72,8 +78,11 @@ class UserLogin(APIView):
             user = serializer.check_user(data)
             # User is already authenticated, return appropriate response
             login(request, user)
+            token, create = Token.objects.get_or_create(user=user)
             # return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response({"user": serializer.data})
+            return Response(
+                {"token": token.key, "user": serializer.data}, status=status.HTTP_200_OK
+            )
 
 
 class UserLogout(APIView):
@@ -81,6 +90,11 @@ class UserLogout(APIView):
     authentication_classes = ()
 
     def post(self, request):
+
+        get_token = UserView.token_auth
+        # print("Logout Token: ", get_token.replace("Token", "").strip())
+        del_token = Token.objects.get(key=get_token)
+        del_token.delete()
         logout(request)
         return Response(status=status.HTTP_200_OK)
 
@@ -132,9 +146,7 @@ class CommentCreate(APIView):
 
         # Create the Comment instance
         comment = Comment.objects.create(
-            post=post, 
-            author=request.user, 
-            body=request.data.get("body")
+            post=post, author=request.user, body=request.data.get("body")
         )
 
         # Serialize the Comment instance

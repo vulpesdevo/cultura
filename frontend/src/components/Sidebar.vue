@@ -1,6 +1,7 @@
 <template>
 	<div
-		class="w-full sm:w-64 h-14 sm:min-h-screen bg-interface p-0 sm:p-2 fixed  bottom-0 sm:bottom-auto z-10 shadow-lg"
+		v-if="user.isAuthenticated"
+		class="w-full sm:w-64 h-14 sm:min-h-screen bg-interface p-0 sm:p-2 fixed bottom-0 sm:bottom-auto z-10 shadow-lg"
 	>
 		<div class="hidden sm:flex flex-col items-center p-5">
 			<img
@@ -102,7 +103,7 @@
 				</div>
 				<li>
 					<router-link
-						to="/login"
+						to="/"
 						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
 						@click="submitLogout"
 						><span class="text-second material-icons-outlined pr-2"
@@ -117,16 +118,17 @@
 </template>
 
 <script>
-		
-
 import axios from "axios";
-
+import router from "../routes";
 export default {
 	name: "Sidebar",
 	data() {
 		return {
 			showPopup: false,
 			isHovered: false,
+			user: {
+				isAuthenticated: false,
+			},
 			links: [
 				{
 					name: "Home",
@@ -150,8 +152,6 @@ export default {
 		};
 	},
 	setup() {
-		
-
 		const client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,
@@ -163,8 +163,7 @@ export default {
 			},
 		});
 
-		
-		const submitLogout = () => {
+		const submitLogout1 = () => {
 			client.post("/api/logout").then((res) => {
 				console.log("Logged out user:", res.data);
 			});
@@ -181,14 +180,63 @@ export default {
 
 		return {
 			//login
-			
-			submitLogout,
+
+			submitLogout1,
 		};
 	},
 	methods: {
 		togglePopup() {
 			this.showPopup = !this.showPopup;
 		},
+		submitLogout() {
+			const token = localStorage.getItem("token");
+			const headers = {
+				Authorization: `Token ${token}`,
+				"Content-Type": "application/json",
+			};
+			axios
+				.post("http://127.0.0.1:8000/api/logout", { headers: headers })
+				.then((res) => {
+					this.user.isAuthenticated = false;
+
+					localStorage.removeItem("token");
+					localStorage.removeItem("username");
+					window.scrollTo(0, 0);
+					router.push({ name: "login" }).then(() => {
+						window.location.reload();
+					});
+					console.log("User logged out");
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		},
+		// Method to reload the page
+		reloadPage() {
+			setTimeout(() => {
+				this.$router.go(0);
+			}, 500);
+		},
+	},
+	created() {
+		const client = axios.create({
+			baseURL: "http://127.0.0.1:8000",
+		});
+		const token = localStorage.getItem("token");
+		const headers = {
+			Authorization: `Token ${token}`,
+			"Content-Type": "application/json",
+		};
+
+		client
+			.get("api/user", { headers: headers })
+			.then((res) => {
+				console.log(res.data);
+				this.user.isAuthenticated = true;
+			})
+			.catch((error) => {
+				console.log("ERROR", error);
+			});
 	},
 };
 </script>

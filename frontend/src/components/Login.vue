@@ -1,26 +1,25 @@
 <template>
 	<section
-		class="bg-interface h-screen flex flex-col justify-center sm:flex-row p-24"
+		class="bg-interface h-screen w-screen flex flex-col justify-center items-center sm:flex-row p-0 sm:p-20"
 	>
 		<div
-			class="logo-container sm:pl-20 flex justify-center items-center align-middle"
+			class="logo-container sm:w-1/2  flex justify-center items-center align-middle pt-10 sm:pt-1"
 		>
 			<img
-				class="img-logo sm:w-auto sm:h-auto"
-				src="/login/culturalink_logo.png"
+				class="h-56 sm:w-screen sm:h-auto"
+				src="/culturalink_logo.png"
 				alt="cultura-logo"
 			/>
 		</div>
 		<div
-			class="flex flex-col justify-center items-center w-full align-middle sm:ml-20"
+			class="flex flex-col justify-center items-center  sm:w-1/2 align-middle text-center "
 		>
 			<h3
-				class="slc pl-2 sm:pl-0 flex text-center text-prime text-2xl w-72 sm:text-5xl mb-3 sm:w-auto"
+				class="sm:pl-0 flex text-center text-prime text-2xl  sm:text-5xl mb-3 w-auto"
 			>
 				Share. Learn. Connect.
 			</h3>
 			<h1
-				@click="submitLogout"
 				class="font-bebas-neue text-6xl text-prime text-center mb-6 tracking-widest sm:text-9xl"
 			>
 				Culturalink
@@ -64,17 +63,17 @@
 			</form>
 		</div>
 		<div
-			class="fixed z-10 inset-0 overflow-y-auto"
+			class="fixed z-50 inset-0 overflow-y-auto "
 			aria-labelledby="modal-title"
 			role="dialog"
 			aria-modal="true"
 			v-if="showModal"
 		>
 			<div
-				class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+				class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 w-screen"
 			>
 				<div
-					class="fixed inset-0 bg-black bg-opacity-70 transition-opacity"
+					class="fixed inset-0  bg-black bg-opacity-70 transition-opacity w-full"
 					aria-hidden="true"
 				></div>
 				<span
@@ -86,7 +85,7 @@
 					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:w-1/2"
 				>
 					<button
-						class="absolute top-0 right-0 m-2 mr-3 text-prime text-2xl"
+						class="absolute top-0 right-0 m-2 text-prime text-2xl"
 						@click="showModal = false"
 					>
 						&times;
@@ -182,7 +181,7 @@
 import axios from "axios";
 
 import { ref } from "vue";
-// import router from "./routes";
+import router from "../routes";
 // import emailjs from "emailjs-com";
 export default {
 	name: "register-login",
@@ -238,15 +237,14 @@ export default {
 								const token = response.data.token; // Replace with your token
 								localStorage.setItem("token", token);
 								localStorage.setItem(
-								"username",
+									"username",
 									response.data.user.username
 								);
 								document.cookie =
 									"name=value; SameSite=Lax; Secure";
 								console.log("logged in!");
-								// router.push({ name: "home" }).then(() => {
-								// 	window.location.reload();
-								// });
+								window.scrollTo(0, 0);
+								router.push({ name: "dashboard" }).then(() => {window.location.reload(); });
 							});
 					})
 					.catch((error) => {
@@ -292,7 +290,10 @@ export default {
 						"username",
 						response.data.user.username
 					);
-					// router.push({ name: "home" }).then(() => {
+					window.scrollTo(0, 0);
+					
+					
+					router.push({ name: "dashboard" }).then(() => {window.location.reload(); });
 					// 	// After navigating to the "home" route, reload the page
 					// 	const client = axios.create({
 					// 		baseURL: "http://127.0.0.1:8000",
@@ -349,7 +350,7 @@ export default {
 			submitLogout,
 		};
 	},
-
+	
 	methods: {},
 	// created() {
 	// 	const client = axios.create({

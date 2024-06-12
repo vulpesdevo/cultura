@@ -1,19 +1,19 @@
 <template>
-	<main class="h-full select-none flex ">
-		<Sidebar v-if="user.isAuthenticated"  />
-		<router-view class="overflow-auto"></router-view>
+	<main class=" select-none sm:flex">
+		<Topbar class="sm:hidden" />
+		<Sidebar  />
+		<router-view class=""></router-view>
 	</main>
 </template>
 <script>
-import Login from "./components/Login.vue";
 import Sidebar from "./components/Sidebar.vue";
-
+import Topbar from "./components/Topbar.vue";
 import axios from "axios";
 
 import { ref } from "vue";
 export default {
 	components: {
-		Sidebar,
+		Sidebar,Topbar,
 	},
 	data() {
 		return {
@@ -33,14 +33,18 @@ export default {
 		};
 
 		client
-			.get("api/user", {})
+			.get("api/user", { headers: headers })
 			.then((res) => {
 				console.log(res.data);
-				user.isAuthenticated = true;
+				this.user.isAuthenticated = true;
+				
 			})
 			.catch((error) => {
 				console.log("ERROR", error);
 			});
+	},
+	methods: {
+		
 	},
 };
 </script>
@@ -77,6 +81,6 @@ input,
 	font-family: "Montserrat";
 }
 input::placeholder {
-	color:#1A193F;
+	color: #1a193f;
 }
 </style>

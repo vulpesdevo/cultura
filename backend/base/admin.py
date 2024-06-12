@@ -4,7 +4,7 @@ from .models import CulturaUser, Post, Comment
 
 class CulturaUserAdmin(admin.ModelAdmin):
     list_display = (
-        # "_id",
+        # "id",
         "user",
         "fullname",
         "country",
