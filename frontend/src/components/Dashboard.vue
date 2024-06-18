@@ -132,7 +132,7 @@
 				</div>
 			</div>
 			<div
-				class="post-contents w-full pt-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
+				class="post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
 				v-for="post in posts"
 				:key="post._id"
 			>

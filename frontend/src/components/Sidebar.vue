@@ -2,6 +2,7 @@
 	<div
 		v-if="user.isAuthenticated"
 		class="w-full sm:w-64 h-14 sm:min-h-screen bg-interface p-0 sm:p-2 fixed bottom-0 sm:bottom-auto z-10 shadow-lg"
+		
 	>
 		<div class="hidden sm:flex flex-col items-center p-5">
 			<img
@@ -82,6 +83,7 @@
 						<router-link
 							to="/profile"
 							class="flex align-middle items-start pb-3"
+							@click="showPopup = false"
 							><span
 								class="text-second material-icons-outlined pr-2"
 								>account_circle</span
@@ -93,6 +95,7 @@
 						<router-link
 							to="/settings"
 							class="flex align-middle items-start"
+							@click="showPopup = false"
 							><span
 								class="text-second material-icons-outlined pr-2"
 								>settings</span
@@ -105,6 +108,7 @@
 					<router-link
 						to="/"
 						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
+						
 						@click="submitLogout"
 						><span class="text-second material-icons-outlined pr-2"
 							>logout</span
@@ -236,6 +240,7 @@ export default {
 			})
 			.catch((error) => {
 				console.log("ERROR", error);
+				this.user.isAuthenticated = false;
 			});
 	},
 };
