@@ -237,5 +237,7 @@ class CommentListView(APIView):
 
     def get(self, request):
         comments = Comment.objects.all()
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if comments is not None:
+            
+            serializer = CommentSerializer(comments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
