@@ -22,10 +22,11 @@ class PostAdmin(admin.ModelAdmin):
         "title",
         "author",
         "content",
+        "country",
         "date_posted",
         # "image_url",
         "likes",
-        "comments",
+        
     )
 
     def post_info(self, obj):
@@ -35,7 +36,9 @@ class PostAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = (
         # "_id",
+        "post_id",
         "author",
+        "replied_to",
         "body",
         "date_posted",
     )
@@ -46,4 +49,4 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(CulturaUser, CulturaUserAdmin)
 admin.site.register(Post, PostAdmin)
-# admin.site.register(Comment, CommentAdmin)
+admin.site.register(Comment, CommentAdmin)

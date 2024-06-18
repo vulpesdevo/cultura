@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, login, logout
+from django.shortcuts import get_object_or_404
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
@@ -11,9 +12,10 @@ from .serializers import (
     PostSerializer,
     CommentSerializer,
 )
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_username, validate_password
-from .models import CulturaUser, Post, Comment
+from .models import Post, Comment, CulturaUser
 
 
 class UserView(APIView):
@@ -105,52 +107,135 @@ User = get_user_model()
 
 
 class PostCreate(APIView):
-    def post(self, request, *args, **kwargs):
-        # Create the Post instance with comments set to null
-        post = Post.objects.create(
-            comments=None,
-            author=request.user,
-            title=request.data.get("title"),
-            body=request.data.get("body"),
-        )
-        # Serialize the Post instance
+    """
+    API view for creating and updating Post instances.
+    Only authenticated users can create or update posts.
+    Session and token authentication are used for security.
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (
+        SessionAuthentication,
+        TokenAuthentication,
+    )
+
+    def post(self, request):
+        """
+        Handles the creation of a new Post instance.
+        Extracts title, body, and country from the request data.
+        Creates a new Post object, serializes it, and returns the serialized data in the response.
+        """
+        data = request.data
+
+        title = data.get("title", "").strip()
+        body = data.get("body", "").strip()
+        country = data.get("country", "").strip()
+
+        try:
+            post = Post.objects.create(
+                
+                author=request.user,
+                title=title,
+                content=body,
+                country=country,
+            )
+        except Exception as e:
+            return Response(
+                {"error": "An error occurred while creating the post."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
         serializer = PostSerializer(post)
-        # Return a JSON response
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def put(self, request):
-        # Get the Post instance
-        post_id = request.data.get("post_id")
-        post = Post.objects.get(_id=post_id)
+    # def put(self, request):
+    #     """
+    #     Handles adding a comment to an existing Post instance.
+    #     Extracts the post ID and comment body from the request data.
+    #     Creates a new Comment object, associates it with the specified post,
+    #     serializes the comment, and returns the serialized data in the response.
+    #     """
 
-        # Create the Comment instance
-        comment = Comment.objects.create(
-            author=request.user, body=request.data.get("body")
-        )
+    #     data = request.data
+    #     post_id = data.get("post_id", "").strip()
+    #     reply = data.get("body", "").strip()
+    #     post = Post.objects.get(_id=post_id)
 
-        # Add the Comment to the Post
-        post.add_comment(comment)
+    #     comment = Comment.objects.create(
+    #         user_id=request.user, author=post.user, body=reply
+    #     )
 
-        # Serialize the Comment instance
-        serializer = CommentSerializer(comment)
+    #     post.add_comment(comment)
 
-        # Return a JSON response
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     serializer = CommentSerializer(comment)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class PostListView(APIView):
+    """
+    API view to retrieve a list of all Post instances from the database.
+    Any user, authenticated or not, is allowed to access this view.
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        posts = Post.objects.all()
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CommentCreate(APIView):
-    def post(self, request):
-        # Get the Post instance
-        post_id = request.data.get("post_id")
-        post = Post.objects.get(id=post_id)
+    """
+    API view to create a new comment for a specific post.
+    """
 
-        # Create the Comment instance
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (
+        SessionAuthentication,
+        TokenAuthentication,
+    )
+    def post(self, request):
+        """
+        Handle POST request to create a new comment.
+
+        Parameters:
+        - request: Request object containing post_id and body
+
+        Returns:
+        - Response with serialized comment data
+        """
+        data = request.data
+        post_id = data.get("post_id", "").strip()
+        reply = data.get("body", "").strip()
+        replied_to = data.get("replied_to", "").strip()
+
+        import logging
+
         comment = Comment.objects.create(
-            post=post, author=request.user, body=request.data.get("body")
+            post_id=post_id, 
+            author=request.user, 
+            replied_to= replied_to,
+            body=reply,
+        )
+        logging.info(
+            f"Comment created - Post ID: {post_id}, Author: {request.user.username}"
         )
 
-        # Serialize the Comment instance
         serializer = CommentSerializer(comment)
 
-        # Return a JSON response
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CommentListView(APIView):
+    """
+    API view to retrieve a list of all Post instances from the database.
+    Any user, authenticated or not, is allowed to access this view.
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        comments = Comment.objects.all()
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

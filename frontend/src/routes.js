@@ -9,5 +9,20 @@ const router = createRouter({
 		{ path: "/dashboard", component: Dashboard, name: "dashboard" },
 	],
 });
-
+router.beforeEach((to, from, next) => {
+	// Check if the user is logged in before accessing protected routes
+	const token = localStorage.getItem("token");
+	
+	if (to.name !== "login" && !token) {
+		// If the route is not the login page, home page, and the user is not logged in,
+		// redirect to the login page
+		next({ name: "login" });
+	} else {
+		// If the user is logged in or accessing the login page or home page, proceed to the next route
+		next();
+	}
+	if (to.name === "login") {
+		window.scrollTo(0, 0);
+	}
+});
 export default router;

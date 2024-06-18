@@ -41,7 +41,8 @@ CORS_ORIGIN_WHITELIST = (
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
-
+SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_SECURE = False
 # Application definition
 
 INSTALLED_APPS = [
@@ -108,6 +109,7 @@ DATABASES = {
         "NAME": "cultura",
     }
 }
+# AUTH_USER_MODEL = "base.AppUser"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
