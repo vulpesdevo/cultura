@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -106,9 +108,23 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "djongo",
-        "NAME": "cultura",
+        "NAME": "culturalink",
+        'CLIENT': {
+                'host': 'mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/'
+            } 
     }
 }
+# Create a new client and connect to the server
+# client = MongoClient("mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/")
+uri = "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 # AUTH_USER_MODEL = "base.AppUser"
 
 REST_FRAMEWORK = {

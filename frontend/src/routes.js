@@ -2,8 +2,15 @@ import { createRouter, createWebHistory } from "vue-router";
 import Login from "./components/Login.vue";
 import Sidebar from "./components/Sidebar.vue";
 import Dashboard from "./components/Dashboard.vue"
+<<<<<<< HEAD
 import Notifications from "./components/Notifications.vue"
 import ItineraryHome from "./components/ItineraryHome.vue"
+=======
+import Notification from "./components/Notifications.vue"
+import Profile from "./components/Profile.vue"
+
+
+>>>>>>> 49ec74304210a8d418ae49536b357e699b34b4c5
 const router = createRouter({
 	history: createWebHistory(),
 	routes: [
@@ -11,6 +18,12 @@ const router = createRouter({
 		{ path: "/", component: ItineraryHome, name: "itineraryhome" },
 		{ path: "/", component: Notifications, name: "notifications" },
 		{ path: "/dashboard", component: Dashboard, name: "dashboard" },
+		{
+			path: "/notifications",
+			component: Notification,
+			name: "notifications",
+		},
+		{ path: "/profile", component: Profile, name: "profile" },
 	],
 });
 // router.beforeEach((to, from, next) => {
