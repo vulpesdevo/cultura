@@ -18,7 +18,15 @@ class CulturaUser(models.Model):
     email = models.EmailField()
     is_active = models.BooleanField(default=True)
 
-
+class Itinerary(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    place_image = models.ImageField(upload_to='place_images/')
+    longitude = models.FloatField()
+    latitude = models.FloatField()
+    place_name = models.CharField(max_length=255)
+    description = models.TextField()
+    budget = models.FloatField() 
+    
 class Comment(models.Model):
     _id = ObjectIdField()
     post_id = models.CharField(

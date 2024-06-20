@@ -14,7 +14,7 @@
 		</div>
 		<div
 			v-if="showPopup"
-			class=" sm:flex bg-cl-purple text-prime absolute top-16 right-5 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg bg-interface"
+			class="sm:flex bg-cl-purple text-prime absolute top-16 right-5 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg bg-interface"
 			@click.self="showPopup = false"
 		>
 			<ul class="">
@@ -68,7 +68,7 @@ export default {
 		return {
 			showPopup: false,
 			user: {
-				isAuthenticated: false,
+				isAuthenticated: true,
 			},
 		};
 	},

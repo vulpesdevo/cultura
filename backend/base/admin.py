@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CulturaUser, Post, Comment
+from .models import CulturaUser, Itinerary, Post, Comment
 
 
 class CulturaUserAdmin(admin.ModelAdmin):
@@ -45,8 +45,19 @@ class CommentAdmin(admin.ModelAdmin):
 
     def comment_info(self, obj):
         return obj.description  # replace with the actual field you want to display
+class ItineraryAdmin(admin.ModelAdmin):
+    list_display = (
+        'owner',
+        'place_image',
+        'longitude',
+        'latitude',
+        'place_name',
+        'description',
+        'budget',
+    )
 
 
 admin.site.register(CulturaUser, CulturaUserAdmin)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(Itinerary, ItineraryAdmin)
