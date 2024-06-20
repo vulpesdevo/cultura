@@ -9,9 +9,10 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
 
 
+
 # Create your models here.
 class CulturaUser(models.Model):
-    user = models.CharField(max_length=255)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     fullname = models.CharField(max_length=120)
     country = models.CharField(max_length=120, blank=True, null=True)
     email = models.EmailField()

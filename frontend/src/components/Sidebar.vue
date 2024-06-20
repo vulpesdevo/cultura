@@ -2,7 +2,6 @@
 	<div
 		v-if="user.isAuthenticated"
 		class="w-full sm:w-64 h-14 sm:min-h-screen bg-interface p-0 sm:p-2 fixed bottom-0 sm:bottom-auto z-10 shadow-lg"
-		
 	>
 		<div class="hidden sm:flex flex-col items-center p-5">
 			<img
@@ -61,16 +60,22 @@
 			</li>
 		</ul>
 		<div
-			class="hidden sm:flex absolute bottom-0 left-0 w-12 h-12 m-4 p-1 rounded-full border hover:border-light-purple transition-all duration-500"
-			:class="{ 'border-light-purple': showPopup }"
+			class="hidden sm:flex items-center absolute bottom-0 left-0 w-56 h-14 m-4 p-1 rounded-lg transition-all duration-500"
 			@click.self="showPopup = false"
 		>
 			<img
 				src="/sample_img/mark.png"
 				alt="Profile"
-				class="rounded-full cursor-pointer"
+				class="rounded-full w-12 cursor-pointer"
 				@click="togglePopup"
 			/>
+			<div
+				class="flex flex-col font-montserrat pl-4 w-full font-medium "
+				v-show="user"
+			>
+				<p class="w-40 overflow-hidden whitespace-nowrap text-ellipsis text-prime">{{ user.fullname }}</p>
+				<small class="text-gray-600">@{{ user.username }}</small>
+			</div>
 		</div>
 		<div
 			v-if="showPopup"
@@ -108,7 +113,6 @@
 					<router-link
 						to="/"
 						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
-						
 						@click="submitLogout"
 						><span class="text-second material-icons-outlined pr-2"
 							>logout</span
@@ -132,6 +136,8 @@ export default {
 			isHovered: false,
 			user: {
 				isAuthenticated: false,
+				username: null,
+				fullname: null,
 			},
 			links: [
 				{
@@ -235,7 +241,9 @@ export default {
 		client
 			.get("api/user", { headers: headers })
 			.then((res) => {
-				console.log(res.data);
+				this.user.username = res.data.user.username;
+				this.user.fullname = res.data.profile.fullname;
+				// console.log(res.data.userfullname)
 				this.user.isAuthenticated = true;
 			})
 			.catch((error) => {

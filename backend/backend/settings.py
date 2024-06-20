@@ -108,23 +108,26 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "djongo",
-        "NAME": "culturalink",
-        'CLIENT': {
-                'host': 'mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/'
-            } 
+        "NAME": "cultura",
+        # 'CLIENT': {
+        #         'host': 'mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/'
+        #     } 
     }
 }
 # Create a new client and connect to the server
 # client = MongoClient("mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/")
-uri = "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
-# Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi('1'))
-# Send a ping to confirm a successful connection
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+
+# uri = "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+# # Create a new client and connect to the server
+# client = MongoClient(uri, server_api=ServerApi('1'))
+# # Send a ping to confirm a successful connection
+# try:
+#     client.admin.command('ping')
+#     print("Pinged your deployment. You successfully connected to MongoDB!")
+# except Exception as e:
+#     print(e)
+
+
 # AUTH_USER_MODEL = "base.AppUser"
 
 REST_FRAMEWORK = {

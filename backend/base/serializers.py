@@ -1,11 +1,14 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
-from .models import Post, Comment
+from .models import Post, Comment,CulturaUser
 
 UserModel = get_user_model()
 
-
+class CulturaUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CulturaUser
+        fields = "__all__"
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
@@ -42,7 +45,7 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ("id", "username","password", "email")
+        fields = ("id", "username", "email")
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:

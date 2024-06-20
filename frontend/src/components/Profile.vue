@@ -22,7 +22,7 @@
 					Mark Francis
 				</h1>
 			</div>
-			<div class="profile-details flex justify-center align-middle mb-10">
+			<div class="profile-details flex justify-center align-middle mb-10" v-show="profile">
 				<div
 					class="profile-desc text-xm sm:text-2xl flex items-start flex-col me-7 sm:me-32"
 				>
@@ -32,12 +32,12 @@
 					<h1 class="font-montserrat text-prime mb-5">Country:</h1>
 				</div>
 				<div class="profile-info text-xm sm:text-2xl flex flex-col">
-					<h1 class="font-montserrat text-prime mb-5">mark0</h1>
+					<h1 class="font-montserrat text-prime mb-5">{{profile.username}}</h1>
 					<h1 class="font-montserrat text-prime mb-5">
-						mark.galan@sdca.edu.ph
+						{{profile.email}}
 					</h1>
 					<h1 class="font-montserrat text-prime mb-5">**********</h1>
-					<h1 class="font-montserrat text-prime mb-5">Bermuda</h1>
+					<h1 class="font-montserrat text-prime mb-5">{{profile.country}}</h1>
 				</div>
 			</div>
 		</div>
@@ -105,7 +105,52 @@
 </template>
 
 <script>
+import axios from "axios";
 
+export default {
+	data() {
+		return {
+			showModal: false,
+			profile: {
+				username: "",
+				fullname: "",
+				email: "",
+				password: "",
+				country: "",
+			},
+			
+		};
+	},
+	created() {
+		const client = axios.create({
+			baseURL: "http://127.0.0.1:8000",
+		});
+		const token = localStorage.getItem("token");
+		const headers = {
+			Authorization: `Token ${token}`,
+			"Content-Type": "application/json",
+		};
+
+		client
+			.get("api/user", { headers: headers })
+			.then((res) => {
+				this.profile.username = res.data.user.username;
+				this.profile.fullname = res.data.profile.fullname;
+				this.profile.country = res.data.profile.country;
+
+				this.profile.email = res.data.profile.email;
+
+				
+
+				// console.log(res.data.userfullname)
+				this.user.isAuthenticated = true;
+			})
+			.catch((error) => {
+				console.log("ERROR", error);
+				this.user.isAuthenticated = false;
+			});
+	},
+};
 </script>
 
 <style></style>

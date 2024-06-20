@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from .serializers import (
+    CulturaUserSerializer,
     UserRegisterSerializer,
     UserLoginSerializer,
     UserSerializer,
@@ -30,11 +31,16 @@ class UserView(APIView):
         authorization_header = request.headers.get("Authorization")
         # Print the Authorization header value
         print("Header Auth: ", authorization_header)
+        from django.core import serializers
 
         UserView.token_auth = str(authorization_header).replace("Token", "").strip()
         serializer = UserSerializer(request.user)
-
-        return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+        # cultura_user = CulturaUser.objects.get(user=request.user)
+        # cultura_users = CulturaUser.objects.filter(user=request.user)
+        cult_user_name = "cultura_users.fullname"
+        cultura_user = CulturaUser.objects.get(user=request.user)
+        profile = CulturaUserSerializer(cultura_user)
+        return Response({"user": serializer.data, "userfullname": cult_user_name,"profile":profile.data}, status=status.HTTP_200_OK)
 
 
 class UserRegister(APIView):
