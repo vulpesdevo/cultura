@@ -20,7 +20,7 @@ export default {
 	data() {
 		return {
 			user: {
-				isAuthenticated: false,
+				isAuthenticated: true,
 			},
 		};
 	},

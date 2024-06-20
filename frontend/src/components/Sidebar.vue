@@ -127,7 +127,7 @@ export default {
 			showPopup: false,
 			isHovered: false,
 			user: {
-				isAuthenticated: false,
+				isAuthenticated: true,
 			},
 			links: [
 				{
