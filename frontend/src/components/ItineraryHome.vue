@@ -12,7 +12,7 @@
                 <div class="flex items-center align-middle mt-5" >
                     <img class="rounded-full w-12 shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8" src="/sample_img/mark.png" alt=""/>
                     <h1 class="font-montserrat font-semibold text-prime ml-2 pr-2 border border-l-0 border-y-0 border-r-prime hover:underline cursor-pointer sm:font-normal sm:text-2xl sm:ml-5 sm:pr-5">@Jake_Citrus</h1>
-                    <h1 class="font-montserrat text-xs text-second ml-2 sm:text-base sm:ml-5">June 19, 2024</h1>
+                    <h1 class="font-montserrat text-xs text-second ml-2 sm:text-base sm:ml-5">June 19, 2024hihihihihihiih</h1>
                 </div>
             </div>
         </div>
