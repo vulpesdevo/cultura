@@ -54,7 +54,7 @@
 					id="country-post"
 					v-model="countryPost"
 					type="text"
-
+					ref="autocompletecountry"
 					class="bg-field rounded-full pl-3 h-9 w-1/2 outline-none"
 					placeholder="Country"
 				/>
@@ -371,8 +371,26 @@ export default {
 		setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds
 		this.fetchComments();
 		setInterval(this.fetchComments, 5000);
+		this.initializeAutocompleteCountry();
 	},
 	methods: {
+		initializeAutocompleteCountry() {
+			// Ensures the DOM is updated
+			const inputElement = this.$refs.autocompletecountry;
+
+			const autocomplete = new google.maps.places.Autocomplete(
+				inputElement,
+				{
+					types: ["(regions)"],
+				}
+			);
+				
+			// getting the value of 
+			autocomplete.addListener("place_changed", () => {
+				const country = autocomplete.getPlace();
+				this.countryPost = country.formatted_address;
+			});
+		},
 		timesince(date) {
 			return moment(date).fromNow();
 		},

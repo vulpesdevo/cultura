@@ -284,10 +284,33 @@ export default {
 					new google.maps.LatLng(14.760139, 120.963712) // Northeast corner of Cavite
 				);
 
-				new google.maps.places.Autocomplete(inputElement, {
-					types: ["establishment"],
-					bounds: caviteBounds,
-					strictBounds: true, // Optional: Set to true to strictly limit results to the bounds
+				const autocomplete = new google.maps.places.Autocomplete(
+					inputElement,
+					{
+						types: ["establishment"],
+						bounds: caviteBounds,
+						strictBounds: true, // Optional: Set to true to strictly limit results to the bounds
+					}
+				);
+
+				// Add listener for the place_changed event
+				autocomplete.addListener("place_changed", () => {
+					// Get the place object from the autocomplete widget
+					const place = autocomplete.getPlace();
+
+					// Check if the place has a geometry property
+					if (place.geometry) {
+						// Extract the latitude and longitude from the place's geometry
+						const latitude = place.geometry.location.lat();
+						const longitude = place.geometry.location.lng();
+
+						// Now you can use the latitude and longitude for whatever you need
+						console.log(
+							`Selected place latitude: ${latitude}, longitude: ${longitude}`
+						);
+					} else {
+						console.log("Selected place does not have a geometry");
+					}
 				});
 			});
 		},
@@ -313,7 +336,10 @@ export default {
 					const address = response.data.error_message
 						? response.data.error_message
 						: response.data.results[0].formatted_address;
+
 					console.log(address);
+					const inputElement = this.$refs.autocomplete;
+					inputElement.value = address;
 				})
 				.catch((error) => {
 					console.log(error.message);
@@ -360,4 +386,6 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>
