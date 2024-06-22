@@ -43,8 +43,8 @@
 						<textarea
 							class="w-[93%] rounded-lg resize-none p-4 outline-none bg-gray-200"
 							name=""
-							id="post-content"
-							v-model="postContent"
+							id="set-about"
+							v-model="setAboutMe"
 							cols="30"
 							rows="4"
 							placeholder="What do you want to share?"
@@ -60,8 +60,8 @@
 					<textarea
 						class="w-[86%] rounded-lg resize-none ml-16 p-4 outline-none bg-gray-200"
 						name=""
-						id="post-content"
-						v-model="postContent"
+						id="set-tips"
+						v-model="setTips"
 						cols="30"
 						rows="4"
 						placeholder="What do you want to share?"
@@ -101,6 +101,7 @@
 						<button
 							class="h-[7%] w-auto m-2 bg-second rounded-lg"
 							@click.prevent="showModal = true"
+							@click="initializeAutocomplete"
 						>
 							Add place
 						</button>
@@ -176,8 +177,9 @@
 											<input
 												type="text"
 												placeholder="Location"
-												name="it-location"
-												id="it-location"
+												name="auto-complete"
+												ref="autocomplete"
+												id="autocomplete"
 												v-model="location"
 												class="mt-2 pl-5 w-full rounded-full h-12 bg-field"
 											/>
@@ -247,45 +249,71 @@
 <script>
 import axios from "axios";
 import { ref } from "vue";
+// import { Loader } from "@googlemaps/js-api-loader";
+
 export default {
 	data() {
-		return { showModal: false };
+		return {
+			showModal: false,
+		};
+	},
+	mounted() {
+		this.initializeAutocomplete();
+		// this.$nextTick(() => {
+		// 	try {
+		// 		new google.maps.places.Autocomplete(
+		// 			document.getElementById("auto-complete")
+		// 		);
+		// 	} catch (error) {
+		// 		console.error(
+		// 			"Error initializing Google Places Autocomplete:",
+		// 			error
+		// 		);
+		// 	}
+		// });
 	},
 	methods: {
+		initializeAutocomplete() {
+			this.$nextTick(() => {
+				// Ensures the DOM is updated
+				const inputElement = this.$refs.autocomplete;
+
+				// Define the bounds for the Cavite area
+				var caviteBounds = new google.maps.LatLngBounds(
+					new google.maps.LatLng(14.040867, 120.602865), // Southwest corner of Cavite
+					new google.maps.LatLng(14.760139, 120.963712) // Northeast corner of Cavite
+				);
+
+				new google.maps.places.Autocomplete(inputElement, {
+					types: ["establishment"],
+					bounds: caviteBounds,
+					strictBounds: true, // Optional: Set to true to strictly limit results to the bounds
+				});
+			});
+		},
 		locatorBtn() {
 			if (navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition((position) => {
-					console.log(
-						position.coords.latitude,
-						position.coords.longitude
-					);
-					this.getAddressFrom(
-						position.coords.latitude,
-						position.coords.longitude
-					);
-				});
-				(error) => {
-					console.log(error.message);
-				};
-			} else {
+				navigator.geolocation.getCurrentPosition(
+					(position) => {
+						const { latitude, longitude } = position.coords;
+						this.getAddressFrom(latitude, longitude);
+					},
+					(error) => {
+						console.log(error.message);
+					}
+				);
 			}
 		},
 		getAddressFrom(lat, long) {
 			axios
 				.get(
-					"https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
-						lat +
-						"," +
-						long +
-						"&key=AIzaSyAlo4jqabMxIygmvXtD-K0tm1HJEecnrEA"
+					`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAlo4jqabMxIygmvXtD-K0tm1HJEecnrEA`
 				)
 				.then((response) => {
-					
-					if (response.data.error_message) {
-						console.log(response.data.error_message);
-					} else {
-						console.log(response.data.results[0].formatted_address);
-					}
+					const address = response.data.error_message
+						? response.data.error_message
+						: response.data.results[0].formatted_address;
+					console.log(address);
 				})
 				.catch((error) => {
 					console.log(error.message);
@@ -293,6 +321,8 @@ export default {
 		},
 	},
 	setup() {
+		const setTips = ref("");
+		const setAboutMe = ref("");
 		const location = ref("");
 		const title = ref("");
 		const budget = ref("");
@@ -308,6 +338,7 @@ export default {
 				"Content-Type": "application/json",
 			},
 		});
+
 		const submitItinerary = () => {
 			client
 				.post("/api/login", {})
@@ -316,6 +347,8 @@ export default {
 		};
 
 		return {
+			setTips,
+			setAboutMe,
 			location,
 			title,
 			budget,

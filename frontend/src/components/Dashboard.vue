@@ -47,15 +47,16 @@
 				class="about-country font-montserrat flex my-3 items-center justify-between border-b-2 p-1"
 			>
 				<p class="hidden sm:flex text-prime">
-					What coutry is your post about?
+					What country is your post about?
 				</p>
 				<p class="flex sm:hidden text-prime">Country</p>
 				<input
 					id="country-post"
 					v-model="countryPost"
 					type="text"
+
 					class="bg-field rounded-full pl-3 h-9 w-1/2 outline-none"
-					placeholder=""
+					placeholder="Country"
 				/>
 
 				<div class="hidden sm:flex sm:w-1/5"></div>
