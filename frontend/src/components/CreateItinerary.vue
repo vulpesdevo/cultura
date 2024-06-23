@@ -293,6 +293,7 @@ export default {
 					}
 				);
 
+				// Add listener for the place_changed event
 				autocomplete.addListener("place_changed", () => {
 					// Get the place object from the autocomplete widget
 					const place = autocomplete.getPlace();
