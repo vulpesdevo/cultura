@@ -26,4 +26,4 @@ dist-ssr
 
 
 # Virtual Environment
-v-env/
+.v-env/
