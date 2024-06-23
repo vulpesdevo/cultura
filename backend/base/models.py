@@ -18,14 +18,21 @@ class CulturaUser(models.Model):
     email = models.EmailField()
     is_active = models.BooleanField(default=True)
 
+class SaveItinerary(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    itineraries= models.JSONField(default=list)
+    status = models.BooleanField(default=False)
+    
 class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    place_image = models.ImageField(upload_to='place_images/')
+    place_image = models.ImageField(upload_to='place_images/',null=True,blank=True)
+    title = models.CharField(max_length=255)
     longitude = models.FloatField()
     latitude = models.FloatField()
     place_name = models.CharField(max_length=255)
     description = models.TextField()
-    budget = models.FloatField() 
+    budget = models.FloatField(null=True,blank=True)
+    status = models.BooleanField(default=False)
     
 class Comment(models.Model):
     _id = ObjectIdField()
@@ -48,6 +55,7 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     country = models.CharField(max_length=200)
+    itinerary = models.ForeignKey(Itinerary, on_delete=models.CASCADE)
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.IntegerField(default=0)
     

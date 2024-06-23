@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col items-center align-middle w-full px-5 py-5 overflow-auto h-screen bg-field pt-20 sm:px-28 sm:ml-64 sm:pt-3">
-        <div class="text-end w-full sm:w-11/12">
-            <button class="rounded-full font-montserrat bg-second h-16 w-40 text-2xl text-white">+ Create</button>
+        <div class="flex justify-end items-center text-end w-full sm:w-11/12 h-10">
+            <router-link to="create-itinerary" class="flex items-center justify-center rounded-full font-montserrat h-full w-32 text-xl text-center bg-second text-white">+ Create</router-link>
         </div>
         
         <div class=" mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface sm:w-11/12 sm:px-6 sm:h-[650px]">

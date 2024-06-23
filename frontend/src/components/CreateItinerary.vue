@@ -10,7 +10,7 @@
 					<img
 						src="/sample_img/binondo.webp"
 						alt="sample-img-binondo"
-						class="w-full h-full rounded-2xl"
+						class="w-full h-full object-cover rounded-2xl"
 					/>
 				</div>
 				<div
@@ -97,7 +97,7 @@
 					Main Itinerary
 				</h1>
 				<div class="flex w-full h-[700px] px-16">
-					<div class="flex flex-col w-1/2 mr-5 bg-prime">
+					<div class="flex flex-col w-1/2 mr-5">
 						<button
 							class="h-[7%] w-auto m-2 bg-second rounded-lg"
 							@click.prevent="showModal = true"
@@ -106,10 +106,75 @@
 							Add place
 						</button>
 						<div
-							class="overflow-auto h-screen bg-second m-2 rounded-lg"
+							class="overflow-auto h-screen m-2 rounded-lg"
+							style="scrollbar-width: none"
+						>
+							<div
+								class="f</div>lex-col justify-center items-center w-full h-80 font-montserrat text-prime bg-stone-200 mb-3 rounded-lg"
+							>
+								<img
+									class="w-full object-cover h-2/5 rounded-lg"
+									src="/sample_img/binondo.webp"
+									alt=""
+								/>
+								<div
+									class="px-4 flex flex-col justify-evenly items-center"
+								>
+									<h1 class="text-2xl py-3 text-center">
+										Lucky Chinatown Mall
+									</h1>
+									<p class="text-justify text-sm px-4">
+										Lucky Chinatown offers a unique blend of
+										history, tradition and modern shopping
+										and world-class leisure experience.
+									</p>
+									<p
+										class="flex rounded-full bg-second w-24 h-8 text-center items-center justify-center mt-7"
+									>
+										P2000
+									</p>
+									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
+										:style="{ width: `${text.length * 10}px` }"
+									>{{ text }}</p> -->
+								</div>
+							</div>
+							<div
+								class="flex-col justify-center items-center w-full h-80 font-montserrat text-prime bg-stone-200 shadow-lg mb-3 rounded-lg"
+								v-for="(itinerary, index) in list_itineraries"
+								:key="index"
+							>
+								<img
+									class="w-full object-cover h-2/5 rounded-lg"
+									src="/sample_img/binondo.webp"
+									alt=""
+								/>
+								<div
+									class="px-4 flex flex-col justify-evenly items-center"
+								>
+									<h1 class="text-2xl py-3 text-center">
+										{{ itinerary.title }}
+									</h1>
+									<p class="text-justify text-sm px-4">
+										{{ itinerary.description }}
+									</p>
+									<p
+										class="flex rounded-full bg-second w-24 h-8 text-center items-center justify-center mt-7"
+									>
+										P{{ itinerary.budget }}
+									</p>
+									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
+										:style="{ width: `${text.length * 10}px` }"
+									>{{ text }}</p> -->
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="h-full w-1/2 px-5 pb-5 pt-2">
+						<div
+							id="the-map"
+							class="h-full w-full rounded-lg"
 						></div>
 					</div>
-					<div class="the-map h-full w-1/2 bg-prime"></div>
 				</div>
 			</div>
 		</div>
@@ -218,6 +283,13 @@
 											placeholder="Add notes, links, descriptions or whatever you want your fellow travelers to know about this place!"
 										></textarea>
 									</div>
+									<div class="">
+										<input type="text" v-model="latitude" />
+										<input
+											type="text"
+											v-model="longitude"
+										/>
+									</div>
 								</div>
 							</div>
 
@@ -255,10 +327,16 @@ export default {
 	data() {
 		return {
 			showModal: false,
+			latitude: 0,
+			longitude: 0,
+			location: null,
+			list_itineraries: [],
 		};
 	},
 	mounted() {
 		this.initializeAutocomplete();
+		this.fetchItineraries();
+		setInterval(this.fetchItineraries, 5000);
 		// this.$nextTick(() => {
 		// 	try {
 		// 		new google.maps.places.Autocomplete(
@@ -273,24 +351,67 @@ export default {
 		// });
 	},
 	methods: {
+		fetchItineraries() {
+			const token = localStorage.getItem("token");
+			const headers = {
+				Authorization: `Token ${token}`,
+				"Content-Type": "application/json",
+			};
+			const client = axios.create({
+				baseURL: "http://127.0.0.1:8000",
+				withCredentials: true,
+				timeout: 5000,
+				xsrfCookieName: "csrftoken",
+				xsrfHeaderName: "X-Csrftoken",
+				headers: headers,
+			});
+			client
+				.get("/api/itinerary")
+				.then((response) => {
+					this.list_itineraries = response.data;
+					console.log("list_itineraries:", this.list_itineraries);
+					// this.list_itineraries.forEach((item) => { ;
+					// 	this.showLocationOntheMap(latitude, longitude);
+					// });
+					const latLngList = this.list_itineraries.map((item) => ({
+						latitude: item.latitude,
+						longitude: item.longitude,
+					}));
+					// this.showLocationOntheMap(
+					// 	latLngList.latitude,
+					// 	latLngList.longitude
+					// );
+					latLngList.forEach(({ latitude, longitude }) => {
+						this.showLocationOntheMap(latitude, longitude);
+					});
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		},
+		showLocationOntheMap(latitude, longitude) {
+			// const lat = 37.7749;
+			// const lng = -122.4194;
+
+			let map = new google.maps.Map(document.getElementById("the-map"), {
+				zoom: 15,
+				center: new google.maps.LatLng(latitude, longitude),
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+			});
+			new google.maps.Marker({
+				position: new google.maps.LatLng(latitude, longitude),
+				map: map,
+			});
+		},
 		initializeAutocomplete() {
 			this.$nextTick(() => {
 				// Ensures the DOM is updated
 				const inputElement = this.$refs.autocomplete;
 
 				// Define the bounds for the Cavite area
-				var caviteBounds = new google.maps.LatLngBounds(
-					new google.maps.LatLng(14.040867, 120.602865), // Southwest corner of Cavite
-					new google.maps.LatLng(14.760139, 120.963712) // Northeast corner of Cavite
-				);
 
 				const autocomplete = new google.maps.places.Autocomplete(
-					inputElement,
-					{
-						types: ["establishment"],
-						bounds: caviteBounds,
-						strictBounds: true, // Optional: Set to true to strictly limit results to the bounds
-					}
+					inputElement
 				);
 
 				autocomplete.addListener("place_changed", () => {
@@ -300,13 +421,10 @@ export default {
 					// Check if the place has a geometry property
 					if (place.geometry) {
 						// Extract the latitude and longitude from the place's geometry
-						const latitude = place.geometry.location.lat();
-						const longitude = place.geometry.location.lng();
-
+						this.latitude = place.geometry.location.lat();
+						this.longitude = place.geometry.location.lng();
+						this.location = place.formatted_address;
 						// Now you can use the latitude and longitude for whatever you need
-						console.log(
-							`Selected place latitude: ${latitude}, longitude: ${longitude}`
-						);
 					} else {
 						console.log("Selected place does not have a geometry");
 					}
@@ -352,23 +470,41 @@ export default {
 		const title = ref("");
 		const budget = ref("");
 		const description = ref("");
+		const latitude = ref("");
+		const longitude = ref("");
 
+		const showModal = ref(false);
+		const token = localStorage.getItem("token");
+		const headers = {
+			Authorization: `Token ${token}`,
+			"Content-Type": "application/json",
+		};
 		const client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,
 			timeout: 5000,
 			xsrfCookieName: "csrftoken",
 			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				"Content-Type": "application/json",
-			},
+			headers: headers,
 		});
 
 		const submitItinerary = () => {
 			client
-				.post("/api/login", {})
-				.then((response) => {})
-				.catch((error) => {});
+				.post("/api/create-itinerary", {
+					title: title.value,
+					place_name: location.value,
+					longitude: longitude.value,
+					latitude: latitude.value,
+					budget: budget.value,
+					description: description.value,
+				})
+				.then((response) => {
+					console.log(response.data);
+					showModal.value = false;
+				})
+				.catch((error) => {
+					console.error(error);
+				});
 		};
 
 		return {
@@ -378,7 +514,10 @@ export default {
 			title,
 			budget,
 			description,
-			client,
+			latitude,
+			longitude,
+
+			showModal,
 			submitItinerary,
 		};
 	},

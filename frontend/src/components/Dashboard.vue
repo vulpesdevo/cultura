@@ -364,6 +364,9 @@ export default {
 
 			comments: [],
 			comments_in_post: [],
+
+			Itineraries: [],
+			selectedItinerary: null,
 		};
 	},
 	mounted() {
@@ -384,8 +387,8 @@ export default {
 					types: ["(regions)"],
 				}
 			);
-				
-			// getting the value of 
+
+			// getting the value of
 			autocomplete.addListener("place_changed", () => {
 				const country = autocomplete.getPlace();
 				this.countryPost = country.formatted_address;
@@ -460,6 +463,7 @@ export default {
 					console.log(error);
 				});
 		},
+		
 	},
 	setup() {
 		const categoryOption = ref("");
@@ -483,6 +487,7 @@ export default {
 		});
 
 		const submitPost = () => {
+			
 			client
 				.post("/api/posting", {
 					title: categoryOption.value,
