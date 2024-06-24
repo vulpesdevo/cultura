@@ -307,6 +307,7 @@
 										type="submit"
 										value="Save"
 										class="text-interface text-lg bg-second p-2 rounded-3xl w-32 h-14 mb-3 hover:bg-second-light"
+										@click="fetchItineraries"
 									/>
 								</div>
 							</div>
@@ -335,8 +336,13 @@ export default {
 	},
 	mounted() {
 		this.initializeAutocomplete();
+
 		this.fetchItineraries();
-		setInterval(this.fetchItineraries, 5000);
+
+		if (!this.list_itineraries) {
+			setInterval(this.fetchItineraries, 1000);
+		}
+
 		// this.$nextTick(() => {
 		// 	try {
 		// 		new google.maps.places.Autocomplete(
@@ -373,35 +379,71 @@ export default {
 					// this.list_itineraries.forEach((item) => { ;
 					// 	this.showLocationOntheMap(latitude, longitude);
 					// });
-					const latLngList = this.list_itineraries.map((item) => ({
-						latitude: item.latitude,
-						longitude: item.longitude,
-					}));
-					// this.showLocationOntheMap(
-					// 	latLngList.latitude,
-					// 	latLngList.longitude
-					// );
-					latLngList.forEach(({ latitude, longitude }) => {
-						this.showLocationOntheMap(latitude, longitude);
-					});
+					this.showLocationOntheMap();
 				})
 				.catch((error) => {
 					console.log(error);
 				});
 		},
-		showLocationOntheMap(latitude, longitude) {
+		showLocationOntheMap() {
 			// const lat = 37.7749;
 			// const lng = -122.4194;
 
-			let map = new google.maps.Map(document.getElementById("the-map"), {
-				zoom: 15,
-				center: new google.maps.LatLng(latitude, longitude),
-				mapTypeId: google.maps.MapTypeId.ROADMAP,
-			});
-			new google.maps.Marker({
-				position: new google.maps.LatLng(latitude, longitude),
+			const map = new google.maps.Map(
+				document.getElementById("the-map"),
+				{
+					mapTypeId: google.maps.MapTypeId.ROADMAP,
+					mapId: "2c9b57c42de97202",
+				}
+			);
+
+			let bounds = new google.maps.LatLngBounds();
+			const directionsService = new google.maps.DirectionsService();
+			const directionsRenderer = new google.maps.DirectionsRenderer({
 				map: map,
 			});
+
+			// Assuming the first item is the start, the last is the end, and the rest are waypoints
+			const start = this.list_itineraries[0];
+			const end = this.list_itineraries[this.list_itineraries.length - 1];
+			const waypoints = this.list_itineraries
+				.slice(1, -1)
+				.map((itinerary) => ({
+					location: new google.maps.LatLng(
+						itinerary.latitude,
+						itinerary.longitude
+					),
+					stopover: true,
+				}));
+
+			const request = {
+				origin: new google.maps.LatLng(start.latitude, start.longitude),
+				destination: new google.maps.LatLng(
+					end.latitude,
+					end.longitude
+				),
+				waypoints: waypoints,
+				travelMode: google.maps.TravelMode.DRIVING,
+				optimizeWaypoints: false, // Set to true if you want Google to reorder the waypoints for the shortest route
+			};
+
+			directionsService.route(request, (result, status) => {
+				if (status == google.maps.DirectionsStatus.OK) {
+					directionsRenderer.setDirections(result);
+				} else {
+					console.error("Directions request failed due to " + status);
+				}
+			});
+
+			// Extend bounds to include start and end
+			bounds.extend(
+				new google.maps.LatLng(start.latitude, start.longitude)
+			);
+			bounds.extend(new google.maps.LatLng(end.latitude, end.longitude));
+			map.fitBounds(bounds);
+
+			// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
+			// This is a workaround because fitBounds does not let you specify max zoom level
 		},
 		initializeAutocomplete() {
 			this.$nextTick(() => {
