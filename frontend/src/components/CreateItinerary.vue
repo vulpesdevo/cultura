@@ -1,116 +1,181 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-20 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-14 sm:pt-3"
 	>
 		<div
-			class="field-editable flex flex-col justify-start items-center w-full bg-interface rounded-2xl p-1"
+			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white rounded-2xl p-1"
 		>
-			<div class="relative title-image h-96 w-full rounded-2xl">
-				<div class="w-full h-[87%] bg-second rounded-2xl">
+			<div
+				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field sm:bg-transparent z-10"
+			>
+				<div
+					class="w-screen sm:w-full sm:h-[87%] bg-second sm:rounded-2xl"
+				>
 					<img
 						src="/sample_img/binondo.webp"
 						alt="sample-img-binondo"
-						class="w-full h-full object-cover rounded-2xl"
+						class="w-full h-full object-cover sm:rounded-2xl"
 					/>
 				</div>
 				<div
-					class="flex absolute bottom-0 left-32 bg-prime w-3/4 h-24 z-10 rounded-lg text-center items-center justify-center"
+					class="flex absolute left-[3.2rem] bottom-[4rem] sm:bottom-0 sm:left-[7.7rem] bg-prime w-3/4 h-16 sm:h-24 z-10 rounded-md text-center items-center justify-center"
 				>
 					<h1
-						class="font-bebas-neue text-interface text-center text-6xl"
+						class="font-bebas-neue text-interface text-center text-3xl sm:text-6xl"
 					>
 						BINOndo guide for 2024
 					</h1>
 				</div>
+				<div
+					class="sm:hidden flex items-center justify-center h-14 w-full"
+				>
+					<div
+						class="w-3/4 justify-center items-center font-montserrat"
+					>
+						<button
+							class="bg-second h-9 w-1/2 rounded-full"
+							:class="{
+								'bg-second text-interface':
+									currentView === 'overview',
+								'bg-transparent text-black':
+									currentView !== 'overview',
+							}"
+							@click="showItinerary('overview')"
+						>
+							Overview
+						</button>
+						<button
+							class="h-9 w-1/2 rounded-full"
+							:class="{
+								'bg-second text-interface':
+									currentView === 'itinerary',
+								'bg-transparent text-black':
+									currentView !== 'itinerary',
+							}"
+							@click="showItinerary('itinerary')"
+						>
+							Itinerary
+						</button>
+					</div>
+				</div>
 			</div>
-			<div class="flex flex-col items-center mt-10 px-16 w-full">
-				<div class="post-content flex w-full">
-					<div class="w-14 h-14 mr-4">
+
+			<section
+				class="mt-80 itinerary-1 flex flex-col items-center sm:mt-10 px-16 w-full"
+				id="overview-section"
+			>
+				<div class="post-content flex w-screen sm:w-full">
+					<div
+						class="hidden w-[9.2%] sm:flex items-start justify-center"
+					>
 						<img
 							src="/sample_img/mark.png"
 							alt="Profile"
-							class="rounded-full cursor-pointer"
+							class="w-14 h-14 rounded-full cursor-pointer"
 						/>
 					</div>
-					<div class="w-full">
+					<div class="w-full mx-3 mt-3 sm:m-0">
 						<div class="flex">
 							<p
-								class="font-montserrat text-prime text-base pb-3"
+								class="hidden sm:flex items-center justify-center font-montserrat text-prime text-base pb-3"
 							>
 								@mark0
 							</p>
+							<p
+								class="font-montserrat sm:hidden pb-1 text-lg text-prime"
+							>
+								Description
+							</p>
 						</div>
 						<textarea
-							class="w-[93%] rounded-lg resize-none p-4 outline-none bg-gray-200"
+							class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none bg-gray-200"
 							name=""
 							id="set-about"
 							v-model="setAboutMe"
 							cols="30"
-							rows="4"
+							rows="2"
 							placeholder="What do you want to share?"
 						></textarea>
 					</div>
 				</div>
-				<div class="flex flex-col w-full">
-					<label
-						for=""
-						class="font-montserrat text-prime text-xl font-semibold m-3"
-						>General Tips</label
+				<div
+					class="flex flex-col items-center justify-center w-screen sm:mx-0 sm:mt-4 sm:w-full"
+				>
+					<p
+						class="font-montserrat text-prime w-full px-3 mb-2 text-lg sm:text-xl sm:font-semibold"
 					>
-					<textarea
-						class="w-[86%] rounded-lg resize-none ml-16 p-4 outline-none bg-gray-200"
-						name=""
-						id="set-tips"
-						v-model="setTips"
-						cols="30"
-						rows="4"
-						placeholder="What do you want to share?"
-					></textarea>
+						General Tips
+					</p>
+					<div
+						class="flex items-center justify-center w-full px-3 sm:px-0 sm:w-[83%]"
+					>
+						<textarea
+							class="w-full rounded-lg resize-none p-4 outline-none bg-gray-200"
+							name=""
+							id="set-tips"
+							v-model="setTips"
+							cols="30"
+							rows="2"
+							placeholder="What do you want to share?"
+						></textarea>
+					</div>
 				</div>
 				<div
-					class="font-montserrat flex flex-col justify-center items-center w-full py-3"
+					class="font-montserrat flex flex-col justify-center items-center w-screen sm:w-full py-3"
 				>
-					<label
-						for=""
-						class="text-prime text-xl font-semibold m-3 pl-4 w-full text-left"
-						>Budgeting</label
+					<p
+						class="text-prime text-lg sm:text-xl sm:font-semibold m-3 pl-3 sm:px-2 w-full text-left"
 					>
+						Budgeting
+					</p>
 
-					<div class="flex justify-between w-3/4 h-20 text-interface">
+					<div
+						class="flex sm:justify-between w-full px-3 sm:p-0 sm:w-[83%] h-20 text-interface"
+					>
 						<div
-							class="flex flex-col justify-center items-center bg-prime w-1/2 mr-10 rounded-lg"
+							class="flex flex-col justify-center items-center bg-prime w-1/2 mr-2 rounded-lg"
 						>
 							<p class="">Total Budget</p>
 							<p class="text-2xl">₱ 2000</p>
 						</div>
 						<div
-							class="flex flex-col justify-center bg-prime w-1/2 rounded-lg p-3"
+							class="flex flex-col justify-center bg-prime w-3/4 rounded-lg p-3"
 						>
 							<p class="">Currency</p>
 							<p class="pb-1 text-xl">PHP Philippine Peso</p>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="flex flex-col h-[45rem] w-full my-5">
-				<h1 class="text-center text-prime text-xl mb-4">
+			</section>
+			<section
+				class="itinerary-2 pt-10 sm:pt-0 flex flex-col h-[45rem] w-screen sm:w-full my-5"
+				id="itinerary-section"
+			>
+				<h1
+					class="hidden sm:flex items-center justify-center text-center text-prime text-xl mb-4"
+				>
 					Main Itinerary
 				</h1>
-				<div id="the-itineraries" class="flex w-full h-[700px] px-16">
-					<div class="flex flex-col w-1/2 mr-5">
+				<div
+					id="the-itineraries"
+					class="flex justify-center w-full h-auto sm:h-[700px] px-3 pb-5 sm:px-16"
+				>
+					<div
+						class="flex flex-col justify-center-center w-full sm:w-1/2 m-0 sm:mr-5 pb-5 sm:pb-0"
+					>
 						<button
-							class="h-[7%] w-auto m-2 bg-second rounded-lg"
+							class="font-montserrat text-interface h-10 sm:h-[7%] w-auto mb-2 bg-second rounded-lg"
 							@click.prevent="showModal = true"
 							@click="initializeAutocomplete"
 						>
 							Add place
 						</button>
 						<div
-							class="overflow-auto h-screen m-2 rounded-lg"
+							class="sm:overflow-auto h-screen rounded-lg"
 							style="scrollbar-width: none"
 						>
 							<div
-								class="f</div>lex-col justify-center items-center w-full h-80 font-montserrat text-prime bg-stone-200 mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-interface drop-shadow-md mb-3 rounded-lg"
 							>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
@@ -118,28 +183,32 @@
 									alt=""
 								/>
 								<div
-									class="px-4 flex flex-col justify-evenly items-center"
+									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
 								>
 									<h1 class="text-2xl py-3 text-center">
 										Lucky Chinatown Mall
 									</h1>
-									<p class="text-justify text-sm px-4">
+									<p
+										class="text-justify text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16"
+									>
 										Lucky Chinatown offers a unique blend of
 										history, tradition and modern shopping
 										and world-class leisure experience.
 									</p>
-									<p
-										class="flex rounded-full bg-second w-24 h-8 text-center items-center justify-center mt-7"
+									<div
+										class="flex w-full h-8 text-center items-center justify-end sm:justify-center"
 									>
-										P2000
-									</p>
+										<p class="bg-second w-24 rounded-full">
+											P2000
+										</p>
+									</div>
 									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
 										:style="{ width: `${text.length * 10}px` }"
 									>{{ text }}</p> -->
 								</div>
 							</div>
 							<div
-								class="flex-col justify-center items-center w-full h-80 font-montserrat text-prime bg-stone-200 shadow-lg mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-white sm:bg-interface drop-shadow-md mb-3 rounded-lg"
 								v-for="(itinerary, index) in list_itineraries"
 								:key="index"
 							>
@@ -149,19 +218,23 @@
 									alt=""
 								/>
 								<div
-									class="px-4 flex flex-col justify-evenly items-center"
+									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
 								>
 									<h1 class="text-2xl py-3 text-center">
 										{{ itinerary.title }}
 									</h1>
-									<p class="text-justify text-sm px-4">
+									<p
+										class="text-justify text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16"
+									>
 										{{ itinerary.description }}
 									</p>
-									<p
-										class="flex rounded-full bg-second w-24 h-8 text-center items-center justify-center mt-7"
+									<div
+										class="flex w-full h-8 text-center items-center justify-end sm:justify-center"
 									>
-										P{{ itinerary.budget }}
-									</p>
+										<p class="bg-second w-24 rounded-full">
+											P{{ itinerary.budget }}
+										</p>
+									</div>
 									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
 										:style="{ width: `${text.length * 10}px` }"
 									>{{ text }}</p> -->
@@ -169,14 +242,24 @@
 							</div>
 						</div>
 					</div>
-					<div class="h-full w-1/2 px-5 pb-5 pt-2">
+					<div
+						:class="{
+							'translate-y-0': showMap,
+							'translate-y-full': !showMap,
+						
+
+							'duration-500': true,
+							'ease-in-out': true,
+						}"
+						class="absolute sm:static sm:flex h-full items-center w-screen sm:w-1/2 rounded-lg bottom-0 left-0 transform sm:transform-none z-20 bg-interface"
+					>
 						<div
 							id="the-map"
-							class="h-full w-full rounded-lg"
+							class="the-map h-full w-full rounded-lg"
 						></div>
 					</div>
 				</div>
-			</div>
+			</section>
 		</div>
 
 		<div
@@ -199,7 +282,7 @@
 					>&#8203;</span
 				>
 				<div
-					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle w-[35%]"
+					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle w-screen sm:w-[35%]"
 				>
 					<div
 						class="bg-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
@@ -210,7 +293,7 @@
 							<p>+ Add Image</p>
 						</div>
 						<h3
-							class="font-bebas-neue text-5xl pt-5 sm:text-3xl leading-6 font-medium text-prime"
+							class="font-bebas-neue text-2xl pt-5 sm:text-3xl leading-6 font-medium text-prime"
 							id="modal-title"
 						>
 							add place
@@ -270,11 +353,11 @@
 										/>
 									</div>
 									<div class="flex flex-col mt-2">
-										<label for="it-description"
+										<label for="it-description "
 											>Add description</label
 										>
 										<textarea
-											class="rounded-lg resize-none p-4 outline-none bg-field"
+											class="rounded-lg resize-none mt-2 p-4 outline-none bg-field"
 											name=""
 											id="it-description"
 											v-model="description"
@@ -283,7 +366,7 @@
 											placeholder="Add notes, links, descriptions or whatever you want your fellow travelers to know about this place!"
 										></textarea>
 									</div>
-									<div class="">
+									<div class="hidden">
 										<input type="text" v-model="latitude" />
 										<input
 											type="text"
@@ -315,6 +398,14 @@
 				</div>
 			</div>
 		</div>
+		<!-- Floating Action Button -->
+		<button
+			class="flex sm:hidden items-center justify-center fixed bottom-20 right-5 bg-second active:bg-prime text-white font-bold rounded-full h-16 w-16 z-50"
+			@click="toggleMap"
+		>
+			<span class="material-icons-outlined"> map </span>
+			<!-- Icon or text for your button -->
+		</button>
 	</div>
 </template>
 
@@ -342,7 +433,18 @@ export default {
 			longitude: 0,
 			location: null,
 			list_itineraries: [],
+
+			// This property controls which view is currently visible
+			currentView: "itinerary", // 'overview' or 'itinerary'
+			showMap: false,
 		};
+	},
+	computed: {
+		// Define isMobile as a computed property
+		isMobile() {
+			// This example uses 768px as the threshold for mobile devices
+			return window.innerWidth < 768;
+		},
 	},
 	created() {
 		const token = localStorage.getItem("token");
@@ -364,6 +466,26 @@ export default {
 		this.initializeAutocomplete();
 	},
 	methods: {
+		toggleMap() {
+			this.showMap = !this.showMap;
+		},
+		showItinerary(view) {
+			this.currentView = view; // Assuming you have a currentView data property to track the active view
+			if (view === "overview") {
+				// If the overview is selected, scroll to the top of the page
+				window.scrollTo({
+					top: 0,
+					behavior: "smooth",
+				});
+			} else {
+				// For other sections, find the section and scroll into view
+				const sectionId = view + "-section"; // Construct the section ID based on the view
+				const section = document.getElementById(sectionId);
+				if (section) {
+					section.scrollIntoView({ behavior: "smooth" });
+				}
+			}
+		},
 		submitItinerary() {
 			this.client
 				.post("/api/create-itinerary", {
@@ -469,7 +591,7 @@ export default {
 				console.log("list_itineraries:", this.list_itineraries);
 				// Sort the itineraries by proximity before showing them on the map
 
-				// await this.sortItinerariesByProximity();
+				await this.sortItinerariesByProximity();
 				this.showLocationOntheMap();
 			} catch (error) {
 				console.log(error);
