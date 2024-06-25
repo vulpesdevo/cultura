@@ -71,6 +71,7 @@
             </div>
             <h1 class="text-[#887D7D] font-montserrat text-lg mb-3 sm:text-2xl sm:ms-14 sm:mb-10">Customize where you want your notifications to show up. </h1>
             <div class="flex-col w-full">
+                <!-- test -->
                 <!-- <span class="text-prime font-montserrat text-lg mb-3 sm:text-2xl sm:ms-14 sm:mb-7">In-app Notifications</span> -->
                 <div class="flex sm:mb-4">
                     <label class="flex justify-end items-center cursor-pointer select-none text-dark dark:text-white">
