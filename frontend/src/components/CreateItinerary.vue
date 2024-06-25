@@ -96,7 +96,7 @@
 				<h1 class="text-center text-prime text-xl mb-4">
 					Main Itinerary
 				</h1>
-				<div class="flex w-full h-[700px] px-16">
+				<div id="the-itineraries" class="flex w-full h-[700px] px-16">
 					<div class="flex flex-col w-1/2 mr-5">
 						<button
 							class="h-[7%] w-auto m-2 bg-second rounded-lg"
@@ -307,7 +307,6 @@
 										type="submit"
 										value="Save"
 										class="text-interface text-lg bg-second p-2 rounded-3xl w-32 h-14 mb-3 hover:bg-second-light"
-										@click="fetchItineraries"
 									/>
 								</div>
 							</div>
@@ -327,6 +326,17 @@ import { ref } from "vue";
 export default {
 	data() {
 		return {
+			setTips: "",
+			setAboutMe: "",
+			location: "",
+			title: "",
+			budget: "",
+			description: "",
+			latitude: "",
+			longitude: "",
+			showModal: false,
+			client: null, // Initialize axios client later
+
 			showModal: false,
 			latitude: 0,
 			longitude: 0,
@@ -334,30 +344,112 @@ export default {
 			list_itineraries: [],
 		};
 	},
+	created() {
+		const token = localStorage.getItem("token");
+		const headers = {
+			Authorization: `Token ${token}`,
+			"Content-Type": "application/json",
+		};
+		this.client = axios.create({
+			baseURL: "http://127.0.0.1:8000",
+			withCredentials: true,
+			timeout: 5000,
+			xsrfCookieName: "csrftoken",
+			xsrfHeaderName: "X-Csrftoken",
+			headers: headers,
+		});
+		this.fetchItineraries();
+	},
 	mounted() {
 		this.initializeAutocomplete();
-
-		this.fetchItineraries();
-
-		if (!this.list_itineraries) {
-			setInterval(this.fetchItineraries, 1000);
-		}
-
-		// this.$nextTick(() => {
-		// 	try {
-		// 		new google.maps.places.Autocomplete(
-		// 			document.getElementById("auto-complete")
-		// 		);
-		// 	} catch (error) {
-		// 		console.error(
-		// 			"Error initializing Google Places Autocomplete:",
-		// 			error
-		// 		);
-		// 	}
-		// });
 	},
 	methods: {
-		fetchItineraries() {
+		submitItinerary() {
+			this.client
+				.post("/api/create-itinerary", {
+					title: this.title,
+					place_name: this.location,
+					longitude: this.longitude,
+					latitude: this.latitude,
+					budget: this.budget,
+					description: this.description,
+				})
+				.then((response) => {
+					console.log(response.data);
+					this.showModal = false;
+					this.fetchItineraries();
+				})
+				.catch((error) => {
+					console.error(error);
+				});
+		},
+		getCurrentLocation() {
+			return new Promise((resolve, reject) => {
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(
+						(position) => {
+							resolve({
+								latitude: position.coords.latitude,
+								longitude: position.coords.longitude,
+							});
+						},
+						(error) => {
+							reject(error);
+						}
+					);
+				} else {
+					reject(
+						new Error(
+							"Geolocation is not supported by this browser."
+						)
+					);
+				}
+			});
+		},
+
+		// Step 2 & 3: Calculate Distances and Sort Itineraries
+		async sortItinerariesByProximity() {
+			try {
+				const currentLocation = await this.getCurrentLocation();
+				this.list_itineraries.forEach((itinerary) => {
+					itinerary.distance = this.calculateDistance(
+						currentLocation.latitude,
+						currentLocation.longitude,
+						itinerary.latitude,
+						itinerary.longitude
+					);
+				});
+
+				this.list_itineraries.sort((a, b) => a.distance - b.distance);
+
+				// After sorting, you can now update the map
+				this.showLocationOntheMap();
+			} catch (error) {
+				console.error(error);
+			}
+		},
+
+		// Helper Method: Calculate Distance Between Two Coordinates
+		calculateDistance(lat1, lon1, lat2, lon2) {
+			const R = 6371; // Radius of the earth in km
+			const dLat = this.deg2rad(lat2 - lat1);
+			const dLon = this.deg2rad(lon2 - lon1);
+			const a =
+				Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+				Math.cos(this.deg2rad(lat1)) *
+					Math.cos(this.deg2rad(lat2)) *
+					Math.sin(dLon / 2) *
+					Math.sin(dLon / 2);
+			const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+			const distance = R * c; // Distance in km
+			return distance;
+		},
+
+		// Helper Method: Convert Degrees to Radians
+		deg2rad(deg) {
+			return deg * (Math.PI / 180);
+		},
+		async fetchItineraries() {
 			const token = localStorage.getItem("token");
 			const headers = {
 				Authorization: `Token ${token}`,
@@ -371,19 +463,17 @@ export default {
 				xsrfHeaderName: "X-Csrftoken",
 				headers: headers,
 			});
-			client
-				.get("/api/itinerary")
-				.then((response) => {
-					this.list_itineraries = response.data;
-					console.log("list_itineraries:", this.list_itineraries);
-					// this.list_itineraries.forEach((item) => { ;
-					// 	this.showLocationOntheMap(latitude, longitude);
-					// });
-					this.showLocationOntheMap();
-				})
-				.catch((error) => {
-					console.log(error);
-				});
+			try {
+				const response = await client.get("/api/itinerary");
+				this.list_itineraries = response.data;
+				console.log("list_itineraries:", this.list_itineraries);
+				// Sort the itineraries by proximity before showing them on the map
+
+				// await this.sortItinerariesByProximity();
+				this.showLocationOntheMap();
+			} catch (error) {
+				console.log(error);
+			}
 		},
 		showLocationOntheMap() {
 			// const lat = 37.7749;
@@ -505,64 +595,64 @@ export default {
 				});
 		},
 	},
-	setup() {
-		const setTips = ref("");
-		const setAboutMe = ref("");
-		const location = ref("");
-		const title = ref("");
-		const budget = ref("");
-		const description = ref("");
-		const latitude = ref("");
-		const longitude = ref("");
+	// setup() {
+	// 	const setTips = ref("");
+	// 	const setAboutMe = ref("");
+	// 	const location = ref("");
+	// 	const title = ref("");
+	// 	const budget = ref("");
+	// 	const description = ref("");
+	// 	const latitude = ref("");
+	// 	const longitude = ref("");
 
-		const showModal = ref(false);
-		const token = localStorage.getItem("token");
-		const headers = {
-			Authorization: `Token ${token}`,
-			"Content-Type": "application/json",
-		};
-		const client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: headers,
-		});
+	// 	const showModal = ref(false);
+	// 	const token = localStorage.getItem("token");
+	// 	const headers = {
+	// 		Authorization: `Token ${token}`,
+	// 		"Content-Type": "application/json",
+	// 	};
+	// 	const client = axios.create({
+	// 		baseURL: "http://127.0.0.1:8000",
+	// 		withCredentials: true,
+	// 		timeout: 5000,
+	// 		xsrfCookieName: "csrftoken",
+	// 		xsrfHeaderName: "X-Csrftoken",
+	// 		headers: headers,
+	// 	});
 
-		const submitItinerary = () => {
-			client
-				.post("/api/create-itinerary", {
-					title: title.value,
-					place_name: location.value,
-					longitude: longitude.value,
-					latitude: latitude.value,
-					budget: budget.value,
-					description: description.value,
-				})
-				.then((response) => {
-					console.log(response.data);
-					showModal.value = false;
-				})
-				.catch((error) => {
-					console.error(error);
-				});
-		};
+	// 	const submitItinerary = () => {
+	// 		client
+	// 			.post("/api/create-itinerary", {
+	// 				title: title.value,
+	// 				place_name: location.value,
+	// 				longitude: longitude.value,
+	// 				latitude: latitude.value,
+	// 				budget: budget.value,
+	// 				description: description.value,
+	// 			})
+	// 			.then((response) => {
+	// 				console.log(response.data);
+	// 				showModal.value = false;
+	// 			})
+	// 			.catch((error) => {
+	// 				console.error(error);
+	// 			});
+	// 	};
 
-		return {
-			setTips,
-			setAboutMe,
-			location,
-			title,
-			budget,
-			description,
-			latitude,
-			longitude,
+	// 	return {
+	// 		setTips,
+	// 		setAboutMe,
+	// 		location,
+	// 		title,
+	// 		budget,
+	// 		description,
+	// 		latitude,
+	// 		longitude,
 
-			showModal,
-			submitItinerary,
-		};
-	},
+	// 		showModal,
+	// 		submitItinerary,
+	// 	};
+	// },
 };
 </script>
 
