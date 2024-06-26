@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from .serializers import (
     CulturaUserSerializer,
     ItinerarySerializer,
+    SaveItinerarySerializer,
     UserRegisterSerializer,
     UserLoginSerializer,
     UserSerializer,
@@ -18,7 +19,7 @@ from .serializers import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_username, validate_password
-from .models import Itinerary, Post, Comment, CulturaUser
+from .models import Itinerary, Post, Comment, CulturaUser, SaveItinerary
 
 
 class UserView(APIView):
@@ -288,4 +289,38 @@ class ItineraryListView(APIView):
         serializer = ItinerarySerializer(itineraries,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
             # Your logic to return the itineraries
+class SaveItineraryView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        data = request.data
+        main_image = data.get('main_image', None)  # Default to None if not provided
+        main_title = data.get('main_title', "").strip()
+        main_description = data.get('main_description', "").strip()
+        gen_tips = data.get('gen_tips', "").strip()
+        total_budget = data.get('total_budget', 0.0)
+        itinerary_ids = data.get('itineraries', [])
+
         
+        itinerary_save = SaveItinerary.objects.create(
+            main_image= main_image,
+            owner=request.user,
+            main_title= main_title,
+            main_description= main_description,
+            gen_tips= gen_tips,
+            total_budget= total_budget,
+            itineraries= itinerary_ids,
+        )
+        
+        
+        serializer = SaveItinerarySerializer(itinerary_save)
+            # Set the owner to the current user before saving
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+    def get(self, request):
+        # Retrieve all itineraries owned by the current user
+        itineraries = SaveItinerary.objects.filter(owner=request.user)
+        serializer = SaveItinerarySerializer(itineraries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    

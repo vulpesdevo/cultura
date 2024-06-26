@@ -23,6 +23,6 @@ urlpatterns = [
     path("create-itinerary", views.ItineraryCreate.as_view(), name="create-itinerary"),
     path("itinerary", views.ItineraryListView.as_view(), name="itineraries"),
     
-    # path("save-itinerary", views.ItineraryListView.as_view(), name="save-itinerary"),
+    path("save-itinerary", views.SaveItineraryView.as_view(), name="save-itinerary"),
     
 ]

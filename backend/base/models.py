@@ -20,12 +20,17 @@ class CulturaUser(models.Model):
 
 class SaveItinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    itineraries= models.JSONField(default=list)
+    main_image = models.ImageField(blank=True, null=True, default="default_image.jpg")
+    main_title = models.CharField(max_length=255)
+    main_description = models.CharField(max_length=255)
+    gen_tips = models.CharField(max_length=255,)
+    total_budget = models.FloatField()
+    itineraries= models.CharField(default=list, max_length=255)
     status = models.BooleanField(default=False)
     
 class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    place_image = models.ImageField(upload_to='place_images/',null=True,blank=True)
+    place_image = models.ImageField(upload_to='place_images/',blank=True, null=True, default="default_image.jpg")
     title = models.CharField(max_length=255)
     longitude = models.FloatField()
     latitude = models.FloatField()

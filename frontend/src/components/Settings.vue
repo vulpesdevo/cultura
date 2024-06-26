@@ -184,7 +184,7 @@
             <div class="flex-col sm:ml-40 w-screen -mb-5 ">
                 <div class="flex justify-normal w-full sm:px-36 py-5 bg-prime pe-3">
                     <div class="flex-col ps-3 sm:ps-3">
-                        <img class="w-40 sm:w-96 h-auto -mt-7 sm:-mt-10" src="/public/ULTURALINK-DMLong.png" alt="">
+                        <img class="w-40 sm:w-96 h-auto -mt-7 sm:-mt-10" src="/ULTURALINK-DMLong.png" alt="">
                         <div class="w-6/7 sm:w-2/5 -mt-5 sm:-mt-16">
                             <p class="text-wrap text-white text-[9px] sm:text-xs">CulturaLink is a dynamic platform designed to foster cultural exchange and travel planning through user-generated content and itineraries. This project is proudly developed by students: Gabrentina, Galan, and Tecson as part of their academic pursuit,</p>
                         </div>

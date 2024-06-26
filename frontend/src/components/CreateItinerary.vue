@@ -28,6 +28,7 @@
 				</div>
 				<div
 					class="sm:hidden flex items-center justify-center h-14 w-full"
+					id="navs"
 				>
 					<div
 						class="w-3/4 justify-center items-center font-montserrat"
@@ -42,7 +43,9 @@
 							}"
 							@click="showItinerary('overview')"
 						>
-							Overview
+							<a href="#overview-section" class="h-full w-full"
+								>Overview</a
+							>
 						</button>
 						<button
 							class="h-9 w-1/2 rounded-full"
@@ -54,7 +57,9 @@
 							}"
 							@click="showItinerary('itinerary')"
 						>
-							Itinerary
+							<a href="#itinerary-section" class="h-full w-full"
+								>Itinerary</a
+							>
 						</button>
 					</div>
 				</div>
@@ -64,6 +69,12 @@
 				class="mt-80 itinerary-1 flex flex-col items-center sm:mt-10 px-16 w-full"
 				id="overview-section"
 			>
+				<button
+					@click="saveMainItinerary"
+					class="bg-second w-full h-10 rounded-lg mb-3"
+				>
+					Save
+				</button>
 				<div class="post-content flex w-screen sm:w-full">
 					<div
 						class="hidden w-[9.2%] sm:flex items-start justify-center"
@@ -136,7 +147,7 @@
 							class="flex flex-col justify-center items-center bg-prime w-1/2 mr-2 rounded-lg"
 						>
 							<p class="">Total Budget</p>
-							<p class="text-2xl">₱ 2000</p>
+							<p class="text-2xl">₱ {{ this.total_budget }}</p>
 						</div>
 						<div
 							class="flex flex-col justify-center bg-prime w-3/4 rounded-lg p-3"
@@ -246,7 +257,6 @@
 						:class="{
 							'translate-y-0': showMap,
 							'translate-y-full': !showMap,
-						
 
 							'duration-500': true,
 							'ease-in-out': true,
@@ -417,8 +427,11 @@ import { ref } from "vue";
 export default {
 	data() {
 		return {
+			main_title: "Lucky Chinatown Mall",
 			setTips: "",
 			setAboutMe: "",
+			total_budget: 0,
+
 			location: "",
 			title: "",
 			budget: "",
@@ -433,6 +446,7 @@ export default {
 			longitude: 0,
 			location: null,
 			list_itineraries: [],
+			itineraryIds: [],
 
 			// This property controls which view is currently visible
 			currentView: "itinerary", // 'overview' or 'itinerary'
@@ -470,21 +484,48 @@ export default {
 			this.showMap = !this.showMap;
 		},
 		showItinerary(view) {
-			this.currentView = view; // Assuming you have a currentView data property to track the active view
-			if (view === "overview") {
-				// If the overview is selected, scroll to the top of the page
-				window.scrollTo({
-					top: 0,
-					behavior: "smooth",
-				});
-			} else {
-				// For other sections, find the section and scroll into view
-				const sectionId = view + "-section"; // Construct the section ID based on the view
-				const section = document.getElementById(sectionId);
-				if (section) {
-					section.scrollIntoView({ behavior: "smooth" });
+			this.currentView = view;
+
+			this.$nextTick(() => {
+				const navHeight = document.querySelector("#navs")
+					? document.querySelector("#navs").offsetHeight
+					: 0;
+				let targetSection;
+
+				if (view === "itinerary") {
+					targetSection =
+						document.getElementById("itinerary-section");
+				} else {
+					// Default to overview-section or handle other cases
+					targetSection = document.getElementById("overview-section");
 				}
-			}
+
+				if (targetSection) {
+					const offsetTop = targetSection.offsetTop - navHeight;
+
+					window.scrollTo({
+						top: offsetTop,
+						behavior: "smooth",
+					});
+				}
+			});
+		},
+		saveMainItinerary() {
+			this.client
+				.post("/api/save-itinerary", {
+					main_image: null,
+					main_title: this.main_title,
+					main_description: this.setAboutMe,
+					gen_tips: this.setTips,
+					total_budget: this.total_budget,
+					itineraries: this.itineraryIds,
+				})
+				.then((response) => {
+					console.log(response.data);
+				})
+				.catch((error) => {
+					console.error(error);
+				});
 		},
 		submitItinerary() {
 			this.client
@@ -589,6 +630,16 @@ export default {
 				const response = await client.get("/api/itinerary");
 				this.list_itineraries = response.data;
 				console.log("list_itineraries:", this.list_itineraries);
+				this.itineraryIds = this.list_itineraries.map(
+					(itinerary) => itinerary.id
+				);
+				console.log("itineraryIds:", this.itineraryIds);
+
+				this.total_budget = this.list_itineraries.reduce(
+					(sum, itinerary) => sum + itinerary.budget,
+					0
+				);
+				console.log("Total Budget:", this.total_budget);
 				// Sort the itineraries by proximity before showing them on the map
 
 				await this.sortItinerariesByProximity();

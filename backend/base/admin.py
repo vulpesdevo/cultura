@@ -61,6 +61,11 @@ class ItineraryAdmin(admin.ModelAdmin):
 class SaveItineraryAdmin(admin.ModelAdmin):
     list_display = (
         'owner',
+        'main_image',
+        'main_title',
+        'main_description',
+        'gen_tips',
+        'total_budget',
         'itineraries',
         'status'
     )
