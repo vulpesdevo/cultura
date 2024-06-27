@@ -261,7 +261,7 @@
 							'duration-500': true,
 							'ease-in-out': true,
 						}"
-						class="absolute sm:static sm:flex h-full items-center w-screen sm:w-1/2 rounded-lg bottom-0 left-0 transform sm:transform-none z-20 bg-interface"
+						class="absolute sm:static sm:flex h-full items-center w-screen sm:w-1/2 rounded-lg bottom-0 left-0 transform sm:transform-none z-20 bg-interface overflow-hidden sm:overflow-visible"
 					>
 						<div
 							id="the-map"
