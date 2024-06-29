@@ -49,6 +49,7 @@ class CommentAdmin(admin.ModelAdmin):
 class ItineraryAdmin(admin.ModelAdmin):
     list_display = (
         'owner',
+        'creator_name',
         'place_image',
         'title',
         'longitude',
@@ -61,6 +62,7 @@ class ItineraryAdmin(admin.ModelAdmin):
 class SaveItineraryAdmin(admin.ModelAdmin):
     list_display = (
         'owner',
+        'creator_name',
         'main_image',
         'main_title',
         'main_description',

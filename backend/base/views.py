@@ -137,6 +137,7 @@ class PostCreate(APIView):
         data = request.data
 
         title = data.get("title", "").strip()
+        category = data.get("category", "").strip()
         body = data.get("body", "").strip()
         country = data.get("country", "").strip()
 
@@ -145,6 +146,7 @@ class PostCreate(APIView):
                 
                 author=request.user,
                 title=title,
+                category=category,
                 content=body,
                 country=country,
             )
@@ -166,7 +168,7 @@ class PostListView(APIView):
     """
 
     permission_classes = [permissions.AllowAny]
-
+    
     def get(self, request):
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
@@ -263,6 +265,7 @@ class ItineraryCreate(APIView):
         
         itinerary = Itinerary.objects.create(
             owner=request.user,
+            creator_name=request.user.username,
             title=title, 
             longitude=longitude,
             latitude=latitude,
@@ -304,6 +307,7 @@ class SaveItineraryView(APIView):
         itinerary_save = SaveItinerary.objects.create(
             main_image= main_image,
             owner=request.user,
+            creator_name=request.user.username,
             main_title= main_title,
             main_description= main_description,
             gen_tips= gen_tips,
@@ -314,7 +318,10 @@ class SaveItineraryView(APIView):
         
         serializer = SaveItinerarySerializer(itinerary_save)
             # Set the owner to the current user before saving
-        
+        # itineraries_init = Itinerary.objects.filter(owner=request.user,status=False)
+        # for itinerary in itineraries_init:
+        #     itinerary.status = True
+        #     itinerary.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
         
     def get(self, request):

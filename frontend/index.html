@@ -49,7 +49,27 @@
 				},
 			};
 		</script>
-		<title>Cultura</title>
+		<script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            let theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+    </script>
+		<title>Culturalink</title>
 	</head>
 	<body>
 		<div id="app"></div>

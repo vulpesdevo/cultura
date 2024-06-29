@@ -87,11 +87,11 @@
 					</div>
 					<div class="w-full mx-3 mt-3 sm:m-0">
 						<div class="flex">
-							<p
+							<small
 								class="hidden sm:flex items-center justify-center font-montserrat text-prime text-base pb-3"
 							>
-								@mark0
-							</p>
+								@{{username}}
+							</small>
 							<p
 								class="font-montserrat sm:hidden pb-1 text-lg text-prime"
 							>
@@ -410,7 +410,7 @@
 		</div>
 		<!-- Floating Action Button -->
 		<button
-			class="flex sm:hidden items-center justify-center fixed bottom-20 right-5 bg-second active:bg-prime text-white font-bold rounded-full h-16 w-16 z-50"
+			class="flex sm:hidden items-center justify-center fixed bottom-20 right-5 bg-second active:bg-prime text-white font-bold rounded-full h-16 w-16 z-40"
 			@click="toggleMap"
 		>
 			<span class="material-icons-outlined"> map </span>
@@ -431,6 +431,8 @@ export default {
 			setTips: "",
 			setAboutMe: "",
 			total_budget: 0,
+
+			username:"",
 
 			location: "",
 			title: "",
@@ -474,6 +476,16 @@ export default {
 			xsrfHeaderName: "X-Csrftoken",
 			headers: headers,
 		});
+		this.client
+			.get("api/user")
+			.then((res) => {
+				this.username = res.data.user.username;
+				
+			})
+			.catch((error) => {
+				console.log("ERROR", error.message);
+				
+			});
 		this.fetchItineraries();
 	},
 	mounted() {
@@ -648,63 +660,93 @@ export default {
 				console.log(error);
 			}
 		},
+		initializeMap(latitude, longitude) {
+			new google.maps.Map(document.getElementById("the-map"), {
+				center: { lat: latitude, lng: longitude },
+				zoom: 8,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+			});
+			// Optionally, add a marker at the location
+		},
 		showLocationOntheMap() {
 			// const lat = 37.7749;
 			// const lng = -122.4194;
+			if (this.list_itineraries.length === 0) {
+				// If list_itineraries is empty, use the user's current location or a default location
+				navigator.geolocation.getCurrentPosition(
+					(position) => {
+						const { latitude, longitude } = position.coords;
+						this.initializeMap(latitude, longitude);
+					},
+					() => {
+						// Fallback to a default location if unable to get the user's location
+						const defaultLat = 37.7749; // Example default latitude
+						const defaultLng = -122.4194; // Example default longitude
+						this.initializeMap(defaultLat, defaultLng);
+					}
+				);
+			} else {
+				const map = new google.maps.Map(
+					document.getElementById("the-map"),
+					{
+						mapTypeId: google.maps.MapTypeId.ROADMAP,
+						mapId: "2c9b57c42de97202",
+					}
+				);
 
-			const map = new google.maps.Map(
-				document.getElementById("the-map"),
-				{
-					mapTypeId: google.maps.MapTypeId.ROADMAP,
-					mapId: "2c9b57c42de97202",
-				}
-			);
+				let bounds = new google.maps.LatLngBounds();
+				const directionsService = new google.maps.DirectionsService();
+				const directionsRenderer = new google.maps.DirectionsRenderer({
+					map: map,
+				});
 
-			let bounds = new google.maps.LatLngBounds();
-			const directionsService = new google.maps.DirectionsService();
-			const directionsRenderer = new google.maps.DirectionsRenderer({
-				map: map,
-			});
+				// Assuming the first item is the start, the last is the end, and the rest are waypoints
+				const start = this.list_itineraries[0];
+				const end =
+					this.list_itineraries[this.list_itineraries.length - 1];
+				const waypoints = this.list_itineraries
+					.slice(1, -1)
+					.map((itinerary) => ({
+						location: new google.maps.LatLng(
+							itinerary.latitude,
+							itinerary.longitude
+						),
+						stopover: true,
+					}));
 
-			// Assuming the first item is the start, the last is the end, and the rest are waypoints
-			const start = this.list_itineraries[0];
-			const end = this.list_itineraries[this.list_itineraries.length - 1];
-			const waypoints = this.list_itineraries
-				.slice(1, -1)
-				.map((itinerary) => ({
-					location: new google.maps.LatLng(
-						itinerary.latitude,
-						itinerary.longitude
+				const request = {
+					origin: new google.maps.LatLng(
+						start.latitude,
+						start.longitude
 					),
-					stopover: true,
-				}));
+					destination: new google.maps.LatLng(
+						end.latitude,
+						end.longitude
+					),
+					waypoints: waypoints,
+					travelMode: google.maps.TravelMode.DRIVING,
+					optimizeWaypoints: false, // Set to true if you want Google to reorder the waypoints for the shortest route
+				};
 
-			const request = {
-				origin: new google.maps.LatLng(start.latitude, start.longitude),
-				destination: new google.maps.LatLng(
-					end.latitude,
-					end.longitude
-				),
-				waypoints: waypoints,
-				travelMode: google.maps.TravelMode.DRIVING,
-				optimizeWaypoints: false, // Set to true if you want Google to reorder the waypoints for the shortest route
-			};
+				directionsService.route(request, (result, status) => {
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsRenderer.setDirections(result);
+					} else {
+						console.error(
+							"Directions request failed due to " + status
+						);
+					}
+				});
 
-			directionsService.route(request, (result, status) => {
-				if (status == google.maps.DirectionsStatus.OK) {
-					directionsRenderer.setDirections(result);
-				} else {
-					console.error("Directions request failed due to " + status);
-				}
-			});
-
-			// Extend bounds to include start and end
-			bounds.extend(
-				new google.maps.LatLng(start.latitude, start.longitude)
-			);
-			bounds.extend(new google.maps.LatLng(end.latitude, end.longitude));
-			map.fitBounds(bounds);
-
+				// Extend bounds to include start and end
+				bounds.extend(
+					new google.maps.LatLng(start.latitude, start.longitude)
+				);
+				bounds.extend(
+					new google.maps.LatLng(end.latitude, end.longitude)
+				);
+				map.fitBounds(bounds);
+			}
 			// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
 			// This is a workaround because fitBounds does not let you specify max zoom level
 		},
