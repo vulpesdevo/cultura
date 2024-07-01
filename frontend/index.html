@@ -3,7 +3,6 @@
 	<head>
 		<meta charset="UTF-8" />
 		<link rel="icon" type="image/svg+xml" href="/culturalink_logo.png" />
-
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link
 			href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
@@ -13,8 +12,16 @@
 			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 			rel="stylesheet"
 		/>
-		<!-- <link rel="stylesheet" href="./output.css" /> -->
+		
+		<!-- from cdn -->
+		
 		<script src="https://cdn.tailwindcss.com"></script>
+		<script
+			async
+			defer
+			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlo4jqabMxIygmvXtD-K0tm1HJEecnrEA&loading=async&libraries=places"
+		></script>
+
 		<script>
 			tailwind.config = {
 				theme: {
@@ -33,14 +40,41 @@
 							montserrat: ["Montserrat", "sans-serif"],
 							"bebas-neue": ["Bebas Neue", "cursive"],
 						},
+						scrollbar: {
+							none: {
+								"scrollbar-width": "none",
+							},
+						},
 					},
 				},
 			};
 		</script>
-		<title>Cultura</title>
+		<script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            let theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+    </script>
+		<title>Culturalink</title>
 	</head>
 	<body>
 		<div id="app"></div>
 		<script type="module" src="/src/main.js"></script>
+		
+		<script src="https://unpkg.com/@material-tailwind/html@latest/scripts/collapse.js"></script>
 	</body>
 </html>

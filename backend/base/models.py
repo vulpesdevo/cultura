@@ -18,14 +18,30 @@ class CulturaUser(models.Model):
     email = models.EmailField()
     is_active = models.BooleanField(default=True)
 
+class SaveItinerary(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    creator_name = models.CharField(max_length=50)
+    main_image = models.ImageField(blank=True, null=True, default="default_image.jpg")
+    main_title = models.CharField(max_length=255)
+    main_description = models.CharField(max_length=255)
+    gen_tips = models.CharField(max_length=255,)
+    total_budget = models.FloatField()
+    itineraries= models.CharField(default=list, max_length=255)
+    date_posted = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default=False)
+    
 class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    place_image = models.ImageField(upload_to='place_images/')
+    creator_name = models.CharField(max_length=50)
+    place_image = models.ImageField(upload_to='place_images/',blank=True, null=True, default="default_image.jpg")
+    title = models.CharField(max_length=255)
     longitude = models.FloatField()
     latitude = models.FloatField()
     place_name = models.CharField(max_length=255)
     description = models.TextField()
-    budget = models.FloatField() 
+    budget = models.FloatField(null=True,blank=True)
+    date_posted = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default=False)
     
 class Comment(models.Model):
     _id = ObjectIdField()
@@ -46,8 +62,10 @@ class Post(models.Model):
     _id = ObjectIdField()
     author = models.CharField(max_length=255)
     title = models.CharField(max_length=200)
+    category = models.CharField(max_length=255,default=None)
     content = models.TextField()
     country = models.CharField(max_length=200)
+    itinerary = models.ForeignKey(Itinerary, on_delete=models.CASCADE)
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.IntegerField(default=0)
     

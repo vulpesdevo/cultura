@@ -6,9 +6,32 @@
 			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
 		>
 			<div class="flex justify-between items-center">
-				<h1 class="font-bebas-neue text-lg text-prime sm:text-3xl">
-					POST TITLE
-				</h1>
+				<div>
+					<!-- Text Field for Editing -->
+					<div v-if="isEditing" class="relative">
+						<input
+							v-model="postTitle"
+							@blur="handleTitleChange"
+							@keyup.enter="handleTitleChange"
+							class="font-bebas-neue text-lg text-prime sm:text-3xl rounded-lg border-field px-2"
+							autofocus
+						/>
+						<span
+							class="absolute right-0 top-0 mt-1 material-icons-outlined text-field"
+						>
+							edit_note
+						</span>
+						<!-- Example using FontAwesome -->
+					</div>
+					<!-- Text Display -->
+					<h1
+						v-else
+						@click="isEditing = true"
+						class="font-bebas-neue text-lg text-prime sm:text-3xl"
+					>
+						{{ postTitle }}
+					</h1>
+				</div>
 				<div
 					class="drop-down-categ w-1/2 flex items-center justify-end font-montserrat"
 				>
@@ -47,15 +70,16 @@
 				class="about-country font-montserrat flex my-3 items-center justify-between border-b-2 p-1"
 			>
 				<p class="hidden sm:flex text-prime">
-					What coutry is your post about?
+					What country is your post about?
 				</p>
 				<p class="flex sm:hidden text-prime">Country</p>
 				<input
 					id="country-post"
 					v-model="countryPost"
 					type="text"
+					ref="autocompletecountry"
 					class="bg-field rounded-full pl-3 h-9 w-1/2 outline-none"
-					placeholder=""
+					placeholder="Country"
 				/>
 
 				<div class="hidden sm:flex sm:w-1/5"></div>
@@ -138,7 +162,7 @@
 			>
 				<div class="post-title flex justify-between items-center">
 					<h1 class="font-bebas-neue text-lg text-prime sm:text-2xl">
-						BEST PULLED NOODLES IN BINONDO
+						{{post.title}}
 					</h1>
 
 					<small class="text-second">{{
@@ -160,7 +184,7 @@
 								@{{ post.author }}
 							</small>
 							<small class="about-post font-montserrat">
-								{{ post.title }} | {{ post.country }}
+								{{ post.category }} | {{ post.country }}
 							</small>
 						</div>
 						<p
@@ -219,7 +243,7 @@
 								<h1
 									class="font-bebas-neue text-lg text-prime sm:text-2xl"
 								>
-									BEST PULLED NOODLES IN BINONDO
+									{{data.title}}
 								</h1>
 							</div>
 
@@ -241,7 +265,7 @@
 										<small
 											class="about-post font-montserrat"
 										>
-											{{ data.title }} |
+											{{ data.category }} |
 											{{ data.country }}
 										</small>
 									</div>
@@ -350,6 +374,8 @@ export default {
 		return {
 			auth_user: "",
 
+			isEditing: true,
+			postTitle: "POST TITLE",
 			showModal: false,
 			categoryOption: "",
 			postContent: "",
@@ -363,15 +389,60 @@ export default {
 
 			comments: [],
 			comments_in_post: [],
+
+			Itineraries: [],
+			selectedItinerary: null,
 		};
+	},
+	created() {
+		this.token = localStorage.getItem("token");
+		this.client = axios.create({
+			baseURL: "http://127.0.0.1:8000",
+			withCredentials: true,
+			timeout: 5000,
+			xsrfCookieName: "csrftoken",
+			xsrfHeaderName: "X-Csrftoken",
+			headers: {
+				Authorization: `Token ${this.token}`,
+				"Content-Type": "application/json",
+			},
+		});
+		this.initializeAutocompleteCountry();
 	},
 	mounted() {
 		this.fetchPosts();
-		setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds
+		setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds -->> polling
 		this.fetchComments();
 		setInterval(this.fetchComments, 5000);
+		
+		this.fetchComments();
+		setInterval(this.fetchComments, 5000);
+		
 	},
 	methods: {
+		handleTitleChange() {
+			if (this.postTitle.trim() === "") {
+				this.postTitle = "POST TITLE";
+			}
+			this.isEditing = false;
+		},
+		initializeAutocompleteCountry() {
+			// Ensures the DOM is updated
+			const inputElement = this.$refs.autocompletecountry;
+
+			const autocomplete = new google.maps.places.Autocomplete(
+				inputElement,
+				{
+					types: ["(regions)"],
+				}
+			);
+
+			// getting the value of
+			autocomplete.addListener("place_changed", () => {
+				const country = autocomplete.getPlace();
+				this.countryPost = country.formatted_address;
+			});
+		},
 		timesince(date) {
 			return moment(date).fromNow();
 		},
@@ -385,22 +456,39 @@ export default {
 				(comment) => comment.post_id === this.post_id
 			);
 		},
+		submitPost() {
+			if (
+				!this.categoryOption.trim() ||
+				!this.postContent.trim() ||
+				!this.countryPost.trim() ||
+				this.postTitle === "POST TITLE"
+			) {
+				alert("Please fill all fields correctly."); // Inform the user (consider using a more user-friendly notification system)
+				return; // Exit the method
+			} else {
+				this.client
+					.post("/api/posting", {
+						title: this.postTitle,
+						category: this.categoryOption,
+						body: this.postContent,
+						country: this.countryPost,
+					})
+					.then((response) => {
+						console.log(response.data);
+						this.postTitle = "POST TITLE"
+						this.categoryOption = "";
+						this.postContent = "";
+						this.countryPost = "";
+					})
+					.catch((error) => {
+						// Handle error
+					});
+			}
+		},
 
 		submitReply() {
-			const token = localStorage.getItem("token");
-			const headers = {
-				Authorization: `Token ${token}`,
-				"Content-Type": "application/json",
-			};
-			const client = axios.create({
-				baseURL: "http://127.0.0.1:8000",
-				withCredentials: true,
-				timeout: 5000,
-				xsrfCookieName: "csrftoken",
-				xsrfHeaderName: "X-Csrftoken",
-				headers: headers,
-			});
-			client
+			
+			this.client
 				.post("/api/commenting", {
 					post_id: this.post_id,
 					replied_to: this.replied_to,
@@ -442,54 +530,7 @@ export default {
 				});
 		},
 	},
-	setup() {
-		const categoryOption = ref("");
-		const postContent = ref("");
-		const countryPost = ref("");
-
-		//Reply
-
-		const token = localStorage.getItem("token");
-		const headers = {
-			Authorization: `Token ${token}`,
-			"Content-Type": "application/json",
-		};
-		const client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: headers,
-		});
-
-		const submitPost = () => {
-			client
-				.post("/api/posting", {
-					title: categoryOption.value,
-					body: postContent.value,
-					country: countryPost.value,
-				})
-				.then((response) => {
-					console.log(response.data);
-					categoryOption.value = "";
-					postContent.value = "";
-					countryPost.value = "";
-				})
-				.catch((error) => {});
-		};
-
-		return {
-			categoryOption,
-			postContent,
-			countryPost,
-			submitPost,
-
-			//reply-post
-			// replyContent,
-			// submitreply,
-		};
-	},
+	setup() {},
 };
 </script>
 <style scoped></style>

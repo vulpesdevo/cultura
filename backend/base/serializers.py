@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
-from .models import Post, Comment,CulturaUser
+from .models import Post, Comment,CulturaUser,Itinerary, SaveItinerary
 
 UserModel = get_user_model()
 
@@ -58,3 +58,12 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = "__all__"
+class ItinerarySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Itinerary
+        fields = "__all__"
+class SaveItinerarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SaveItinerary
+        fields = '__all__'

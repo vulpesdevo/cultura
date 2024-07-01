@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="user.isAuthenticated"
-		class="flex justify-between w-screen h-16 bg-interface fixed sm:top-0 p-3 z-20"
+		class="flex justify-between w-screen h-16 bg-interface fixed sm:top-0 p-3 z-50"
 	>
 		<img src="/culturalink_logo.png" alt="Logo" class="h-full w-auto" />
 		<div class="sm:flex w-10 h-full" @click.self="showPopup = false">
@@ -124,6 +124,7 @@ export default {
 			})
 			.catch((error) => {
 				console.log("ERROR", error);
+				this.user.isAuthenticated = false;
 			});
 	},
 };

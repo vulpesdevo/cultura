@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="user.isAuthenticated"
-		class="w-full sm:w-64 h-14 sm:min-h-screen bg-interface p-0 sm:p-2 fixed bottom-0 sm:bottom-auto z-10 shadow-lg"
+		class="w-full sm:w-64 h-14 sm:min-h-screen bg-white p-0 sm:p-2 fixed bottom-0 sm:bottom-auto z-50 shadow-lg"
 	>
 		<div class="hidden sm:flex flex-col items-center p-5">
 			<img
