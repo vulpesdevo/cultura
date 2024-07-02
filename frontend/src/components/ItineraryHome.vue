@@ -62,7 +62,7 @@
 		>
 			<div class="mt-2 sm:px-5 sm:pt-5 mb-10 w-full">
 				<img
-					class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-full"
+					class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
 					src="/sample_img/binondo.webp"
 					alt=""
 				/>
@@ -76,7 +76,7 @@
 						{{
 							isFullTextShown[index]
 								? itinerary.main_description
-								: itinerary.main_description.length > 500
+								: itinerary.main_description.length > 100
 								? itinerary.main_description.substring(0, 100) +"..."
 								: itinerary.main_description
 						}}
@@ -168,7 +168,7 @@ export default {
 		},
 		async fetchItineraries() {
 			try {
-				const response = await this.client.get("/api/save-itinerary");
+				const response = await this.client.get("/api/saved-itinerary");
 				this.itineraries = response.data;
 				console.log(this.itineraries);
 			} catch (error) {

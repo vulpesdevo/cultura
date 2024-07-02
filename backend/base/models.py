@@ -8,7 +8,12 @@ from djongo.models.fields import ObjectIdField
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
 
+## models.py
+from djongo.storage import GridFSStorage
+from django.conf import settings
 
+# Define your GridFSStorage instance
+# grid_fs_storage = GridFSStorage(collection='uploads', base_url=''.join([str(settings.BASE_URL), '/uploads/'])),storage=grid_fs_storage
 
 # Create your models here.
 class CulturaUser(models.Model):
@@ -21,7 +26,7 @@ class CulturaUser(models.Model):
 class SaveItinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     creator_name = models.CharField(max_length=50)
-    main_image = models.ImageField(blank=True, null=True, default="default_image.jpg")
+    main_image = models.ImageField(blank=True, null=True,upload_to='main_images' )
     main_title = models.CharField(max_length=255)
     main_description = models.CharField(max_length=255)
     gen_tips = models.CharField(max_length=255,)
@@ -33,7 +38,7 @@ class SaveItinerary(models.Model):
 class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     creator_name = models.CharField(max_length=50)
-    place_image = models.ImageField(upload_to='place_images/',blank=True, null=True, default="default_image.jpg")
+    place_image = models.ImageField(upload_to='place_images',null=True,blank=True)
     title = models.CharField(max_length=255)
     longitude = models.FloatField()
     latitude = models.FloatField()
@@ -64,8 +69,9 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     category = models.CharField(max_length=255,default=None)
     content = models.TextField()
+    image= models.ImageField(upload_to="post_images",null=True,blank=True)
     country = models.CharField(max_length=200)
-    itinerary = models.ForeignKey(Itinerary, on_delete=models.CASCADE)
+    itinerary = models.CharField(max_length=200,null=True,blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.IntegerField(default=0)
     

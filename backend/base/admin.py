@@ -17,18 +17,7 @@ class CulturaUserAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = (
-        # "_id",
-        "title",
-        "author",
-        "content",
-        "country",
-        "date_posted",
-        # "image_url",
-        "itinerary",
-        "likes",
-        
-    )
+    list_display = ('_id', 'author', 'title', 'category','image', 'country', 'date_posted', 'likes')
 
     def post_info(self, obj):
         return obj.description  # replace with the actual field you want to display

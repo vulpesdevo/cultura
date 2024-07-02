@@ -24,5 +24,6 @@ urlpatterns = [
     path("itinerary", views.ItineraryListView.as_view(), name="itineraries"),
     
     path("save-itinerary", views.SaveItineraryView.as_view(), name="save-itinerary"),
+    path("saved-itinerary", views.SaveItineraryListView.as_view(), name="saved-itinerary"),
     
 ]

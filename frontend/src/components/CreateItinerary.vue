@@ -20,11 +20,28 @@
 				<div
 					class="flex absolute left-[3.2rem] bottom-[4rem] sm:bottom-0 sm:left-[7.7rem] bg-prime w-3/4 h-16 sm:h-24 z-10 rounded-md text-center items-center justify-center"
 				>
-					<h1
-						class="font-bebas-neue text-interface text-center text-3xl sm:text-6xl"
-					>
-						BINOndo guide for 2024
-					</h1>
+					<div class="w-full mx-5">
+						<!-- Text Field for Editing -->
+						<div v-if="isEditing" class="w-full">
+							<input
+								v-model="main_title"
+								@blur="handleTitleChange"
+								@keyup.enter="handleTitleChange"
+								class="font-bebas-neue text-lg text-interface text-center bg-prime sm:text-5xl rounded-md w-full px-2"
+								autofocus
+								maxlength="30"
+							/>
+							<!-- Example using FontAwesome -->
+						</div>
+						<!-- Text Display -->
+						<h1
+							v-else
+							@click="isEditing = true"
+							class="font-bebas-neue text-lg text-interface  sm:text-5xl"
+						>
+							{{ main_title }}
+						</h1>
+					</div>
 				</div>
 				<div
 					class="sm:hidden flex items-center justify-center h-14 w-full"
@@ -90,7 +107,7 @@
 							<small
 								class="hidden sm:flex items-center justify-center font-montserrat text-prime text-base pb-3"
 							>
-								@{{username}}
+								@{{ username }}
 							</small>
 							<p
 								class="font-montserrat sm:hidden pb-1 text-lg text-prime"
@@ -427,12 +444,16 @@ import { ref } from "vue";
 export default {
 	data() {
 		return {
-			main_title: "Lucky Chinatown Mall",
+			isEditing: true,
+			main_title: "ITINERARY TITLe",
+
+
+			
 			setTips: "",
 			setAboutMe: "",
 			total_budget: 0,
 
-			username:"",
+			username: "",
 
 			location: "",
 			title: "",
@@ -480,18 +501,22 @@ export default {
 			.get("api/user")
 			.then((res) => {
 				this.username = res.data.user.username;
-				
 			})
 			.catch((error) => {
 				console.log("ERROR", error.message);
-				
 			});
 		this.fetchItineraries();
 	},
 	mounted() {
 		this.initializeAutocomplete();
 	},
-	methods: {
+		methods: {
+		handleTitleChange() {
+			if (this.main_title.trim() === "") {
+				this.main_title = "ITINERARY TITLE";
+			}
+			this.isEditing = false;
+		},
 		toggleMap() {
 			this.showMap = !this.showMap;
 		},

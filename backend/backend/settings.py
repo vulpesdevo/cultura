@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -112,6 +113,9 @@ DATABASES = {
         "ENGINE": "djongo",
         "NAME": "cultura",
         # 'CLIENT': {
+        #     'host': 'mongodb://localhost:27017/',
+        # }
+        # 'CLIENT': {
         #         'host': 'mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/'
         #     } 
     }
@@ -175,7 +179,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
-MEDIA_ROOT = "place_images"
+MEDIA_URL = "/uploads/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+# BASE_URL = 'http://127.0.0.1:8000/'
+# DEFAULT_FILE_STORAGE = 'djongo.storage.GridFSStorage'
+# UPLOADED_FILES_USE_URL = True
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 

@@ -114,7 +114,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
+# from .models import ImageModel
 class PostCreate(APIView):
     """
     API view for creating and updating Post instances.
@@ -139,17 +139,20 @@ class PostCreate(APIView):
         title = data.get("title", "").strip()
         category = data.get("category", "").strip()
         body = data.get("body", "").strip()
+        # imgs = data.get("imgs", "").strip()
+        image = request.FILES.get('image', None)
         country = data.get("country", "").strip()
-
+        print("image: ", image) 
         try:
-            post = Post.objects.create(
-                
-                author=request.user,
-                title=title,
-                category=category,
-                content=body,
-                country=country,
+            post = Post(
+            author=request.user,
+            title=title,
+            category=category,
+            content=body,
+            image=image,
+            country=country,
             )
+            post.save()
         except Exception as e:
             return Response(
                 {"error": "An error occurred while creating the post."},
@@ -171,7 +174,20 @@ class PostListView(APIView):
     
     def get(self, request):
         posts = Post.objects.all()
+        
+        # Serialize the posts
         serializer = PostSerializer(posts, many=True)
+        # Include the image URLs in the response
+       
+        for post_data in serializer.data:
+            image = post_data.get('image', None)
+            if image:
+                # Build the absolute URI for the image
+                abs_image_url = request.build_absolute_uri(image)
+                # Update the post data with the absolute URI
+                post_data['image'] = abs_image_url
+        
+        # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -323,11 +339,16 @@ class SaveItineraryView(APIView):
         #     itinerary.status = True
         #     itinerary.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+    
+    
+    
+
+class SaveItineraryListView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         # Retrieve all itineraries owned by the current user
         itineraries = SaveItinerary.objects.filter(owner=request.user)
         serializer = SaveItinerarySerializer(itineraries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    
