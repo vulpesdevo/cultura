@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-20 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full  sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-20 sm:pt-3"
 	>
 		<div
-			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
+			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
 		>
 			<div class="flex justify-between items-center">
 				<div>
@@ -135,7 +135,7 @@
 		</div>
 		<section class="posts mb-10">
 			<div
-				class="post-contents w-full pt-3 px-6 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
+				class="post-contents w-screen sm:w-full pt-3 px-6 sm:pt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
 			>
 				<div class="post-title flex justify-between items-center">
 					<h1 class="font-bebas-neue text-lg text-prime sm:text-2xl">
@@ -535,8 +535,7 @@ export default {
 		this.fetchComments();
 		setInterval(this.fetchComments, 5000);
 		this.initializeAutocompleteCountry();
-		this.fetchComments();
-		setInterval(this.fetchComments, 5000);
+		
 		this.fetchSavedItineraries();
 		setInterval(this.fetchSavedItineraries, 5000);
 	},

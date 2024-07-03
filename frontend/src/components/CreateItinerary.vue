@@ -37,7 +37,7 @@
 						<h1
 							v-else
 							@click="isEditing = true"
-							class="font-bebas-neue text-lg text-interface  sm:text-5xl"
+							class="font-bebas-neue text-lg text-interface sm:text-5xl"
 						>
 							{{ main_title }}
 						</h1>
@@ -440,15 +440,13 @@
 import axios from "axios";
 import { ref } from "vue";
 // import { Loader } from "@googlemaps/js-api-loader";
-
+import router from "../routes";
 export default {
 	data() {
 		return {
 			isEditing: true,
-			main_title: "ITINERARY TITLe",
+			main_title: "ITINERARY TITLE",
 
-
-			
 			setTips: "",
 			setAboutMe: "",
 			total_budget: 0,
@@ -510,7 +508,7 @@ export default {
 	mounted() {
 		this.initializeAutocomplete();
 	},
-		methods: {
+	methods: {
 		handleTitleChange() {
 			if (this.main_title.trim() === "") {
 				this.main_title = "ITINERARY TITLE";
@@ -558,7 +556,10 @@ export default {
 					itineraries: this.itineraryIds,
 				})
 				.then((response) => {
-					console.log(response.data);
+					window.scrollTo(0, 0);
+					router.push({ name: "itinerary" }).then(() => {
+						window.location.reload();
+					});
 				})
 				.catch((error) => {
 					console.error(error);

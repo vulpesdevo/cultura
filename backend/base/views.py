@@ -298,14 +298,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ItineraryListView(APIView):
-    
-
     permission_classes = [permissions.IsAuthenticated]
-    
     def get(self, request):
         
-        itineraries = Itinerary.objects.filter(owner=request.user,)
+        itineraries = Itinerary.objects.filter(status="onqueue",owner=request.user)
         serializer = ItinerarySerializer(itineraries,many=True)
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
             # Your logic to return the itineraries
 class SaveItineraryView(APIView):
@@ -318,7 +316,8 @@ class SaveItineraryView(APIView):
         gen_tips = data.get('gen_tips', "").strip()
         total_budget = data.get('total_budget', 0.0)
         itinerary_ids = data.get('itineraries', [])
-
+        itineraries = Itinerary.objects.filter(status="onqueue",owner=request.user)
+        itineraries.update(status='saved')
         
         itinerary_save = SaveItinerary.objects.create(
             main_image= main_image,
@@ -329,6 +328,7 @@ class SaveItineraryView(APIView):
             gen_tips= gen_tips,
             total_budget= total_budget,
             itineraries= itinerary_ids,
+            
         )
         
         

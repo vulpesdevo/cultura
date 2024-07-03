@@ -46,7 +46,7 @@ class Itinerary(models.Model):
     description = models.TextField()
     budget = models.FloatField(null=True,blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
-    status = models.BooleanField(default=False)
+    status = models.CharField(default='onqueue',max_length=255)
     
 class Comment(models.Model):
     _id = ObjectIdField()

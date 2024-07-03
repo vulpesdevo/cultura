@@ -3,7 +3,7 @@
 		class="bg-interface h-screen w-screen flex flex-col justify-center items-center sm:flex-row p-0 sm:p-20"
 	>
 		<div
-			class="logo-container sm:w-1/2  flex justify-center items-center align-middle pt-10 sm:pt-1"
+			class="logo-container sm:w-1/2 flex justify-center items-center align-middle pt-10 sm:pt-1"
 		>
 			<img
 				class="h-56 sm:w-screen sm:h-auto"
@@ -12,10 +12,10 @@
 			/>
 		</div>
 		<div
-			class="flex flex-col justify-center items-center  sm:w-1/2 align-middle text-center "
+			class="flex flex-col justify-center items-center sm:w-1/2 align-middle text-center"
 		>
 			<h3
-				class="sm:pl-0 flex text-center text-prime text-2xl  sm:text-5xl mb-3 w-auto"
+				class="sm:pl-0 flex text-center text-prime text-2xl sm:text-5xl mb-3 w-auto"
 			>
 				Share. Learn. Connect.
 			</h3>
@@ -42,8 +42,8 @@
 					placeholder="Password"
 					class="pl-5 bg-field rounded-full mb-2 w-80 sm:w-96 h-14"
 				/>
-				<a class="text-center text-second mb-10"
-					@click="toggleModal">Forgot passsword?</a
+				<a class="text-center text-second mb-10" @click="toggleModal"
+					>Forgot passsword?</a
 				>
 				<input
 					type="submit"
@@ -60,10 +60,9 @@
 					></span
 				>
 			</form>
-			
 		</div>
 		<div
-			class="fixed z-50 inset-0 overflow-y-auto "
+			class="fixed z-50 inset-0 overflow-y-auto"
 			aria-labelledby="modal-title"
 			role="dialog"
 			aria-modal="true"
@@ -73,7 +72,7 @@
 				class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 w-screen"
 			>
 				<div
-					class="fixed inset-0  bg-black bg-opacity-70 transition-opacity w-full"
+					class="fixed inset-0 bg-black bg-opacity-70 transition-opacity w-full"
 					aria-hidden="true"
 				></div>
 				<span
@@ -90,7 +89,11 @@
 					>
 						&times;
 					</button> -->
-					<span @click="showModal = false" class="flex material-icons-outlined justify-end absolute top-0 right-0 m-2 text-prime text-2xl">close</span>
+					<span
+						@click="showModal = false"
+						class="flex material-icons-outlined justify-end absolute top-0 right-0 m-2 text-prime text-2xl"
+						>close</span
+					>
 					<div
 						class="bg-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
 					>
@@ -177,144 +180,229 @@
 			</div>
 		</div>
 		<!-- Forgot Password Modal -->
-        <div v-show="modalActive" class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8">
-            <div v-if="modalActive" class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-36">
-                <span @click="modalActive = false" class="flex material-icons-outlined justify-end">close</span>
-                <h1 class="flex text-4xl sm:text-7xl text-prime font-bebas-neue my-5 justify-center">reset your password</h1>
-                <p class="flex text-center text-sm sm:text-lg my-5 mb-7  sm:my-7 px-7 sm:px-20 font-montserrat">A one-time PIN will be emailed to you to help reset your password.</p>
-                <form>
-                    <div class="flex-col mb-6 px-5 sm:px-28">
-                        <label
-                            for="email"
-                            class="flex ms-3 mb-2 text-sm font-bold text-prime justify-start"
-                            >Email</label
-                        >
-                        <input
-                            type="email"
-                            id="email"
-                            class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field"
-                            placeholder="christina.tecson@sdca.edu.ph"
-                            disabled
-                        />
-                    </div>
-                </form>
-				<div class="flex justify-center">
-					<button @click="modalOTPActive = true, modalActive = false" class="rounded-full text-xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue justify-center">Send OTP</button>
-				</div>
-            </div>
-        </div>
-        <div v-show="modalOTPActive" class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8">
-            <div v-if="modalOTPActive" class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-36">
-                <span @click="modalOTPActive = false" class="flex material-icons-outlined justify-end">close</span>
-                <h1 class="flex justify-center text-4xl sm:text-7xl text-prime font-bebas-neue my-5">ENTER ONE TIME PIN</h1>
-                <p class="flex justify-center text-sm sm:text-lg my-5 mb-7 sm:my-7 px-7 sm:px-20 font-montserrat text-center">Enter the pin sent to your email for verification</p>
+		<div
+			v-show="modalActive"
+			class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8"
+		>
+			<div
+				v-if="modalActive"
+				class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-36"
+			>
+				<span
+					@click="modalActive = false"
+					class="flex material-icons-outlined justify-end"
+					>close</span
+				>
+				<h1
+					class="flex text-4xl sm:text-7xl text-prime font-bebas-neue my-5 justify-center"
+				>
+					reset your password
+				</h1>
+				<p
+					class="flex text-center text-sm sm:text-lg my-5 mb-7 sm:my-7 px-7 sm:px-20 font-montserrat"
+				>
+					A one-time PIN will be emailed to you to help reset your
+					password.
+				</p>
 				<form>
-					<div class="flex mb-6 text-4xl sm:px-28">
-					<input
-						v-model="input1"
-						@input="moveFocus($event, 'input2')"
-						@keydown.backspace="moveBack($event, 'input0')"
-						type="text"
-						maxlength="1"
-						class="text-prime sm:text-6xl mx-1 p-2.5 pl-6 rounded-xl w-full bg-field"
-						ref="input1"
-					/>
-					<input
-						v-model="input2"
-						@input="moveFocus($event, 'input3')"
-						@keydown.backspace="moveBack($event, 'input1')"
-						type="text"
-						maxlength="1"
-						class="text-prime sm:text-6xl mx-1 p-2.5 pl-6 rounded-xl w-full bg-field"
-						ref="input2"
-					/>
-					<input
-						v-model="input3"
-						@input="moveFocus($event, 'input4')"
-						@keydown.backspace="moveBack($event, 'input2')"
-						type="text"
-						maxlength="1"
-						class="text-prime sm:text-6xl mx-1 p-2.5 pl-6 rounded-xl w-full bg-field"
-						ref="input3"
-					/>
-					<input
-						v-model="input4"
-						@input="moveFocus($event, 'input5')"
-						@keydown.backspace="moveBack($event, 'input3')"
-						type="text"
-						maxlength="1"
-						class="text-prime sm:text-6xl mx-1 p-2.5 pl-6 rounded-xl w-full bg-field"
-						ref="input4"
-					/>
-					<input
-						v-model="input5"
-						@input="moveFocus($event, 'input6')"
-						@keydown.backspace="moveBack($event, 'input4')"
-						type="text"
-						maxlength="1"
-						class="text-prime sm:text-6xl mx-1 p-2.5 pl-6 rounded-xl w-full bg-field"
-						ref="input5"
-					/>
-					<input
-						v-model="input6"
-						@keydown.backspace="moveBack($event, 'input5')"
-						type="text"
-						maxlength="1"
-						class="text-prime sm:text-6xl mx-1 p-2.5 pl-6 rounded-xl w-full bg-field"
-						ref="input6"
-					/>
+					<div class="flex-col mb-6 px-5 sm:px-28">
+						<label
+							for="email"
+							class="flex ms-3 mb-2 text-sm font-bold text-prime justify-start"
+							>Email</label
+						>
+						<input
+							type="email"
+							id="email"
+							class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field"
+							placeholder="christina.tecson@sdca.edu.ph"
+							disabled
+						/>
 					</div>
 				</form>
 				<div class="flex justify-center">
-					<button @click="modalOTPActive = false, modalChangeActive = true" class="rounded-full text-2xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue">Verify</button>
+					<button
+						@click="(modalOTPActive = true), (modalActive = false)"
+						class="rounded-full text-xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue justify-center"
+					>
+						Send OTP
+					</button>
 				</div>
-                
-            </div>
-        </div>
-		<div v-show="modalChangeActive" class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8">
-            <div v-if="modalChangeActive" class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-36">
-                <span @click="modalChangeActive = false" class="flex material-icons-outlined justify-end">close</span>
-                <h1 class="flex text-4xl sm:text-7xl text-prime font-bebas-neue my-5 justify-center">Change Password</h1>
-                <form>
-                    <div class="flex-col mb-6 px-5 sm:px-28">
-                        <label
-                            for="password"
-                            class="flex ms-3 mb-2 text-sm font-bold text-prime justify-start"
-                            >Old Password</label
-                        >
-                        <input
-                            type="password"
-                            id="password"
-                            class="sm:mb-10 text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field"
-                            placeholder="christina.tecson@sdca.edu.ph"
-                            disabled
-                        />
-						<label
-                            for="newpassword"
-                            class="flex ms-3 mb-2 text-sm font-bold text-prime justify-start"
-                            >New Password</label
-                        >
-                        <input
-                            type="password"
-                            id="newpassword"
-                            class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field"
-                            placeholder="christina.tecson@sdca.edu.ph"
-                            disabled
-                        />
-                    </div>
-                </form>
+			</div>
+		</div>
+		<div
+			v-show="modalOTPActive"
+			class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8"
+		>
+			<div
+				v-if="modalOTPActive"
+				class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-36"
+			>
+				<span
+					@click="modalOTPActive = false"
+					class="flex material-icons-outlined justify-end"
+					>close</span
+				>
+				<h1
+					class="flex justify-center text-4xl sm:text-7xl text-prime font-bebas-neue my-5"
+				>
+					ENTER ONE TIME PIN
+				</h1>
+				<p
+					class="flex justify-center text-sm sm:text-lg my-5 mb-7 sm:my-7 px-7 sm:px-20 font-montserrat text-center"
+				>
+					Enter the pin sent to your email for verification
+				</p>
+				<form>
+					<div class="flex mb-6 text-4xl text-center sm:px-28">
+						<input
+							v-model="input1"
+							@input="moveFocus($event, 'input2')"
+							@keydown.backspace="moveBack($event, 'input0')"
+							type="text"
+							maxlength="1"
+							class="text-prime text-center sm:text-5xl mx-1 px-5 py-3 rounded-xl w-full bg-field"
+							ref="input1"
+						/>
+						<input
+							v-model="input2"
+							@input="moveFocus($event, 'input3')"
+							@keydown.backspace="moveBack($event, 'input1')"
+							type="text"
+							maxlength="1"
+							class="text-prime text-center sm:text-5xl mx-1 px-5 py-3 rounded-xl w-full bg-field"
+							ref="input2"
+						/>
+						<input
+							v-model="input3"
+							@input="moveFocus($event, 'input4')"
+							@keydown.backspace="moveBack($event, 'input2')"
+							type="text"
+							maxlength="1"
+							class="text-prime text-center sm:text-5xl mx-1 px-5 py-3 rounded-xl w-full bg-field"
+							ref="input3"
+						/>
+						<input
+							v-model="input4"
+							@input="moveFocus($event, 'input5')"
+							@keydown.backspace="moveBack($event, 'input3')"
+							type="text"
+							maxlength="1"
+							class="text-prime text-center sm:text-5xl mx-1 px-5 py-3 rounded-xl w-full bg-field"
+							ref="input4"
+						/>
+						<input
+							v-model="input5"
+							@input="moveFocus($event, 'input6')"
+							@keydown.backspace="moveBack($event, 'input4')"
+							type="text"
+							maxlength="1"
+							class="text-prime text-center sm:text-5xl mx-1 px-5 py-3 rounded-xl w-full bg-field"
+							ref="input5"
+						/>
+						<input
+							v-model="input6"
+							@keydown.backspace="moveBack($event, 'input5')"
+							type="text"
+							maxlength="1"
+							class="text-prime text-center sm:text-5xl mx-1 px-5 py-3 rounded-xl w-full bg-field"
+							ref="input6"
+						/>
+					</div>
+				</form>
 				<div class="flex justify-center">
-					<button @click="modalInvalidActive = true" class="rounded-full text-xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue justify-center">Confirm</button>
+					<button
+						@click="
+							(modalOTPActive = false), (modalChangeActive = true)
+						"
+						class="rounded-full text-2xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue"
+					>
+						Verify
+					</button>
 				</div>
-            </div>
-        </div>
-		<div v-show="modalInvalidActive" class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8">
-            <div v-if="modalInvalidActive" class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-52">
-                <span @click="modalInvalidActive = false" class="flex material-icons-outlined justify-end">close</span>
-                <h1 class="flex text-4xl sm:text-7xl text-prime font-bebas-neue my-5 justify-center">invalid one time pin</h1>
-				<p class="flex justify-center text-sm sm:text-lg my-5 mb-20 sm:my-7 px-7 sm:px-28 font-montserrat text-center">It seems like you entered the wrong pin. Please try again. </p>
-            </div>
-        </div>
+			</div>
+		</div>
+		<div
+			v-show="modalChangeActive"
+			class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8"
+		>
+			<div
+				v-if="modalChangeActive"
+				class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-36"
+			>
+				<span
+					@click="modalChangeActive = false"
+					class="flex material-icons-outlined justify-end"
+					>close</span
+				>
+				<h1
+					class="flex text-4xl sm:text-7xl text-prime font-bebas-neue my-5 justify-center"
+				>
+					Change Password
+				</h1>
+				<form>
+					<div class="flex-col mb-6 px-5 sm:px-28">
+						<label
+							for="password"
+							class="flex ms-3 mb-2 text-sm font-bold text-prime justify-start"
+							>Old Password</label
+						>
+						<input
+							type="password"
+							id="password"
+							class="sm:mb-10 text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field"
+							placeholder="christina.tecson@sdca.edu.ph"
+							disabled
+						/>
+						<label
+							for="newpassword"
+							class="flex ms-3 mb-2 text-sm font-bold text-prime justify-start"
+							>New Password</label
+						>
+						<input
+							type="password"
+							id="newpassword"
+							class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field"
+							placeholder="christina.tecson@sdca.edu.ph"
+							disabled
+						/>
+					</div>
+				</form>
+				<div class="flex justify-center">
+					<button
+						@click="modalInvalidActive = true"
+						class="rounded-full text-xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue justify-center"
+					>
+						Confirm
+					</button>
+				</div>
+			</div>
+		</div>
+		<div
+			v-show="modalInvalidActive"
+			class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8"
+		>
+			<div
+				v-if="modalInvalidActive"
+				class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-52"
+			>
+				<span
+					@click="modalInvalidActive = false"
+					class="flex material-icons-outlined justify-end"
+					>close</span
+				>
+				<h1
+					class="flex text-4xl sm:text-7xl text-prime font-bebas-neue my-5 justify-center"
+				>
+					invalid one time pin
+				</h1>
+				<p
+					class="flex justify-center text-sm sm:text-lg my-5 mb-20 sm:my-7 px-7 sm:px-28 font-montserrat text-center"
+				>
+					It seems like you entered the wrong pin. Please try again.
+				</p>
+			</div>
+		</div>
 	</section>
 </template>
 
@@ -339,13 +427,35 @@ export default {
 			modalOTPActive: false,
 			modalChangeActive: false,
 			modalInvalidActive: false,
-			input1: '',
-			input2: '',
-			input3: '',
-			input4: '',
-			input5: '',
-			input6: ''
+			input1: "",
+			input2: "",
+			input3: "",
+			input4: "",
+			input5: "",
+			input6: "",
 		};
+	},
+	created() {
+		const client = axios.create({
+			baseURL: "http://127.0.0.1:8000",
+		});
+		const token = localStorage.getItem("token");
+		const headers = {
+			Authorization: `Token ${token}`,
+			"Content-Type": "application/json",
+		};
+
+		client
+			.get("api/user", { headers: headers })
+			.then((res) => {
+				window.scrollTo(0, 0);
+				router.push({ name: "dashboard" }).then(() => {
+					window.location.reload();
+				});
+			})
+			.catch((error) => {
+				console.log("ERROR", error);
+			});
 	},
 	setup() {
 		const email = ref("");
@@ -388,15 +498,17 @@ export default {
 							.then((response) => {
 								const token = response.data.token; // Replace with your token
 								localStorage.setItem("token", token);
-								localStorage.setItem(
-									"username",
-									response.data.user.username
-								);
+								// localStorage.setItem(
+								// 	"username",
+								// 	response.data.user.username
+								// );
 								document.cookie =
 									"name=value; SameSite=Lax; Secure";
 								console.log("logged in!");
 								window.scrollTo(0, 0);
-								router.push({ name: "dashboard" }).then(() => {window.location.reload(); });
+								router.push({ name: "dashboard" }).then(() => {
+									window.location.reload();
+								});
 							});
 					})
 					.catch((error) => {
@@ -404,25 +516,6 @@ export default {
 						// showRegisterModal.value = true;
 						// registerSuccess.value = false;
 					});
-				// otp_val.value = Math.floor(Math.random() * 900000) + 100000;
-
-				// emailjs
-				// 	.send(
-				// 		"service_d5qxdx5",
-				// 		"template_oqirukd",
-				// 		{
-				// 			to_email: email.value,
-				// 			to_name: `${first_name.value}_${last_name.value}`,
-				// 			message: `Your OTP is: ${otp_val.value}`,
-				// 		},
-				// 		"q4h4FsnDFS63Vb78i"
-				// 	)
-				// 	.then((message) => {
-				// 		if (message.text === "OK") {
-				// 			alert("OTP sent to your email " + email.value);
-				// 			showOtpModal.value = true;
-				// 		}
-				// 	});
 			}
 		};
 
@@ -438,33 +531,13 @@ export default {
 					// Redirect to home page
 					const token = response.data.token; // Replace with your token
 					localStorage.setItem("token", token);
-					localStorage.setItem(
-						"username",
-						response.data.user.username
-					);
+					
 					window.scrollTo(0, 0);
-					
-					
-					router.push({ name: "dashboard" }).then(() => {window.location.reload(); });
-					// 	// After navigating to the "home" route, reload the page
-					// 	const client = axios.create({
-					// 		baseURL: "http://127.0.0.1:8000",
-					// 	});
-					// 	const token = localStorage.getItem("token");
-					// 	const headers = {
-					// 		Authorization: `Token ${token}`,
-					// 		"Content-Type": "application/json",
-					// 	};
 
-					// 	client
-					// 		.get("api/profile/", { headers: headers })
-					// 		.then((res) => {
-					// 			console.log(res.data);
-					// 		})
-					// 		.catch((error) => {
-					// 			console.log("ERROR", error);
-					// 		});
-					// });
+					router.push({ name: "dashboard" }).then(() => {
+						window.location.reload();
+					});
+					
 				})
 				.catch((error) => {});
 		};
@@ -475,14 +548,7 @@ export default {
 			});
 		};
 
-		// Watch for changes in currentUser
-		// const updateFormBtn = () => {
-		// 	registrationToggle.value = !registrationToggle.value;
-		// };
-		// const closeModal = () => {
-		// 	showLoginModal.value = false;
-		// 	showRegisterModal.value = false;
-		// };
+	
 
 		return {
 			//login
@@ -502,41 +568,25 @@ export default {
 			submitLogout,
 		};
 	},
-	
+
 	methods: {
-		toggleModal() {this.modalActive = !this.modalActive;},
-		toggleChangeModal() {this.modalChangeActive = !this.modalChangeActive;},	
+		toggleModal() {
+			this.modalActive = !this.modalActive;
+		},
+		toggleChangeModal() {
+			this.modalChangeActive = !this.modalChangeActive;
+		},
 		moveFocus(event, nextInput) {
 			if (event.target.value.length === 1) {
 				this.$refs[nextInput].focus();
 			}
 		},
-			moveBack(event, prevInput) {
-			if (event.target.value.length === 0 && prevInput !== 'input1') {
+		moveBack(event, prevInput) {
+			if (event.target.value.length === 0 && prevInput !== "input1") {
 				this.$refs[prevInput].focus();
 			}
-		}
+		},
 	},
-	
-	// created() {
-	// 	const client = axios.create({
-	// 		baseURL: "http://127.0.0.1:8000",
-	// 	});
-	// 	const token = localStorage.getItem("token");
-	// 	const headers = {
-	// 		Authorization: `Token ${token}`,
-	// 		"Content-Type": "application/json",
-	// 	};
-
-	// 	client
-	// 		.get("api/user/", { headers: headers })
-	// 		.then((res) => {
-	// 			console.log(res.data);
-	// 		})
-	// 		.catch((error) => {
-	// 			console.log("ERROR", error);
-	// 		});
-	// },
 	mounted() {},
 };
 </script>
