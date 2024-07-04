@@ -194,14 +194,67 @@
 				v-for="post in posts"
 				:key="post._id"
 			>
-				<div class="post-title flex justify-between items-center">
+				<div class="post-title flex justify-start items-center">
 					<h1 class="font-bebas-neue text-lg text-prime sm:text-2xl">
 						{{ post.title }}
 					</h1>
 
-					<small class="text-second">{{
+					<small class="text-second ml-5">{{
 						timesince(post.date_posted)
 					}}</small>
+				</div>
+				<!-- Post Delete Modal Button Includes "isMenuOpen" and "toggleMenu" in script-->
+				<div class="flex justify-end">
+					<button @click="toggleMenu" class="">
+						<span class="material-icons-outlined">
+							more_horiz
+						</span>
+					</button>
+					<div v-if="isMenuOpen" class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+						<!-- @click.prevent="editItem" -->
+						<a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100" aria-disabled="true">Edit</a>
+						<a href="#" @click.prevent="deleteItem" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Delete</a>
+					</div>
+				</div>
+				<!-- Post Delete Modal, Includes "modalDeleteActive" and "deleteItem" in script -->
+				<div v-show="modalDeleteActive" class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8">
+					<div
+						v-if="modalDeleteActive"
+						class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-52"
+					>
+						<span
+							@click="modalDeleteActive = false"
+							class="flex material-icons-outlined justify-end"
+							>close</span
+						>
+						<h1
+							class="flex text-4xl text-red-600 sm:text-7xl text-prime font-bebas-neue my-5 justify-center"
+						>
+							Are you sure?
+						</h1>
+						<p
+							class="flex justify-center text-sm sm:text-lg my-5 mb-20 sm:my-7 px-7 sm:px-28 font-montserrat text-center"
+						>
+							You are trying to delete this post. This action cannot be undone. 
+						</p>
+						<div class="flex justify-center">
+							<button
+								class="rounded-full text-xl text-white mt-3 mb-6 bg-field py-2 px-5 font-bebas-neue"
+							>
+								Cancel
+							</button>
+							<button
+								class="rounded-full text-xl text-white ms-14 mt-3 mb-6 bg-red-600 py-2 px-5 font-bebas-neue"
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="">
+					<span class="material-icons-outlined">
+						Date Menu
+					</span>
 				</div>
 
 				<div class="post-content flex w-full mt-4">
@@ -512,6 +565,8 @@ export default {
 
 			itineraries: [],
 			selectedItinerary: null,
+			modalDeleteActive: false,
+			isMenuOpen: false,
 		};
 	},
 	created() {
@@ -675,6 +730,16 @@ export default {
 				.catch((error) => {
 					console.log(error);
 				});
+		},
+		toggleMenu() {
+			this.isMenuOpen = !this.isMenuOpen;
+		},
+		editItem() {
+			alert('Edit action triggered');
+			this.isMenuOpen = false;
+		},
+		deleteItem() {
+			this.modalDeleteActive = !this.modalDeleteActive;
 		},
 	},
 	setup() {},
