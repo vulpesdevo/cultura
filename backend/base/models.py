@@ -30,6 +30,7 @@ class SaveItinerary(models.Model):
     main_title = models.CharField(max_length=255)
     main_description = models.CharField(max_length=255)
     gen_tips = models.CharField(max_length=255,)
+    currency = models.CharField(max_length=255,)
     total_budget = models.FloatField()
     itineraries= models.CharField(default=list, max_length=255)
     date_posted = models.DateTimeField(auto_now_add=True)

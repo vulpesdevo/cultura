@@ -56,6 +56,7 @@ class SaveItineraryAdmin(admin.ModelAdmin):
         'main_title',
         'main_description',
         'gen_tips',
+        'currency',
         'total_budget',
         'itineraries',
         'status'

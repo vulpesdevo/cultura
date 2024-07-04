@@ -13,7 +13,7 @@ urlpatterns = [
     # creating and calling posts
     path("posting", views.PostCreate.as_view(), name="post-create"),
     path("posts", views.PostListView.as_view(), name="post-list"),
-    
+    path("profile-posts", views.ProfilePostListView.as_view(), name="profile-post-list"),
     
     # creating and calling comments
     path("commenting", views.CommentCreate.as_view(), name="comment-create"),
@@ -25,5 +25,6 @@ urlpatterns = [
     
     path("save-itinerary", views.SaveItineraryView.as_view(), name="save-itinerary"),
     path("saved-itinerary", views.SaveItineraryListView.as_view(), name="saved-itinerary"),
+    path("viewing-itinerary", views.ViewingSaveItineraryListView.as_view(), name="viewing-itinerary"),
     
 ]

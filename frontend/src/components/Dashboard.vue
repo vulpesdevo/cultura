@@ -649,7 +649,7 @@ export default {
 			try {
 				const response = await this.client.get("/api/saved-itinerary");
 				this.itineraries = response.data;
-				console.log(this.itineraries);
+				
 			} catch (error) {
 				console.error(error);
 			}
@@ -659,7 +659,7 @@ export default {
 				.get("/api/comments")
 				.then((response) => {
 					this.comments = response.data;
-					console.log("comments:", this.comments);
+					
 				})
 				.catch((error) => {
 					console.log(error);
@@ -670,7 +670,7 @@ export default {
 				.get("/api/posts")
 				.then((response) => {
 					this.posts = response.data.reverse();
-					console.log("posts:", this.posts);
+					
 				})
 				.catch((error) => {
 					console.log(error);

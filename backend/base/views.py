@@ -189,7 +189,31 @@ class PostListView(APIView):
         
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
+class ProfilePostListView(APIView):
+    """
+    API view to retrieve a list of all Post instances from the database.
+    Any user, authenticated or not, is allowed to access this view.
+    """
 
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        posts = Post.objects.filter(author=request.user)
+        
+        # Serialize the posts
+        serializer = PostSerializer(posts, many=True)
+        # Include the image URLs in the response
+       
+        for post_data in serializer.data:
+            image = post_data.get('image', None)
+            if image:
+                # Build the absolute URI for the image
+                abs_image_url = request.build_absolute_uri(image)
+                # Update the post data with the absolute URI
+                post_data['image'] = abs_image_url
+        
+        # Return the modified serialized data in the response
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CommentCreate(APIView):
     """
@@ -350,5 +374,18 @@ class SaveItineraryListView(APIView):
     def get(self, request):
         # Retrieve all itineraries owned by the current user
         itineraries = SaveItinerary.objects.filter(owner=request.user)
+        serializer = SaveItinerarySerializer(itineraries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class ViewingSaveItineraryListView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Retrieve all itineraries owned by the current user
+        # data = request.data
+        itinerary_id = request.query_params.get("id")
+        print("id :: ",itinerary_id)
+        itineraries = SaveItinerary.objects.filter(id=itinerary_id)
         serializer = SaveItinerarySerializer(itineraries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

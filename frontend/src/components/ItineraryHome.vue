@@ -55,11 +55,12 @@
 			</div>
 		</div>
 		<div
-			class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface sm:w-11/12 sm:px-6"
+			class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface cursor-pointer sm:w-11/12 sm:px-6"
 			v-for="(itinerary, index) in itineraries"
-			:key="index"
-			
+			:key="itinerary.id"
+			@click="goToViewItinerary(itinerary.id)"
 		>
+			
 			<div class="mt-2 sm:px-5 sm:pt-5 mb-10 w-full">
 				<img
 					class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
@@ -77,7 +78,8 @@
 							isFullTextShown[index]
 								? itinerary.main_description
 								: itinerary.main_description.length > 100
-								? itinerary.main_description.substring(0, 100) +"..."
+								? itinerary.main_description.substring(0, 100) +
+								  "..."
 								: itinerary.main_description
 						}}
 						<!-- Toggle link -->
@@ -127,7 +129,11 @@
 
 <script>
 import axios from "axios";
+import ViewItinerary from "./ViewItinerary.vue";
 export default {
+	components: {
+		ViewItinerary,
+	},
 	data() {
 		return {
 			itineraries: [],
@@ -163,6 +169,9 @@ export default {
 		this.fetchItineraries();
 	},
 	methods: {
+		goToViewItinerary(itinerarydata) {
+			this.$router.push({ name: "view-itinerary", params: { itinerarydata } });
+		},
 		toggleText(index) {
 			this.isFullTextShown[index] = !this.isFullTextShown[index];
 		},

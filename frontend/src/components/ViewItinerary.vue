@@ -22,21 +22,9 @@
 				>
 					<div class="w-full mx-5">
 						<!-- Text Field for Editing -->
-						<div v-if="isEditing" class="w-full">
-							<input
-								v-model="main_title"
-								@blur="handleTitleChange"
-								@keyup.enter="handleTitleChange"
-								class="font-bebas-neue text-lg text-interface text-center bg-prime sm:text-5xl rounded-md w-full px-2"
-								autofocus
-								maxlength="30"
-							/>
-							<!-- Example using FontAwesome -->
-						</div>
+
 						<!-- Text Display -->
 						<h1
-							v-else
-							@click="isEditing = true"
 							class="font-bebas-neue text-lg text-interface sm:text-5xl"
 						>
 							{{ main_title }}
@@ -86,12 +74,6 @@
 				class="mt-80 itinerary-1 flex flex-col items-center sm:mt-10 px-16 w-full"
 				id="overview-section"
 			>
-				<button
-					@click="saveMainItinerary"
-					class="bg-second w-full h-10 rounded-lg mb-3"
-				>
-					Save
-				</button>
 				<div class="post-content flex w-screen sm:w-full">
 					<div
 						class="hidden w-[9.2%] sm:flex items-start justify-center"
@@ -103,71 +85,44 @@
 						/>
 					</div>
 					<div class="w-full mx-3 mt-3 sm:m-0">
-						<div class="flex">
+						<div class="flex flex-col items-start border-b-2">
 							<small
-								class="hidden sm:flex items-center justify-center font-montserrat text-prime text-base pb-3"
+								class="hidden sm:flex items-center justify-center font-montserrat text-prime text-base pb-1"
 							>
-								@{{ username }}
+								@{{ itineraryDetails.creator_name }}
 							</small>
+							<small class="hidden sm:flex pl-5 pb-3 text-second"
+								>date here</small
+							>
 							<p
 								class="font-montserrat sm:hidden pb-1 text-lg text-prime"
 							>
 								Description
 							</p>
 						</div>
-						<div>
-							<!-- Editable Textarea -->
-							<!-- For setAboutMe -->
-							<textarea
-								v-if="!setAboutMe || isEditingAboutMe"
-								class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none bg-gray-200"
-								v-model="setAboutMe"
-								@blur="isEditingAboutMe = false"
-								@keyup.enter="isEditingAboutMe = false"
-								placeholder="Tell us about yourself"
-								autofocus
-							>
-							</textarea>
-							<p
-								v-else
-								@click="isEditingAboutMe = true"
-								class="w-full sm:w-[90.5%] p-4 "
-								v-html="formatText(setAboutMe)"
-							>
-								
-							</p>
-						</div>
+						<p class="w-full sm:w-[90.5%] p-4 text-justify">
+							{{ itineraryDetails.main_description }}
+						</p>
 					</div>
 				</div>
 				<div
 					class="flex flex-col items-center justify-center w-screen sm:mx-0 sm:mt-4 sm:w-full"
 				>
 					<p
-						class="font-montserrat text-prime w-full px-3 mb-2 text-lg sm:text-xl sm:font-semibold"
+						class="font-montserrat text-prime w-full px-3 mb-1 text-lg sm:text-xl sm:font-semibold border-b"
 					>
 						General Tips
 					</p>
+
 					<div
 						class="flex flex-col items-start justify-center w-full px-3 sm:px-0 sm:w-[83%]"
 					>
-						<textarea
-							v-if="!setTips || isEditingTips"
-							class="w-full rounded-lg resize-none p-4 outline-none bg-gray-200"
-							v-model="setTips"
-							@blur="isEditingTips = false"
-							@keyup.enter="isEditingTips = false"
-							placeholder="What do you want to share?"
-							autofocus
-						>
-						</textarea>
 						<p
-							v-else
-							@click="isEditingTips = true"
-							class="w-full sm:w-[90.5%]  p-4"
-							v-html="formatText(setTips)"
-						>
-							
-						</p>
+							class="w-full text-justify p-4"
+							v-for="(paragraph, index) in paragraphs"
+							:key="index"
+							v-html="formatText(paragraph)"
+						></p>
 					</div>
 				</div>
 				<div
@@ -219,13 +174,6 @@
 					<div
 						class="flex flex-col justify-center-center w-full sm:w-1/2 m-0 sm:mr-5 pb-5 sm:pb-0"
 					>
-						<button
-							class="font-montserrat text-interface h-10 sm:h-[7%] w-auto mb-2 bg-second rounded-lg"
-							@click.prevent="showModal = true"
-							@click="initializeAutocomplete"
-						>
-							Add place
-						</button>
 						<div
 							class="sm:overflow-auto h-screen rounded-lg"
 							style="scrollbar-width: none"
@@ -317,142 +265,6 @@
 			</section>
 		</div>
 
-		<div
-			class="fixed z-50 inset-0 overflow-y-auto"
-			aria-labelledby="modal-title"
-			role="dialog"
-			aria-modal="true"
-			v-if="showModal"
-		>
-			<div
-				class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 w-screen"
-			>
-				<div
-					class="fixed inset-0 bg-black bg-opacity-70 transition-opacity w-screen"
-					aria-hidden="true"
-				></div>
-				<span
-					class="hidden sm:inline-block sm:align-middle sm:h-screen"
-					aria-hidden="true"
-					>&#8203;</span
-				>
-				<div
-					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle w-screen sm:w-[35%]"
-				>
-					<div
-						class="bg-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
-					>
-						<div
-							class="flex justify-center items-center w-full h-52 rounded-lg bg-field"
-						>
-							<p>+ Add Image</p>
-						</div>
-						<h3
-							class="font-bebas-neue text-2xl pt-5 sm:text-3xl leading-6 font-medium text-prime"
-							id="modal-title"
-						>
-							add place
-						</h3>
-
-						<form class="mt-2" @submit.prevent="submitItinerary">
-							<div class="flex">
-								<div
-									class="w-full px-3 text-start text-sm font-montserrat"
-								>
-									<div class="">
-										<label for="it-title">Title</label>
-										<input
-											type="text"
-											placeholder="Title"
-											name="it-title"
-											id="it-title"
-											v-model="title"
-											class="mt-2 pl-5 w-full rounded-full h-12 bg-field"
-										/>
-									</div>
-									<div class="mt-2">
-										<label for="it-location"
-											>Set Location's Pin</label
-										>
-										<div
-											class="flex relative justify-center items-center"
-										>
-											<input
-												type="text"
-												placeholder="Location"
-												name="auto-complete"
-												ref="autocomplete"
-												id="autocomplete"
-												v-model="location"
-												class="mt-2 pl-5 w-full rounded-full h-12 bg-field"
-											/>
-											<span
-												class="flex justify-center items-center material-icons-outlined absolute right-0 bottom-0 text-prime text-center bg-gray-500 hover:bg-gray-400 w-12 h-12 rounded-full cursor-pointer"
-												@click="locatorBtn"
-											>
-												location_searching
-											</span>
-										</div>
-									</div>
-									<div class="mt-2">
-										<label for="it-budget"
-											>Set a Budget</label
-										>
-										<input
-											type="text"
-											placeholder="Budget"
-											name="it-budget"
-											id="it-budget"
-											v-model="budget"
-											class="mt-2 pl-5 w-full rounded-full h-12 bg-field"
-										/>
-									</div>
-									<div class="flex flex-col mt-2">
-										<label for="it-description "
-											>Add description</label
-										>
-										<textarea
-											class="rounded-lg resize-none mt-2 p-4 outline-none bg-field"
-											name=""
-											id="it-description"
-											v-model="description"
-											cols="30"
-											rows="4"
-											placeholder="Add notes, links, descriptions or whatever you want your fellow travelers to know about this place!"
-										></textarea>
-									</div>
-									<div class="hidden">
-										<input type="text" v-model="latitude" />
-										<input
-											type="text"
-											v-model="longitude"
-										/>
-									</div>
-								</div>
-							</div>
-
-							<div
-								class="flex flex-col items-center align-middle text-center mt-5"
-							>
-								<div class="flex font-montserrat">
-									<button
-										class="text-interface text-lg bg-gray-500 p-2 rounded-3xl w-32 h-14 mb-3 hover:bg-gray-400 mr-5"
-										@click="showModal = false"
-									>
-										Cancel
-									</button>
-									<input
-										type="submit"
-										value="Save"
-										class="text-interface text-lg bg-second p-2 rounded-3xl w-32 h-14 mb-3 hover:bg-second-light"
-									/>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
 		<!-- Floating Action Button -->
 		<button
 			class="flex sm:hidden items-center justify-center fixed bottom-20 right-5 bg-second active:bg-prime text-white font-bold rounded-full h-16 w-16 z-40"
@@ -472,13 +284,11 @@ import router from "../routes";
 export default {
 	data() {
 		return {
-			isEditingTips: true,
-			isEditingTitle: true,
-			isEditingAboutMe: true,
+			paragraphs: [],
+
+			isEditing: true,
 			main_title: "ITINERARY TITLE",
 
-			setTips: "",
-			setAboutMe: "",
 			total_budget: 0,
 			convertedBudget: "",
 			api: "https://v6.exchangerate-api.com/v6/81e258f64025e4102d1e5f15/latest/USD",
@@ -652,10 +462,27 @@ export default {
 			location: null,
 			list_itineraries: [],
 			itineraryIds: [],
+			itinerariesfrom: [],
 
 			// This property controls which view is currently visible
 			currentView: "itinerary", // 'overview' or 'itinerary'
 			showMap: false,
+
+			itineraryfrom: this.$route.params.itinerarydata,
+			itineraryDetails: {
+				creator_name: null,
+				currency: null,
+				date_posted: null,
+				gen_tips: "",
+				id: null,
+				itineraries: [],
+				main_description: "",
+				main_image: null,
+				main_title: null,
+				owner: null,
+				status: null,
+				
+			},
 		};
 	},
 	computed: {
@@ -677,7 +504,16 @@ export default {
 	// 		}
 	// 	},
 	// },
+	// props: {
+	// 	// Define props here. For example, if you want to pass an itinerary, you can define it like this:
+	// 	itineraryid: {
+	// 		type: Object,
+	// 		required: true,
+	// 	},
+	// 	// Add other props as needed
+	// },
 	created() {
+		// this.itineraryfrom = this.$route.params.itinerarydata;
 		const token = localStorage.getItem("token");
 		const headers = {
 			Authorization: `Token ${token}`,
@@ -699,18 +535,53 @@ export default {
 			.catch((error) => {
 				console.log("ERROR", error.message);
 			});
-
+		console.log("FROM  OTHER", this.itineraryfrom);
 		this.fetchItineraries();
+		this.fetchSavedItineraries();
 	},
 	mounted() {
 		this.populateDropdown();
+		this.fetchSavedItineraries();
 		this.initializeAutocomplete();
 	},
+	filters: {},
 	methods: {
+		async fetchSavedItineraries() {
+			try {
+				const response = await this.client.get(
+					"/api/viewing-itinerary",
+					{
+						params: {
+							id: this.itineraryfrom, //  'itineraryId' is the variable where the ID is stored
+						},
+					}
+				);
+				this.itineraries = response.data;
+
+				this.itineraries.forEach((itinerary) => {
+					this.itineraryDetails.creator_name = itinerary.creator_name;
+					this.itineraryDetails.currency = itinerary.currency;
+					this.itineraryDetails.date_posted = itinerary.date_posted;
+					this.itineraryDetails.gen_tips = itinerary.gen_tips;
+					this.itineraryDetails.id = itinerary.id;
+					this.itineraryDetails.itineraries = itinerary.itineraries;
+					this.itineraryDetails.main_description =
+						itinerary.main_description;
+					this.itineraryDetails.main_image = itinerary.main_image;
+					this.itineraryDetails.main_title = itinerary.main_title;
+					this.itineraryDetails.owner = itinerary.owner;
+					this.itineraryDetails.status = itinerary.status;
+					this.total_budget = itinerary.total_budget;
+				});
+				this.paragraphs = this.itineraryDetails.gen_tips.split(/\n+/);
+                console.log("this is the paragraph", this.itineraries);
+                
+			} catch (error) {
+				console.error(error);
+			}
+		},
 		formatText(text) {
-			return text
-				.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // replace **text** with <strong>text</strong>
-				.replace(/\*\*(.*?)\*\*/g, "<em>$1</em>"); // replace **text** with <em>text</em>
+			return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); // replace **text** with <strong>text</strong>
 		},
 		populateDropdown() {
 			const toDropDown = this.$refs.toDropDown;
@@ -727,7 +598,7 @@ export default {
 			this.convertCurrency(); // Assuming you want to set the default selected value
 		},
 		getSelectedCurrencyCode() {
-			const toCurrency = this.$refs.toDropDown.value;
+			const toCurrency = this.itineraryDetails.currency;
 			this.currency_save = toCurrency;
 			console.log("Selected currency code:", this.currency_save); // This returns the code of the selected currency
 		},
@@ -804,45 +675,8 @@ export default {
 				}
 			});
 		},
-		saveMainItinerary() {
-			this.client
-				.post("/api/save-itinerary", {
-					main_image: null,
-					main_title: this.main_title,
-					main_description: this.setAboutMe,
-					gen_tips: this.setTips,
-					total_budget: this.total_budget,
-					itineraries: this.itineraryIds,
-				})
-				.then((response) => {
-					window.scrollTo(0, 0);
-					router.push({ name: "itinerary" }).then(() => {
-						window.location.reload();
-					});
-				})
-				.catch((error) => {
-					console.error(error);
-				});
-		},
-		submitItinerary() {
-			this.client
-				.post("/api/create-itinerary", {
-					title: this.title,
-					place_name: this.location,
-					longitude: this.longitude,
-					latitude: this.latitude,
-					budget: this.budget,
-					description: this.description,
-				})
-				.then((response) => {
-					console.log(response.data);
-					this.showModal = false;
-					this.fetchItineraries();
-				})
-				.catch((error) => {
-					console.error(error);
-				});
-		},
+		
+		
 		getCurrentLocation() {
 			return new Promise((resolve, reject) => {
 				if (navigator.geolocation) {
@@ -1099,7 +933,6 @@ export default {
 				});
 		},
 	},
-
 };
 </script>
 
