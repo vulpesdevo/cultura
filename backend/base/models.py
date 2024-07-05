@@ -5,8 +5,8 @@ from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 
 from djongo.models.fields import ObjectIdField
-from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 ## models.py
 from djongo.storage import GridFSStorage
@@ -66,7 +66,7 @@ class Comment(models.Model):
 
 class Post(models.Model):
     _id = ObjectIdField()
-    author = models.CharField(max_length=255)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author')
     title = models.CharField(max_length=200)
     category = models.CharField(max_length=255,default=None)
     content = models.TextField()
@@ -74,7 +74,9 @@ class Post(models.Model):
     country = models.CharField(max_length=200)
     itinerary = models.CharField(max_length=200,null=True,blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
-    likes = models.IntegerField(default=0)
+    likes = models.ManyToManyField(User, blank=True)
+    
+    
     
 
 

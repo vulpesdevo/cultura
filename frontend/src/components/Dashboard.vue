@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full  sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-20 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-20 sm:pt-3"
 	>
 		<div
 			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
@@ -190,72 +190,50 @@
 				</div>
 			</div>
 			<div
-				class="post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
+				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
 				v-for="post in posts"
 				:key="post._id"
 			>
 				<div class="post-title flex justify-start items-center">
-					<h1 class="font-bebas-neue text-lg text-prime sm:text-2xl">
-						{{ post.title }}
-					</h1>
-
-					<small class="text-second ml-5">{{
-						timesince(post.date_posted)
-					}}</small>
-				</div>
-				<!-- Post Delete Modal Button Includes "isMenuOpen" and "toggleMenu" in script-->
-				<div class="flex justify-end">
-					<button @click="toggleMenu" class="">
-						<span class="material-icons-outlined">
-							more_horiz
-						</span>
-					</button>
-					<div v-if="isMenuOpen" class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
-						<!-- @click.prevent="editItem" -->
-						<a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100" aria-disabled="true">Edit</a>
-						<a href="#" @click.prevent="deleteItem" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Delete</a>
-					</div>
-				</div>
-				<!-- Post Delete Modal, Includes "modalDeleteActive" and "deleteItem" in script -->
-				<div v-show="modalDeleteActive" class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8">
-					<div
-						v-if="modalDeleteActive"
-						class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-52"
-					>
-						<span
-							@click="modalDeleteActive = false"
-							class="flex material-icons-outlined justify-end"
-							>close</span
-						>
+					<div class="flex w-1/2 items-center">
 						<h1
-							class="flex text-4xl text-red-600 sm:text-7xl text-prime font-bebas-neue my-5 justify-center"
+							class="font-bebas-neue text-lg text-prime sm:text-2xl"
 						>
-							Are you sure?
+							{{ post.title }}
 						</h1>
-						<p
-							class="flex justify-center text-sm sm:text-lg my-5 mb-20 sm:my-7 px-7 sm:px-28 font-montserrat text-center"
+						<small class="text-second ml-5">{{
+							timesince(post.date_posted)
+						}}</small>
+					</div>
+					<div class="flex w-1/2 justify-end">
+						<button @click="toggleMenu" class="">
+							<span class="material-icons-outlined">
+								more_horiz
+							</span>
+						</button>
+						<div
+							v-if="isMenuOpen"
+							class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
 						>
-							You are trying to delete this post. This action cannot be undone. 
-						</p>
-						<div class="flex justify-center">
-							<button
-								class="rounded-full text-xl text-white mt-3 mb-6 bg-field py-2 px-5 font-bebas-neue"
+							<!-- @click.prevent="editItem" -->
+							<a
+								href="#"
+								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+								aria-disabled="true"
+								>Edit</a
 							>
-								Cancel
-							</button>
-							<button
-								class="rounded-full text-xl text-white ms-14 mt-3 mb-6 bg-red-600 py-2 px-5 font-bebas-neue"
+							<a
+								href="#"
+								@click.prevent="deleteItem"
+								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+								>Delete</a
 							>
-								Delete
-							</button>
 						</div>
 					</div>
 				</div>
-				<div class="">
-					<span class="material-icons-outlined">
-						Date Menu
-					</span>
-				</div>
+				<!-- Post Delete Modal Button Includes "isMenuOpen" and "toggleMenu" in script-->
+
+				<!-- Post Delete Modal, Includes "modalDeleteActive" and "deleteItem" in script -->
 
 				<div class="post-content flex w-full mt-4">
 					<div class="w-14 h-14 mr-4">
@@ -277,7 +255,7 @@
 						<p
 							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify"
 						>
-							{{ post.content }}
+							{{ post.content }} {{ post.is_liked }}
 						</p>
 						<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
 							<img
@@ -290,12 +268,70 @@
 				</div>
 				<div class="flex items-center justify-end">
 					<i
-						class="fa-regular fa-comment text-second text-2xl pr-2"
+						class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
 						@click.prevent="selectPost(post)"
 					></i>
-					<span class="material-icons-outlined text-second text-2xl"
-						>favorite_border</span
+					<div
+						@click="likePost(post._id)"
+						class="flex items-center justify-start w-14"
 					>
+						<span
+							v-if="post.is_liked"
+							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+						>
+							favorite
+						</span>
+						<span
+							v-else
+							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+							>favorite_border</span
+						>
+						<small class="text-prime pl-1">
+							{{
+								post.like_count  >= 1000
+									? (post.like_count / 1000).toFixed(1) + "k"
+									: post.like_count
+							}}
+						</small>
+					</div>
+				</div>
+			</div>
+			<div
+				v-show="modalDeleteActive"
+				class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8 z-40"
+			>
+				<div
+					v-if="modalDeleteActive"
+					class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-52"
+				>
+					<span
+						@click="modalDeleteActive = false"
+						class="flex material-icons-outlined justify-end"
+						>close</span
+					>
+					<h1
+						class="flex text-4xl text-red-600 sm:text-7xl text-prime font-bebas-neue my-5 justify-center"
+					>
+						Are you sure?
+					</h1>
+					<p
+						class="flex justify-center text-sm sm:text-lg my-5 mb-20 sm:my-7 px-7 sm:px-28 font-montserrat text-center"
+					>
+						You are trying to delete this post. This action cannot
+						be undone.
+					</p>
+					<div class="flex justify-center">
+						<button
+							class="rounded-full text-xl text-white mt-3 mb-6 bg-field py-2 px-5 font-bebas-neue"
+						>
+							Cancel
+						</button>
+						<button
+							class="rounded-full text-xl text-white ms-14 mt-3 mb-6 bg-red-600 py-2 px-5 font-bebas-neue"
+						>
+							Delete
+						</button>
+					</div>
 				</div>
 			</div>
 			<div
@@ -590,11 +626,25 @@ export default {
 		this.fetchComments();
 		setInterval(this.fetchComments, 5000);
 		this.initializeAutocompleteCountry();
-		
+
 		this.fetchSavedItineraries();
 		setInterval(this.fetchSavedItineraries, 5000);
 	},
 	methods: {
+		likePost(post_id) {
+			this.client
+				.post(`api/like-posts/${post_id}/like_post/`)
+				.then((response) => {
+					// Handle success response
+					console.log(response.data);
+					this.fetchPosts();
+					// Optionally, update your UI based on the successful like
+				})
+				.catch((error) => {
+					// Handle error
+					console.error("Error liking the post:", error);
+				});
+		},
 		selectItinerary(itinerary) {
 			this.selectedItinerary = itinerary; // Update the selectedItinerary with the clicked one
 		},
@@ -704,28 +754,26 @@ export default {
 			try {
 				const response = await this.client.get("/api/saved-itinerary");
 				this.itineraries = response.data;
-				
 			} catch (error) {
 				console.error(error);
 			}
 		},
 		fetchComments() {
-			axios
+			this.client
 				.get("/api/comments")
 				.then((response) => {
 					this.comments = response.data;
-					
 				})
 				.catch((error) => {
 					console.log(error);
 				});
 		},
 		fetchPosts() {
-			axios
-				.get("/api/posts")
+			this.client
+				.get("/api/posts-list")
 				.then((response) => {
 					this.posts = response.data.reverse();
-					
+					console.log("updateed :", this.posts);
 				})
 				.catch((error) => {
 					console.log(error);
@@ -735,7 +783,7 @@ export default {
 			this.isMenuOpen = !this.isMenuOpen;
 		},
 		editItem() {
-			alert('Edit action triggered');
+			alert("Edit action triggered");
 			this.isMenuOpen = false;
 		},
 		deleteItem() {

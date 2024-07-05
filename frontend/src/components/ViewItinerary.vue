@@ -441,7 +441,7 @@ export default {
 				["ZMW", "Zambian Kwacha", "ZK"],
 				["ZWL", "Zimbabwean Dollar (2009)", "$"],
 			],
-			selectedCurrency: "PHP",
+			selectedCurrency: "",
 			currency_save: "",
 			converted: 0,
 
@@ -468,7 +468,7 @@ export default {
 			currentView: "itinerary", // 'overview' or 'itinerary'
 			showMap: false,
 
-			itineraryfrom: this.$route.params.itinerarydata,
+			itinerary_id: this.$route.params.itinerarydata,
 			itineraryDetails: {
 				creator_name: null,
 				currency: null,
@@ -481,7 +481,6 @@ export default {
 				main_title: null,
 				owner: null,
 				status: null,
-				
 			},
 		};
 	},
@@ -536,7 +535,7 @@ export default {
 				console.log("ERROR", error.message);
 			});
 		console.log("FROM  OTHER", this.itineraryfrom);
-		this.fetchItineraries();
+
 		this.fetchSavedItineraries();
 	},
 	mounted() {
@@ -548,34 +547,36 @@ export default {
 	methods: {
 		async fetchSavedItineraries() {
 			try {
-				const response = await this.client.get(
-					"/api/viewing-itinerary",
-					{
-						params: {
-							id: this.itineraryfrom, //  'itineraryId' is the variable where the ID is stored
-						},
-					}
-				);
-				this.itineraries = response.data;
+				if (this.itinerary_id == null) {
+					this.$router.push({ name: "itinerary" });
+				} else {
+					const response = await this.client.get(
+						`/api/viewing-itinerary/${this.itinerary_id}`
+					);
+					this.itineraries = response.data;
 
-				this.itineraries.forEach((itinerary) => {
-					this.itineraryDetails.creator_name = itinerary.creator_name;
-					this.itineraryDetails.currency = itinerary.currency;
-					this.itineraryDetails.date_posted = itinerary.date_posted;
-					this.itineraryDetails.gen_tips = itinerary.gen_tips;
-					this.itineraryDetails.id = itinerary.id;
-					this.itineraryDetails.itineraries = itinerary.itineraries;
-					this.itineraryDetails.main_description =
-						itinerary.main_description;
-					this.itineraryDetails.main_image = itinerary.main_image;
-					this.itineraryDetails.main_title = itinerary.main_title;
-					this.itineraryDetails.owner = itinerary.owner;
-					this.itineraryDetails.status = itinerary.status;
-					this.total_budget = itinerary.total_budget;
-				});
-				this.paragraphs = this.itineraryDetails.gen_tips.split(/\n+/);
-                console.log("this is the paragraph", this.itineraries);
-                
+					this.itineraries.forEach((itinerary) => {
+						this.itineraryDetails.creator_name =
+							itinerary.creator_name;
+						this.currency_save = itinerary.currency;
+						this.itineraryDetails.date_posted =
+							itinerary.date_posted;
+						this.itineraryDetails.gen_tips = itinerary.gen_tips;
+						this.itineraryDetails.id = itinerary.id;
+						this.list_itineraries = itinerary.itineraries;
+						this.itineraryDetails.main_description =
+							itinerary.main_description;
+						this.itineraryDetails.main_image = itinerary.main_image;
+						this.itineraryDetails.main_title = itinerary.main_title;
+						this.itineraryDetails.owner = itinerary.owner;
+						this.itineraryDetails.status = itinerary.status;
+						this.total_budget = itinerary.total_budget;
+					});
+					this.fetchItineraries();
+					this.paragraphs =
+						this.itineraryDetails.gen_tips.split(/\n+/);
+					console.log("this is the paragraph", this.itineraries);
+				}
 			} catch (error) {
 				console.error(error);
 			}
@@ -584,20 +585,23 @@ export default {
 			return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); // replace **text** with <strong>text</strong>
 		},
 		populateDropdown() {
-			const toDropDown = this.$refs.toDropDown;
+			this.toDropDown = this.$refs.toDropDown;
 			this.currency_list.forEach((currency) => {
 				const [code, countryName] = currency;
 				const option = document.createElement("option");
-				option.value = code; // Assuming 'sysmbol' was a typo and should be 'code'
+				option.value = code;
 				option.textContent = `${code} - ${countryName}`;
+				
 				option.classList.add("text-prime", "bg-interface");
-
-				toDropDown.add(option);
+				this.toDropDown.add(option);
+				
 			});
+			
 			this.getSelectedCurrencyCode();
 			this.convertCurrency(); // Assuming you want to set the default selected value
 		},
 		getSelectedCurrencyCode() {
+			
 			const toCurrency = this.itineraryDetails.currency;
 			this.currency_save = toCurrency;
 			console.log("Selected currency code:", this.currency_save); // This returns the code of the selected currency
@@ -607,7 +611,7 @@ export default {
 			const fromCurrency = this.currency_save;
 			const toCurrency = this.$refs.toDropDown.value;
 			this.currency_save = toCurrency;
-
+			
 			if (this.total_budget.length !== 0) {
 				fetch(this.api) // Assuming 'this.api' is your API URL
 					.then((resp) => resp.json())
@@ -675,8 +679,7 @@ export default {
 				}
 			});
 		},
-		
-		
+
 		getCurrentLocation() {
 			return new Promise((resolve, reject) => {
 				if (navigator.geolocation) {
@@ -744,23 +747,7 @@ export default {
 			return deg * (Math.PI / 180);
 		},
 		async fetchItineraries() {
-			const token = localStorage.getItem("token");
-			const headers = {
-				Authorization: `Token ${token}`,
-				"Content-Type": "application/json",
-			};
-			const client = axios.create({
-				baseURL: "http://127.0.0.1:8000",
-				withCredentials: true,
-				timeout: 5000,
-				xsrfCookieName: "csrftoken",
-				xsrfHeaderName: "X-Csrftoken",
-				headers: headers,
-			});
 			try {
-				const response = await client.get("/api/itinerary");
-				this.list_itineraries = response.data;
-				console.log("list_itineraries:", this.list_itineraries);
 				this.itineraryIds = this.list_itineraries.map(
 					(itinerary) => itinerary.id
 				);
@@ -776,7 +763,7 @@ export default {
 				)[2];
 				this.convertedBudget = `${symbol}${this.total_budget}`;
 				// Sort the itineraries by proximity before showing them on the map
-
+				this.toDropDown.value = this.currency_save;
 				await this.sortItinerariesByProximity();
 				this.showLocationOntheMap();
 			} catch (error) {

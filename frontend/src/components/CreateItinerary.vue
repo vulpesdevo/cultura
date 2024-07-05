@@ -812,6 +812,7 @@ export default {
 					main_description: this.setAboutMe,
 					gen_tips: this.setTips,
 					total_budget: this.total_budget,
+					currency: this.currency_save,
 					itineraries: this.itineraryIds,
 				})
 				.then((response) => {

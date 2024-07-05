@@ -1,5 +1,7 @@
+from gc import get_objects
+import json
 from django.contrib.auth import get_user_model, login, logout
-from django.http import HttpResponseServerError
+from django.http import Http404, HttpResponseServerError
 from django.shortcuts import get_object_or_404
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -16,8 +18,9 @@ from .serializers import (
     PostSerializer,
     CommentSerializer,
 )
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import permissions, status
+from rest_framework import permissions, status,viewsets
 from .validations import custom_validation, validate_username, validate_password
 from .models import Itinerary, Post, Comment, CulturaUser, SaveItinerary
 
@@ -159,11 +162,25 @@ class PostCreate(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        serializer = PostSerializer(post)
+        serializer = PostSerializer(post,context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+from bson import ObjectId    
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+ 
+    @action(detail=True, methods=['post'])
+    def like_post(self, request, pk=None):
+        object_id = ObjectId(pk)
+        post = Post.objects.get(_id=object_id)
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+            return Response({'status': 'post unliked'})
+        else:
+            post.likes.add(request.user)
+            return Response({'status': 'post liked'})
 
-
-
+    
 class PostListView(APIView):
     """
     API view to retrieve a list of all Post instances from the database.
@@ -174,11 +191,10 @@ class PostListView(APIView):
     
     def get(self, request):
         posts = Post.objects.all()
-        
+        print(request.user)
         # Serialize the posts
-        serializer = PostSerializer(posts, many=True)
+        serializer = PostSerializer(posts, many=True,context={'user': request.user})
         # Include the image URLs in the response
-       
         for post_data in serializer.data:
             image = post_data.get('image', None)
             if image:
@@ -187,8 +203,10 @@ class PostListView(APIView):
                 # Update the post data with the absolute URI
                 post_data['image'] = abs_image_url
         
-        # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
 class ProfilePostListView(APIView):
     """
     API view to retrieve a list of all Post instances from the database.
@@ -329,6 +347,14 @@ class ItineraryListView(APIView):
         serializer = ItinerarySerializer(itineraries,many=True)
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+class ItinerariesInView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request,id):
+        
+        itineraries = Itinerary.objects.filter(id=id)
+        serializer = ItinerarySerializer(itineraries,many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
             # Your logic to return the itineraries
 class SaveItineraryView(APIView):
     permission_classes = [IsAuthenticated]
@@ -338,6 +364,7 @@ class SaveItineraryView(APIView):
         main_title = data.get('main_title', "").strip()
         main_description = data.get('main_description', "").strip()
         gen_tips = data.get('gen_tips', "").strip()
+        currency = data.get('currency', "").strip()
         total_budget = data.get('total_budget', 0.0)
         itinerary_ids = data.get('itineraries', [])
         itineraries = Itinerary.objects.filter(status="onqueue",owner=request.user)
@@ -350,6 +377,7 @@ class SaveItineraryView(APIView):
             main_title= main_title,
             main_description= main_description,
             gen_tips= gen_tips,
+            currency=currency,
             total_budget= total_budget,
             itineraries= itinerary_ids,
             
@@ -371,21 +399,44 @@ class SaveItineraryListView(APIView):
     
     permission_classes = [IsAuthenticated]
     
-    def get(self, request):
+    def get(self, request, it_id=None):
         # Retrieve all itineraries owned by the current user
+        if it_id is not None:
+            itineraries = SaveItinerary.objects.filter(id=it_id)
         itineraries = SaveItinerary.objects.filter(owner=request.user)
         serializer = SaveItinerarySerializer(itineraries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-class ViewingSaveItineraryListView(APIView):
+class ViewItinerary(APIView):
     
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     
-    def get(self, request):
+    def get(self, request, id):
         # Retrieve all itineraries owned by the current user
         # data = request.data
-        itinerary_id = request.query_params.get("id")
-        print("id :: ",itinerary_id)
-        itineraries = SaveItinerary.objects.filter(id=itinerary_id)
+        # it_id = kwargs.get('id', None)
+        print("id :: ",id)
+        itineraries = SaveItinerary.objects.filter(id=id)
+        
         serializer = SaveItinerarySerializer(itineraries, many=True)
+        itineraries_list = [item['itineraries'] for item in serializer.data]
+        itineraries_list_id = [int(item) for item in itineraries_list[0].strip('[]').split(',')]
+        
+        serialized_itineraries = []
+        
+        
+        
+        for itinerary_id in itineraries_list_id:
+            try:
+                itinerary = Itinerary.objects.get(id=itinerary_id)
+                serialized_itinerary = ItinerarySerializer(itinerary).data
+                serialized_itineraries.append(serialized_itinerary)
+            except Itinerary.DoesNotExist:
+                # Handle the case when the itinerary with the given id does not exist
+                pass
+        serializer.data[0]['itineraries'] = serialized_itineraries
+        # serializer.data['itineraries'] = serialized_itineraries
+        print(serializer.data[0]['itineraries'])
+        # itiner = Itinerary.objects.filter(id=itinerary_ids)
+        # serializer.data['itineraries'] = ItinerarySerializer(itiner, many=True).data
         return Response(serializer.data, status=status.HTTP_200_OK)
