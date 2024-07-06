@@ -49,7 +49,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="profile-tabs flex justify-center w-full my-5">
+		<div class="profile-tabs flex justify-center w-full my-5 px-2">
 			<button
 				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-60 text-xl sm:text-3xl"
 				@click="activeTab = 'posts'"
@@ -69,60 +69,8 @@
 		</div>
 
 		<div class="posts-in-profile" v-if="activeTab === 'posts'">
-			<div
-				class="post-contents w-screen sm:w-full pt-3 px-6 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
-			>
-				<div class="post-title flex justify-between items-center">
-					<h1 class="font-bebas-neue text-lg text-prime sm:text-2xl">
-						BEST PULLED NOODLES IN BINONDO
-					</h1>
-					<small class="text-second">10mins ago</small>
-				</div>
-				<div class="post-content flex w-full mt-4">
-					<div class="w-14 h-14 mr-4">
-						<img
-							src="/sample_img/mark.png"
-							alt="Profile"
-							class="rounded-full cursor-pointer object-cover"
-						/>
-					</div>
-					<div class="w-full">
-						<div class="flex border-b-2">
-							<small class="font-montserrat text-prime pr-5">
-								@mark0
-							</small>
-							<small class="about-post font-montserrat">
-								Food | Philippines
-							</small>
-						</div>
-						<p
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify"
-						>
-							Slurp-worthy satisfaction awaits at Lan-Zhou Lamien,
-							where every strand of their hand-pulled noodles
-							tells a tale of culinary mastery. Taste the
-							tradition, savor the excellence, and discover why
-							they're Manila's noodle maestros.
-						</p>
-						<div class="sm:h-96 pb-2 sm:p-4">
-							<img
-								src="/sample_img/binondo.webp"
-								alt=""
-								class="h-full w-full object-cover rounded-lg"
-							/>
-						</div>
-					</div>
-				</div>
-				<div class="flex items-center justify-end">
-					<i
-						class="fa-regular fa-comment text-second text-2xl pr-2"
-						@click.prevent="showModal = true"
-					></i>
-					<span class="material-icons-outlined text-second text-2xl"
-						>favorite_border</span
-					>
-				</div>
-			</div>
+			
+				
 			<div
 				class="post-contents w-screen sm:w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
 				v-for="post in posts"
@@ -172,9 +120,29 @@
 						class="fa-regular fa-comment text-second text-2xl pr-2"
 						@click.prevent="selectPost(post)"
 					></i>
-					<span class="material-icons-outlined text-second text-2xl"
-						>favorite_border</span
+					<div
+						@click="likePost(post._id)"
+						class="flex items-center justify-start w-14"
 					>
+						<span
+							v-if="post.is_liked"
+							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+						>
+							favorite
+						</span>
+						<span
+							v-else
+							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+							>favorite_border</span
+						>
+						<small class="text-prime pl-1">
+							{{
+								post.like_count  >= 1000
+									? (post.like_count / 1000).toFixed(1) + "k"
+									: post.like_count
+							}}
+						</small>
+					</div>
 				</div>
 			</div>
 		</div>

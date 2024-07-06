@@ -64,7 +64,7 @@
 			<div class="mt-2 sm:px-5 sm:pt-5 mb-10 w-full">
 				<img
 					class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
-					src="/sample_img/binondo.webp"
+					:src="itinerary.main_image"
 					alt=""
 				/>
 				<div class="w-full h-auto py-2">
@@ -78,8 +78,7 @@
 							isFullTextShown[index]
 								? itinerary.main_description
 								: itinerary.main_description.length > 100
-								? itinerary.main_description.substring(0, 100) +
-								  "..."
+								? itinerary.main_description.substring(0, 100) +"..."
 								: itinerary.main_description
 						}}
 						<!-- Toggle link -->

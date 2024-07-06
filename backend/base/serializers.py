@@ -1,8 +1,9 @@
+from django.utils import timezone
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
-from .models import Post, Comment,CulturaUser,Itinerary, SaveItinerary
-
+from .models import  LikeNotification, Post, Comment,CulturaUser,Itinerary, SaveItinerary
+from djongo import models
 UserModel = get_user_model()
 
 class CulturaUserSerializer(serializers.ModelSerializer):
@@ -51,13 +52,21 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = "__all__"
+class LikeSerializer(serializers.ModelSerializer):
+    # user = UserSerializer(read_only=True)
 
+    class Meta:
+        model = LikeNotification
+        fields = ('post_obj_id','post_author','post_title','post_content','liker','created_at')
 
 class PostSerializer(serializers.ModelSerializer):
     likes = UserSerializer(many=True,read_only=True)
     author = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    # date_get_like = serializers.SerializerMethodField()
+    
+    # date_get_like = serializers.DateTimeField(auto_now_add=True)
     class Meta:
         model = Post
         fields = ('_id', 'author', 'title','content', 'category','image', 'country', 'date_posted',"likes",'like_count','is_liked')
@@ -67,10 +76,16 @@ class PostSerializer(serializers.ModelSerializer):
         return len(obj.likes.all())
     def get_is_liked(self, obj):
     
-        user = self.context['user']
+        user = self.context.get('user')
         
         return True if user in obj.likes.all() else False
-        
+    
+    
+    
+    
+    # def get_date_get_like(self, obj):
+    #     return timezone.now()
+    
 class ItinerarySerializer(serializers.ModelSerializer):
     
     class Meta:

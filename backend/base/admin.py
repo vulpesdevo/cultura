@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CulturaUser, Itinerary, Post, Comment, SaveItinerary
+from .models import CulturaUser, Itinerary, LikeNotification, Post, Comment, SaveItinerary
 
 
 class CulturaUserAdmin(admin.ModelAdmin):
@@ -45,6 +45,7 @@ class ItineraryAdmin(admin.ModelAdmin):
         'latitude',
         'place_name',
         'description',
+        'code',
         'budget',
         'status'
     )
@@ -61,7 +62,18 @@ class SaveItineraryAdmin(admin.ModelAdmin):
         'itineraries',
         'status'
     )
+class LikeNotificationAdmin(admin.ModelAdmin):
+    list_display = (
 
+        'post_obj_id',
+        'post_author',
+        'post_title',
+        'post_content',
+        'liker',
+        'created_at',
+    )
+
+admin.site.register(LikeNotification, LikeNotificationAdmin)
 admin.site.register(CulturaUser, CulturaUserAdmin)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Comment, CommentAdmin)

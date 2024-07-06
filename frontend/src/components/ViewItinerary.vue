@@ -12,8 +12,8 @@
 					class="w-screen sm:w-full sm:h-[87%] bg-second sm:rounded-2xl"
 				>
 					<img
-						src="/sample_img/binondo.webp"
-						alt="sample-img-binondo"
+						:src="itineraryDetails.main_image"
+						alt=""
 						class="w-full h-full object-cover sm:rounded-2xl"
 					/>
 				</div>
@@ -236,7 +236,7 @@
 										class="flex w-full h-8 text-center items-center justify-end sm:justify-center"
 									>
 										<p class="bg-second w-24 rounded-full">
-											P{{ itinerary.budget }}
+											{{ itinerary.convertedBudget }}
 										</p>
 									</div>
 									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
@@ -573,9 +573,10 @@ export default {
 						this.total_budget = itinerary.total_budget;
 					});
 					this.fetchItineraries();
+					this.convertCurrency() 
 					this.paragraphs =
 						this.itineraryDetails.gen_tips.split(/\n+/);
-					console.log("this is the paragraph", this.itineraries);
+					console.log("this is the paragraph", this.list_itineraries);
 				}
 			} catch (error) {
 				console.error(error);
@@ -591,27 +592,65 @@ export default {
 				const option = document.createElement("option");
 				option.value = code;
 				option.textContent = `${code} - ${countryName}`;
-				
+
 				option.classList.add("text-prime", "bg-interface");
 				this.toDropDown.add(option);
-				
 			});
-			
+
 			this.getSelectedCurrencyCode();
 			this.convertCurrency(); // Assuming you want to set the default selected value
+			
 		},
 		getSelectedCurrencyCode() {
-			
 			const toCurrency = this.itineraryDetails.currency;
 			this.currency_save = toCurrency;
 			console.log("Selected currency code:", this.currency_save); // This returns the code of the selected currency
 		},
+		indivConvert(to,from) {
+			const fromCurrency = this.currency_save;
+			const toCurrency = this.$refs.toDropDown.value;
+			this.currency_save = toCurrency;
+			if (this.total_budget.length !== 0) {
+				fetch(this.api) // Assuming 'this.api' is your API URL
+					.then((resp) => resp.json())
+					.then((data) => {
+						let fromExchangeRate =
+							data.conversion_rates[fromCurrency];
+						// let toExchangeRate = data.conversion_rates[toCurrency];
+						this.list_itineraries.forEach((itinerary) => {
+							const convertedAmount =
+								(itinerary.budget / from) *
+								to;
 
+							// Find the symbol for the target currency
+							let symbol = this.currency_list.find(
+								(currency) => currency[0] === toCurrency
+							)[2];
+
+							itinerary.budget = convertedAmount.toFixed(2);
+							itinerary.convertedBudget = `${symbol} ${convertedAmount.toFixed(
+								2
+							)}`;
+							console.log(
+								"Converted budgets:",
+								to,
+								" ",
+								from
+							);
+						});
+
+						// console.log(
+						// 	"Converted budgets:",
+						// 	this.list_itineraries
+						// );
+					});
+			}
+		},
 		convertCurrency() {
 			const fromCurrency = this.currency_save;
 			const toCurrency = this.$refs.toDropDown.value;
 			this.currency_save = toCurrency;
-			
+
 			if (this.total_budget.length !== 0) {
 				fetch(this.api) // Assuming 'this.api' is your API URL
 					.then((resp) => resp.json())
@@ -633,9 +672,9 @@ export default {
 						)}`;
 						this.total_budget = convertedAmount.toFixed(2);
 
-						console.log(finalAmount);
+						console.log(toExchangeRate, " --- ", fromExchangeRate);
 						this.convertedBudget = finalAmount;
-
+						this.indivConvert(toExchangeRate, fromExchangeRate);
 						// Assuming 'result' is a reference to an element for displaying the result
 						// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
 						// 	2
@@ -753,11 +792,7 @@ export default {
 				);
 				console.log("itineraryIds:", this.itineraryIds);
 
-				this.total_budget = this.list_itineraries.reduce(
-					(sum, itinerary) => sum + itinerary.budget,
-					0
-				);
-				console.log("Total Budget:", this.total_budget);
+				console.log("Total Budget:", this.budget);
 				let symbol = this.currency_list.find(
 					(currency) => currency[0] === this.currency_save
 				)[2];

@@ -45,6 +45,7 @@ class Itinerary(models.Model):
     latitude = models.FloatField()
     place_name = models.CharField(max_length=255)
     description = models.TextField()
+    code = models.CharField(blank=True,null=True, max_length=50)
     budget = models.FloatField(null=True,blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
     status = models.CharField(default='onqueue',max_length=255)
@@ -63,7 +64,7 @@ class Comment(models.Model):
 
     
 
-
+from django.utils import timezone
 class Post(models.Model):
     _id = ObjectIdField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author')
@@ -76,7 +77,15 @@ class Post(models.Model):
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, blank=True)
     
+class LikeNotification(models.Model):
     
+    post_author = models.CharField(max_length=255)
+    post_obj_id = models.CharField(max_length=255)
+    post_title = models.CharField(max_length=255)
+    post_content = models.CharField(max_length=255)
+
+    liker = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
     
 
 

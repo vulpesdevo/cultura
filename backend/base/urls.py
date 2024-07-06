@@ -18,6 +18,7 @@ urlpatterns = [
     # creating and calling posts
     path("posting", views.PostCreate.as_view(), name="post-create"),
     path("posts-list", views.PostListView.as_view(), name="post-list"),
+    path("like-notification-list", views.LikesNotificationList.as_view(), name="like-notif-list"),
     
     path('', include(router.urls)),
     path("profile-posts", views.ProfilePostListView.as_view(), name="profile-post-list"),
@@ -25,6 +26,7 @@ urlpatterns = [
     # creating and calling comments
     path("commenting", views.CommentCreate.as_view(), name="comment-create"),
     path("comments", views.CommentListView.as_view(), name="comment-list"),
+    
     
     # creating and calling itineraries
     path("create-itinerary", views.ItineraryCreate.as_view(), name="create-itinerary"),

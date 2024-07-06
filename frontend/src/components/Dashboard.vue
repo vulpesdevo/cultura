@@ -133,7 +133,7 @@
 				/>
 			</div>
 		</div>
-		<section class="posts mb-10">
+		<section class="posts mb-10 sm:mb-0">
 			<div
 				class="post-contents w-screen sm:w-full pt-3 px-6 sm:pt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
 			>

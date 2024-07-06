@@ -9,25 +9,43 @@
 				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field sm:bg-transparent z-10"
 			>
 				<div
-					class="w-screen sm:w-full sm:h-[87%] bg-second sm:rounded-2xl"
+					class="flex items-center justify-center w-screen h-[70%] sm:w-full sm:h-[87%] bg-field hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
 				>
-					<img
-						src="/sample_img/binondo.webp"
-						alt="sample-img-binondo"
-						class="w-full h-full object-cover sm:rounded-2xl"
-					/>
+					<label
+						for="imgSelect"
+						class="w-screen sm:w-full h-full flex items-center justify-center bg-field cursor-pointer rounded-xl"
+					>
+						<img
+							:class="{ hidden: !selectedImageUrl }"
+							:src="selectedImageUrl"
+							class="w-full h-full object-cover rounded-xl z-0"
+							alt="Selected image"
+						/>
+						<div
+							:class="{ hidden: selectedImageUrl }"
+							class="flex items-center justify-center font-montserrat w-full h-full text-prime text-xl z-0"
+						>
+							<span>+ Add Image</span>
+						</div>
+					</label>
 				</div>
+				<input
+					type="file"
+					id="imgSelect"
+					class="hidden"
+					@change="handleFileSelection"
+				/>
 				<div
-					class="flex absolute left-[3.2rem] bottom-[4rem] sm:bottom-0 sm:left-[7.7rem] bg-prime w-3/4 h-16 sm:h-24 z-10 rounded-md text-center items-center justify-center"
+					class="flex absolute left-[3.2rem] bottom-[4rem] sm:bottom-0 sm:left-[7.7rem] bg-prime w-3/4 h-16 sm:h-24 z-30 rounded-md text-center items-center justify-center cursor-pointer"
 				>
-					<div class="w-full mx-5">
+					<div class="w-full mx-5 z-30">
 						<!-- Text Field for Editing -->
 						<div v-if="isEditing" class="w-full">
 							<input
 								v-model="main_title"
 								@blur="handleTitleChange"
 								@keyup.enter="handleTitleChange"
-								class="font-bebas-neue text-lg text-interface text-center bg-prime sm:text-5xl rounded-md w-full px-2"
+								class="font-bebas-neue text-lg text-interface text-center bg-prime sm:text-5xl rounded-md w-full px-2 z-20"
 								autofocus
 								maxlength="30"
 							/>
@@ -37,7 +55,8 @@
 						<h1
 							v-else
 							@click="isEditing = true"
-							class="font-bebas-neue text-lg text-interface sm:text-5xl"
+							autofocus
+							class="font-bebas-neue text-lg text-interface sm:text-5xl z-20"
 						>
 							{{ main_title }}
 						</h1>
@@ -99,7 +118,7 @@
 						<img
 							src="/sample_img/mark.png"
 							alt="Profile"
-							class="w-14 h-14 rounded-full cursor-pointer"
+							class="w-12 h-12 rounded-full cursor-pointer"
 						/>
 					</div>
 					<div class="w-full mx-3 mt-3 sm:m-0">
@@ -123,7 +142,7 @@
 								class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none bg-gray-200"
 								v-model="setAboutMe"
 								@blur="isEditingAboutMe = false"
-								@keyup.enter="isEditingAboutMe = false"
+								@keyup.tab="isEditingAboutMe = false"
 								placeholder="Tell us about yourself"
 								autofocus
 							>
@@ -131,11 +150,9 @@
 							<p
 								v-else
 								@click="isEditingAboutMe = true"
-								class="w-full sm:w-[90.5%] p-4 "
+								class="w-full sm:w-[90.5%] p-4"
 								v-html="formatText(setAboutMe)"
-							>
-								
-							</p>
+							></p>
 						</div>
 					</div>
 				</div>
@@ -155,7 +172,10 @@
 							class="w-full rounded-lg resize-none p-4 outline-none bg-gray-200"
 							v-model="setTips"
 							@blur="isEditingTips = false"
-							@keyup.enter="isEditingTips = false"
+							@keyup.enter="
+								setTips.split(/\n+/);
+								isEditingTips = false;
+							"
 							placeholder="What do you want to share?"
 							autofocus
 						>
@@ -163,11 +183,9 @@
 						<p
 							v-else
 							@click="isEditingTips = true"
-							class="w-full sm:w-[90.5%]  p-4"
+							class="w-full sm:w-[90.5%] p-4"
 							v-html="formatText(setTips)"
-						>
-							
-						</p>
+						></p>
 					</div>
 				</div>
 				<div
@@ -476,6 +494,8 @@ export default {
 			isEditingTitle: true,
 			isEditingAboutMe: true,
 			main_title: "ITINERARY TITLE",
+			selectedImageUrl: null,
+			picture: null,
 
 			setTips: "",
 			setAboutMe: "",
@@ -634,6 +654,7 @@ export default {
 			selectedCurrency: "PHP",
 			currency_save: "",
 			converted: 0,
+			paragraphs: [],
 
 			username: "",
 
@@ -699,7 +720,7 @@ export default {
 			.catch((error) => {
 				console.log("ERROR", error.message);
 			});
-
+		this.isEditing = true;
 		this.fetchItineraries();
 	},
 	mounted() {
@@ -707,10 +728,27 @@ export default {
 		this.initializeAutocomplete();
 	},
 	methods: {
+		handleFileSelection(event) {
+			const file = event.target.files[0];
+			if (file) {
+				this.selectedImageUrl = URL.createObjectURL(file);
+				this.picture = file;
+				console.log("Image :", this.picture);
+				this.isEditing = true;
+			}
+		},
+		processTips() {
+			this.paragraphs = this.setTips.split(/\n+/);
+		},
 		formatText(text) {
-			return text
-				.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // replace **text** with <strong>text</strong>
-				.replace(/\*\*(.*?)\*\*/g, "<em>$1</em>"); // replace **text** with <em>text</em>
+			let paragraphs = text.split(/\n+/);
+			return paragraphs
+				.map((paragraph) => {
+					return paragraph
+						.replace(/\*\*(.*?)\*\*/g,  "<strong>$1</strong>")
+						
+				})
+				.join("<br><br>");
 		},
 		populateDropdown() {
 			const toDropDown = this.$refs.toDropDown;
@@ -731,7 +769,40 @@ export default {
 			this.currency_save = toCurrency;
 			console.log("Selected currency code:", this.currency_save); // This returns the code of the selected currency
 		},
+		indivConvert(to, from) {
+			const fromCurrency = this.currency_save;
+			const toCurrency = this.$refs.toDropDown.value;
+			this.currency_save = toCurrency;
+			if (this.total_budget.length !== 0) {
+				fetch(this.api) // Assuming 'this.api' is your API URL
+					.then((resp) => resp.json())
+					.then((data) => {
+						let fromExchangeRate =
+							data.conversion_rates[fromCurrency];
+						// let toExchangeRate = data.conversion_rates[toCurrency];
+						this.list_itineraries.forEach((itinerary) => {
+							const convertedAmount =
+								(itinerary.budget / from) * to;
 
+							// Find the symbol for the target currency
+							let symbol = this.currency_list.find(
+								(currency) => currency[0] === toCurrency
+							)[2];
+
+							itinerary.budget = convertedAmount.toFixed(2);
+							itinerary.convertedBudget = `${symbol} ${convertedAmount.toFixed(
+								2
+							)}`;
+							console.log("Converted budgets:", to, " ", from);
+						});
+
+						// console.log(
+						// 	"Converted budgets:",
+						// 	this.list_itineraries
+						// );
+					});
+			}
+		},
 		convertCurrency() {
 			const fromCurrency = this.currency_save;
 			const toCurrency = this.$refs.toDropDown.value;
@@ -760,7 +831,7 @@ export default {
 
 						console.log(finalAmount);
 						this.convertedBudget = finalAmount;
-
+						this.indivConvert(toExchangeRate, fromExchangeRate);
 						// Assuming 'result' is a reference to an element for displaying the result
 						// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
 						// 	2
@@ -805,25 +876,63 @@ export default {
 			});
 		},
 		saveMainItinerary() {
-			this.client
-				.post("/api/save-itinerary", {
-					main_image: null,
-					main_title: this.main_title,
-					main_description: this.setAboutMe,
-					gen_tips: this.setTips,
-					total_budget: this.total_budget,
-					currency: this.currency_save,
-					itineraries: this.itineraryIds,
-				})
-				.then((response) => {
-					window.scrollTo(0, 0);
-					router.push({ name: "itinerary" }).then(() => {
-						window.location.reload();
+			// this.client
+			// 	.post("/api/save-itinerary", {
+			// 		main_image: null,
+			// 		main_title: this.main_title,
+			// 		main_description: this.setAboutMe,
+			// 		gen_tips: this.setTips,
+			// 		total_budget: this.total_budget,
+			// 		currency: this.currency_save,
+			// 		itineraries: this.itineraryIds,
+			// 	})
+			// 	.then((response) => {})
+			// 	.catch((error) => {
+			// 		console.error(error);
+			// 	});
+
+			if (
+				!this.main_title.trim() ||
+				!this.setAboutMe.trim() ||
+				!this.setTips.trim() ||
+				this.main_title === "ITINERARY TITLE"
+			) {
+				alert("Please fill all fields correctly."); // Inform the user (consider using a more user-friendly notification system)
+				return; // Exit the method
+			} else {
+				let formData = new FormData();
+				formData.append("main_image", null);
+				formData.append("main_title", this.main_title);
+				formData.append("main_description", this.setAboutMe);
+				formData.append("gen_tips", this.setTips);
+				formData.append("total_budget", this.total_budget);
+				formData.append("currency", this.currency_save);
+				formData.append("itineraries", this.itineraryIds);
+				if (this.picture && this.picture instanceof File) {
+					formData.append("image", this.picture, this.picture.name);
+				}
+				this.client
+					.post("/api/save-itinerary", formData, {
+						headers: {
+							"Content-Type": "multipart/form-data",
+						},
+					})
+					.then((response) => {
+						console.log(response.data);
+						this.main_title = "ITINERARY TITLE";
+						this.setAboutMe = "";
+						this.setTips = "";
+
+						this.selectedImageUrl = null;
+						window.scrollTo(0, 0);
+						router.push({ name: "itinerary" }).then(() => {
+							window.location.reload();
+						});
+					})
+					.catch((error) => {
+						// Handle error
 					});
-				})
-				.catch((error) => {
-					console.error(error);
-				});
+			}
 		},
 		submitItinerary() {
 			this.client
@@ -1100,7 +1209,6 @@ export default {
 				});
 		},
 	},
-
 };
 </script>
 
