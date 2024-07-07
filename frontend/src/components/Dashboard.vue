@@ -255,7 +255,7 @@
 						<p
 							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify"
 						>
-							{{ post.content }} {{ post.is_liked }}
+							{{ post.content }}
 						</p>
 						<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
 							<img
@@ -702,6 +702,8 @@ export default {
 				!this.postContent.trim() ||
 				!this.countryPost.trim() ||
 				this.postTitle === "POST TITLE"
+
+
 			) {
 				alert("Please fill all fields correctly."); // Inform the user (consider using a more user-friendly notification system)
 				return; // Exit the method
@@ -727,9 +729,10 @@ export default {
 						this.postContent = "";
 						this.countryPost = "";
 						this.selectedImageUrl = null;
+						this.fetchPosts();
 					})
 					.catch((error) => {
-						// Handle error
+						console.log("huy bad ka ")
 					});
 			}
 		},

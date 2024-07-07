@@ -1,6 +1,7 @@
 from gc import get_objects
 import json
 from django.contrib.auth import get_user_model, login, logout
+from django.forms import ValidationError
 from django.http import Http404, HttpResponseServerError
 from django.shortcuts import get_object_or_404
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -24,6 +25,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status,viewsets
 from .validations import custom_validation, validate_username, validate_password
 from .models import Itinerary, LikeNotification, Post, Comment, CulturaUser, SaveItinerary
+
+from profanity.validators import validate_is_profane
 
 
 class UserView(APIView):
@@ -147,14 +150,21 @@ class PostCreate(APIView):
         image = request.FILES.get('image', None)
         country = data.get("country", "").strip()
         print("image: ", image) 
+        # Check for profanity in title and body
+        try:
+            if validate_is_profane(title) or validate_is_profane(body):
+                raise ValidationError(['Please remove any profanity/swear words.'])
+        except ValidationError as e:
+            return Response({'error': e.messages, 'field': 'title' if 'title' in e.messages[0] else 'body'}, status=400)
+
         try:
             post = Post(
-            author=request.user,
-            title=title,
-            category=category,
-            content=body,
-            image=image,
-            country=country,
+                author=request.user,
+                title=title,
+                category=category,
+                content=body,
+                image=image,
+                country=country,
             )
             post.save()
         except Exception as e:
@@ -163,7 +173,7 @@ class PostCreate(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        serializer = PostSerializer(post,context={'request': request})
+        serializer = PostSerializer(post, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 from bson import ObjectId    
 class PostViewSet(viewsets.ModelViewSet):
@@ -241,6 +251,17 @@ class PostListView(APIView):
             comments = Comment.objects.filter(post_id=post_data['_id'])
             comment_serializer = CommentSerializer(comments, many=True)
             post_data['comments'] = comment_serializer.data
+
+            # Get the post title
+            title = post_data.get('title', '')
+
+            # Validate if the post title is profane
+            # title_is_profane = validate_is_profane(title)
+            
+            # print(title_is_profane)
+            # post_data['title'] = "****" if title_is_profane else title
+            # Add the profanity flag to the post data
+            
         
         return Response(serializer.data, status=status.HTTP_200_OK)
 class LikedPostView(APIView):

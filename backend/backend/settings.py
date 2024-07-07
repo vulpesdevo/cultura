@@ -62,7 +62,9 @@ INSTALLED_APPS = [
     "import_export",
     "corsheaders",
     "djoser",
+    'profanity',
     "base.apps.BaseConfig",
+    
 ]
 
 IMPORT_EXPORT_USE_TRANSACTIONS = False
