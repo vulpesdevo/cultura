@@ -2,7 +2,7 @@
 	<div
 		class="flex flex-col items-center align-middle w-full px-5 py-5 4 ml-0 overflow-auto h-screen bg-field pt-20 sm:px-28 sm:ml-64 sm:pt-3"
 	>
-		<div class="flex w-full justify-between sm:w-3/4">
+		<div class="flex w-full mb-4 justify-between sm:w-3/4">
 			<h1
 				class="font-montserrat text-left text-prime font-semibold sm:text-3xl"
 			>
@@ -19,28 +19,35 @@
 			</div>
 		</div>
 		<div
-			class="w-full mt-5 justify-between sm:mt-5 sm:w-3/4 cursor-pointer"
+			class="w-full justify-between sm:mt-2 sm:w-3/4 cursor-pointer"
 			v-for="(data, index) in like_notification"
 			:key="index"
+			@click="view_post(data.post_obj_id)"
 		>
 			<div
-				class="w-full mt-6 p-6 rounded-lg shadow-lg bg-interface sm:mt-5"
+				class="w-full mt-1 p-3 sm:p-5 rounded-lg shadow-lg sm:mt-2"
+				:class="!data.is_read ? 'bg-zinc-400' : 'bg-interface'"
 			>
 				<div class="flex justify-between items-start sm:items-center">
 					<div class="flex flex-col sm:flex-row">
 						<h1
-							class="font-montserrat text-start text-prime text-xs sm:text-lg pr-2"
+							class="font-montserrat flex items-center text-start text-prime text-xs sm:text-[16px] pr-2"
 						>
-							@{{ data.liker }}
+							@{{ data.audience }}
+							{{
+								data.notif_type === "like"
+									? "liked your post"
+									: "replied to your post"
+							}}:
 						</h1>
 						<p
-							class="font-bebas-neue overflow-hidden whitespace-nowrap text-ellipsis text-lg w-[17rem] sm:w-[30rem] text-prime sm:text-2xl"
+							class="font-bebas-neue flex items-center pb-0 overflow-hidden whitespace-nowrap text-ellipsis text-lg w-[17rem] sm:w-[20rem] text-start text-prime sm:text-[20px]"
 						>
-							Replied TO YOUR POST {{ data.post_title }}
+							{{ data.post_title }}
 						</p>
 					</div>
 					<small
-						class="font-montserrat text-prime text-xs sm:text-lg"
+						class="font-montserrat text-prime text-xs sm:text-[15px]"
 						>{{
 							new Date(data.created_at).toLocaleDateString()
 						}}</small
@@ -62,6 +69,7 @@ export default {
 	data() {
 		return {
 			like_notification: [],
+			unreadCount: null,
 		};
 	},
 	mounted() {
@@ -89,10 +97,20 @@ export default {
 					"/api/like-notification-list"
 				);
 				this.like_notification = response.data;
+				this.unreadCount = this.like_notification.filter(
+					(data) => !data.is_read
+				).length;
 				console.log(this.like_notification);
 			} catch (error) {
 				console.log(error);
 			}
+		},
+
+		view_post(post_id_notif) {
+			this.$router.push({
+				name: "view-post",
+				params: { post_id_notif },
+			});
 		},
 	},
 };

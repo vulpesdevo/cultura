@@ -195,7 +195,7 @@
 				:key="post._id"
 			>
 				<div class="post-title flex justify-start items-center">
-					<div class="flex w-1/2 items-center">
+					<div class="flex w-[90%] items-center ">
 						<h1
 							class="font-bebas-neue text-lg text-prime sm:text-2xl"
 						>
@@ -205,7 +205,7 @@
 							timesince(post.date_posted)
 						}}</small>
 					</div>
-					<div class="flex w-1/2 justify-end">
+					<div class="flex w-[10%] justify-end " >
 						<button @click="toggleMenu" class="">
 							<span class="material-icons-outlined">
 								more_horiz
@@ -261,7 +261,7 @@
 							<img
 								:src="post.image"
 								alt=""
-								class="h-full w-full object-cover rounded-lg"
+								class="h-full object-contain rounded-lg"
 							/>
 						</div>
 					</div>
@@ -288,7 +288,7 @@
 						>
 						<small class="text-prime pl-1">
 							{{
-								post.like_count  >= 1000
+								post.like_count >= 1000
 									? (post.like_count / 1000).toFixed(1) + "k"
 									: post.like_count
 							}}
@@ -618,13 +618,14 @@ export default {
 				"Content-Type": "application/json",
 			},
 		});
+		this.fetchPosts();
 		this.initializeAutocompleteCountry();
 	},
 	mounted() {
-		this.fetchPosts();
-		setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds -->> polling
-		this.fetchComments();
-		setInterval(this.fetchComments, 5000);
+		// this.fetchPosts();
+		// setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds -->> polling
+		// this.fetchComments();
+		// setInterval(this.fetchComments, 5000);
 		this.initializeAutocompleteCountry();
 
 		this.fetchSavedItineraries();
@@ -686,11 +687,14 @@ export default {
 			this.showModal = true;
 
 			this.selectedPost = [post];
+			console.log("GET POST", this.selectedPost);
 			this.post_id = this.selectedPost[0]._id;
+			
+
 			this.replied_to = this.selectedPost[0].author;
-			this.comments_in_post = this.comments.filter(
-				(comment) => comment.post_id === this.post_id
-			);
+			this.comments_in_post =
+				this.posts.find((p) => p._id === this.post_id)?.comments || [];
+				console.log("the id : ", this.comments_in_post);
 		},
 		submitPost() {
 			if (
@@ -740,8 +744,9 @@ export default {
 				.then((response) => {
 					console.log(response.data);
 					this.reply = "";
-					this.fetchComments();
-					setInterval(this.fetchComments, 5000);
+					// this.fetchComments();
+					this.fetchPosts();
+					// setInterval(this.fetchComments, 5000);
 					this.showModal = false;
 					// Handle successful response here
 				})
@@ -770,9 +775,10 @@ export default {
 		},
 		fetchPosts() {
 			this.client
-				.get("/api/posts-list")
+				.get(`/api/posts-list`)
 				.then((response) => {
 					this.posts = response.data.reverse();
+					// this.comments_in_post = this.posts[0].comments;
 					console.log("updateed :", this.posts);
 				})
 				.catch((error) => {

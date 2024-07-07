@@ -49,27 +49,28 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("id", "username", "email")
 
 class CommentSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Comment
-        fields = "__all__"
+        fields =("__all__")
 class LikeSerializer(serializers.ModelSerializer):
     # user = UserSerializer(read_only=True)
-
     class Meta:
         model = LikeNotification
-        fields = ('post_obj_id','post_author','post_title','post_content','liker','created_at')
+        fields = ('post_obj_id','notif_type','post_author','post_title','post_content','audience','is_read','created_at')
 
 class PostSerializer(serializers.ModelSerializer):
     likes = UserSerializer(many=True,read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
     author = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     # date_get_like = serializers.SerializerMethodField()
-    
+    # comment_count = serializers.SerializerMethodField()
     # date_get_like = serializers.DateTimeField(auto_now_add=True)
     class Meta:
         model = Post
-        fields = ('_id', 'author', 'title','content', 'category','image', 'country', 'date_posted',"likes",'like_count','is_liked')
+        fields = ('_id', 'author', 'title','content', 'category','image', 'country', 'date_posted',"likes",'like_count','is_liked','comments')
     def get_author(self,obj):
         return obj.author.username
     def get_like_count(self,obj):
@@ -79,8 +80,8 @@ class PostSerializer(serializers.ModelSerializer):
         user = self.context.get('user')
         
         return True if user in obj.likes.all() else False
-    
-    
+    # def get_comment_count(self, obj):
+    #     return len(obj.comments.all())
     
     
     # def get_date_get_like(self, obj):

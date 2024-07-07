@@ -8,6 +8,7 @@ import ItineraryHome from "./components/ItineraryHome.vue";
 import CreateItinerary from "./components/CreateItinerary.vue";
 import Settings from "./components/Settings.vue";
 import ViewItinerary from "./components/ViewItinerary.vue";
+import PostViewing from "./components/PostViewing.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -33,6 +34,11 @@ const router = createRouter({
 			path: "/view-itinerary",
 			component: ViewItinerary,
 			name: "view-itinerary",
+		},
+		{
+			path: "/view-post",
+			component: PostViewing,
+			name: "view-post",
 		},
 		{ path: "/profile", component: Profile, name: "profile" },
 		{

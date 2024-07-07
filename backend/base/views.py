@@ -180,18 +180,18 @@ class PostViewSet(viewsets.ModelViewSet):
         if user in post.likes.all():
             post.likes.remove(user)
             message = 'post unliked'
-            LikeNotification.objects.filter(post_obj_id=post).delete()
+            LikeNotification.objects.filter(post_obj_id=object_id).delete()
         else:
             post.likes.add(user)
 
             message = 'post liked'
             like_notification = LikeNotification(
-                post_obj_id=post,
+                post_obj_id=object_id,
                 post_author = post.author,
-                
+                notif_type="like",
                 post_title = post.title,
                 post_content = post.content,
-                liker=user.username,
+                audience=user.username,
             )
             like_notification.save()
             
@@ -212,6 +212,7 @@ class LikesNotificationList(APIView):
         
         serializer = LikeSerializer(data, many=True)
         
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
 class PostListView(APIView):
     """
@@ -227,6 +228,7 @@ class PostListView(APIView):
         # Serialize the posts
         serializer = PostSerializer(posts, many=True,context={'user': request.user})
         # Include the image URLs in the response
+        
         for post_data in serializer.data:
             image = post_data.get('image', None)
             if image:
@@ -234,8 +236,43 @@ class PostListView(APIView):
                 abs_image_url = request.build_absolute_uri(image)
                 # Update the post data with the absolute URI
                 post_data['image'] = abs_image_url
+
+            # Retrieve comments for the post
+            comments = Comment.objects.filter(post_id=post_data['_id'])
+            comment_serializer = CommentSerializer(comments, many=True)
+            post_data['comments'] = comment_serializer.data
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+class LikedPostView(APIView):
+    """
+    API view to retrieve a list of all Post instances from the database.
+    Any user, authenticated or not, is allowed to access this view.
+    """
+
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request,post_id):
+        
+        object_id = ObjectId(post_id)
+        post = Post.objects.filter(_id=object_id)
+        serializer = PostSerializer(post, many=True,context={'user': request.user})
+            
+        # Serialize the posts
+        LikeNotification.objects.filter(post_obj_id=object_id).update(is_read=True)
+        # Include the image URLs in the response
+        for post_data in serializer.data:
+            image = post_data.get('image', None)
+            if image:
+                # Build the absolute URI for the image
+                abs_image_url = request.build_absolute_uri(image)
+                # Update the post data with the absolute URI
+                post_data['image'] = abs_image_url
+            comments = Comment.objects.filter(post_id=post_data['_id'])
+            comment_serializer = CommentSerializer(comments, many=True)
+            post_data['comments'] = comment_serializer.data
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     
 
 
@@ -289,7 +326,8 @@ class CommentCreate(APIView):
         post_id = data.get("post_id", "").strip()
         reply = data.get("body", "").strip()
         replied_to = data.get("replied_to", "").strip()
-
+        object_id = ObjectId(post_id)
+        
         import logging
 
         comment = Comment.objects.create(
@@ -298,6 +336,18 @@ class CommentCreate(APIView):
             replied_to= replied_to,
             body=reply,
         )
+        post = Post.objects.get(_id=object_id)
+        title = post.title
+        
+        like_notification = LikeNotification(
+                post_obj_id=post_id,
+                post_author = replied_to,
+                notif_type="commented",
+                post_title = title,
+                post_content = reply,
+                audience=request.user.username,
+            )
+        like_notification.save()
         logging.info(
             f"Comment created - Post ID: {post_id}, Author: {request.user.username}"
         )

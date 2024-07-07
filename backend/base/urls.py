@@ -17,9 +17,9 @@ urlpatterns = [
 
     # creating and calling posts
     path("posting", views.PostCreate.as_view(), name="post-create"),
-    path("posts-list", views.PostListView.as_view(), name="post-list"),
+    path("posts-list/", views.PostListView.as_view(), name="post-list"),
     path("like-notification-list", views.LikesNotificationList.as_view(), name="like-notif-list"),
-    
+    path("liked-post-view/<str:post_id>/", views.LikedPostView.as_view(), name="liked-post-view"),
     path('', include(router.urls)),
     path("profile-posts", views.ProfilePostListView.as_view(), name="profile-post-list"),
     

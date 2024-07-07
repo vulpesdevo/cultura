@@ -66,10 +66,12 @@ class LikeNotificationAdmin(admin.ModelAdmin):
     list_display = (
 
         'post_obj_id',
+        'notif_type',
         'post_author',
         'post_title',
         'post_content',
-        'liker',
+        'audience',
+        'is_read',
         'created_at',
     )
 

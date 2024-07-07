@@ -52,9 +52,10 @@
 					}}</span
 					><span
 						v-if="link.name === 'Notification'"
+						v-show="unreadCount > 0"
 						class="absolute top-1 right-14 sm:relative sm:top-0 sm:right-0 inline-flex items-center justify-center px-2 py-1 ml-16 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
 					>
-						9
+						{{ unreadCount }}
 					</span></router-link
 				>
 			</li>
@@ -70,10 +71,14 @@
 				@click="togglePopup"
 			/>
 			<div
-				class="flex flex-col font-montserrat pl-4 w-full font-medium "
+				class="flex flex-col font-montserrat pl-4 w-full font-medium"
 				v-show="user"
 			>
-				<p class="w-40 overflow-hidden whitespace-nowrap text-ellipsis text-prime">{{ user.fullname }}</p>
+				<p
+					class="w-40 overflow-hidden whitespace-nowrap text-ellipsis text-prime"
+				>
+					{{ user.fullname }}
+				</p>
 				<small class="text-gray-600">@{{ user.username }}</small>
 			</div>
 		</div>
@@ -134,6 +139,8 @@ export default {
 		return {
 			showPopup: false,
 			isHovered: false,
+
+			unreadCount: null,
 			user: {
 				isAuthenticated: false,
 				username: null,
@@ -194,7 +201,25 @@ export default {
 			submitLogout1,
 		};
 	},
+	mounted() {
+		this.fetchLikenotification();
+		setInterval(this.fetchLikenotification, 5000);
+	},
 	methods: {
+		async fetchLikenotification() {
+			try {
+				const response = await this.client.get(
+					"/api/like-notification-list"
+				);
+				// this.like_notification = response.data;
+				this.unreadCount = response.data.filter(
+					(data) => !data.is_read
+				).length;
+				console.log(this.unreadCount);
+			} catch (error) {
+				console.log(error);
+			}
+		},
 		togglePopup() {
 			this.showPopup = !this.showPopup;
 		},
@@ -229,17 +254,21 @@ export default {
 		},
 	},
 	created() {
-		const client = axios.create({
+		this.token = localStorage.getItem("token");
+		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
+			withCredentials: true,
+			timeout: 5000,
+			xsrfCookieName: "csrftoken",
+			xsrfHeaderName: "X-Csrftoken",
+			headers: {
+				Authorization: `Token ${this.token}`,
+				"Content-Type": "application/json",
+			},
 		});
-		const token = localStorage.getItem("token");
-		const headers = {
-			Authorization: `Token ${token}`,
-			"Content-Type": "application/json",
-		};
 
-		client
-			.get("api/user", { headers: headers })
+		this.client
+			.get("api/user", {})
 			.then((res) => {
 				this.user.username = res.data.user.username;
 				this.user.fullname = res.data.profile.fullname;

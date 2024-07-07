@@ -76,6 +76,7 @@ class Post(models.Model):
     itinerary = models.CharField(max_length=200,null=True,blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, blank=True)
+    comments = models.ManyToManyField(Comment, blank=True)
     
 class LikeNotification(models.Model):
     
@@ -83,9 +84,10 @@ class LikeNotification(models.Model):
     post_obj_id = models.CharField(max_length=255)
     post_title = models.CharField(max_length=255)
     post_content = models.CharField(max_length=255)
-
-    liker = models.CharField(max_length=255)
+    notif_type = models.CharField(max_length=255)
+    audience = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
     
 
 
