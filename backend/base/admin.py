@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CulturaUser, Itinerary, LikeNotification, Post, Comment, SaveItinerary
+from .models import CulturaUser, Itinerary, LikeNotification, Post, Comment, SaveItinerary, UserSetting
 
 
 class CulturaUserAdmin(admin.ModelAdmin):
@@ -74,6 +74,19 @@ class LikeNotificationAdmin(admin.ModelAdmin):
         'is_read',
         'created_at',
     )
+
+
+class UserSettingsAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'in_app_notification',
+        'banner_notification',
+        'vibration',
+        'sound',
+        'theme',
+    )
+
+admin.site.register(UserSetting, UserSettingsAdmin)
 
 admin.site.register(LikeNotification, LikeNotificationAdmin)
 admin.site.register(CulturaUser, CulturaUserAdmin)

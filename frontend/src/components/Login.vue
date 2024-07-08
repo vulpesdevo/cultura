@@ -1,13 +1,13 @@
 <template>
 	<section
-		class="bg-interface h-screen w-screen flex flex-col justify-center items-center sm:flex-row p-0 sm:p-20"
+		class="bg-interface dark:bg-dark-notif  h-screen w-screen flex flex-col justify-center items-center sm:flex-row p-0 sm:p-20"
 	>
 		<div
 			class="logo-container sm:w-1/2 flex justify-center items-center align-middle pt-10 sm:pt-1"
 		>
 			<img
 				class="h-56 sm:w-screen sm:h-auto"
-				src="/culturalink_logo.png"
+				:src="isDark ? '/culturalink_logo.png':'/logo1Light.png'"
 				alt="cultura-logo"
 			/>
 		</div>
@@ -15,12 +15,12 @@
 			class="flex flex-col justify-center items-center sm:w-1/2 align-middle text-center"
 		>
 			<h3
-				class="sm:pl-0 flex text-center text-prime text-2xl sm:text-5xl mb-3 w-auto"
+				class="sm:pl-0 flex text-center text-prime dark:text-dark-prime text-2xl sm:text-5xl mb-3 w-auto"
 			>
 				Share. Learn. Connect.
 			</h3>
 			<h1
-				class="font-bebas-neue text-6xl text-prime text-center mb-6 tracking-widest sm:text-9xl"
+				class="font-bebas-neue text-6xl text-prime dark:text-dark-prime text-center mb-6 tracking-widest sm:text-9xl"
 			>
 				Culturalink
 			</h1>
@@ -33,14 +33,15 @@
 					placeholder="Username"
 					name="lusername"
 					v-model="username"
-					class="pl-5 bg-field rounded-full mb-4 w-80 sm:w-96 h-14"
+					class="pl-5 bg-field  dark:bg-dark-second-dark dark:text-dark-prime rounded-full mb-4 w-80 sm:w-96 h-14"
+					
 				/>
 				<input
 					type="password"
 					name="lpassword"
 					v-model="password"
 					placeholder="Password"
-					class="pl-5 bg-field rounded-full mb-2 w-80 sm:w-96 h-14"
+					class="pl-5 bg-field dark:bg-dark-second-dark dark:text-dark-prime rounded-full mb-2 w-80 sm:w-96 h-14"
 				/>
 				<a class="text-center text-second mb-10" @click="toggleModal"
 					>Forgot passsword?</a
@@ -51,7 +52,7 @@
 					class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light"
 				/>
 				<span class="flex"
-					><p class="text-black">Don't have an account?</p>
+					><p class="text-black dark:text-dark-prime">Don't have an account?</p>
 					<a
 						href=""
 						class="pl-3 text-second"
@@ -91,20 +92,20 @@
 					</button> -->
 					<span
 						@click="showModal = false"
-						class="flex material-icons-outlined justify-end absolute top-0 right-0 m-2 text-prime text-2xl"
+						class="flex material-icons-outlined justify-end absolute top-0 right-0 m-2 text-prime dark:text-dark-prime text-2xl"
 						>close</span
 					>
 					<div
-						class="bg-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
+						class="bg-interface dark:bg-dark-notif px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
 					>
 						<h3
-							class="font-bebas-neue text-5xl pt-5 sm:text-7xl leading-6 font-medium text-prime"
+							class="font-bebas-neue text-5xl pt-5 sm:text-7xl leading-6 font-medium text-prime dark:text-dark-prime"
 							id="modal-title"
 						>
 							SIGN UP
 						</h3>
 						<p
-							class="font-montserrat text-prime pt-2 pb-5 text-lg sm:text-2xl"
+							class="font-montserrat text-prime  dark:text-dark-prime pt-2 pb-5 text-lg sm:text-2xl"
 						>
 							Create your account
 						</p>
@@ -116,21 +117,21 @@
 										placeholder="Username"
 										name="rusername"
 										v-model="rusername"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime "
 									/>
 									<input
 										type="email"
 										placeholder="Email"
 										name="email"
 										v-model="email"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
 									/>
 									<input
 										type="text"
 										placeholder="Name"
 										name="name"
 										v-model="rname"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
 									/>
 								</div>
 								<div class="w-full md:w-1/2 px-3">
@@ -139,21 +140,23 @@
 										placeholder="Country"
 										name="country"
 										v-model="rcountry"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
 									/>
 									<input
 										type="password"
 										placeholder="Password"
 										name="rpassword"
 										v-model="rpassword"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
 									/>
 									<input
 										type="password"
 										placeholder="Re-enter Password"
 										name="repassword"
 										v-model="repassword"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field"
+										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
+
+										
 									/>
 								</div>
 							</div>
@@ -162,7 +165,7 @@
 								class="flex flex-col items-center align-middle text-center"
 							>
 								<p
-									class="py-5 text-white font-montserrat text-xs"
+									class="py-5 text-prime dark:text-dark-prime font-montserrat text-xs"
 								>
 									By signing up, you agree to the Terms of
 									Service and Privacy Policy, including Cookie

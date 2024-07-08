@@ -1,19 +1,19 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 py-5 4 ml-0 overflow-auto h-screen bg-field pt-20 sm:px-28 sm:ml-64 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full px-5 py-5 4 ml-0 overflow-auto h-screen bg-field dark:bg-dark-notif pt-20 sm:px-28 sm:ml-64 sm:pt-3"
 	>
 		<div class="flex w-full mb-4 justify-between sm:w-3/4">
 			<h1
-				class="font-montserrat text-left text-prime font-semibold sm:text-3xl"
+				class="font-montserrat text-left  text-prime dark:text-dark-prime font-semibold sm:text-3xl"
 			>
 				Notifications
 			</h1>
 			<div class="flex items-center">
 				<a
-					class="font-montserrat text-prime text-right sm:text-lg border border-l-0 border-y-0 border-r-prime pr-3 hover:underline cursor-pointer"
+					class="font-montserrat text-prime dark:text-dark-prime  text-right sm:text-lg border border-l-0 border-y-0 border-r-prime pr-3 hover:underline cursor-pointer"
 					>Mark all as read</a
 				>
-				<span class="text-prime material-icons-outlined pl-3"
+				<span class="text-prime dark:text-dark-second  material-icons-outlined pl-3"
 					>settings</span
 				>
 			</div>
@@ -54,7 +54,7 @@
 					>
 				</div>
 				<p
-					class="font-montserrat overflow-hidden whitespace-nowrap text-ellipsis sm:pl-4 sm:pt-2 text-sm w-[21rem] sm:w-full text-prime text-gray-500"
+					class="font-montserrat overflow-hidden whitespace-nowrap text-ellipsis sm:pl-4 sm:pt-2 text-sm w-[21rem] sm:w-full text-prime"
 				>
 					{{ data.post_content }}
 				</p>

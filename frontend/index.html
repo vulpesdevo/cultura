@@ -12,9 +12,9 @@
 			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 			rel="stylesheet"
 		/>
-		
+
 		<!-- from cdn -->
-		
+		<link href="/output.css" rel="stylesheet">
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script
 			async
@@ -24,6 +24,8 @@
 
 		<script>
 			tailwind.config = {
+				darkMode: ["class"],
+				content: ["./index.html", "./src/**/*.{html,vue,js,ts,jsx,tsx}"],
 				theme: {
 					extend: {
 						screens: {
@@ -35,7 +37,16 @@
 							second: "#6A7FDB",
 							field: "#D1D0D0",
 							"second-light": "#7589E1",
-							"notif": "#1E1E1E",
+							notif: "#1E1E1E",
+							dark: {
+								interface: "#2D313D",
+								prime: "#F7F7F7",
+								second: "#6A7FDB",
+								field: "#2D313D",
+								"second-dark": "#5B606F",
+								notif: "#1E1E1E",
+							},
+							
 						},
 						fontFamily: {
 							montserrat: ["Montserrat", "sans-serif"],
@@ -49,33 +60,34 @@
 					},
 				},
 			};
+			if (
+				localStorage.theme === "dark" ||
+				(!("theme" in localStorage) &&
+					window.matchMedia("(prefers-color-scheme: dark)").matches)
+			) {
+				document.documentElement.classList.add("dark");
+			} else {
+				document.documentElement.classList.remove("dark");
+			}
+
+			// Whenever the user explicitly chooses light mode
+			localStorage.theme = "light";
+
+			// Whenever the user explicitly chooses dark mode
+			localStorage.theme = "dark";
+
+			// Whenever the user explicitly chooses to respect the OS preference
+			localStorage.removeItem("theme");
 		</script>
 		<script>
-        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark')
-        } else {
-            document.documentElement.classList.remove('dark')
-        }
-
-        // Function to toggle dark mode
-        function toggleDarkMode() {
-            let theme = localStorage.getItem('theme');
-            if (theme === 'dark') {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-    </script>
+			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+		</script>
 		<title>Culturalink</title>
 	</head>
 	<body>
 		<div id="app"></div>
 		<script type="module" src="/src/main.js"></script>
-		
+
 		<script src="https://unpkg.com/@material-tailwind/html@latest/scripts/collapse.js"></script>
 	</body>
 </html>

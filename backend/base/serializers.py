@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
-from .models import  LikeNotification, Post, Comment,CulturaUser,Itinerary, SaveItinerary
+from .models import  LikeNotification, Post, Comment,CulturaUser,Itinerary, SaveItinerary, UserSetting
 from djongo import models
 UserModel = get_user_model()
 
@@ -48,8 +48,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = UserModel
         fields = ("id", "username", "email")
 
+
 class CommentSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Comment
         fields =("__all__")
@@ -80,13 +80,11 @@ class PostSerializer(serializers.ModelSerializer):
         user = self.context.get('user')
         
         return True if user in obj.likes.all() else False
-    # def get_comment_count(self, obj):
-    #     return len(obj.comments.all())
-    
-    
-    # def get_date_get_like(self, obj):
-    #     return timezone.now()
-    
+class SettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSetting
+        fields = ['in_app_notification', 'banner_notification', 'vibration', 'sound', 'theme']
+        
 class ItinerarySerializer(serializers.ModelSerializer):
     
     class Meta:

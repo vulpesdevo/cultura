@@ -88,7 +88,14 @@ class LikeNotification(models.Model):
     audience = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
-    
+
+class UserSetting (models.Model):
+    user= models.ForeignKey(User, on_delete=models.CASCADE, related_name='settings') 
+    in_app_notification = models.BooleanField(default=False)
+    banner_notification = models.BooleanField(default=False)
+    vibration = models.BooleanField(default=False)
+    sound =models.BooleanField(default=False)
+    theme = models.BooleanField(default=False)  
 
 
 # class AppUserManager(BaseUserManager):

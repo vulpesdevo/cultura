@@ -1,9 +1,13 @@
 <template>
 	<div
 		v-if="user.isAuthenticated"
-		class="flex justify-between w-screen h-16 bg-interface fixed sm:top-0 p-3 z-50"
+		class=" flex justify-between w-screen h-16 bg-interface dark:bg-dark-interface fixed sm:top-0 p-3 z-50"
 	>
-		<img src="/culturalink_logo.png" alt="Logo" class="h-full w-auto" />
+		<img
+			:src="isDark ? '/logo1Light.png':'/culturalink_logo.png'"
+			alt="Logo"
+			class="h-full w-auto"
+		/>
 		<div class="sm:flex w-10 h-full" @click.self="showPopup = false">
 			<img
 				src="/sample_img/mark.png"
@@ -14,7 +18,7 @@
 		</div>
 		<div
 			v-if="showPopup"
-			class="sm:flex bg-cl-purple text-prime absolute top-16 right-5 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg bg-interface"
+			class="sm:flex bg-cl-purple text-prime absolute top-16 right-5 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg bg-interface dark:bg-dark-second dark:text-dark-prime"
 			@click.self="showPopup = false"
 		>
 			<ul class="">
@@ -25,7 +29,7 @@
 							class="flex align-middle items-start pb-3"
 							@click="showPopup = false"
 							><span
-								class="text-second material-icons-outlined pr-2"
+								class="text-second dark:text-dark-prime material-icons-outlined pr-2"
 								>account_circle</span
 							>
 							<p>Profile</p></router-link
@@ -37,7 +41,7 @@
 							class="flex align-middle items-start"
 							@click="showPopup = false"
 							><span
-								class="text-second material-icons-outlined pr-2"
+								class="text-second dark:text-dark-prime material-icons-outlined pr-2"
 								>settings</span
 							>
 							<p>Settings</p></router-link
@@ -49,7 +53,8 @@
 						to="/"
 						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
 						@click="submitLogout"
-						><span class="text-second material-icons-outlined pr-2"
+						><span
+							class="text-second dark:text-dark-prime material-icons-outlined pr-2"
 							>logout</span
 						>
 						<p>Logout</p></router-link
@@ -63,7 +68,15 @@
 <script>
 import axios from "axios";
 import router from "../routes";
+import { useDark, useToggle } from "@vueuse/core";
+
 export default {
+	setup() {
+		const isDark = useDark();
+		const toggleDark = useToggle(isDark);
+
+		return { isDark, toggleDark };
+	},
 	data() {
 		return {
 			showPopup: false,

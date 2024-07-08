@@ -14,7 +14,8 @@ urlpatterns = [
     path("login", views.UserLogin.as_view(), name="login"),
     path("logout", views.UserLogout.as_view(), name="logout"),
 
-
+    path("user-settings", views.GetSettings.as_view(), name="user-settings"),
+    
     # creating and calling posts
     path("posting", views.PostCreate.as_view(), name="post-create"),
     path("posts-list/", views.PostListView.as_view(), name="post-list"),
@@ -22,6 +23,9 @@ urlpatterns = [
     path("liked-post-view/<str:post_id>/", views.LikedPostView.as_view(), name="liked-post-view"),
     path('', include(router.urls)),
     path("profile-posts", views.ProfilePostListView.as_view(), name="profile-post-list"),
+    path("delete-post", views.ProfilePostListView.as_view(), name="delete-post"),
+    
+    
     
     # creating and calling comments
     path("commenting", views.CommentCreate.as_view(), name="comment-create"),

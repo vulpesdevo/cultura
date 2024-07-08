@@ -14,6 +14,7 @@ from .serializers import (
     ItinerarySerializer,
     LikeSerializer,
     SaveItinerarySerializer,
+    SettingSerializer,
     UserRegisterSerializer,
     UserLoginSerializer,
     UserSerializer,
@@ -24,7 +25,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status,viewsets
 from .validations import custom_validation, validate_username, validate_password
-from .models import Itinerary, LikeNotification, Post, Comment, CulturaUser, SaveItinerary
+from .models import Itinerary, LikeNotification, Post, Comment, CulturaUser, SaveItinerary, UserSetting
 
 from profanity.validators import validate_is_profane
 
@@ -74,6 +75,7 @@ class UserRegister(APIView):
                     email=email,
                     #  # Assuming you want to associate the Profile with the created user
                 )
+                UserSetting.objects.create(user=user)
                 login(request, user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
                 # return Response({"user": serializer.data})
@@ -322,6 +324,17 @@ class ProfilePostListView(APIView):
         
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
+    def post(self,request):
+        
+        data = request.data
+        post_id = data.get("post_id", "").strip()
+        object_id = ObjectId(post_id)
+        try:
+            post = Post.objects.get(_id=object_id)
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 class CommentCreate(APIView):
     """
@@ -556,3 +569,39 @@ class ViewItinerary(APIView):
         # itiner = Itinerary.objects.filter(id=itinerary_ids)
         # serializer.data['itineraries'] = ItinerarySerializer(itiner, many=True).data
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GetSettings(APIView):
+    
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        data = request.data
+        
+        in_app_notif = data.get("in_app_notif")
+        banner_notif = data.get("banner_notif")
+        vibration = data.get("vibration")
+        sound = data.get("sound")
+        theme = data.get("theme")
+        
+        settings = UserSetting.objects.filter(user=request.user)
+        settings.update(
+            in_app_notification=in_app_notif,
+            banner_notification=banner_notif,
+            vibration=vibration,
+            sound=sound,
+            theme=theme,
+        )
+        
+        
+        serializer = SettingSerializer(settings)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self,request):
+
+        settings = UserSetting.objects.filter(user=request.user)
+
+        serializer = SettingSerializer(settings, many=True)
+        print("where ::",serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        

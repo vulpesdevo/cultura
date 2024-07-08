@@ -9,11 +9,17 @@
 import Sidebar from "./components/Sidebar.vue";
 import Topbar from "./components/Topbar.vue";
 import axios from "axios";
-
+import { useDark,useToggle } from "@vueuse/core";
 import { ref } from "vue";
 export default {
 	components: {
 		Sidebar,Topbar,
+		},
+	setup() {
+		const isDark = useDark();
+		const toggleDark = useToggle(isDark);
+		
+		return { isDark,toggleDark };
 	},
 	data() {
 		return {
@@ -81,6 +87,7 @@ input,
 	font-family: "Montserrat";
 }
 input::placeholder {
-	color: #1a193f;
+	color: #9b9bb4;
 }
+
 </style>

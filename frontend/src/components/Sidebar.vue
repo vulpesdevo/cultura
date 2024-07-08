@@ -1,11 +1,15 @@
 <template>
 	<div
 		v-if="user.isAuthenticated"
-		class="w-full sm:w-64 h-14 sm:min-h-screen bg-white p-0 sm:p-2 fixed bottom-0 sm:bottom-auto z-40 shadow-lg"
+		class="w-full sm:w-64 h-14 sm:min-h-screen bg-white dark:bg-dark-interface p-0 sm:p-2 fixed bottom-0 sm:bottom-auto z-40 shadow-lg"
 	>
 		<div class="hidden sm:flex flex-col items-center p-5">
 			<img
-				src="/culturalink_brand_logo.png"
+				:src="
+					isDark
+						? 
+						 '/ULTURALINK-DMLong.png':'/culturalink_brand_logo.png'
+				"
 				alt="Logo"
 				class="mr-3 sm:w-full sm:h-32"
 			/>
@@ -14,10 +18,10 @@
 				<input
 					type="search"
 					placeholder="Search..."
-					class="ml-auto pl-10 h-9 outline-none text-black rounded-full shadow-md"
+					class="ml-auto pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
 				/>
 				<span
-					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700"
+					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700 dark:text-dark-prime"
 					>search</span
 				>
 			</div>
@@ -36,7 +40,7 @@
 				<router-link
 					active-class="active"
 					:to="link.path"
-					class="flex flex-col sm:flex-row align-middle items-center text-prime sm:h-12 w-20 sm:w-full"
+					class="flex flex-col sm:flex-row align-middle items-center text-prime dark:text-dark-second sm:dark:text-dark-prime sm:h-12 w-20 sm:w-full"
 				>
 					<span
 						:class="{ active: $route.path === link.path }"
@@ -75,16 +79,18 @@
 				v-show="user"
 			>
 				<p
-					class="w-40 overflow-hidden whitespace-nowrap text-ellipsis text-prime"
+					class="w-40 overflow-hidden whitespace-nowrap text-ellipsis text-prime dark:text-dark-prime"
 				>
 					{{ user.fullname }}
 				</p>
-				<small class="text-gray-600">@{{ user.username }}</small>
+				<small class="text-gray-600 dark:text-dark-second"
+					>@{{ user.username }}</small
+				>
 			</div>
 		</div>
 		<div
 			v-if="showPopup"
-			class="hidden sm:flex bg-cl-purple text-prime absolute bottom-16 left-20 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg"
+			class="hidden sm:flex bg-cl-purple text-prime dark:text-dark-prime dark:bg-dark-second absolute bottom-[4.5rem] left-20 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg"
 			@click.self="showPopup = false"
 		>
 			<ul class="">
@@ -95,7 +101,7 @@
 							class="flex align-middle items-start pb-3"
 							@click="showPopup = false"
 							><span
-								class="text-second material-icons-outlined pr-2"
+								class="text-second dark:text-dark-prime material-icons-outlined pr-2"
 								>account_circle</span
 							>
 							<p>Profile</p></router-link
@@ -107,7 +113,7 @@
 							class="flex align-middle items-start"
 							@click="showPopup = false"
 							><span
-								class="text-second material-icons-outlined pr-2"
+								class="text-second dark:text-dark-prime material-icons-outlined pr-2"
 								>settings</span
 							>
 							<p>Settings</p></router-link
@@ -119,7 +125,8 @@
 						to="/"
 						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
 						@click="submitLogout"
-						><span class="text-second material-icons-outlined pr-2"
+						><span
+							class="text-second dark:text-dark-prime material-icons-outlined pr-2"
 							>logout</span
 						>
 						<p>Logout</p></router-link
@@ -133,6 +140,8 @@
 <script>
 import axios from "axios";
 import router from "../routes";
+import { useDark, useToggle } from "@vueuse/core";
+
 export default {
 	name: "Sidebar",
 	data() {
@@ -169,6 +178,8 @@ export default {
 		};
 	},
 	setup() {
+		const isDark = useDark();
+		const toggleDark = useToggle(isDark);
 		const client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,
@@ -199,6 +210,8 @@ export default {
 			//login
 
 			submitLogout1,
+			isDark,
+			toggleDark,
 		};
 	},
 	mounted() {

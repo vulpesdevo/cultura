@@ -1,11 +1,11 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-20 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen   pt-20 sm:pt-3 bg-light-field dark:bg-dark-notif px-2"
 	>
 		<div
-			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
+			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9  rounded-lg shadow-lg bg-interface dark:bg-dark-interface "
 		>
-			<div class="flex justify-between items-center">
+			<div class="flex justify-between items-center ">
 				<div>
 					<!-- Text Field for Editing -->
 					<div v-if="isEditing" class="relative">
@@ -13,7 +13,7 @@
 							v-model="postTitle"
 							@blur="handleTitleChange"
 							@keyup.enter="handleTitleChange"
-							class="font-bebas-neue text-lg text-prime sm:text-3xl rounded-lg border-field px-2"
+							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl rounded-lg border-field dark:bg-dark-field px-2"
 							autofocus
 						/>
 						<span
@@ -27,7 +27,7 @@
 					<h1
 						v-else
 						@click="isEditing = true"
-						class="font-bebas-neue text-lg text-prime sm:text-3xl"
+						class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl"
 					>
 						{{ postTitle }}
 					</h1>
@@ -39,7 +39,7 @@
 						name=""
 						id="category-option"
 						v-model="categoryOption"
-						class="sm:w-1/2 rounded-full bg-field outline-none p-1"
+						class="sm:w-1/2 rounded-full bg-field dark:bg-dark-field outline-none p-1 dark:text-dark-prime"
 					>
 						<option value="" disabled selected>Category</option>
 						<option value="Food">Food</option>
@@ -58,7 +58,7 @@
 						/>
 					</div>
 					<textarea
-						class="w-full rounded-lg resize-none p-4 outline-none"
+						class="w-full rounded-lg resize-none p-4 outline-none dark:bg-dark-field dark:text-dark-prime"
 						name=""
 						id="post-content"
 						v-model="postContent"
@@ -76,6 +76,12 @@
 						alt="Post Image"
 						class="object-cover w-32 h-full rounded-lg mr-1"
 					/>
+					<button
+						@click="selectedImageUrl = null"
+						class="material-icons-outlined text-second text-2xl cursor-pointer"
+					>
+						close
+					</button>
 				</div>
 				<!-- v-if="selectedItinerary" -->
 				<div
@@ -87,19 +93,18 @@
 				</div>
 			</div>
 			<div
-				class="about-country font-montserrat flex my-3 items-center justify-between border-b-2 p-1"
+				class="about-country font-montserrat flex my-3 items-center justify-between border-b-2 dark:border-dark-field p-1"
 			>
-				<p class="hidden sm:flex text-prime">
+				<p class="hidden sm:flex text-prime dark:text-dark-prime">
 					What country is your post about?
 				</p>
-				<p class="flex sm:hidden text-prime">Country</p>
+				<p class="flex sm:hidden text-prime dark:text-dark-prime">Country</p>
 				<input
 					id="country-post"
 					v-model="countryPost"
 					type="text"
 					ref="autocompletecountry"
-					class="bg-field rounded-full pl-3 h-9 w-1/2 outline-none"
-					placeholder="Country"
+					class="bg-field dark:bg-dark-second-dark dark:text-dark-prime rounded-full pl-3 h-9 w-1/2 outline-none"
 				/>
 
 				<div class="hidden sm:flex sm:w-1/5"></div>
@@ -129,12 +134,12 @@
 					@click.prevent="submitPost"
 					type="submit"
 					value="Post"
-					class="font-montserrat text-xl bg-second text-interface p-2 rounded-full w-36 h-12 hover:bg-second-light cursor-pointer"
+					class="font-montserrat text-xl bg-second text-interface p-2 rounded-full w-36 h-10 sm:h-12 hover:bg-second-light cursor-pointer"
 				/>
 			</div>
 		</div>
 		<section class="posts mb-10 sm:mb-0">
-			<div
+			<!-- <div
 				class="post-contents w-screen sm:w-full pt-3 px-6 sm:pt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
 			>
 				<div class="post-title flex justify-between items-center">
@@ -188,16 +193,16 @@
 						>favorite_border</span
 					>
 				</div>
-			</div>
+			</div> -->
 			<div
-				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
+				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 				v-for="post in posts"
 				:key="post._id"
 			>
 				<div class="post-title flex justify-start items-center">
-					<div class="flex w-[90%] items-center ">
+					<div class="flex w-full sm:w-[90%]  justify-between items-center">
 						<h1
-							class="font-bebas-neue text-lg text-prime sm:text-2xl"
+							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
 						>
 							{{ post.title }}
 						</h1>
@@ -205,37 +210,12 @@
 							timesince(post.date_posted)
 						}}</small>
 					</div>
-					<div class="flex w-[10%] justify-end " >
-						<button @click="toggleMenu" class="">
-							<span class="material-icons-outlined">
-								more_horiz
-							</span>
-						</button>
-						<div
-							v-if="isMenuOpen"
-							class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
-						>
-							<!-- @click.prevent="editItem" -->
-							<a
-								href="#"
-								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-								aria-disabled="true"
-								>Edit</a
-							>
-							<a
-								href="#"
-								@click.prevent="deleteItem"
-								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-								>Delete</a
-							>
-						</div>
-					</div>
 				</div>
 				<!-- Post Delete Modal Button Includes "isMenuOpen" and "toggleMenu" in script-->
 
 				<!-- Post Delete Modal, Includes "modalDeleteActive" and "deleteItem" in script -->
 
-				<div class="post-content flex w-full mt-4">
+				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
 					<div class="w-14 h-14 mr-4">
 						<img
 							src="/sample_img/mark.png"
@@ -244,11 +224,11 @@
 						/>
 					</div>
 					<div class="w-full">
-						<div class="flex border-b-2">
-							<small class="font-montserrat text-prime pr-5">
+						<div class="flex border-b-2 dark:border-gray-400">
+							<small class="font-montserrat text-prime dark:text-dark-prime pr-5">
 								@{{ post.author }}
 							</small>
-							<small class="about-post font-montserrat">
+							<small class="about-post font-montserrat dark:text-gray-400">
 								{{ post.category }} | {{ post.country }}
 							</small>
 						</div>
@@ -286,7 +266,7 @@
 							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
 							>favorite_border</span
 						>
-						<small class="text-prime pl-1">
+						<small class="text-prime dark:text-dark-prime pl-1">
 							{{
 								post.like_count >= 1000
 									? (post.like_count / 1000).toFixed(1) + "k"
@@ -296,44 +276,7 @@
 					</div>
 				</div>
 			</div>
-			<div
-				v-show="modalDeleteActive"
-				class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8 z-40"
-			>
-				<div
-					v-if="modalDeleteActive"
-					class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-52"
-				>
-					<span
-						@click="modalDeleteActive = false"
-						class="flex material-icons-outlined justify-end"
-						>close</span
-					>
-					<h1
-						class="flex text-4xl text-red-600 sm:text-7xl text-prime font-bebas-neue my-5 justify-center"
-					>
-						Are you sure?
-					</h1>
-					<p
-						class="flex justify-center text-sm sm:text-lg my-5 mb-20 sm:my-7 px-7 sm:px-28 font-montserrat text-center"
-					>
-						You are trying to delete this post. This action cannot
-						be undone.
-					</p>
-					<div class="flex justify-center">
-						<button
-							class="rounded-full text-xl text-white mt-3 mb-6 bg-field py-2 px-5 font-bebas-neue"
-						>
-							Cancel
-						</button>
-						<button
-							class="rounded-full text-xl text-white ms-14 mt-3 mb-6 bg-red-600 py-2 px-5 font-bebas-neue"
-						>
-							Delete
-						</button>
-					</div>
-				</div>
-			</div>
+
 			<div
 				class="fixed z-50 inset-0 overflow-y-auto"
 				aria-labelledby="modal-title"
@@ -570,7 +513,8 @@
 
 <script>
 import axios from "axios";
-import { ref } from "vue";
+	import { ref } from "vue";
+import { useDark,useToggle } from "@vueuse/core";
 import moment from "moment";
 export default {
 	data() {
@@ -601,8 +545,6 @@ export default {
 
 			itineraries: [],
 			selectedItinerary: null,
-			modalDeleteActive: false,
-			isMenuOpen: false,
 		};
 	},
 	created() {
@@ -689,12 +631,11 @@ export default {
 			this.selectedPost = [post];
 			console.log("GET POST", this.selectedPost);
 			this.post_id = this.selectedPost[0]._id;
-			
 
 			this.replied_to = this.selectedPost[0].author;
 			this.comments_in_post =
 				this.posts.find((p) => p._id === this.post_id)?.comments || [];
-				console.log("the id : ", this.comments_in_post);
+			console.log("the id : ", this.comments_in_post);
 		},
 		submitPost() {
 			if (
@@ -702,8 +643,6 @@ export default {
 				!this.postContent.trim() ||
 				!this.countryPost.trim() ||
 				this.postTitle === "POST TITLE"
-
-
 			) {
 				alert("Please fill all fields correctly."); // Inform the user (consider using a more user-friendly notification system)
 				return; // Exit the method
@@ -732,7 +671,7 @@ export default {
 						this.fetchPosts();
 					})
 					.catch((error) => {
-						console.log("huy bad ka ")
+						console.log("huy bad ka ");
 					});
 			}
 		},
@@ -788,9 +727,7 @@ export default {
 					console.log(error);
 				});
 		},
-		toggleMenu() {
-			this.isMenuOpen = !this.isMenuOpen;
-		},
+
 		editItem() {
 			alert("Edit action triggered");
 			this.isMenuOpen = false;
@@ -799,7 +736,12 @@ export default {
 			this.modalDeleteActive = !this.modalDeleteActive;
 		},
 	},
-	setup() {},
+	setup() {
+		const isDark = useDark();
+		const toggleDark = useToggle(isDark);
+		
+		return { isDark,toggleDark };
+	},
 };
 </script>
 <style scoped></style>
