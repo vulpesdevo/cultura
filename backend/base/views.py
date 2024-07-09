@@ -23,9 +23,17 @@ from .serializers import (
 )
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import permissions, status,viewsets
+from rest_framework import permissions, status, viewsets
 from .validations import custom_validation, validate_username, validate_password
-from .models import Itinerary, LikeNotification, Post, Comment, CulturaUser, SaveItinerary, UserSetting
+from .models import (
+    Itinerary,
+    LikeNotification,
+    Post,
+    Comment,
+    CulturaUser,
+    SaveItinerary,
+    UserSetting,
+)
 
 from profanity.validators import validate_is_profane
 
@@ -49,9 +57,25 @@ class UserView(APIView):
         # cultura_user = CulturaUser.objects.get(user=request.user)
         # cultura_users = CulturaUser.objects.filter(user=request.user)
         cult_user_name = "cultura_users.fullname"
-        cultura_user = CulturaUser.objects.get(user=request.user)
-        profile = CulturaUserSerializer(cultura_user)
-        return Response({"user": serializer.data, "userfullname": cult_user_name,"profile":profile.data}, status=status.HTTP_200_OK)
+        cultura_user = CulturaUser.objects.filter(user=request.user)
+        profile = CulturaUserSerializer(cultura_user, many=True)
+
+        for post_data in profile.data:
+            image = post_data.get("user_photo", None)
+            if image:
+                # Build the absolute URI for the image
+                abs_image_url = request.build_absolute_uri(image)
+                # Update the post data with the absolute URI
+                post_data["user_photo"] = abs_image_url
+
+        return Response(
+            {
+                "user": serializer.data,
+                "userfullname": cult_user_name,
+                "profile": profile.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class UserRegister(APIView):
@@ -105,6 +129,21 @@ class UserLogin(APIView):
             )
 
 
+class EditUserInformation(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+
+        image = request.FILES.get("image", None)
+        print(image)
+
+        cultura_user = CulturaUser.objects.get(user=request.user)
+        cultura_user.user_photo = image
+        cultura_user.save()
+        
+        return Response(status=status.HTTP_200_OK)
+
+
 class UserLogout(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
@@ -122,6 +161,7 @@ class UserLogout(APIView):
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
 
 # from .models import ImageModel
 class PostCreate(APIView):
@@ -149,15 +189,21 @@ class PostCreate(APIView):
         category = data.get("category", "").strip()
         body = data.get("body", "").strip()
         # imgs = data.get("imgs", "").strip()
-        image = request.FILES.get('image', None)
+        image = request.FILES.get("image", None)
         country = data.get("country", "").strip()
-        print("image: ", image) 
+        print("image: ", image)
         # Check for profanity in title and body
         try:
             if validate_is_profane(title) or validate_is_profane(body):
-                raise ValidationError(['Please remove any profanity/swear words.'])
+                raise ValidationError(["Please remove any profanity/swear words."])
         except ValidationError as e:
-            return Response({'error': e.messages, 'field': 'title' if 'title' in e.messages[0] else 'body'}, status=400)
+            return Response(
+                {
+                    "error": e.messages,
+                    "field": "title" if "title" in e.messages[0] else "body",
+                },
+                status=400,
+            )
 
         try:
             post = Post(
@@ -175,57 +221,63 @@ class PostCreate(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        serializer = PostSerializer(post, context={'request': request})
+        serializer = PostSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-from bson import ObjectId    
+
+
+from bson import ObjectId
+
+
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def like_post(self, request, pk=None):
         object_id = ObjectId(pk)
         post = Post.objects.get(_id=object_id)
-        
+
         user = request.user
 
         if user in post.likes.all():
             post.likes.remove(user)
-            message = 'post unliked'
+            message = "post unliked"
             LikeNotification.objects.filter(post_obj_id=object_id).delete()
         else:
             post.likes.add(user)
 
-            message = 'post liked'
+            message = "post liked"
             like_notification = LikeNotification(
                 post_obj_id=object_id,
-                post_author = post.author,
+                post_author=post.author,
                 notif_type="like",
-                post_title = post.title,
-                post_content = post.content,
+                post_title=post.title,
+                post_content=post.content,
                 audience=user.username,
             )
             like_notification.save()
-            
+
             # Optionally, handle unlike action, e.g., delete the notification
-            
 
         # Serialize the LikeNotification instance
-        
-        return Response(
-                status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class LikesNotificationList(APIView):
-    
+
     permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
-        data = LikeNotification.objects.filter(post_author=request.user).order_by('-created_at')
-        
+        data = LikeNotification.objects.filter(post_author=request.user).order_by(
+            "-created_at"
+        )
+
         serializer = LikeSerializer(data, many=True)
-        
-        
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class PostListView(APIView):
     """
     API view to retrieve a list of all Post instances from the database.
@@ -233,39 +285,40 @@ class PostListView(APIView):
     """
 
     permission_classes = [permissions.AllowAny]
-    
+
     def get(self, request):
         posts = Post.objects.all()
         print(request.user)
         # Serialize the posts
-        serializer = PostSerializer(posts, many=True,context={'user': request.user})
+        serializer = PostSerializer(posts, many=True, context={"user": request.user})
         # Include the image URLs in the response
-        
+
         for post_data in serializer.data:
-            image = post_data.get('image', None)
+            image = post_data.get("image", None)
             if image:
                 # Build the absolute URI for the image
                 abs_image_url = request.build_absolute_uri(image)
                 # Update the post data with the absolute URI
-                post_data['image'] = abs_image_url
+                post_data["image"] = abs_image_url
 
             # Retrieve comments for the post
-            comments = Comment.objects.filter(post_id=post_data['_id'])
+            comments = Comment.objects.filter(post_id=post_data["_id"])
             comment_serializer = CommentSerializer(comments, many=True)
-            post_data['comments'] = comment_serializer.data
+            post_data["comments"] = comment_serializer.data
 
             # Get the post title
-            title = post_data.get('title', '')
+            title = post_data.get("title", "")
 
             # Validate if the post title is profane
             # title_is_profane = validate_is_profane(title)
-            
+
             # print(title_is_profane)
             # post_data['title'] = "****" if title_is_profane else title
             # Add the profanity flag to the post data
-            
-        
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class LikedPostView(APIView):
     """
     API view to retrieve a list of all Post instances from the database.
@@ -273,30 +326,32 @@ class LikedPostView(APIView):
     """
 
     permission_classes = [permissions.AllowAny]
-    
-    def get(self, request,post_id):
-        
+
+    def get(self, request, post_id, notif):
+
         object_id = ObjectId(post_id)
         post = Post.objects.filter(_id=object_id)
-        serializer = PostSerializer(post, many=True,context={'user': request.user})
-            
+        serializer = PostSerializer(post, many=True, context={"user": request.user})
+
         # Serialize the posts
-        LikeNotification.objects.filter(post_obj_id=object_id).update(is_read=True)
+        data = request.data
+
+        notif_id = ObjectId(notif)
+        print("NOTIFICATION ID :: ", notif)
+        LikeNotification.objects.filter(_id=notif_id).update(is_read=True)
         # Include the image URLs in the response
         for post_data in serializer.data:
-            image = post_data.get('image', None)
+            image = post_data.get("image", None)
             if image:
                 # Build the absolute URI for the image
                 abs_image_url = request.build_absolute_uri(image)
                 # Update the post data with the absolute URI
-                post_data['image'] = abs_image_url
-            comments = Comment.objects.filter(post_id=post_data['_id'])
+                post_data["image"] = abs_image_url
+            comments = Comment.objects.filter(post_id=post_data["_id"])
             comment_serializer = CommentSerializer(comments, many=True)
-            post_data['comments'] = comment_serializer.data
-        
+            post_data["comments"] = comment_serializer.data
+
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
 
 
 class ProfilePostListView(APIView):
@@ -306,26 +361,27 @@ class ProfilePostListView(APIView):
     """
 
     permission_classes = [permissions.IsAuthenticated]
-    
+
     def get(self, request):
         posts = Post.objects.filter(author=request.user)
-        
+
         # Serialize the posts
-        serializer = PostSerializer(posts, many=True,context={'user': request.user} )
+        serializer = PostSerializer(posts, many=True, context={"user": request.user})
         # Include the image URLs in the response
-    
+
         for post_data in serializer.data:
-            image = post_data.get('image', None)
+            image = post_data.get("image", None)
             if image:
                 # Build the absolute URI for the image
                 abs_image_url = request.build_absolute_uri(image)
                 # Update the post data with the absolute URI
-                post_data['image'] = abs_image_url
-        
+                post_data["image"] = abs_image_url
+
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
-    def post(self,request):
-        
+
+    def post(self, request):
+
         data = request.data
         post_id = data.get("post_id", "").strip()
         object_id = ObjectId(post_id)
@@ -335,6 +391,7 @@ class ProfilePostListView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 class CommentCreate(APIView):
     """
@@ -346,6 +403,7 @@ class CommentCreate(APIView):
         SessionAuthentication,
         TokenAuthentication,
     )
+
     def post(self, request):
         """
         Handle POST request to create a new comment.
@@ -361,26 +419,26 @@ class CommentCreate(APIView):
         reply = data.get("body", "").strip()
         replied_to = data.get("replied_to", "").strip()
         object_id = ObjectId(post_id)
-        
+
         import logging
 
         comment = Comment.objects.create(
-            post_id=post_id, 
-            author=request.user, 
-            replied_to= replied_to,
+            post_id=post_id,
+            author=request.user,
+            replied_to=replied_to,
             body=reply,
         )
         post = Post.objects.get(_id=object_id)
         title = post.title
-        
+
         like_notification = LikeNotification(
-                post_obj_id=post_id,
-                post_author = replied_to,
-                notif_type="commented",
-                post_title = title,
-                post_content = reply,
-                audience=request.user.username,
-            )
+            post_obj_id=post_id,
+            post_author=replied_to,
+            notif_type="commented",
+            post_title=title,
+            post_content=reply,
+            audience=request.user.username,
+        )
         like_notification.save()
         logging.info(
             f"Comment created - Post ID: {post_id}, Author: {request.user.username}"
@@ -401,11 +459,9 @@ class CommentListView(APIView):
 
     def get(self, request):
         comments = Comment.objects.all()
-        
-            
+
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 
 class ItineraryCreate(APIView):
@@ -428,7 +484,7 @@ class ItineraryCreate(APIView):
         Creates a new Itinerary object, serializes it, and returns the serialized data in the response.
         """
         data = request.data
-        
+
         longitude = data.get("longitude", 0.0)
         latitude = data.get("latitude", 0.0)
         title = data.get("title", "").strip()
@@ -436,118 +492,124 @@ class ItineraryCreate(APIView):
         description = data.get("description", "").strip()
         budget = data.get("budget", 0.0)
 
-        
         itinerary = Itinerary.objects.create(
             owner=request.user,
             creator_name=request.user.username,
-            title=title, 
+            title=title,
             longitude=longitude,
             latitude=latitude,
             place_name=place_name,
             description=description,
             budget=budget,
         )
-        
+
         serializer = ItinerarySerializer(itinerary)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
 import logging
+from django.conf import settings
+import os
 
 logger = logging.getLogger(__name__)
 
+
 class ItineraryListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
-        
-        itineraries = Itinerary.objects.filter(status="onqueue",owner=request.user)
-        serializer = ItinerarySerializer(itineraries,many=True)
-        
+
+        itineraries = Itinerary.objects.filter(status="onqueue", owner=request.user)
+        serializer = ItinerarySerializer(itineraries, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class ItinerariesInView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    def get(self, request,id):
-        
+
+    def get(self, request, id):
+
         itineraries = Itinerary.objects.filter(id=id)
-        serializer = ItinerarySerializer(itineraries,many=True)
-        
+        serializer = ItinerarySerializer(itineraries, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
-            # Your logic to return the itineraries
+        # Your logic to return the itineraries
+
+
 class SaveItineraryView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         data = request.data
         # Default to None if not provided
-        main_title = data.get('main_title', "").strip()
-        main_description = data.get('main_description', "").strip()
-        gen_tips = data.get('gen_tips', "").strip()
-        currency = data.get('currency', "").strip()
-        total_budget = data.get('total_budget', 0.0)
-        itinerary_ids = data.get('itineraries', [])
-        image = request.FILES.get('image', None)
-        itineraries = Itinerary.objects.filter(status="onqueue",owner=request.user)
-        itineraries.update(status='saved')
-        
+        main_title = data.get("main_title", "").strip()
+        main_description = data.get("main_description", "").strip()
+        gen_tips = data.get("gen_tips", "").strip()
+        currency = data.get("currency", "").strip()
+        total_budget = data.get("total_budget", 0.0)
+        itinerary_ids = data.get("itineraries", [])
+        image = request.FILES.get("image", None)
+        itineraries = Itinerary.objects.filter(status="onqueue", owner=request.user)
+        itineraries.update(status="saved")
+
         itinerary_save = SaveItinerary.objects.create(
-            
             owner=request.user,
             creator_name=request.user.username,
-            main_title= main_title,
-            main_description= main_description,
-            gen_tips= gen_tips,
+            main_title=main_title,
+            main_description=main_description,
+            gen_tips=gen_tips,
             currency=currency,
             main_image=image,
-            total_budget= total_budget,
-            itineraries= itinerary_ids,
-            
+            total_budget=total_budget,
+            itineraries=itinerary_ids,
         )
-        
-        
+
         serializer = SaveItinerarySerializer(itinerary_save)
-            # Set the owner to the current user before saving
+        # Set the owner to the current user before saving
         # itineraries_init = Itinerary.objects.filter(owner=request.user,status=False)
         # for itinerary in itineraries_init:
         #     itinerary.status = True
         #     itinerary.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    
-    
+
 
 class SaveItineraryListView(APIView):
-    
+
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
         # Retrieve all itineraries owned by the current user
-     
+
         itineraries = SaveItinerary.objects.filter(owner=request.user)
         serializer = SaveItinerarySerializer(itineraries, many=True)
-        
+
         for itinerary_data in serializer.data:
-            main_image = itinerary_data.get('main_image', None)
+            main_image = itinerary_data.get("main_image", None)
             if main_image:
                 # Build the absolute URI for the main image
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
-                itinerary_data['main_image'] = abs_main_image_url
+                itinerary_data["main_image"] = abs_main_image_url
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+
 class ViewItinerary(APIView):
-    
+
     permission_classes = [permissions.IsAuthenticated]
-    
+
     def get(self, request, id):
-     
+
         itineraries = SaveItinerary.objects.filter(id=id)
-        
+
         serializer = SaveItinerarySerializer(itineraries, many=True)
-        itineraries_list = [item['itineraries'] for item in serializer.data]
-        itineraries_list_id = [int(item) for item in itineraries_list[0].strip('[]').split(',')]
-        
+        itineraries_list = [item["itineraries"] for item in serializer.data]
+        itineraries_list_id = [
+            int(item) for item in itineraries_list[0].strip("[]").split(",")
+        ]
+
         serialized_itineraries = []
-        
-        
-        
+
         for itinerary_id in itineraries_list_id:
             try:
                 itinerary = Itinerary.objects.get(id=itinerary_id)
@@ -556,32 +618,34 @@ class ViewItinerary(APIView):
             except Itinerary.DoesNotExist:
                 # Handle the case when the itinerary with the given id does not exist
                 pass
-        serializer.data[0]['itineraries'] = serialized_itineraries
+        serializer.data[0]["itineraries"] = serialized_itineraries
         for itinerary_data in serializer.data:
-            main_image = itinerary_data.get('main_image', None)
+            main_image = itinerary_data.get("main_image", None)
             if main_image:
                 # Build the absolute URI for the main image
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
-                itinerary_data['main_image'] = abs_main_image_url
+                itinerary_data["main_image"] = abs_main_image_url
         # serializer.data['itineraries'] = serialized_itineraries
-        print(serializer.data[0]['itineraries'])
+        print(serializer.data[0]["itineraries"])
         # itiner = Itinerary.objects.filter(id=itinerary_ids)
         # serializer.data['itineraries'] = ItinerarySerializer(itiner, many=True).data
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class GetSettings(APIView):
-    
+
     permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request):
         data = request.data
-        
+
         in_app_notif = data.get("in_app_notif")
         banner_notif = data.get("banner_notif")
         vibration = data.get("vibration")
         sound = data.get("sound")
         theme = data.get("theme")
-        
+
         settings = UserSetting.objects.filter(user=request.user)
         settings.update(
             in_app_notification=in_app_notif,
@@ -590,18 +654,17 @@ class GetSettings(APIView):
             sound=sound,
             theme=theme,
         )
-        
-        
+
         serializer = SettingSerializer(settings)
-        
+
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     permission_classes = [permissions.IsAuthenticated]
-    def get(self,request):
+
+    def get(self, request):
 
         settings = UserSetting.objects.filter(user=request.user)
 
         serializer = SettingSerializer(settings, many=True)
-        print("where ::",serializer.data)
+        print("where ::", serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        

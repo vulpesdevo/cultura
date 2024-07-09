@@ -9,7 +9,7 @@ UserModel = get_user_model()
 class CulturaUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CulturaUser
-        fields = "__all__"
+        fields = ["user", "user_photo", "fullname", "country", "email"]
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
@@ -57,7 +57,7 @@ class LikeSerializer(serializers.ModelSerializer):
     # user = UserSerializer(read_only=True)
     class Meta:
         model = LikeNotification
-        fields = ('post_obj_id','notif_type','post_author','post_title','post_content','audience','is_read','created_at')
+        fields = ('_id','post_obj_id','notif_type','post_author','post_title','post_content','audience','is_read','created_at')
 
 class PostSerializer(serializers.ModelSerializer):
     likes = UserSerializer(many=True,read_only=True)
@@ -84,7 +84,7 @@ class SettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSetting
         fields = ['in_app_notification', 'banner_notification', 'vibration', 'sound', 'theme']
-        
+
 class ItinerarySerializer(serializers.ModelSerializer):
     
     class Meta:

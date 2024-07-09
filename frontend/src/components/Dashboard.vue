@@ -1,19 +1,20 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen   pt-20 sm:pt-3 bg-light-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen pt-20 sm:pt-3 bg-light-field dark:bg-dark-notif px-2"
 	>
 		<div
-			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9  rounded-lg shadow-lg bg-interface dark:bg-dark-interface "
+			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 		>
-			<div class="flex justify-between items-center ">
-				<div>
+			<div class="flex justify-between items-center w-full">
+				<div class="w-1/2">
 					<!-- Text Field for Editing -->
-					<div v-if="isEditing" class="relative">
+					<div v-if="isEditing" class="relative w-full">
 						<input
 							v-model="postTitle"
 							@blur="handleTitleChange"
 							@keyup.enter="handleTitleChange"
-							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl rounded-lg border-field dark:bg-dark-field px-2"
+							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl rounded-lg border-field dark:bg-dark-field px-2 w-full"
+							placeholder="POST TITLE"
 							autofocus
 						/>
 						<span
@@ -27,7 +28,7 @@
 					<h1
 						v-else
 						@click="isEditing = true"
-						class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl"
+						class="font-bebas-neue text-lg w-full text-prime dark:text-dark-prime sm:text-3xl"
 					>
 						{{ postTitle }}
 					</h1>
@@ -39,13 +40,14 @@
 						name=""
 						id="category-option"
 						v-model="categoryOption"
-						class="sm:w-1/2 rounded-full bg-field dark:bg-dark-field outline-none p-1 dark:text-dark-prime"
+						class="form-select  sm:w-1/2 rounded-full bg-field dark:bg-dark-field outline-none p-1 dark:text-dark-prime"
 					>
 						<option value="" disabled selected>Category</option>
 						<option value="Food">Food</option>
 						<option value="Traditions">Traditions</option>
 						<option value="History">History</option>
 					</select>
+					
 				</div>
 			</div>
 			<div class="for-content flex flex-col w-full mt-3">
@@ -76,12 +78,7 @@
 						alt="Post Image"
 						class="object-cover w-32 h-full rounded-lg mr-1"
 					/>
-					<button
-						@click="selectedImageUrl = null"
-						class="material-icons-outlined text-second text-2xl cursor-pointer"
-					>
-						close
-					</button>
+					
 				</div>
 				<!-- v-if="selectedItinerary" -->
 				<div
@@ -98,13 +95,16 @@
 				<p class="hidden sm:flex text-prime dark:text-dark-prime">
 					What country is your post about?
 				</p>
-				<p class="flex sm:hidden text-prime dark:text-dark-prime">Country</p>
+				<p class="flex sm:hidden text-prime dark:text-dark-prime">
+					Country
+				</p>
 				<input
 					id="country-post"
 					v-model="countryPost"
 					type="text"
 					ref="autocompletecountry"
-					class="bg-field dark:bg-dark-second-dark dark:text-dark-prime rounded-full pl-3 h-9 w-1/2 outline-none"
+					placeholder="Country"
+					class="bg-field dark:bg-dark-second-dark dark:text-dark-prime rounded-full pl-4 ml-2 h-9 w-1/2 outline-none"
 				/>
 
 				<div class="hidden sm:flex sm:w-1/5"></div>
@@ -138,69 +138,82 @@
 				/>
 			</div>
 		</div>
+		<div
+			v-if="!posts.length"
+			class="border border-gray-300 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+		>
+			<div class="animate-pulse flex space-x-4">
+				<div class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"></div>
+				<div class="flex-1 space-y-6 py-1">
+					<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					<div class="space-y-3">
+						<div class="grid grid-cols-3 gap-4">
+							<div
+								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-2"
+							></div>
+							<div
+								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-1"
+							></div>
+						</div>
+						<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div
+			v-if="!posts.length"
+			class="border border-gray-300 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+		>
+			<div class="animate-pulse flex space-x-4">
+				<div class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"></div>
+				<div class="flex-1 space-y-6 py-1">
+					<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					<div class="space-y-3">
+						<div class="grid grid-cols-3 gap-4">
+							<div
+								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-2"
+							></div>
+							<div
+								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-1"
+							></div>
+						</div>
+						<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div
+			v-if="!posts.length"
+			class="border border-gray-300 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+		>
+			<div class="animate-pulse flex space-x-4">
+				<div class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"></div>
+				<div class="flex-1 space-y-6 py-1">
+					<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					<div class="space-y-3">
+						<div class="grid grid-cols-3 gap-4">
+							<div
+								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-2"
+							></div>
+							<div
+								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-1"
+							></div>
+						</div>
+						<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					</div>
+				</div>
+			</div>
+		</div>
 		<section class="posts mb-10 sm:mb-0">
-			<!-- <div
-				class="post-contents w-screen sm:w-full pt-3 px-6 sm:pt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface"
-			>
-				<div class="post-title flex justify-between items-center">
-					<h1 class="font-bebas-neue text-lg text-prime sm:text-2xl">
-						BEST PULLED NOODLES IN BINONDO
-					</h1>
-					<small class="text-second">10mins ago</small>
-				</div>
-
-				<div class="post-content flex w-full mt-4">
-					<div class="w-14 h-14 mr-4">
-						<img
-							src="/sample_img/mark.png"
-							alt="Profile"
-							class="rounded-full cursor-pointer object-cover"
-						/>
-					</div>
-					<div class="w-full">
-						<div class="flex border-b-2">
-							<small class="font-montserrat text-prime pr-5">
-								@mark0
-							</small>
-							<small class="about-post font-montserrat">
-								Food | Philippines
-							</small>
-						</div>
-						<p
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify"
-						>
-							Slurp-worthy satisfaction awaits at Lan-Zhou Lamien,
-							where every strand of their hand-pulled noodles
-							tells a tale of culinary mastery. Taste the
-							tradition, savor the excellence, and discover why
-							they're Manila's noodle maestros.
-						</p>
-						<div class="sm:h-96 pb-2 sm:p-4">
-							<img
-								src="/sample_img/binondo.webp"
-								alt=""
-								class="h-full w-full object-cover rounded-lg"
-							/>
-						</div>
-					</div>
-				</div>
-				<div class="flex items-center justify-end">
-					<i
-						class="fa-regular fa-comment text-second text-2xl pr-2"
-						@click.prevent="showModal = true"
-					></i>
-					<span class="material-icons-outlined text-second text-2xl"
-						>favorite_border</span
-					>
-				</div>
-			</div> -->
 			<div
 				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 				v-for="post in posts"
 				:key="post._id"
 			>
 				<div class="post-title flex justify-start items-center">
-					<div class="flex w-full sm:w-[90%]  justify-between items-center">
+					<div
+						class="flex w-full sm:w-[90%] justify-between items-center"
+					>
 						<h1
 							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
 						>
@@ -225,10 +238,14 @@
 					</div>
 					<div class="w-full">
 						<div class="flex border-b-2 dark:border-gray-400">
-							<small class="font-montserrat text-prime dark:text-dark-prime pr-5">
+							<small
+								class="font-montserrat text-prime dark:text-dark-prime pr-5"
+							>
 								@{{ post.author }}
 							</small>
-							<small class="about-post font-montserrat dark:text-gray-400">
+							<small
+								class="about-post font-montserrat dark:text-gray-400"
+							>
 								{{ post.category }} | {{ post.country }}
 							</small>
 						</div>
@@ -300,13 +317,13 @@
 						class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:w-1/2"
 					>
 						<button
-							class="absolute top-0 right-0 m-2 mr-3 text-prime text-2xl"
+							class="absolute top-0 right-0 m-2 mr-3 text-prime dark:text-interface text-2xl"
 							@click="showModal = false"
 						>
 							&times;
 						</button>
 						<div
-							class="post-contents bg-interface w-full pt-3 px-6 sm:pt-6 sm:px-9 rounded-lg shadow-lg"
+							class="post-contents bg-interface dark:bg-dark-interface w-full pt-3 px-6 sm:pt-6 sm:px-9 rounded-lg shadow-lg"
 							v-for="(data, index) in selectedPost"
 							:key="index"
 						>
@@ -314,7 +331,7 @@
 								class="post-title flex justify-between items-center"
 							>
 								<h1
-									class="font-bebas-neue text-lg text-prime sm:text-2xl"
+									class="font-bebas-neue text-lg text-prime dark:text-second sm:text-2xl"
 								>
 									{{ data.title }}
 								</h1>
@@ -329,29 +346,29 @@
 									/>
 								</div>
 								<div class="w-full">
-									<div class="flex border-b-2">
+									<div class="flex border-b-2 dark:border-gray-700 ">
 										<p
-											class="font-montserrat text-prime pr-5"
+											class="font-montserrat text-prime dark:text-interface pr-5 "
 										>
 											{{ data.author }}
 										</p>
 										<small
-											class="about-post font-montserrat"
+											class="about-post font-montserrat dark:text-gray-400"
 										>
 											{{ data.category }} |
 											{{ data.country }}
 										</small>
 									</div>
 									<p
-										class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify"
+										class="font-montserrat w-full rounded-lg resize-none p-4 text-xs text-justify dark:text-interface"
 									>
 										{{ data.content }}
 									</p>
 								</div>
 							</div>
-							<div class="p-2 overflow-auto max-h-60">
+							<div class="p-2 overflow-auto max-h-60 ">
 								<div
-									class="flex items-start bg-gray-200 ml-3 mt-2 sm:ml-10 p-3 rounded-lg"
+									class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
 									v-for="comment in comments_in_post"
 									:key="comment._id"
 								>
@@ -364,9 +381,9 @@
 									</div>
 									<div class="font-montserrat w-full">
 										<div
-											class="flex justify-between border-b-2 border-gray-300 pb-2 w-full text-xs"
+											class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700   pb-2 w-full text-xs"
 										>
-											<small class="text-prime pr-5">
+											<small class="text-prime dark:text-interface pr-5">
 												{{ comment.author }} to
 												<span class="text-second">{{
 													comment.replied_to
@@ -377,7 +394,7 @@
 											}}</small>
 										</div>
 										<p
-											class="w-full rounded-lg resize-none p-4 text-xs text-justify"
+											class="w-full rounded-lg resize-none p-4 text-xs text-justify whitespace-normal dark:text-interface"
 										>
 											{{ comment.body }}
 										</p>
@@ -393,7 +410,7 @@
 									/>
 								</div>
 								<textarea
-									class="w-full rounded-lg resize-none p-4 outline-none"
+									class="w-full rounded-lg resize-none p-4 outline-none  dark:border dark:bg-dark-interface"
 									name=""
 									id=""
 									v-model="reply"
@@ -403,26 +420,9 @@
 								></textarea>
 							</div>
 							<div
-								class="flex py-3 items-center justify-between border-t-2 mt-2"
+								class="flex py-3 items-center justify-end border-t-2 dark:border-t-0 mt-2"
 							>
-								<div class="flex">
-									<label for="imgSelect">
-										<span
-											class="material-icons-outlined text-second text-3xl"
-											>image</span
-										>
-									</label>
-									<input
-										type="file"
-										name=""
-										id="imgSelect"
-										class="hidden"
-									/>
-									<span
-										class="material-icons-outlined text-second text-3xl pl-2"
-										>explore</span
-									>
-								</div>
+								
 								<input
 									type="submit"
 									value="Reply"
@@ -513,8 +513,8 @@
 
 <script>
 import axios from "axios";
-	import { ref } from "vue";
-import { useDark,useToggle } from "@vueuse/core";
+import { ref } from "vue";
+import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
 export default {
 	data() {
@@ -525,7 +525,7 @@ export default {
 			auth_user: "",
 
 			isEditing: true,
-			postTitle: "POST TITLE",
+			postTitle: "",
 
 			addItineraryModal: false,
 			showModal: false,
@@ -601,9 +601,14 @@ export default {
 		},
 		handleTitleChange() {
 			if (this.postTitle.trim() === "") {
-				this.postTitle = "POST TITLE";
+				
+				this.isEditing = true;
 			}
-			this.isEditing = false;
+			else {
+				this.isEditing = false;
+			}
+			
+			
 		},
 		initializeAutocompleteCountry() {
 			// Ensures the DOM is updated
@@ -739,8 +744,8 @@ export default {
 	setup() {
 		const isDark = useDark();
 		const toggleDark = useToggle(isDark);
-		
-		return { isDark,toggleDark };
+
+		return { isDark, toggleDark };
 	},
 };
 </script>

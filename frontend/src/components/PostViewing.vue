@@ -258,7 +258,7 @@ export default {
 		},
 		fetchPosts() {
 			this.client
-				.get(`/api/liked-post-view/${this.$route.params.post_id_notif}`)
+				.get(`/api/liked-post-view/${this.$route.params.post_id_notif}/${this.$route.params.notif_id}`)
 				.then((response) => {
 					this.posts = response.data;
 					this.selectedPost = response.data;

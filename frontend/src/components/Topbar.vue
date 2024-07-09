@@ -69,7 +69,7 @@
 import axios from "axios";
 import router from "../routes";
 import { useDark, useToggle } from "@vueuse/core";
-
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 export default {
 	setup() {
 		const isDark = useDark();

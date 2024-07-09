@@ -6,6 +6,7 @@ class CulturaUserAdmin(admin.ModelAdmin):
     list_display = (
         # "id",
         "user",
+        "user_photo",
         "fullname",
         "country",
         "email",

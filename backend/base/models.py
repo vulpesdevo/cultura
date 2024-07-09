@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 from djongo.models.fields import ObjectIdField
 # from django.contrib.auth.models import User
 from django.contrib.auth.models import User
-
 ## models.py
 from djongo.storage import GridFSStorage
 from django.conf import settings
@@ -17,7 +16,8 @@ from profanity.validators import validate_is_profane
 
 # Create your models here.
 class CulturaUser(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_photo = models.ImageField(blank=True, null=True, upload_to="profile_pictures")
     fullname = models.CharField(max_length=120)
     country = models.CharField(max_length=120, blank=True, null=True)
     email = models.EmailField()
@@ -35,7 +35,7 @@ class SaveItinerary(models.Model):
     itineraries= models.CharField(default=list, max_length=255)
     date_posted = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False)
-    
+
 class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     creator_name = models.CharField(max_length=50)
@@ -49,7 +49,7 @@ class Itinerary(models.Model):
     budget = models.FloatField(null=True,blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
     status = models.CharField(default='onqueue',max_length=255)
-    
+
 class Comment(models.Model):
     _id = ObjectIdField()
     post_id = models.CharField(
@@ -62,7 +62,6 @@ class Comment(models.Model):
     body = models.TextField( validators=[validate_is_profane])
     date_posted = models.DateTimeField(auto_now_add=True)
 
-    
 
 from django.utils import timezone
 class Post(models.Model):
@@ -77,9 +76,9 @@ class Post(models.Model):
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, blank=True)
     comments = models.ManyToManyField(Comment, blank=True)
-    
+
 class LikeNotification(models.Model):
-    
+    _id = ObjectIdField()
     post_author = models.CharField(max_length=255)
     post_obj_id = models.CharField(max_length=255)
     post_title = models.CharField(max_length=255, validators=[validate_is_profane])

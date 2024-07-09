@@ -22,7 +22,7 @@
 			class="w-full justify-between sm:mt-2 sm:w-3/4 cursor-pointer"
 			v-for="(data, index) in like_notification"
 			:key="index"
-			@click="view_post(data.post_obj_id)"
+			@click="view_post(data.post_obj_id,data._id)"
 		>
 			<div
 				class="w-full mt-1 p-3 sm:p-5 rounded-lg shadow-lg sm:mt-2"
@@ -106,10 +106,10 @@ export default {
 			}
 		},
 
-		view_post(post_id_notif) {
+		view_post(post_id_notif,notif_id) {
 			this.$router.push({
 				name: "view-post",
-				params: { post_id_notif },
+				params: { post_id_notif,notif_id },
 			});
 		},
 	},

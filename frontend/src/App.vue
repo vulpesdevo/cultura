@@ -85,9 +85,11 @@ export default {
 input,
 .text-mont {
 	font-family: "Montserrat";
-}
-input::placeholder {
+}input::placeholder {
 	color: #9b9bb4;
+}
+.dark input::placeholder {
+	color: #d1d1da;
 }
 
 </style>
