@@ -78,6 +78,37 @@ class UserView(APIView):
         )
 
 
+class ChangePassword(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # username = request.data.get("username")
+
+        data = request.data
+        password = data["password"].strip()
+        new_password = data["new_password"].strip()
+        print("PASSWORD", password)
+        user = request.user
+        if user.check_password(password) and new_password == password:
+            return Response(
+                {"error": "The new password is the same as the old password."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if password and not user.check_password(password):
+            return Response(
+                {"error": "Old password is incorrect."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # if username:
+        #     user.username = username
+        if password:
+            user.set_password(new_password)
+        user.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+
 class UserRegister(APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -427,7 +458,7 @@ class CommentCreate(APIView):
         reply = data.get("body", "").strip()
         replied_to = data.get("replied_to", "").strip()
         object_id = ObjectId(post_id)
-        
+
         user = CulturaUser.objects.get(user=request.user)
         user.comment_connoisseur += 1
         user.save()
@@ -683,4 +714,7 @@ class GetSettings(APIView):
         user_information = CulturaUserSerializer(user, many=True)
         serializer = SettingSerializer(settings, many=True)
         print("where ::", serializer.data)
-        return Response({'user_information':user_information.data,'set': serializer.data}, status=status.HTTP_200_OK)
+        return Response(
+            {"user_information": user_information.data, "set": serializer.data},
+            status=status.HTTP_200_OK,
+        )

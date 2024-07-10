@@ -12,6 +12,7 @@ urlpatterns = [
     path("registration", views.UserRegister.as_view(), name="registration"),
     path("login", views.UserLogin.as_view(), name="login"),
     path("logout", views.UserLogout.as_view(), name="logout"),
+    path("change-password", views.ChangePassword.as_view(), name="change-password"),
     path("user-settings", views.GetSettings.as_view(), name="user-settings"),
     # creating and calling posts
     path("posting", views.PostCreate.as_view(), name="post-create"),
