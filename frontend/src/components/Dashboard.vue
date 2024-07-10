@@ -210,7 +210,7 @@
 				v-for="post in posts"
 				:key="post._id"
 			>
-				<div class="post-title flex justify-start items-center">
+				<div class="post-title flex justify-center items-center">
 					<div
 						class="flex w-full sm:w-[90%] justify-between items-center"
 					>
@@ -613,7 +613,7 @@ export default {
 		initializeAutocompleteCountry() {
 			// Ensures the DOM is updated
 			const inputElement = this.$refs.autocompletecountry;
-
+			console.log('elemt: ', inputElement)
 			const autocomplete = new google.maps.places.Autocomplete(
 				inputElement,
 				{

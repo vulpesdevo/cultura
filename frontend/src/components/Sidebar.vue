@@ -284,7 +284,7 @@ export default {
 			.get("api/user", {})
 			.then((res) => {
 				this.user.username = res.data.user.username;
-				this.user.fullname = res.data.profile.fullname;
+				this.user.fullname = res.data.profile[0].fullname;
 				// console.log(res.data.userfullname)
 				this.user.isAuthenticated = true;
 			})

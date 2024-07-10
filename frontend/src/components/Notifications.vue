@@ -26,7 +26,7 @@
 		>
 			<div
 				class="w-full mt-1 p-3 sm:p-5 rounded-lg shadow-lg sm:mt-2"
-				:class="!data.is_read ? 'bg-zinc-400' : 'bg-interface'"
+				:class="!data.is_read ? 'bg-interface' : 'bg-zinc-400'"
 			>
 				<div class="flex justify-between items-start sm:items-center">
 					<div class="flex flex-col sm:flex-row">

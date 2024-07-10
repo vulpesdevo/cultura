@@ -32,7 +32,7 @@
 						@click="toggleAccordion('profile')"
 					>
 						<h1
-							class="text-prime font-montserrat text-sm  sm:text-xl font-normal sm:font-bold sm:ms-[2.85rem] ms-0 dark:text-dark-prime"
+							class="text-prime font-montserrat text-sm sm:text-xl font-normal sm:font-bold sm:ms-[2.85rem] ms-0 dark:text-dark-prime"
 						>
 							Profile Information
 						</h1>
@@ -60,14 +60,15 @@
 							<form>
 								<div class="mb-6">
 									<label
-										for="email"
+										for="username"
 										class="block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
 										>Username</label
 									>
 									<input
-										type="email"
-										id="email"
-										class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field dark:bg-dark-second-dark"
+										type="text"
+										id="setusername"
+										v-model="setusername"
+										class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field outline-none dark:bg-dark-second-dark dark:text-interface"
 										placeholder="John"
 									/>
 								</div>
@@ -79,22 +80,25 @@
 									>
 									<input
 										type="email"
-										id="email"
-										class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field dark:bg-dark-second-dark"
+										id="setemail"
+										v-model="setemail"
+										class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 outline-none bg-field dark:bg-dark-second-dark dark:text-interface"
 										placeholder="john.doe@company.com"
 									/>
 								</div>
 
 								<div class="mb-6">
 									<label
-										for="email"
+										for="country"
 										class="block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
 										>Country</label
 									>
 									<input
-										type="email"
-										id="email"
-										class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field dark:bg-dark-second-dark"
+										type="text"
+										id="setcountry"
+										v-model="setcountry"
+										ref="setautocompletecountry"
+										class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 outline-none bg-field dark:bg-dark-second-dark dark:text-interface"
 										placeholder="United States"
 									/>
 								</div>
@@ -213,7 +217,7 @@
 			</div>
 
 			<div
-				class="flex items-center w-full font-montserrat text-prime mt-7  mb-3 sm:mb-5"
+				class="flex items-center w-full font-montserrat text-prime mt-7 mb-3 sm:mb-5"
 			>
 				<span
 					class="material-icons-outlined text-2xl sm:text-3xl text-second"
@@ -251,7 +255,7 @@
 								/>
 								<div
 									:class="{ '!bg-second': isCheckedInApp }"
-										class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
+									class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
 								></div>
 								<div
 									:class="{
@@ -264,7 +268,7 @@
 						</div>
 					</label>
 				</div>
-				<div class="flex  mb-2  sm:mb-4">
+				<div class="flex mb-2 sm:mb-4">
 					<label
 						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
 					>
@@ -281,7 +285,7 @@
 								/>
 								<div
 									:class="{ '!bg-second': isCheckedBanner }"
-										class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
+									class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
 								></div>
 								<div
 									:class="{
@@ -294,7 +298,7 @@
 						</div>
 					</label>
 				</div>
-				<div class="flex  mb-2  sm:mb-4">
+				<div class="flex mb-2 sm:mb-4">
 					<label
 						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
 					>
@@ -313,7 +317,7 @@
 									:class="{
 										'!bg-second': isCheckedVibration,
 									}"
-										class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
+									class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
 								></div>
 								<div
 									:class="{
@@ -326,7 +330,7 @@
 						</div>
 					</label>
 				</div>
-				<div class="flex  mb-2  sm:mb-4">
+				<div class="flex mb-2 sm:mb-4">
 					<label
 						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
 					>
@@ -485,6 +489,11 @@ export default {
 			isCheckedSound: false,
 			isCheckedTheme: false,
 			settings: [],
+
+			setusername: "",
+			setemail: "",
+			setcountry: "",
+			inputElement: null,
 			// Initial state of the accordion
 		};
 	},
@@ -502,8 +511,31 @@ export default {
 			},
 		});
 		this.getClientSettings();
+		this.initializeAutocompleteCountry();
+	},
+	mounted() {
+		this.initializeAutocompleteCountry();
 	},
 	methods: {
+		initializeAutocompleteCountry() {
+			// Ensures the DOM is updated
+			// this.inputElement = this.$refs.setautocompletecountry;
+			// console.log("the element :", this.inputElement);
+			this.inputElement = this.$refs.setautocompletecountry;
+			console.log("the elemento :", this.inputElement);
+			const autocomplete = new google.maps.places.Autocomplete(
+				this.inputElement,
+				{
+					types: ["(regions)"],
+				}
+			);
+
+			// getting the value of
+			autocomplete.addListener("place_changed", () => {
+				const country = autocomplete.getPlace();
+				this.setcountry = country.formatted_address;
+			});
+		},
 		handleCheckboxChangeInApp() {
 			this.isCheckedInApp = !this.isCheckedInApp;
 			this.getSettings();
@@ -543,13 +575,13 @@ export default {
 		async getClientSettings() {
 			try {
 				const response = await this.client.get("/api/user-settings");
-				this.settings = response.data;
+				this.settings = response.data.set;
 				this.isCheckedInApp = this.settings[0].in_app_notification;
 				this.isCheckedBanner = this.settings[0].banner_notification;
 				this.isCheckedVibration = this.settings[0].vibration;
 				this.isCheckedSound = this.settings[0].sound;
 				this.isCheckedTheme = this.settings[0].theme;
-				console.log(this.settings);
+				console.log(response.data.user_information);
 			} catch (error) {
 				console.error(error);
 			}

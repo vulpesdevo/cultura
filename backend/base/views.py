@@ -140,7 +140,7 @@ class EditUserInformation(APIView):
         cultura_user = CulturaUser.objects.get(user=request.user)
         cultura_user.user_photo = image
         cultura_user.save()
-        
+
         return Response(status=status.HTTP_200_OK)
 
 
@@ -243,9 +243,14 @@ class PostViewSet(viewsets.ModelViewSet):
             post.likes.remove(user)
             message = "post unliked"
             LikeNotification.objects.filter(post_obj_id=object_id).delete()
+            user = CulturaUser.objects.get(user=request.user)
+            user.like_leader -= 1
+            user.save()
         else:
             post.likes.add(user)
-
+            user = CulturaUser.objects.get(user=request.user)
+            user.like_leader += 1
+            user.save()
             message = "post liked"
             like_notification = LikeNotification(
                 post_obj_id=object_id,
@@ -385,6 +390,9 @@ class ProfilePostListView(APIView):
         data = request.data
         post_id = data.get("post_id", "").strip()
         object_id = ObjectId(post_id)
+        user = CulturaUser.objects.get(user=request.user)
+        user.content_creator += 1
+        user.save()
         try:
             post = Post.objects.get(_id=object_id)
             post.delete()
@@ -419,7 +427,10 @@ class CommentCreate(APIView):
         reply = data.get("body", "").strip()
         replied_to = data.get("replied_to", "").strip()
         object_id = ObjectId(post_id)
-
+        
+        user = CulturaUser.objects.get(user=request.user)
+        user.comment_connoisseur += 1
+        user.save()
         import logging
 
         comment = Comment.objects.create(
@@ -553,6 +564,10 @@ class SaveItineraryView(APIView):
         itineraries = Itinerary.objects.filter(status="onqueue", owner=request.user)
         itineraries.update(status="saved")
 
+        user = CulturaUser.objects.get(user=request.user)
+        user.guide_guru += 1
+        user.save()
+
         itinerary_save = SaveItinerary.objects.create(
             owner=request.user,
             creator_name=request.user.username,
@@ -664,7 +679,8 @@ class GetSettings(APIView):
     def get(self, request):
 
         settings = UserSetting.objects.filter(user=request.user)
-
+        user = CulturaUser.objects.filter(user=request.user)
+        user_information = CulturaUserSerializer(user, many=True)
         serializer = SettingSerializer(settings, many=True)
         print("where ::", serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'user_information':user_information.data,'set': serializer.data}, status=status.HTTP_200_OK)

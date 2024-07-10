@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field pt-20 sm:px-28 sm:ml-64 sm:pt-3"
+		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif pt-20 sm:px-28 sm:ml-64 sm:pt-3 h-screen"
 	>
 		<div
 			class="flex justify-end items-center text-end w-full sm:w-11/12 h-10"
@@ -12,50 +12,9 @@
 			>
 		</div>
 
+		
 		<div
-			class="mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface sm:w-11/12 sm:px-6 sm:h-[650px]"
-		>
-			<div class="sm:h-96 mt-2 sm:px-5 sm:pt-5 mb-10 w-full">
-				<img
-					class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-full"
-					src="/sample_img/binondo.webp"
-					alt=""
-				/>
-				<div class="w-full h-auto py-4">
-					<h1
-						class="font-bebas-neue text-prime text-3xl mt-5 sm:text-4xl"
-					>
-						BINONDO GUIDE FOR 2024
-					</h1>
-					<p class="font-montserrat text-sm sm:text-sm text-justify">
-						My name is Elle, and I am a proud Filipino who has a
-						deep appreciation for visiting Binondo in Manila.
-						Binondo is renowned as the world's oldest Chinatown, and
-						it holds a special place in my heart for its rich
-						cultural heritage and vibrant atmosphere....
-					</p>
-				</div>
-				<div class="flex items-center mt-5">
-					<img
-						class="rounded-full w-12 shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
-						src="/sample_img/mark.png"
-						alt=""
-					/>
-					<h1
-						class="font-montserrat font-semibold text-prime ml-2 pr-2 border border-l-0 border-y-0 border-r-prime hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
-					>
-						@Jake_Citrus
-					</h1>
-					<h1
-						class="font-montserrat text-xs text-second ml-2 sm:text-sm sm:ml-5"
-					>
-						June 19, 2024hihihihihihiih
-					</h1>
-				</div>
-			</div>
-		</div>
-		<div
-			class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface cursor-pointer sm:w-11/12 sm:px-6"
+			class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
 			v-for="(itinerary, index) in itineraries"
 			:key="itinerary.id"
 			@click="goToViewItinerary(itinerary.id)"
@@ -69,11 +28,11 @@
 				/>
 				<div class="w-full h-auto py-2">
 					<h1
-						class="font-bebas-neue text-prime text-3xl mt-5 sm:text-4xl"
+						class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
 					>
 						{{ itinerary.main_title }}
 					</h1>
-					<p class="font-montserrat text-sm text-justify h-auto">
+					<p class="font-montserrat text-sm text-justify h-auto dark:text-interface">
 						{{
 							isFullTextShown[index]
 								? itinerary.main_description
@@ -100,7 +59,7 @@
 						alt=""
 					/>
 					<h1
-						class="font-montserrat font-semibold text-prime ml-2 pr-2 border border-l-0 border-y-0 border-r-prime hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
+						class="font-montserrat font-semibold text-prime dark:text-interface  ml-2 pr-2 border border-l-0 border-y-0 border-r-prime dark:border-r-interface hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
 					>
 						@{{ itinerary.creator_name }}
 					</h1>

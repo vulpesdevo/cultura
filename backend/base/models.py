@@ -23,6 +23,16 @@ class CulturaUser(models.Model):
     email = models.EmailField()
     is_active = models.BooleanField(default=True)
 
+    trend_setter = models.IntegerField(default=0, null=True, blank=True)
+    share_star = models.IntegerField(default=0, null=True, blank=True)
+    like_leader = models.IntegerField(default=0, null=True, blank=True)
+    knowledge_seeker = models.IntegerField(default=0, null=True, blank=True)
+    guide_guru = models.IntegerField(default=0, null=True, blank=True)
+    explorer_extraordinaire = models.IntegerField(default=0, null=True, blank=True)
+    cultura_contributor = models.IntegerField(default=0, null=True, blank=True)
+    content_creator = models.IntegerField(default=0, null=True, blank=True)
+    comment_connoisseur = models.IntegerField(default=0, null=True, blank=True)
+
 class SaveItinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     creator_name = models.CharField(max_length=50)
@@ -97,7 +107,6 @@ class UserSetting (models.Model):
     theme = models.BooleanField(default=False)  
 
 
-# class AppUserManager(BaseUserManager):
 #     def create_user(self, email, username, password=None):
 #         if not email:
 #             raise ValueError("An email is required.")

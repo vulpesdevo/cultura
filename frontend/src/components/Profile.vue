@@ -14,7 +14,7 @@
 				>
 					<img
 						v-if="!changingPhoto"
-						:class="{ 'hidden': changingPhoto }"
+						:class="{ hidden: changingPhoto }"
 						class="rounded-full shadow-2xl w-[9.5rem] h-[9.5rem] sm:w-full sm:h-full object-cover border-interface dark:border-dark-interface border-8"
 						:src="profile.user_photo"
 						alt=""
@@ -28,11 +28,9 @@
 					<label
 						v-if="!changingPhoto"
 						for="imgSelect"
-						
 						class="flex items-center justify-center absolute bottom-0 right-3 h-10 w-10 rounded-full bg-black transition duration-300 ease-in-out cursor-pointer bg-opacity-0 group-hover:bg-opacity-50"
 					>
 						<span
-							
 							class="material-icons-outlined text-interface dark:text-second text-xl text-opacity-0 dark:text-opacity-0 group-hover:text-opacity-100 group-hover:dark:text-opacity-100"
 							>download</span
 						>
@@ -137,7 +135,7 @@
 		</div>
 		<div class="profile-tabs flex justify-center w-full my-5 px-2">
 			<button
-				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-60 text-xl sm:text-3xl"
+				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-64 text-xl sm:text-2xl"
 				@click="activeTab = 'posts'"
 				:class="{
 					'bg-second text-white': activeTab === 'posts',
@@ -147,7 +145,7 @@
 				Posts
 			</button>
 			<button
-				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-60 text-xl sm:text-3xl ms-5 sm:ms-10"
+				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-64 text-xl sm:text-2xl ms-5 sm:ms-10"
 				@click="activeTab = 'achievements'"
 				:class="{
 					'bg-second text-white': activeTab === 'achievements',
@@ -326,9 +324,97 @@
 			</div>
 		</div>
 		<div
-			class="achievements w-screen sm:w-full pt-3 px-6 sm:pt-6 sm:px-9"
+			class="flex justify-center items-center achievements w-full pt-3 px-3 sm:pt-6 sm:px-9"
 			v-if="activeTab === 'achievements'"
-		></div>
+		>
+			<div class="flex justify-center items-center w-screen sm:w-full">
+				<div class="grid grid-cols-5 gap-1 sm:gap-0 sm:w-3/4">
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/content-creator.png`"
+							:class="{ 'brightness-50': !hasContentCreator }"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/guide-guru.png`"
+							:class="{ 'brightness-50': !hasGuideGuru }"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/like-leader.png`"
+							:class="{ 'brightness-50': !hasLikeLeader }"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/share-star.png`"
+							:class="{ 'brightness-50': !hasShareStar }"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/comment-connoisseur.png`"
+							:class="{ 'brightness-50': !hasCommentConnoisseur }"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/explorer-extraordinaire.png`"
+							:class="{
+								'brightness-50': !hasExplorerExtraordinaire,
+							}"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/knowledge-seeker.png`"
+							:class="{ 'brightness-50': !hasKnowledgeSeeker }"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/trend-setter.png`"
+							:class="{ 'brightness-50': !hasTrendsetter }"
+							alt=""
+						/>
+					</div>
+					<div
+						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+					>
+						<img
+							:src="`/achievements/cultura-contributor.png`"
+							:class="{ 'brightness-50': !hasCulturaContributor }"
+							alt=""
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<div
 			class="fixed z-50 inset-0 overflow-y-auto"
@@ -481,27 +567,27 @@
 		>
 			<div
 				v-if="modalDeleteActive"
-				class="flex-col sm:w-1/3 sm:h-[32%] rounded-lg p-4 bg-interface"
+				class="flex-col sm:w-1/3 sm:h-[32%] rounded-lg p-4 bg-interface dark:bg-dark-interface"
 			>
 				<span
 					@click="modalDeleteActive = false"
-					class="flex material-icons-outlined justify-end cursor-pointer"
+					class="flex material-icons-outlined justify-end cursor-pointer dark:text-interface"
 					>close</span
 				>
 				<h1
-					class="flex text-4xl sm:text-3xl text-prime font-bold font-montserrat justify-center"
+					class="flex text-4xl sm:text-3xl text-prime dark:text-interface font-bold font-montserrat justify-center"
 				>
 					Are you sure?
 				</h1>
 				<p
-					class="flex justify-center text-sm sm:text-[15px] my-5 mb-20 sm:my-7 px-3 sm:px-16 font-montserrat text-center"
+					class="flex justify-center text-sm sm:text-[15px] my-5 mb-20 sm:my-7 px-3 sm:px-16 font-montserrat text-center dark:text-interface"
 				>
 					You are trying to delete this post. This action cannot be
 					undone.
 				</p>
 				<div class="flex justify-center items-center">
 					<button
-						class="rounded-xl text-xl text-white mr-4 bg-notif bg-opacity-80 py-2 px-7 font-bebas-neue"
+						class="rounded-xl text-xl text-white mr-4 bg-notif dark:bg-dark-second-dark bg-opacity-80 py-2 px-7 font-bebas-neue"
 					>
 						Cancel
 					</button>
@@ -523,6 +609,16 @@ import moment from "moment";
 export default {
 	data() {
 		return {
+			hasContentCreator: false,
+			hasGuideGuru: false,
+			hasLikeLeader: false,
+			hasShareStar: false,
+			hasCommentConnoisseur: false,
+			hasExplorerExtraordinaire: false,
+			hasKnowledgeSeeker: false,
+			hasTrendsetter: false,
+			hasCulturaContributor: false,
+
 			showModal: false,
 			profile: {
 				username: "",
@@ -551,7 +647,7 @@ export default {
 
 			// forprofile
 			selectedImageUrl: "/default_profile.png",
-			
+
 			changingPhoto: false,
 			picture: null,
 		};
@@ -561,6 +657,8 @@ export default {
 		// setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds -->> polling
 		// this.fetchComments();
 		setInterval(this.fetchComments, 5000);
+		// Check if the user has met the criteria for each achievement
+		// and update the corresponding data property
 	},
 	created() {
 		this.token = localStorage.getItem("token");
@@ -591,7 +689,38 @@ export default {
 					// }
 					this.profile.user_photo = res.data.profile[0].user_photo;
 					this.profile.email = res.data.profile[0].email;
-					this.changingPhoto =false
+					this.changingPhoto = false;
+
+					if (res.data.profile[0].content_creator >= 5) {
+						this.hasContentCreator = true;
+					}
+					if (res.data.profile[0].guide_guru >= 1) {
+						this.hasGuideGuru = true;
+					}
+					if (res.data.profile[0].like_leader >= 10) {
+						this.hasLikeLeader = true;
+					}
+					if (res.data.profile[0].share_star >= 10) {
+						this.hasShareStar = true;
+					}
+					if (res.data.profile[0].comment_connoisseur >= 5) {
+						this.hasCommentConnoisseur = true;
+					}
+					if (res.data.profile[0].explorer_extraordinaire >= 10) {
+						this.hasExplorerExtraordinaire = true;
+					}
+					if (res.data.profile[0].knowledge_seeker >= 15) {
+						this.hasKnowledgeSeeker = true;
+					}
+					if (res.data.profile[0].trend_setter >= 50) {
+						this.hasTrendsetter = true;
+					}
+					if (
+						res.data.profile[0].content_creator >= 20 &&
+						res.data.profile[0].guide_guru >= 10
+					) {
+						this.hasCulturaContributor = true;
+					}
 				})
 				.catch((error) => {
 					console.log("ERROR", error);
@@ -600,7 +729,7 @@ export default {
 		handleFileSelection(event) {
 			console.log("Image : TRIGERRED");
 			const file = event.target.files[0];
-			
+
 			if (file) {
 				this.selectedImageUrl = URL.createObjectURL(file);
 				this.picture = file;
@@ -610,8 +739,8 @@ export default {
 		},
 		cancelProfile() {
 			this.changingPhoto = false;
-			
-			document.getElementById('imgSelect').value = '';
+
+			document.getElementById("imgSelect").value = "";
 		},
 		changeProfile() {
 			let formData = new FormData();
@@ -629,9 +758,6 @@ export default {
 				.then((response) => {
 					console.log("CHANGE PROFILE !!");
 					this.fetchUser();
-					
-					
-					
 				})
 				.catch((error) => {
 					console.error(error);

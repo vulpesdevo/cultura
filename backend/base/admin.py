@@ -11,6 +11,15 @@ class CulturaUserAdmin(admin.ModelAdmin):
         "country",
         "email",
         "is_active",
+        "trend_setter",
+        "share_star",
+        "like_leader",
+        "knowledge_seeker",
+        "guide_guru",
+        "explorer_extraordinaire",
+        "cultura_contributor",
+        "content_creator",
+        "comment_connoisseur",
     )
 
     def cultura_user_info(self, obj):
@@ -86,6 +95,9 @@ class UserSettingsAdmin(admin.ModelAdmin):
         'sound',
         'theme',
     )
+
+
+
 
 admin.site.register(UserSetting, UserSettingsAdmin)
 

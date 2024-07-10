@@ -1,13 +1,13 @@
 <template>
 	<section
-		class="bg-interface dark:bg-dark-notif  h-screen w-screen flex flex-col justify-center items-center sm:flex-row p-0 sm:p-20"
+		class="bg-interface dark:bg-dark-notif h-screen w-screen flex flex-col justify-center items-center sm:flex-row p-0 sm:p-20"
 	>
 		<div
 			class="logo-container sm:w-1/2 flex justify-center items-center align-middle pt-10 sm:pt-1"
 		>
 			<img
 				class="h-56 sm:w-screen sm:h-auto"
-				:src="isDark ? '/culturalink_logo.png':'/logo1Light.png'"
+				:src="isDark ?  '/logo1Light.png':'/culturalink_logo.png'"
 				alt="cultura-logo"
 			/>
 		</div>
@@ -33,8 +33,7 @@
 					placeholder="Username"
 					name="lusername"
 					v-model="username"
-					class="pl-5 bg-field  dark:bg-dark-second-dark dark:text-dark-prime rounded-full mb-4 w-80 sm:w-96 h-14"
-					
+					class="pl-5 bg-field dark:bg-dark-second-dark dark:text-dark-prime rounded-full mb-4 w-80 sm:w-96 h-14"
 				/>
 				<input
 					type="password"
@@ -52,7 +51,9 @@
 					class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light"
 				/>
 				<span class="flex"
-					><p class="text-black dark:text-dark-prime">Don't have an account?</p>
+					><p class="text-black dark:text-dark-prime">
+						Don't have an account?
+					</p>
 					<a
 						href=""
 						class="pl-3 text-second"
@@ -105,59 +106,114 @@
 							SIGN UP
 						</h3>
 						<p
-							class="font-montserrat text-prime  dark:text-dark-prime pt-2 pb-5 text-lg sm:text-2xl"
+							class="font-montserrat text-prime dark:text-dark-prime pt-2 pb-5 text-lg sm:text-2xl"
 						>
 							Create your account
 						</p>
 						<form class="mt-2" @submit.prevent="submitRegistration">
 							<div class="flex flex-wrap">
 								<div class="w-full md:w-1/2 px-3">
-									<input
-										type="text"
-										placeholder="Username"
-										name="rusername"
-										v-model="rusername"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime "
-									/>
-									<input
-										type="email"
-										placeholder="Email"
-										name="email"
-										v-model="email"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
-									/>
-									<input
-										type="text"
-										placeholder="Name"
-										name="name"
-										v-model="rname"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
-									/>
+									<div class="relative text-left">
+										<label for="" class="hidden sm:flex"
+											>Username</label
+										>
+
+										<input
+											type="text"
+											placeholder="Username"
+											name="rusername"
+											v-model="rusername"
+											class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime"
+										/>
+									</div>
+									<div class="relative text-left">
+										<label for="" class="hidden sm:flex"
+											>Email</label
+										>
+
+										<div
+											class="absolute inset-y-0 start-0 flex sm:mt-6 items-center ps-3.5 pointer-events-none"
+										>
+											<svg
+												class="w-4 h-4 text-gray-500 dark:text-gray-400"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												fill="currentColor"
+												viewBox="0 0 20 16"
+											>
+												<path
+													d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z"
+												/>
+												<path
+													d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z"
+												/>
+											</svg>
+										</div>
+										<input
+											type="email"
+											id="input-group-1"
+											name="email"
+											v-model="email"
+											class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime"
+											placeholder="name@flowbite.com"
+										/>
+									</div>
+
+									<div class="relative text-left">
+										<label for="" class="hidden sm:flex"
+											>Full Name</label
+										>
+										<input
+											type="text"
+											placeholder="Name"
+											name="name"
+											v-model="rname"
+											class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime"
+										/>
+									</div>
 								</div>
 								<div class="w-full md:w-1/2 px-3">
-									<input
-										type="text"
-										placeholder="Country"
-										name="country"
-										v-model="rcountry"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
-									/>
-									<input
-										type="password"
-										placeholder="Password"
-										name="rpassword"
-										v-model="rpassword"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
-									/>
-									<input
-										type="password"
-										placeholder="Re-enter Password"
-										name="repassword"
-										v-model="repassword"
-										class="mt-2 pl-5 w-full rounded-full h-14 bg-field  dark:bg-dark-second-dark dark:text-dark-prime"
+									<div class="relative text-left">
+										<label for="" class="hidden sm:flex"
+											>Country</label
+										>
 
-										
-									/>
+										<input
+											type="text"
+											placeholder="Country"
+											name="country"
+											v-model="rcountry"
+											class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime"
+										/>
+									</div>
+
+									<div class="relative text-left">
+										<label for="" class="hidden sm:flex"
+											>Password</label
+										>
+
+										<input
+											type="password"
+											placeholder="Password"
+											name="rpassword"
+											v-model="rpassword"
+											class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime"
+										/>
+									</div>
+
+									<div class="relative text-left">
+										<label for="" class="hidden sm:flex"
+											>Re-enter Password</label
+										>
+
+										<input
+											type="password"
+											placeholder="Re-enter Password"
+											name="repassword"
+											v-model="repassword"
+											class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime"
+										/>
+									</div>
 								</div>
 							</div>
 
@@ -411,7 +467,7 @@
 
 <script>
 import axios from "axios";
-
+import { useDark, useToggle } from "@vueuse/core";
 import { ref } from "vue";
 import router from "../routes";
 // import emailjs from "emailjs-com";
@@ -461,6 +517,9 @@ export default {
 			});
 	},
 	setup() {
+		const isDark = useDark();
+		const toggleDark = useToggle(isDark);
+
 		const email = ref("");
 		const rname = ref("");
 		const rcountry = ref("");
@@ -534,13 +593,12 @@ export default {
 					// Redirect to home page
 					const token = response.data.token; // Replace with your token
 					localStorage.setItem("token", token);
-					
+
 					window.scrollTo(0, 0);
 
 					router.push({ name: "dashboard" }).then(() => {
 						window.location.reload();
 					});
-					
 				})
 				.catch((error) => {});
 		};
@@ -550,8 +608,6 @@ export default {
 				console.log("Logged out user:", res.data);
 			});
 		};
-
-	
 
 		return {
 			//login
@@ -569,6 +625,9 @@ export default {
 			submitRegistration,
 			submitLogin,
 			submitLogout,
+
+			isDark,
+			toggleDark,
 		};
 	},
 
