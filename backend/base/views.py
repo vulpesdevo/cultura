@@ -82,13 +82,15 @@ class ChangePassword(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        # username = request.data.get("username")
-
         data = request.data
+        # username = data["password"].strip()
+        # email = data["email"].strip()
+
         password = data["password"].strip()
         new_password = data["new_password"].strip()
-        print("PASSWORD", password)
+
         user = request.user
+
         if user.check_password(password) and new_password == password:
             return Response(
                 {"error": "The new password is the same as the old password."},
@@ -137,6 +139,78 @@ class UserRegister(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+# FORGOT PASSWORD
+# users = UserModel.objects.filter(email=email)
+class ChangeForgotPassword(APIView):
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        data = request.data
+        email = data.get("email", "").strip()
+        user = UserModel.objects.get(email=email)
+        new_password = data.get("password", "").strip()
+        print(user)
+        # email = data.get("email", "").strip()
+        if new_password:
+            user.set_password(new_password)
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class ForgotPassword(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        data = request.data
+        email = data["email"].strip()
+        print(email)
+        if UserModel.objects.filter(email=email):
+
+            from email.message import EmailMessage
+            import ssl
+            import smtplib
+            import random
+            import math
+            import certifi
+
+            # generating OTP 6 digit code
+
+            otp = random.randint(100000, 999999)
+
+            print("OTP:", otp)
+
+            # SENDING TO EMAIL
+            email_sender = "culturalink62@gmail.com"
+            email_password = "syhj wqky hzwz kllz"
+            email_receiver = email
+            subject = "Request to Change Password for CulturaLink "
+
+            body = (
+                "Seems like you forgot your password!\nEnter the following code in your Cultura Application:\n\n\n"
+                + str(otp)
+                + "\n\n\nif you did not request this please send us an email to this address right away"
+            )
+
+            EM = EmailMessage()
+            EM["From"] = email_sender
+            EM["To"] = email_receiver
+            EM["Subject"] = subject
+            EM.set_content(body)
+
+            context = ssl.create_default_context(cafile=certifi.where())
+
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(email_sender, email_password)
+                smtp.sendmail(email_sender, email_receiver, EM.as_string())
+
+            print("SENT")
+
+            return Response({"otp": otp}, status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserLogin(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
@@ -160,7 +234,110 @@ class UserLogin(APIView):
             )
 
 
+UserModel = get_user_model()
+
+
 class EditUserInformation(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        user = request.user
+        # fullname = data["fullname"].strip()
+        password = data["password"].strip()
+        country = data["country"].strip()
+        email = data["email"].strip()
+        # cultura_user.fullname = fullname
+        cultura_user = CulturaUser.objects.get(user=user)
+        print(user.check_password(password))
+        if not user.check_password(password):
+            return Response(
+                {"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if UserModel.objects.filter(email=email).exists():
+            return Response(
+                {"error": "Choose another email"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.email = email
+        user.save()
+
+        cultura_user.email = email
+        cultura_user.country = country
+        cultura_user.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class OTPVerification(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        data = request.data
+        email = data.get("email", "").strip()
+        username = data.get("username", "").strip()
+
+        if not UserModel.objects.filter(email=email) and not UserModel.objects.filter(
+            username=username
+        ):
+            from email.message import EmailMessage
+            import ssl
+            import smtplib
+            import random
+            import math
+            import certifi
+
+            # generating OTP 6 digit code
+
+            otp = random.randint(100000, 999999)
+
+            print("OTP:", otp)
+
+            # SENDING TO EMAIL
+            email_sender = "culturalink62@gmail.com"
+            email_password = "syhj wqky hzwz kllz"
+            email_receiver = email
+            subject = "Verify Your Account - CulturaLink Registration"
+
+            body = (
+                "Welcome to Cultura!\n\nTo complete your registration, please enter the following code in your Cultura Application:\n\n\n"
+                + str(otp)
+                + "\n\n\nif you did not request this please send us an email to this address right away"
+            )
+
+            EM = EmailMessage()
+            EM["From"] = email_sender
+            EM["To"] = email_receiver
+            EM["Subject"] = subject
+            EM.set_content(body)
+
+            context = ssl.create_default_context(cafile=certifi.where())
+
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(email_sender, email_password)
+                smtp.sendmail(email_sender, email_receiver, EM.as_string())
+
+            print("SENT")
+
+            return Response({"otp": otp}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "email_error": (
+                    "This email has already been used in another account"
+                    if UserModel.objects.filter(email=email)
+                    else None
+                ),
+                "username_error": (
+                    "This username has already been used in another account"
+                    if UserModel.objects.filter(username=username)
+                    else None
+                ),
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class EditUserProfile(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
@@ -289,7 +466,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 notif_type="like",
                 post_title=post.title,
                 post_content=post.content,
-                audience=user.username,
+                audience=user,
             )
             like_notification.save()
 
@@ -305,8 +482,10 @@ class LikesNotificationList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        data = LikeNotification.objects.filter(post_author=request.user).order_by(
-            "-created_at"
+        data = (
+            LikeNotification.objects.filter(post_author=request.user)
+            .exclude(audience=request.user)
+            .order_by("-created_at")
         )
 
         serializer = LikeSerializer(data, many=True)
@@ -338,12 +517,41 @@ class PostListView(APIView):
                 post_data["image"] = abs_image_url
 
             # Retrieve comments for the post
-            comments = Comment.objects.filter(post_id=post_data["_id"])
-            comment_serializer = CommentSerializer(comments, many=True)
-            post_data["comments"] = comment_serializer.data
 
-            # Get the post title
-            title = post_data.get("title", "")
+            author_user_photo = CulturaUser.objects.get(
+                user=post_data["author"]
+            ).user_photo
+            # Build the absolute URI for the post author's user_photo
+            abs_author_user_photo_url = request.build_absolute_uri(
+                author_user_photo.url
+            )
+            # Update the post data with the absolute URI of the post author's user_photo
+            post_data["author_user_photo"] = abs_author_user_photo_url
+            comments = Comment.objects.filter(post_id=post_data["_id"])
+
+            comment_serializer = CommentSerializer(comments, many=True)
+            comment_data = comment_serializer.data
+            for comment in comment_data:
+                user = User.objects.get(id=comment["author"]).username
+                author_user_photo = CulturaUser.objects.get(
+                    user=comment["author"]
+                ).user_photo
+
+                # Build the absolute URI for each comment author's user_photo
+                abs_author_user_photo_url = request.build_absolute_uri(
+                    author_user_photo.url
+                )
+                # Update the comment data with the absolute URI of each comment author's user_photo
+                comment["author_user_photo"] = abs_author_user_photo_url
+                comment["author"] = user
+
+            post_data["comments"] = comment_data
+            post_user = User.objects.get(id=post_data["author"]).username
+            post_data["author"] = post_user
+
+            # Get the user_photo of the post author
+
+            # Get the user_photo of each comment author
 
             # Validate if the post title is profane
             # title_is_profane = validate_is_profane(title)
@@ -385,7 +593,13 @@ class LikedPostView(APIView):
                 post_data["image"] = abs_image_url
             comments = Comment.objects.filter(post_id=post_data["_id"])
             comment_serializer = CommentSerializer(comments, many=True)
+            comment_data = comment_serializer.data
+            for comment in comment_data:
+                user = User.objects.get(id=comment["author"]).username
+                comment["author"] = user
             post_data["comments"] = comment_serializer.data
+            post_user = User.objects.get(id=post_data["author"]).username
+            post_data["author"] = post_user
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -406,13 +620,43 @@ class ProfilePostListView(APIView):
         # Include the image URLs in the response
 
         for post_data in serializer.data:
+
             image = post_data.get("image", None)
             if image:
                 # Build the absolute URI for the image
                 abs_image_url = request.build_absolute_uri(image)
                 # Update the post data with the absolute URI
                 post_data["image"] = abs_image_url
+            author_user_photo = CulturaUser.objects.get(
+                user=post_data["author"]
+            ).user_photo
+            # Build the absolute URI for the post author's user_photo
+            abs_author_user_photo_url = request.build_absolute_uri(
+                author_user_photo.url
+            )
+            # Update the post data with the absolute URI of the post author's user_photo
+            post_data["author_user_photo"] = abs_author_user_photo_url
+            comments = Comment.objects.filter(post_id=post_data["_id"])
 
+            comment_serializer = CommentSerializer(comments, many=True)
+            comment_data = comment_serializer.data
+            for comment in comment_data:
+                user = User.objects.get(id=comment["author"]).username
+                author_user_photo = CulturaUser.objects.get(
+                    user=comment["author"]
+                ).user_photo
+
+                # Build the absolute URI for each comment author's user_photo
+                abs_author_user_photo_url = request.build_absolute_uri(
+                    author_user_photo.url
+                )
+                # Update the comment data with the absolute URI of each comment author's user_photo
+                comment["author_user_photo"] = abs_author_user_photo_url
+                comment["author"] = user
+
+            post_data["comments"] = comment_data
+            post_user = User.objects.get(id=post_data["author"]).username
+            post_data["author"] = post_user
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -552,6 +796,8 @@ class ItineraryCreate(APIView):
 import logging
 from django.conf import settings
 import os
+import random
+from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 

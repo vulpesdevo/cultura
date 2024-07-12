@@ -1,7 +1,7 @@
 <template>
-	<main class=" select-none sm:flex">
+	<main class="select-none sm:flex">
 		<Topbar class="sm:hidden" />
-		<Sidebar  />
+		<Sidebar />
 		<router-view class=""></router-view>
 	</main>
 </template>
@@ -9,17 +9,18 @@
 import Sidebar from "./components/Sidebar.vue";
 import Topbar from "./components/Topbar.vue";
 import axios from "axios";
-import { useDark,useToggle } from "@vueuse/core";
+import { useDark, useToggle } from "@vueuse/core";
 import { ref } from "vue";
 export default {
 	components: {
-		Sidebar,Topbar,
-		},
+		Sidebar,
+		Topbar,
+	},
 	setup() {
 		const isDark = useDark();
 		const toggleDark = useToggle(isDark);
-		
-		return { isDark,toggleDark };
+
+		return { isDark, toggleDark };
 	},
 	data() {
 		return {
@@ -43,15 +44,12 @@ export default {
 			.then((res) => {
 				console.log(res.data);
 				this.user.isAuthenticated = true;
-				
 			})
 			.catch((error) => {
 				console.log("ERROR", error);
 			});
 	},
-	methods: {
-		
-	},
+	methods: {},
 };
 </script>
 <style>
@@ -68,6 +66,9 @@ export default {
 	--dark-bg-theme: #1e1e1e;
 }
 
+::-webkit-scrollbar {
+	display: none;
+}
 .text-purple-light {
 	color: var(--text-color-b);
 }
@@ -85,11 +86,11 @@ export default {
 input,
 .text-mont {
 	font-family: "Montserrat";
-}input::placeholder {
+}
+input::placeholder {
 	color: #9b9bb4;
 }
 .dark input::placeholder {
 	color: #d1d1da;
 }
-
 </style>

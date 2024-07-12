@@ -12,10 +12,18 @@ urlpatterns = [
     path("registration", views.UserRegister.as_view(), name="registration"),
     path("login", views.UserLogin.as_view(), name="login"),
     path("logout", views.UserLogout.as_view(), name="logout"),
+    path(
+        "update-information",
+        views.EditUserInformation.as_view(),
+        name="update-information",
+    ),
     path("change-password", views.ChangePassword.as_view(), name="change-password"),
     path("user-settings", views.GetSettings.as_view(), name="user-settings"),
     # creating and calling posts
     path("posting", views.PostCreate.as_view(), name="post-create"),
+    path("send-otp", views.OTPVerification.as_view(), name="send-otp"),
+    path("fp-otp", views.ForgotPassword.as_view(), name="fp-otp"),
+    path("fp-change", views.ChangeForgotPassword.as_view(), name="fp-change"),
     path("posts-list/", views.PostListView.as_view(), name="post-list"),
     path(
         "like-notification-list",
@@ -32,7 +40,7 @@ urlpatterns = [
         "profile-posts", views.ProfilePostListView.as_view(), name="profile-post-list"
     ),
     path("delete-post", views.ProfilePostListView.as_view(), name="delete-post"),
-    path("change-profile", views.EditUserInformation.as_view(), name="change-profile"),
+    path("change-profile", views.EditUserProfile.as_view(), name="change-profile"),
     # creating and calling comments
     path("commenting", views.CommentCreate.as_view(), name="comment-create"),
     path("comments", views.CommentListView.as_view(), name="comment-list"),

@@ -127,7 +127,7 @@ class PostSerializer(serializers.ModelSerializer):
         )
 
     def get_author(self, obj):
-        return obj.author.username
+        return obj.author.id
 
     def get_like_count(self, obj):
         return len(obj.likes.all())

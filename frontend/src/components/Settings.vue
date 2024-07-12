@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-8 py-2 sm:ml-64 overflow-auto h-screen bg-field dark:bg-dark-notif pt-[4.5rem] sm:pt-7 px-2"
+		class="flex flex-col items-center just align-middle w-screen sm:px-8 py-2 sm:ml-64 overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-[4.5rem] sm:pt-7 px-2"
 	>
 		<div
-			class="flex-col justify-start w-full text-prime bg-[#E8E8E8] dark:bg-dark-interface p-7 mb-5 sm:mb-10 sm:p-7 sm:px-20 rounded-3xl"
+			class="flex flex-col justify-start w-full text-prime bg-[#E8E8E8] dark:bg-dark-interface p-7 mb-5 sm:mb-10 sm:p-7 sm:px-20 rounded-3xl"
 		>
 			<h1
 				class="flex justify-center text-3xl sm:text-5xl text-prime dark:text-dark-prime font-bebas-neue"
@@ -72,39 +72,51 @@
 				>
 					<div class="overflow-hidden">
 						<form>
-							<div class="mb-6 mt-5">
+							<div class="relative text-left">
 								<label
-									for="username"
-									class="block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
-									>Username</label
+									for=""
+									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									>Email</label
 								>
-								<input
-									type="text"
-									id="setusername"
-									v-model="setusername"
-									class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field outline-none dark:bg-dark-second-dark dark:text-interface"
-									placeholder="John"
-								/>
-							</div>
-							<div class="mb-6">
-								<label
-									for="email"
-									class="block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
-									>Email address</label
+
+								<div
+									class="absolute inset-y-0 start-0 flex sm:mt-6 items-center ps-3.5 pointer-events-none"
 								>
+									<svg
+										class="w-4 h-4 text-gray-500 dark:text-gray-400"
+										aria-hidden="true"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="currentColor"
+										viewBox="0 0 20 16"
+									>
+										<path
+											d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z"
+										/>
+										<path
+											d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z"
+										/>
+									</svg>
+								</div>
 								<input
 									type="email"
 									id="setemail"
 									v-model="setemail"
-									class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 outline-none bg-field dark:bg-dark-second-dark dark:text-interface"
-									placeholder="john.doe@company.com"
+									:class="[
+										isGmailEmail
+											? 'outline-green-400'
+											: 'outline-red-400',
+									]"
+									class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime"
+									required
+									:disabled="!editing"
+									placeholder="name@flowbite.com"
 								/>
 							</div>
 
-							<div class="mb-6">
+							<div class="mb-6 mt-7 sm:mt-2">
 								<label
 									for="country"
-									class="block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime"
 									>Country</label
 								>
 								<input
@@ -112,20 +124,69 @@
 									id="setcountry"
 									v-model="setcountry"
 									ref="setautocompletecountry"
-									class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 outline-none bg-field dark:bg-dark-second-dark dark:text-interface"
+									class="text-prime text-sm rounded-3xl w-full p-2.5 pl-10 outline-none bg-field dark:bg-dark-second-dark dark:text-interface"
 									placeholder="United States"
+									:disabled="!editing"
 								/>
 							</div>
-							<div class="flex justify-end mb-10 sm:mt-10">
+							<div
+								class="flex items-start mt-3 mb-4"
+								v-if="isGmailEmail && editing"
+							>
+								<label for="" class="w-1/2 text-end dark:text-dark-second-dark"
+									>verify password:</label
+								>
+								<div class="relative w-3/4 px-1">
+									<input
+										:type="
+											showsetPass ? 'text' : 'password'
+										"
+										id="setpassword"
+										v-model="setpassword"
+										class="text-prime text-sm rounded-3xl w-full h-10 pl-6 pr-14 bg-field dark:bg-dark-second-dark dark:text-interface outline-none"
+										placeholder="Verify Password"
+										required
+										:disabled="!editing"
+									/>
+									<button
+										class="absolute right-5 top-2"
+										@click.prevent="
+											showsetPass = !showsetPass
+										"
+									>
+										<i
+											class="fas dark:text-gray-400"
+											:class="
+												showsetPass
+													? 'fa-eye'
+													: 'fa-eye-slash'
+											"
+										></i>
+									</button>
+								</div>
+							</div>
+							<div class="flex justify-end mb-5 sm:mt-10">
 								<button
-									class="bg-[#7F7979] rounded-3xl text-white px-3 sm:px-6 py-2 sm:py-3"
+									v-if="editing"
+									class="bg-[#7F7979] rounded-3xl text-white flex items-center justify-center w-16 ml-6 h-9 px-3 sm:px-6 py-2 sm:py-3"
+									@click.prevent="editing = false"
 								>
 									Cancel
 								</button>
+
 								<button
-									class="bg-second rounded-3xl text-white ml-6 sm:ml-6 px-3 sm:px-6 py-1 sm:py-3"
+									v-if="!editing"
+									class="bg-second rounded-3xl text-white flex items-center justify-center w-16 ml-6 h-9 sm:ml-6 px-3 sm:px-6 py-1 sm:py-3"
+									@click.prevent="editing = true"
 								>
-									Edit/Save
+									Edit
+								</button>
+								<button
+									v-else
+									class="bg-second rounded-3xl text-white flex items-center justify-center w-16 ml-6 h-9 sm:ml-6 px-3 sm:px-6 py-1 sm:py-3"
+									@click.prevent="changeInformation"
+								>
+									Save
 								</button>
 							</div>
 						</form>
@@ -177,15 +238,12 @@
 				>
 					<div class="overflow-hidden">
 						<form>
-							
 							<div
 								v-if="oldPasswordInvalid"
 								id="alert-2"
 								class="flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
 								role="alert"
 							>
-								
-								
 								<div class="ms-3 text-sm font-medium">
 									{{ error }}
 								</div>
@@ -214,7 +272,9 @@
 									</svg>
 								</button>
 							</div>
-							<div class="mb-6 mt-5 flex justify-between items-center">
+							<div
+								class="mb-6 mt-5 flex justify-between items-center"
+							>
 								<label
 									for="old-password"
 									class="hidden sm:block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
@@ -232,10 +292,14 @@
 										v-model="old_password"
 										:class="[
 											'text-prime text-sm rounded-3xl w-full h-10 pl-6 pr-14 bg-field dark:bg-dark-second-dark dark:text-interface outline-none',
-											{ 'outline-red-600': oldPasswordInvalid }
+											{
+												'outline-red-600':
+													oldPasswordInvalid,
+											},
 										]"
 										placeholder="Old Password"
 										required
+										:disabled="!passediting"
 									/>
 									<button
 										class="absolute right-5 top-2"
@@ -275,6 +339,7 @@
 										class="text-prime text-sm rounded-3xl w-full h-10 pl-6 pr-14 bg-field dark:bg-dark-second-dark dark:text-interface outline-none"
 										placeholder="New Password"
 										required
+										:disabled="!passediting"
 									/>
 									<button
 										class="absolute right-5 top-2"
@@ -382,6 +447,7 @@
 										class="text-prime text-sm rounded-3xl w-full h-10 pl-6 pr-14 bg-field dark:bg-dark-second-dark dark:text-interface outline-none"
 										placeholder="Confirm New Password"
 										required
+										:disabled="!passediting"
 									/>
 									<button
 										class="absolute right-5 top-2"
@@ -403,11 +469,22 @@
 							</div>
 							<div class="flex justify-end mb-10 sm:mt-10">
 								<button
-									class="bg-[#7F7979] rounded-3xl text-white px-3 sm:px-6 py-2 sm:py-3"
+									v-if="passediting"
+									class="bg-[#7F7979] rounded-3xl text-white flex items-center justify-center w-16 ml-6 h-9 px-3 sm:px-6 py-2 sm:py-3"
+									@click.prevent="passediting = false"
 								>
 									Cancel
 								</button>
+
+								<button
+									v-if="!passediting"
+									class="bg-second rounded-3xl text-white flex items-center justify-center w-16 ml-6 h-9 sm:ml-6 px-3 sm:px-6 py-1 sm:py-3"
+									@click.prevent="passediting = true"
+								>
+									Edit
+								</button>
 								<input
+									v-else
 									type="submit"
 									value="Save"
 									@click.prevent="changePassword"
@@ -416,7 +493,7 @@
 										!isValidConfirmPassword
 											? 'cursor-not-allowed'
 											: 'cursor-pointer',
-										'bg-second rounded-3xl text-white ml-6 sm:ml-6 px-3 sm:px-6 py-1 sm:py-3',
+										'bg-second rounded-3xl text-white flex items-center justify-center  w-16 ml-6 h-9 sm:ml-6 px-3 sm:px-6 py-1 sm:py-3',
 									]"
 									:disabled="
 										!isValidNewPassword ||
@@ -699,6 +776,12 @@ export default {
 	},
 	data() {
 		return {
+			profile: {
+				email: "",
+
+				country: "",
+			},
+
 			profileIsOpen: false,
 			chgPassIsOpen: false,
 			isCheckedInApp: false,
@@ -712,18 +795,22 @@ export default {
 			old_password: "",
 			confirm_password: "",
 			showOldPassword: false,
+			showsetPass: false,
 			showNewPassword: false,
 			showConfirmPassword: false,
+			
 			hasCapitalLetter: false,
 			hasSymbol: false,
 			hasNumber: false,
 			hasMinLength: false,
 
 			oldPasswordInvalid: false,
-			error:null,
+			error: null,
 			timer: null,
 
-			setusername: "",
+			editing: false,
+			passediting: false,
+			setpassword: "",
 			setemail: "",
 			setcountry: "",
 			inputElement: null,
@@ -731,6 +818,16 @@ export default {
 		};
 	},
 	computed: {
+		isFormValid() {
+			const isEmailValid =
+				this.setemail.trim() !== "" || this.isGmailEmail;
+			const isCountryValid = this.setcountry.trim() !== "";
+			return isEmailValid && isCountryValid;
+		},
+		isGmailEmail() {
+			const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/;
+			return emailRegex.test(this.setemail);
+		},
 		isValidNewPassword() {
 			const password = this.new_password;
 			this.hasCapitalLetter = /[A-Z]/.test(password);
@@ -761,6 +858,7 @@ export default {
 				"Content-Type": "application/json",
 			},
 		});
+		this.fetchUser();
 		this.getClientSettings();
 		this.initializeAutocompleteCountry();
 	},
@@ -768,6 +866,89 @@ export default {
 		this.initializeAutocompleteCountry();
 	},
 	methods: {
+		createToast(message, type) {
+			const toast = document.createElement("div");
+			toast.id = "toast-simple";
+			toast.className = `
+	flex items-center justify-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse
+	${type === "error" ? "text-red-700" : "text-green-700"}
+	bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow
+	dark:divide-gray-700 dark:bg-gray-800
+  `;
+			toast.setAttribute("role", "alert");
+
+			const messageElement = document.createElement("div");
+			messageElement.className = "text-sm text-center font-normal";
+			messageElement.textContent = message;
+
+			toast.appendChild(messageElement);
+
+			const toastContainer = document.createElement("div");
+			toastContainer.className = `
+    fixed bottom-16 right-4 sm:bottom-4 sm:right-2 sm:transform sm:-translate-x-1/2
+    ${
+		window.innerWidth <= 641
+			? "bottom-16 left-1/2 transform -translate-x-1/2"
+			: ""
+	}
+  `;
+
+			toastContainer.appendChild(toast);
+			document.body.appendChild(toastContainer);
+
+			setTimeout(() => {
+				toastContainer.remove();
+			}, 5000);
+		},
+		changeInformation() {
+			if (this.isFormValid == false) {
+				this.createToast("Invalid input.", "error");
+			}
+			this.client
+				.post("/api/update-information", {
+					password: this.setpassword,
+					email: this.setemail,
+					country: this.setcountry,
+				})
+				.then((res) => {
+					console.log("Changed:", res.data);
+					this.createToast(
+						"Change information successfully.",
+						"success"
+					);
+					this.editing = false;
+					this.setpassword = '';
+				})
+				.catch((error) => {
+					console.log("ERROR", error);
+					console.log("Error message:", error.message);
+					console.log("Error code:", error.code);
+					console.log("Response data:", error.response.data.error);
+					this.createToast(`${error.response.data.error}`, "error");
+					this.editing = true;
+					// console.log("ERROR", error);
+					// console.log("Error message:", error.message);
+					// console.log("Error code:", error.code);
+					// console.log("Response data:", error.response.data.error);
+					// this.oldPasswordInvalid = true;
+					// this.error = error.response.data.error;
+					// this.timer = setTimeout(() => {
+					// 	this.oldPasswordInvalid = false;
+					// }, 5000); // 5 seconds
+				});
+		},
+		fetchUser() {
+			this.client
+				.get("api/user")
+				.then((res) => {
+					this.setcountry = res.data.profile[0].country;
+
+					this.setemail = res.data.profile[0].email;
+				})
+				.catch((error) => {
+					console.log("ERROR", error);
+				});
+		},
 		changePassword() {
 			this.client
 				.post("/api/change-password", {
@@ -778,32 +959,31 @@ export default {
 					console.log("Changed:", res.data);
 					const toast = document.createElement("div");
 					toast.id = "toast-simple";
-					toast.className = "flex items-center justify-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-green-700 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-green-700 dark:divide-gray-700 dark:bg-gray-800";
+					toast.className =
+						"flex items-center justify-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-green-700 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-green-700 dark:divide-gray-700 dark:bg-gray-800";
 					toast.setAttribute("role", "alert");
-					
-					
-					
+
 					const message = document.createElement("div");
 					message.className = "text-sm text-center font-normal";
 					message.textContent = "Change password successfully.";
-					
-					
+
 					toast.appendChild(message);
-					
+
 					const toastContainer = document.createElement("div");
-					toastContainer.className = "fixed bottom-10 right-4 sm:bottom-4 sm:right-2 sm:transform sm:-translate-x-1/2";
-					
+					toastContainer.className =
+						"fixed bottom-10 right-4 sm:bottom-4 sm:right-2 sm:transform sm:-translate-x-1/2";
+
 					if (window.innerWidth <= 641) {
-						toastContainer.className = "fixed bottom-16 left-1/2 transform -translate-x-1/2";
+						toastContainer.className =
+							"fixed bottom-16 left-1/2 transform -translate-x-1/2";
 					}
-					
+
 					toastContainer.appendChild(toast);
 					document.body.appendChild(toastContainer);
-					
+					this.passediting = false;
 					setTimeout(() => {
 						toastContainer.remove();
 					}, 5000);
-				
 				})
 				.catch((error) => {
 					console.log("ERROR", error);

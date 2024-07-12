@@ -1,6 +1,7 @@
 <template>
 	<div
 		v-if="user.isAuthenticated"
+		v-show="user"
 		class=" flex justify-between w-screen h-16 bg-interface dark:bg-dark-interface fixed sm:top-0 p-3 z-50"
 	>
 		<img
@@ -10,7 +11,7 @@
 		/>
 		<div class="sm:flex w-10 h-full" @click.self="showPopup = false">
 			<img
-				src="/sample_img/mark.png"
+				:src="user.profile"
 				alt="Profile"
 				class="rounded-full cursor-pointer"
 				@click="togglePopup"
@@ -82,6 +83,7 @@ export default {
 			showPopup: false,
 			user: {
 				isAuthenticated: true,
+				profile:null
 			},
 		};
 	},
@@ -132,8 +134,10 @@ export default {
 		client
 			.get("api/user", { headers: headers })
 			.then((res) => {
-				console.log(res.data);
+				// console.log(res.data);
 				this.user.isAuthenticated = true;
+				this.user.profile = res.data.profile[0].user_photo;
+				console.log("Profile Sidebar", res.data);
 			})
 			.catch((error) => {
 				console.log("ERROR", error);

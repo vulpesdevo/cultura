@@ -1,51 +1,24 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-20 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-dark-notif pt-20 sm:pt-3"
 	>
 		<div
-			class="relative post-contents w-full p-3  sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface"
+			class="relative post-contents w-full p-3  sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 			v-for="post in posts"
 			:key="post._id"
 		>
 			<div class="post-title flex justify-start items-center">
 				<div class="flex w-full items-center justify-between sm:justify-normal">
-					<h1 class="font-bebas-neue text-lg text-prime sm:text-2xl">
+					<h1 class="font-bebas-neue text-lg text-prime dark:text-interface sm:text-2xl">
 						{{ post.title }}
 					</h1>
 					<small class="text-second ml-5">{{
 						timesince(post.date_posted)
 					}}</small>
 				</div>
-				<!-- <div class="flex w-1/2 justify-end">
-					<button @click="toggleMenu" class="">
-						<span class="material-icons-outlined">
-							more_horiz
-						</span>
-					</button>
-					<div
-						v-if="isMenuOpen"
-						class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
-					>
-						
-						<a
-							href="#"
-							class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-							aria-disabled="true"
-							>Edit</a
-						>
-						<a
-							href="#"
-							@click.prevent="deleteItem"
-							class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-							>Delete</a
-						>
-					</div>
-				</div> -->
+				
 			</div>
-			<!-- Post Delete Modal Button Includes "isMenuOpen" and "toggleMenu" in script-->
-
-			<!-- Post Delete Modal, Includes "modalDeleteActive" and "deleteItem" in script -->
-
+			
 			<div class="post-content flex w-full mt-4">
 				<div class="w-14 h-14 mr-4">
 					<img
@@ -55,18 +28,18 @@
 					/>
 				</div>
 				<div class="w-full">
-					<div class="flex border-b-2">
-						<small class="font-montserrat text-prime pr-5">
+					<div class="flex border-b-2 dark:border-slate-500">
+						<small class="font-montserrat text-prime dark:text-interface pr-5">
 							@{{ post.author }}
 						</small>
-						<small class="about-post font-montserrat">
+						<small class="about-post font-montserrat dark:text-slate-400">
 							{{ post.category }} | {{ post.country }}
 						</small>
 					</div>
 					<p
-						class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify"
+						class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify dark:text-interface"
 					>
-						{{ post.content }} {{ post.is_liked }}
+						{{ post.content }}
 					</p>
 					<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
 						<img
@@ -78,7 +51,7 @@
 				</div>
 			</div>
 			<div
-				class="flex items-center justify-end border-b-2 pb-2 border-field"
+				class="flex items-center justify-end border-b-2 pb-2 border-field dark:border-slate-500"
 			>
 				<i
 					class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
@@ -98,7 +71,7 @@
 						class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
 						>favorite_border</span
 					>
-					<small class="text-prime pl-1">
+					<small class="text-prime dark:text-interface pl-1">
 						{{
 							post.like_count >= 1000
 								? (post.like_count / 1000).toFixed(1) + "k"
@@ -114,38 +87,40 @@
 			>
 				<div class="">
 					<div
-						class="flex items-start bg-gray-200 mt-2 p-3 rounded-lg"
-						v-for="comment in comments_in_post"
-						:key="comment._id"
-					>
-						<div class="w-10 h-10 mr-4">
-							<img
-								src="/sample_img/mark.png"
-								alt="Profile"
-								class="rounded-full cursor-pointer"
-							/>
-						</div>
-						<div class="font-montserrat w-full">
-							<div
-								class="flex justify-between border-b-2 border-gray-300 pb-2 w-full text-xs"
-							>
-								<small class="text-prime pr-5">
-									{{ comment.author }} to
-									<span class="text-second">{{
-										comment.replied_to
-									}}</span>
-								</small>
-								<small class="text-second">{{
-									timesince(comment.date_posted)
-								}}</small>
-							</div>
-							<p
-								class="w-full rounded-lg resize-none p-4 text-xs text-justify"
-							>
-								{{ comment.body }}
-							</p>
-						</div>
-					</div>
+									class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
+									v-for="comment in comments_in_post"
+									:key="comment._id"
+								>
+									<div class="w-10 h-10 mr-4">
+										<img
+											src="/sample_img/mark.png"
+											alt="Profile"
+											class="rounded-full cursor-pointer"
+										/>
+									</div>
+									<div class="font-montserrat w-full">
+										<div
+											class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700 pb-2 w-full text-xs"
+										>
+											<small
+												class="text-prime dark:text-interface pr-5"
+											>
+												{{ comment.author }} to
+												<span class="text-second">{{
+													comment.replied_to
+												}}</span>
+											</small>
+											<small class="text-second">{{
+												timesince(comment.date_posted)
+											}}</small>
+										</div>
+										<p
+											class="w-full rounded-lg resize-none p-4 text-xs text-justify whitespace-normal dark:text-interface"
+										>
+											{{ comment.body }}
+										</p>
+									</div>
+								</div>
 				</div>
 				<div id="comment_reply" class="reply-post flex w-full mt-4">
 					<div class="w-14 h-14 mr-4">
@@ -156,7 +131,7 @@
 						/>
 					</div>
 					<textarea
-						class="w-full rounded-lg resize-none p-4 outline-none"
+						class="w-full rounded-lg resize-none p-4 outline-none dark:text-dark-prime dark:bg-dark-interface"
 						name=""
 						id=""
 						v-model="reply"
@@ -270,7 +245,7 @@ export default {
 					
 				})
 				.catch((error) => {
-					console.log(error);
+					this.$router.push({ name: "notifications" })
 				});
 		},
 		// fetchComments() {

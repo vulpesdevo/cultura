@@ -67,16 +67,17 @@
 		<div
 			class="hidden sm:flex items-center absolute bottom-0 left-0 w-56 h-14 m-4 p-1 rounded-lg transition-all duration-500"
 			@click.self="showPopup = false"
+			v-show="user"
 		>
 			<img
-				src="/sample_img/mark.png"
+				:src="user.profile"
 				alt="Profile"
 				class="rounded-full w-12 cursor-pointer"
 				@click="togglePopup"
 			/>
 			<div
 				class="flex flex-col font-montserrat pl-4 w-full font-medium"
-				v-show="user"
+				
 			>
 				<p
 					class="w-40 overflow-hidden whitespace-nowrap text-ellipsis text-prime dark:text-dark-prime"
@@ -152,6 +153,7 @@ export default {
 			unreadCount: null,
 			user: {
 				isAuthenticated: false,
+				profile:null,
 				username: null,
 				fullname: null,
 			},
@@ -285,8 +287,10 @@ export default {
 			.then((res) => {
 				this.user.username = res.data.user.username;
 				this.user.fullname = res.data.profile[0].fullname;
+				this.user.profile = res.data.profile[0].user_photo;
 				// console.log(res.data.userfullname)
 				this.user.isAuthenticated = true;
+				
 			})
 			.catch((error) => {
 				console.log("ERROR", error);

@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen pt-20 sm:pt-3 bg-light-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto scroll-smooth h-screen pt-20 sm:pt-3 bg-light-field dark:bg-dark-notif px-2"
 	>
 		<div
 			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -40,14 +40,13 @@
 						name=""
 						id="category-option"
 						v-model="categoryOption"
-						class="form-select  sm:w-1/2 rounded-full bg-field dark:bg-dark-field outline-none p-1 dark:text-dark-prime"
+						class="form-select sm:w-1/2 rounded-full bg-field dark:bg-dark-field outline-none p-1 dark:text-dark-prime"
 					>
 						<option value="" disabled selected>Category</option>
 						<option value="Food">Food</option>
 						<option value="Traditions">Traditions</option>
 						<option value="History">History</option>
 					</select>
-					
 				</div>
 			</div>
 			<div class="for-content flex flex-col w-full mt-3">
@@ -78,7 +77,6 @@
 						alt="Post Image"
 						class="object-cover w-32 h-full rounded-lg mr-1"
 					/>
-					
 				</div>
 				<!-- v-if="selectedItinerary" -->
 				<div
@@ -143,9 +141,13 @@
 			class="border border-gray-300 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 		>
 			<div class="animate-pulse flex space-x-4">
-				<div class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"></div>
+				<div
+					class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"
+				></div>
 				<div class="flex-1 space-y-6 py-1">
-					<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					<div
+						class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+					></div>
 					<div class="space-y-3">
 						<div class="grid grid-cols-3 gap-4">
 							<div
@@ -155,7 +157,9 @@
 								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-1"
 							></div>
 						</div>
-						<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+						<div
+							class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+						></div>
 					</div>
 				</div>
 			</div>
@@ -165,9 +169,13 @@
 			class="border border-gray-300 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 		>
 			<div class="animate-pulse flex space-x-4">
-				<div class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"></div>
+				<div
+					class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"
+				></div>
 				<div class="flex-1 space-y-6 py-1">
-					<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					<div
+						class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+					></div>
 					<div class="space-y-3">
 						<div class="grid grid-cols-3 gap-4">
 							<div
@@ -177,7 +185,9 @@
 								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-1"
 							></div>
 						</div>
-						<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+						<div
+							class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+						></div>
 					</div>
 				</div>
 			</div>
@@ -187,9 +197,13 @@
 			class="border border-gray-300 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 		>
 			<div class="animate-pulse flex space-x-4">
-				<div class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"></div>
+				<div
+					class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"
+				></div>
 				<div class="flex-1 space-y-6 py-1">
-					<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+					<div
+						class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+					></div>
 					<div class="space-y-3">
 						<div class="grid grid-cols-3 gap-4">
 							<div
@@ -199,7 +213,9 @@
 								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-1"
 							></div>
 						</div>
-						<div class="h-2 bg-gray-300 dark:bg-slate-700 rounded"></div>
+						<div
+							class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+						></div>
 					</div>
 				</div>
 			</div>
@@ -231,7 +247,7 @@
 				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
 					<div class="w-14 h-14 mr-4">
 						<img
-							src="/sample_img/mark.png"
+							:src="post.author_user_photo"
 							alt="Profile"
 							class="rounded-full cursor-pointer object-cover"
 						/>
@@ -250,7 +266,7 @@
 							</small>
 						</div>
 						<p
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify"
+							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal"
 						>
 							{{ post.content }}
 						</p>
@@ -303,6 +319,8 @@
 			>
 				<div
 					class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+					v-for="data in selectedPost"
+					:key="data._id"
 				>
 					<div
 						class="fixed inset-0 bg-black bg-opacity-70 transition-opacity"
@@ -324,8 +342,6 @@
 						</button>
 						<div
 							class="post-contents bg-interface dark:bg-dark-interface w-full pt-3 px-6 sm:pt-6 sm:px-9 rounded-lg shadow-lg"
-							v-for="(data, index) in selectedPost"
-							:key="index"
 						>
 							<div
 								class="post-title flex justify-between items-center"
@@ -346,9 +362,11 @@
 									/>
 								</div>
 								<div class="w-full">
-									<div class="flex border-b-2 dark:border-gray-700 ">
+									<div
+										class="flex border-b-2 dark:border-gray-700"
+									>
 										<p
-											class="font-montserrat text-prime dark:text-interface pr-5 "
+											class="font-montserrat text-prime dark:text-interface pr-5"
 										>
 											{{ data.author }}
 										</p>
@@ -366,7 +384,7 @@
 									</p>
 								</div>
 							</div>
-							<div class="p-2 overflow-auto max-h-60 ">
+							<div class="p-2 overflow-auto max-h-60">
 								<div
 									class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
 									v-for="comment in comments_in_post"
@@ -374,16 +392,18 @@
 								>
 									<div class="w-10 h-10 mr-4">
 										<img
-											src="/sample_img/mark.png"
+											:src="comment.author_user_photo"
 											alt="Profile"
 											class="rounded-full cursor-pointer"
 										/>
 									</div>
 									<div class="font-montserrat w-full">
 										<div
-											class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700   pb-2 w-full text-xs"
+											class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700 pb-2 w-full text-xs"
 										>
-											<small class="text-prime dark:text-interface pr-5">
+											<small
+												class="text-prime dark:text-interface pr-5"
+											>
 												{{ comment.author }} to
 												<span class="text-second">{{
 													comment.replied_to
@@ -410,7 +430,7 @@
 									/>
 								</div>
 								<textarea
-									class="w-full rounded-lg resize-none p-4 outline-none  dark:border dark:bg-dark-interface"
+									class="w-full rounded-lg resize-none p-4 outline-none dark:border dark:bg-dark-interface dark:text-dark-prime"
 									name=""
 									id=""
 									v-model="reply"
@@ -422,7 +442,6 @@
 							<div
 								class="flex py-3 items-center justify-end border-t-2 dark:border-t-0 mt-2"
 							>
-								
 								<input
 									type="submit"
 									value="Reply"
@@ -601,19 +620,15 @@ export default {
 		},
 		handleTitleChange() {
 			if (this.postTitle.trim() === "") {
-				
 				this.isEditing = true;
-			}
-			else {
+			} else {
 				this.isEditing = false;
 			}
-			
-			
 		},
 		initializeAutocompleteCountry() {
 			// Ensures the DOM is updated
 			const inputElement = this.$refs.autocompletecountry;
-			console.log('elemt: ', inputElement)
+			console.log("elemt: ", inputElement);
 			const autocomplete = new google.maps.places.Autocomplete(
 				inputElement,
 				{
@@ -680,7 +695,6 @@ export default {
 					});
 			}
 		},
-
 		submitReply() {
 			this.client
 				.post("/api/commenting", {
@@ -693,8 +707,9 @@ export default {
 					this.reply = "";
 					// this.fetchComments();
 					this.fetchPosts();
+
 					// setInterval(this.fetchComments, 5000);
-					this.showModal = false;
+
 					// Handle successful response here
 				})
 				.catch((error) => {
@@ -725,6 +740,18 @@ export default {
 				.get(`/api/posts-list`)
 				.then((response) => {
 					this.posts = response.data.reverse();
+					if (this.posts.length > 0) {
+						// Set selectedPost to the first post
+						console.log("GET POST fetch", this.selectedPost);
+						this.post_id = this.selectedPost[0]._id;
+
+						this.replied_to = this.selectedPost[0].author;
+						this.comments_in_post =
+							this.posts.find((p) => p._id === this.post_id)
+								?.comments || [];
+						console.log("the id : ", this.comments_in_post);
+					}
+
 					// this.comments_in_post = this.posts[0].comments;
 					console.log("updateed :", this.posts);
 				})
