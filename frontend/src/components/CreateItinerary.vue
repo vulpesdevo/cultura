@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-14 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
 	>
 		<div
-			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white rounded-2xl p-1"
+			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white dark:bg-dark-interface rounded-2xl p-1"
 		>
 			<div
 				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field sm:bg-transparent z-10"
@@ -13,7 +13,7 @@
 				>
 					<label
 						for="imgSelect"
-						class="w-screen sm:w-full h-full flex items-center justify-center bg-field cursor-pointer rounded-xl"
+						class="w-screen sm:w-full h-full flex items-center justify-center bg-field dark:bg-gray-900 cursor-pointer rounded-xl"
 					>
 						<img
 							:class="{ hidden: !selectedImageUrl }"
@@ -23,7 +23,7 @@
 						/>
 						<div
 							:class="{ hidden: selectedImageUrl }"
-							class="flex items-center justify-center font-montserrat w-full h-full text-prime text-xl z-0"
+							class="flex items-center justify-center font-montserrat w-full h-full text-prime dark:text-dark-prime text-xl z-0"
 						>
 							<span>+ Add Image</span>
 						</div>
@@ -124,12 +124,12 @@
 					<div class="w-full mx-3 mt-3 sm:m-0">
 						<div class="flex">
 							<small
-								class="hidden sm:flex items-center justify-center font-montserrat text-prime text-base pb-3"
+								class="hidden sm:flex items-center justify-center font-montserrat text-prime dark:text-interface text-base pb-3"
 							>
 								@{{ username }}
 							</small>
 							<p
-								class="font-montserrat sm:hidden pb-1 text-lg text-prime"
+								class="font-montserrat sm:hidden pb-1 text-lg text-prime dark:text-interface"
 							>
 								Description
 							</p>
@@ -139,7 +139,7 @@
 							<!-- For setAboutMe -->
 							<textarea
 								v-if="!setAboutMe || isEditingAboutMe"
-								class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none bg-gray-200"
+								class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none bg-gray-200 dark:text-interface dark:bg-dark-interface dark:ring-notif ring-1"
 								v-model="setAboutMe"
 								@blur="isEditingAboutMe = false"
 								@keyup.tab="isEditingAboutMe = false"
@@ -160,7 +160,7 @@
 					class="flex flex-col items-center justify-center w-screen sm:mx-0 sm:mt-4 sm:w-full"
 				>
 					<p
-						class="font-montserrat text-prime w-full px-3 mb-2 text-lg sm:text-xl sm:font-semibold"
+						class="font-montserrat text-prime dark:text-interface w-full px-3 mb-2 text-lg sm:text-xl sm:font-semibold"
 					>
 						General Tips
 					</p>
@@ -169,7 +169,7 @@
 					>
 						<textarea
 							v-if="!setTips || isEditingTips"
-							class="w-full rounded-lg resize-none p-4 outline-none bg-gray-200"
+							class="w-full rounded-lg resize-none p-4 outline-none bg-gray-200 dark:text-interface dark:bg-dark-interface dark:ring-notif ring-1"
 							v-model="setTips"
 							@blur="isEditingTips = false"
 							@keyup.enter="
@@ -183,16 +183,17 @@
 						<p
 							v-else
 							@click="isEditingTips = true"
-							class="w-full sm:w-[90.5%] p-4"
+							class="w-full sm:w-[90.5%] p-4 text-prime dark:text-interface"
 							v-html="formatText(setTips)"
 						></p>
 					</div>
 				</div>
+
 				<div
 					class="font-montserrat flex flex-col justify-center items-center w-screen sm:w-full py-3"
 				>
 					<p
-						class="text-prime text-lg sm:text-xl sm:font-semibold m-3 pl-3 sm:px-2 w-full text-left"
+						class="text-prime dark:text-interface text-lg sm:text-xl sm:font-semibold m-3 pl-3 sm:px-2 w-full text-left"
 					>
 						Budgeting
 					</p>
@@ -204,7 +205,7 @@
 							class="flex flex-col justify-center items-center bg-prime w-1/2 mr-2 rounded-lg"
 						>
 							<p class="">Total Budget</p>
-							<p class="text-2xl">{{ convertedBudget }}</p>
+							<p class="text-2xl"><span class="font-bold">{{selectedSymbol}}</span>{{ total_budget }}</p>
 						</div>
 						<div
 							class="flex flex-col justify-center bg-prime w-3/4 rounded-lg p-3"
@@ -212,7 +213,7 @@
 							<p class="">Currency</p>
 							<select
 								ref="toDropDown"
-								@change="convertCurrency"
+								@change="checkCode"
 								class="w-full text-white pb-1 text-xl bg-transparent outline-none"
 							>
 								<!-- Options will be populated by the method -->
@@ -221,12 +222,13 @@
 					</div>
 				</div>
 			</section>
+
 			<section
 				class="itinerary-2 pt-10 sm:pt-0 flex flex-col h-[45rem] w-screen sm:w-full my-5"
 				id="itinerary-section"
 			>
 				<h1
-					class="hidden sm:flex items-center justify-center text-center text-prime text-xl mb-4"
+					class="hidden sm:flex items-center justify-center text-center text-prime dark:text-interface text-xl mb-4"
 				>
 					Main Itinerary
 				</h1>
@@ -245,11 +247,11 @@
 							Add place
 						</button>
 						<div
-							class="sm:overflow-auto h-screen rounded-lg"
+							class="sm:overflow-auto h-screen rounded-lg  p-3"
 							style="scrollbar-width: none"
 						>
 							<div
-								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-interface drop-shadow-md mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-[13.5rem] sm:h-[17rem] font-montserrat text-prime dark:bg-dark-second-dark bg-interface drop-shadow-md mb-3 rounded-lg"
 							>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
@@ -257,7 +259,7 @@
 									alt=""
 								/>
 								<div
-									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
+									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center dark:text-interface"
 								>
 									<h1 class="text-2xl py-3 text-center">
 										Lucky Chinatown Mall
@@ -276,13 +278,10 @@
 											P2000
 										</p>
 									</div>
-									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
-										:style="{ width: `${text.length * 10}px` }"
-									>{{ text }}</p> -->
 								</div>
 							</div>
 							<div
-								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-white sm:bg-interface drop-shadow-md mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-[13rem] sm:h-[17rem] font-montserrat text-prime bg-white sm:bg-interface dark:bg-dark-second-dark drop-shadow-md mb-3 rounded-lg"
 								v-for="(itinerary, index) in list_itineraries"
 								:key="index"
 							>
@@ -294,19 +293,27 @@
 								<div
 									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
 								>
-									<h1 class="text-2xl py-3 text-center">
+									<h1 class="text-2xl px-4 dark:text-interface py-3 text-center">
 										{{ itinerary.title }}
 									</h1>
 									<p
-										class="text-justify text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16"
+										class="text-justify text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16 dark:text-interface"
 									>
 										{{ itinerary.description }}
 									</p>
 									<div
 										class="flex w-full h-8 text-center items-center justify-end sm:justify-center"
 									>
-										<p class="bg-second w-24 rounded-full">
-											P{{ itinerary.budget }}
+										<p
+											class="flex justify-start items-center font-montserrat font-semibold h-full text-sm text-interface bg-second w-28 rounded-full"
+										>
+											<span
+												class=" pr-2 mr-2 ml-3"
+												>{{
+													getSymbol(itinerary.code)
+												}}</span
+											>
+											{{ itinerary.budget.toFixed(2) }}
 										</p>
 									</div>
 									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
@@ -486,8 +493,12 @@
 import axios from "axios";
 import { ref } from "vue";
 // import { Loader } from "@googlemaps/js-api-loader";
+import * as Dropdown from "primevue/dropdown";
 import router from "../routes";
 export default {
+	components: {
+		Dropdown,
+	},
 	data() {
 		return {
 			isEditingTips: true,
@@ -501,7 +512,7 @@ export default {
 			setAboutMe: "",
 			total_budget: 0,
 			convertedBudget: "",
-			api: "https://v6.exchangerate-api.com/v6/81e258f64025e4102d1e5f15/latest/USD",
+			api: "https://v6.exchangerate-api.com/v6/dfbd57179cf6a5ebcd1a6b59/latest/USD",
 			currency_list: [
 				["AED", "United Arab Emirates Dirhams", "د.إ"],
 				["AFN", "Afghan Afghani", "؋"],
@@ -651,7 +662,12 @@ export default {
 				["ZMW", "Zambian Kwacha", "ZK"],
 				["ZWL", "Zimbabwean Dollar (2009)", "$"],
 			],
-			selectedCurrency: "PHP",
+		
+			selectedPera: null,
+			list_budget: [],
+
+			selectedCurrency: "",
+			selectedSymbol:'',
 			currency_save: "",
 			converted: 0,
 			paragraphs: [],
@@ -679,6 +695,7 @@ export default {
 			showMap: false,
 		};
 	},
+
 	computed: {
 		// Define isMobile as a computed property
 		isMobile() {
@@ -744,9 +761,10 @@ export default {
 			let paragraphs = text.split(/\n+/);
 			return paragraphs
 				.map((paragraph) => {
-					return paragraph
-						.replace(/\*\*(.*?)\*\*/g,  "<strong>$1</strong>")
-						
+					return paragraph.replace(
+						/\*\*(.*?)\*\*/g,
+						"<strong>$1</strong>"
+					);
 				})
 				.join("<br><br>");
 		},
@@ -757,87 +775,168 @@ export default {
 				const option = document.createElement("option");
 				option.value = code; // Assuming 'sysmbol' was a typo and should be 'code'
 				option.textContent = `${code} - ${countryName}`;
-				option.classList.add("text-prime", "bg-interface");
+				option.classList.add(
+					"text-prime",
+					"bg-interface",
+					"appearance-none"
+				);
 
 				toDropDown.add(option);
 			});
-			this.getSelectedCurrencyCode();
-			this.convertCurrency(); // Assuming you want to set the default selected value
+			// this.checkCode();
+			// Assuming you want to set the default selected value
 		},
-		getSelectedCurrencyCode() {
-			const toCurrency = this.$refs.toDropDown.value;
-			this.currency_save = toCurrency;
-			console.log("Selected currency code:", this.currency_save); // This returns the code of the selected currency
-		},
-		indivConvert(to, from) {
-			const fromCurrency = this.currency_save;
-			const toCurrency = this.$refs.toDropDown.value;
-			this.currency_save = toCurrency;
-			if (this.total_budget.length !== 0) {
-				fetch(this.api) // Assuming 'this.api' is your API URL
-					.then((resp) => resp.json())
-					.then((data) => {
-						let fromExchangeRate =
-							data.conversion_rates[fromCurrency];
-						// let toExchangeRate = data.conversion_rates[toCurrency];
-						this.list_itineraries.forEach((itinerary) => {
-							const convertedAmount =
-								(itinerary.budget / from) * to;
+		// getSelectedCurrencyCode() {
 
-							// Find the symbol for the target currency
-							let symbol = this.currency_list.find(
-								(currency) => currency[0] === toCurrency
-							)[2];
+		// 	// this.currency_save = toCurrency;
+		// 	console.log("Selected currency code:", this.selectedCurrency); // This returns the code of the selected currency
+		// },
+		// indivConvert(to, from) {
+		// 	const fromCurrency = this.currency_save;
+		// 	const toCurrency = this.$refs.toDropDown.value;
+		// 	this.currency_save = toCurrency;
 
-							itinerary.budget = convertedAmount.toFixed(2);
-							itinerary.convertedBudget = `${symbol} ${convertedAmount.toFixed(
-								2
-							)}`;
-							console.log("Converted budgets:", to, " ", from);
-						});
+		// 	if (this.total_budget.length !== 0) {
+		// 		fetch(this.api) // Assuming 'this.api' is your API URL
+		// 			.then((resp) => resp.json())
+		// 			.then((data) => {
+		// 				let fromExchangeRate =
+		// 					data.conversion_rates[fromCurrency];
+		// 				// let toExchangeRate = data.conversion_rates[toCurrency];
+		// 				this.list_itineraries.forEach((itinerary) => {
+		// 					const convertedAmount =
+		// 						(itinerary.budget / from) * to;
 
-						// console.log(
-						// 	"Converted budgets:",
-						// 	this.list_itineraries
-						// );
-					});
+		// 					// Find the symbol for the target currency
+		// 					let symbol = this.currency_list.find(
+		// 						(currency) => currency[0] === toCurrency
+		// 					)[2];
+
+		// 					itinerary.budget = convertedAmount.toFixed(2);
+		// 					itinerary.convertedBudget = `${symbol} ${convertedAmount.toFixed(
+		// 						2
+		// 					)}`;
+		// 					console.log("Converted budgets:", to, " ", from);
+		// 				});
+
+		// 				// console.log(
+		// 				// 	"Converted budgets:",
+		// 				// 	this.list_itineraries
+		// 				// );
+		// 			});
+		// 	}
+		// },
+		// 		convertCurrency() {
+		// 			const fromCurrency = this.currency_save;
+		// 			const toCurrency = this.$refs.toDropDown.value;
+		// 			this.currency_save = toCurrency;
+		// 			this.selectedCurrency = toCurrency;
+
+		// console.log("Selected currency code:", this.selectedCurrency);
+		// 			if (this.total_budget.length !== 0) {
+		// 				fetch(this.api) // Assuming 'this.api' is your API URL
+		// 					.then((resp) => resp.json())
+		// 					.then((data) => {
+		// 						let fromExchangeRate =
+		// 							data.conversion_rates[fromCurrency];
+		// 						let toExchangeRate = data.conversion_rates[toCurrency];
+		// 						const convertedAmount =
+		// 							(this.total_budget / fromExchangeRate) *
+		// 							toExchangeRate;
+
+		// 						// Find the symbol for the target currency
+		// 						let symbol = this.currency_list.find(
+		// 							(currency) => currency[0] === toCurrency
+		// 						)[2];
+
+		// 						const finalAmount = `${symbol} ${convertedAmount.toFixed(
+		// 							2
+		// 						)}`;
+		// 						this.total_budget += convertedAmount;
+		// 						// this.total_budget = convertedAmount.toFixed(2);
+
+		// 						// console.log(total_budget);
+		// 						// this.convertedBudget = finalAmount;
+		// 						// this.indivConvert(toExchangeRate, fromExchangeRate);
+		// 						// Assuming 'result' is a reference to an element for displaying the result
+		// 						// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
+		// 						// 	2
+		// 						// )} ${toCurrency}`;
+		// 					});
+		// 			}
+		// 		},
+		getSymbol(code) {
+			for (let i = 0; i < this.currency_list.length; i++) {
+				if (this.currency_list[i][0] === code) {
+					return this.currency_list[i][2];
+				}
 			}
+			return null; // or some default value if code is not found
 		},
-		convertCurrency() {
-			const fromCurrency = this.currency_save;
+		checkCode() {
 			const toCurrency = this.$refs.toDropDown.value;
+			this.selectedCurrency = toCurrency;
 			this.currency_save = toCurrency;
+			console.log("Selected currency code:", toCurrency);
+			this.selectedSymbol = this.currency_list.find(
+				(currency) => currency[0] === toCurrency
+			)[2];
+			let newvalue = 0;
+			this.list_itineraries.forEach((itinerary) => {
+				// Your code here
+				console.log("the code ", itinerary);
+				if (itinerary.code != toCurrency) {
+					//convert to selected currency
+					// this.indivConvert(this.selectedCurrency, itinerary.code);
+					if (itinerary.budget.length !== 0) {
+						console.log(
+							"convert the value to what selected currency"
+						);
+						fetch(this.api) // Assuming 'this.api' is your API URL
+							.then((resp) => resp.json())
+							.then((data) => {
+								let fromExchangeRate =
+									data.conversion_rates[itinerary.code];
+								let toExchangeRate =
+									data.conversion_rates[toCurrency];
+								const convertedAmount =
+									(itinerary.budget / fromExchangeRate) *
+									toExchangeRate;
 
-			if (this.total_budget.length !== 0) {
-				fetch(this.api) // Assuming 'this.api' is your API URL
-					.then((resp) => resp.json())
-					.then((data) => {
-						let fromExchangeRate =
-							data.conversion_rates[fromCurrency];
-						let toExchangeRate = data.conversion_rates[toCurrency];
-						const convertedAmount =
-							(this.total_budget / fromExchangeRate) *
-							toExchangeRate;
+								// Find the symbol for the target currency
 
-						// Find the symbol for the target currency
-						let symbol = this.currency_list.find(
-							(currency) => currency[0] === toCurrency
-						)[2];
+								// const finalAmount = `${symbol} ${convertedAmount.toFixed(
+								// 	2
+								// )}`;
+								// this.total_budget = convertedAmount.toFixed(2);
 
-						const finalAmount = `${symbol} ${convertedAmount.toFixed(
-							2
-						)}`;
-						this.total_budget = convertedAmount.toFixed(2);
+								newvalue += parseFloat(
+									convertedAmount.toFixed(2)
+								);
+								console.log("in check code if", newvalue.toFixed(2));
+								this.total_budget = newvalue.toFixed(2);
+								console.log(
+									"total_budget == ",
+									this.total_budget
+								);
+								// this.convertedBudget = finalAmount;
+								// this.indivConvert(toExchangeRate, fromExchangeRate);
+								// Assuming 'result' is a reference to an element for displaying the result
+								// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
+								// 	2
+								// )} ${toCurrency}`;
+							});
+					}
+				} else {
+					//add to total budget
 
-						console.log(finalAmount);
-						this.convertedBudget = finalAmount;
-						this.indivConvert(toExchangeRate, fromExchangeRate);
-						// Assuming 'result' is a reference to an element for displaying the result
-						// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
-						// 	2
-						// )} ${toCurrency}`;
-					});
-			}
+					console.log(
+						"do not convert the value to what selected currency"
+					);
+					newvalue += itinerary.budget;
+					console.log("in check code else", newvalue);
+				}
+			});
 		},
 		handleTitleChange() {
 			if (this.main_title.trim() === "") {
@@ -942,6 +1041,7 @@ export default {
 					longitude: this.longitude,
 					latitude: this.latitude,
 					budget: this.budget,
+					code: this.selectedCurrency,
 					description: this.description,
 				})
 				.then((response) => {
@@ -1040,17 +1140,18 @@ export default {
 				this.itineraryIds = this.list_itineraries.map(
 					(itinerary) => itinerary.id
 				);
+				this.checkCode();
 				console.log("itineraryIds:", this.itineraryIds);
 
-				this.total_budget = this.list_itineraries.reduce(
-					(sum, itinerary) => sum + itinerary.budget,
-					0
-				);
-				console.log("Total Budget:", this.total_budget);
-				let symbol = this.currency_list.find(
-					(currency) => currency[0] === this.currency_save
-				)[2];
-				this.convertedBudget = `${symbol}${this.total_budget}`;
+				// this.total_budget = this.list_itineraries.reduce(
+				// 	(sum, itinerary) => sum + itinerary.budget,
+				// 	0
+				// );
+				// console.log("Total Budget:", this.total_budget);
+				// let symbol = this.currency_list.find(
+				// 	(currency) => currency[0] === this.currency_save
+				// )[2];
+				// this.convertedBudget = `${symbol}${this.total_budget}`;
 				// Sort the itineraries by proximity before showing them on the map
 
 				await this.sortItinerariesByProximity();

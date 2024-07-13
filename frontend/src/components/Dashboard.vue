@@ -13,12 +13,12 @@
 							v-model="postTitle"
 							@blur="handleTitleChange"
 							@keyup.enter="handleTitleChange"
-							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl rounded-lg border-field dark:bg-dark-field px-2 w-full"
+							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl rounded-lg border-field dark:bg-dark-field p-[.23rem] px-2 w-full ring-1 ring-gray-600 outline-[.5px] outline-none"
 							placeholder="POST TITLE"
 							autofocus
 						/>
 						<span
-							class="absolute right-0 top-0 mt-1 material-icons-outlined text-field"
+							class="absolute right-1 top-1 mt-1 material-icons-outlined text-field"
 						>
 							edit_note
 						</span>
@@ -28,7 +28,7 @@
 					<h1
 						v-else
 						@click="isEditing = true"
-						class="font-bebas-neue text-lg w-full text-prime dark:text-dark-prime sm:text-3xl"
+						class="font-bebas-neue p-[.23rem] text-lg w-full text-prime dark:text-dark-prime sm:text-3xl"
 					>
 						{{ postTitle }}
 					</h1>
@@ -37,12 +37,13 @@
 					class="drop-down-categ w-1/2 flex items-center justify-end font-montserrat"
 				>
 					<select
-						name=""
 						id="category-option"
 						v-model="categoryOption"
-						class="form-select sm:w-1/2 rounded-full bg-field dark:bg-dark-field outline-none p-1 dark:text-dark-prime"
+						class="appearance-none outline-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg ring-1 ring-gray-600 block w-3/4 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
 					>
-						<option value="" disabled selected>Category</option>
+						<option class="mb-2" value="" disabled selected>
+							Category
+						</option>
 						<option value="Food">Food</option>
 						<option value="Traditions">Traditions</option>
 						<option value="History">History</option>
@@ -53,7 +54,7 @@
 				<div class="flex">
 					<div class="hidden sm:flex w-14 h-14 mr-5 rounded-full">
 						<img
-							src="/sample_img/mark.png"
+							:src="post_profile_display"
 							alt="Profile"
 							class="object-cover rounded-full cursor-pointer"
 						/>
@@ -538,6 +539,7 @@ import moment from "moment";
 export default {
 	data() {
 		return {
+			post_profile_display: null,
 			selectedImageUrl: null,
 			picture: null,
 
@@ -579,6 +581,7 @@ export default {
 				"Content-Type": "application/json",
 			},
 		});
+		this.fetchUser();
 		this.fetchPosts();
 		this.initializeAutocompleteCountry();
 	},
@@ -593,6 +596,17 @@ export default {
 		setInterval(this.fetchSavedItineraries, 5000);
 	},
 	methods: {
+		fetchUser() {
+			this.client
+				.get("api/user")
+				.then((res) => {
+					this.post_profile_display = res.data.profile[0].user_photo;
+					console.log(this.post_profile_display);
+				})
+				.catch((error) => {
+					console.log("ERROR", error);
+				});
+		},
 		likePost(post_id) {
 			this.client
 				.post(`api/like-posts/${post_id}/like_post/`)

@@ -7,8 +7,8 @@
 			<img
 				:src="
 					isDark
-						? 
-						 '/ULTURALINK-DMLong.png':'/culturalink_brand_logo.png'
+						? '/ULTURALINK-DMLong.png'
+						: '/culturalink_brand_logo.png'
 				"
 				alt="Logo"
 				class="mr-3 sm:w-full sm:h-32"
@@ -75,10 +75,7 @@
 				class="rounded-full w-12 cursor-pointer"
 				@click="togglePopup"
 			/>
-			<div
-				class="flex flex-col font-montserrat pl-4 w-full font-medium"
-				
-			>
+			<div class="flex flex-col font-montserrat pl-4 w-full font-medium">
 				<p
 					class="w-40 overflow-hidden whitespace-nowrap text-ellipsis text-prime dark:text-dark-prime"
 				>
@@ -150,10 +147,13 @@ export default {
 			showPopup: false,
 			isHovered: false,
 
+			searchQuery: "",
+			searchResults: [],
+
 			unreadCount: null,
 			user: {
 				isAuthenticated: false,
-				profile:null,
+				profile: null,
 				username: null,
 				fullname: null,
 			},
@@ -215,6 +215,22 @@ export default {
 			isDark,
 			toggleDark,
 		};
+	},
+	watch: {
+		searchQuery(newQuery) {
+			axios
+				.get("/api/tutorials/search/", {
+					params: {
+						title: newQuery,
+					},
+				})
+				.then((response) => {
+					this.searchResults = response.data;
+				})
+				.catch((error) => {
+					console.error(error);
+				});
+		},
 	},
 	mounted() {
 		this.fetchLikenotification();
@@ -290,7 +306,6 @@ export default {
 				this.user.profile = res.data.profile[0].user_photo;
 				// console.log(res.data.userfullname)
 				this.user.isAuthenticated = true;
-				
 			})
 			.catch((error) => {
 				console.log("ERROR", error);

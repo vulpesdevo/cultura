@@ -775,8 +775,10 @@ class ItineraryCreate(APIView):
         latitude = data.get("latitude", 0.0)
         title = data.get("title", "").strip()
         place_name = data.get("place_name", "").strip()
+
         description = data.get("description", "").strip()
         budget = data.get("budget", 0.0)
+        code = data.get("code", "").strip()
 
         itinerary = Itinerary.objects.create(
             owner=request.user,
@@ -785,6 +787,7 @@ class ItineraryCreate(APIView):
             longitude=longitude,
             latitude=latitude,
             place_name=place_name,
+            code = code ,
             description=description,
             budget=budget,
         )
@@ -964,3 +967,14 @@ class GetSettings(APIView):
             {"user_information": user_information.data, "set": serializer.data},
             status=status.HTTP_200_OK,
         )
+
+
+##Searching
+
+
+# class SearchTutorialView(APIView):
+#     def get(self, request):
+#         query = request.GET.get("title")
+#         tutorials = Tutorial.objects.filter(title__icontains=query)
+#         serializer = TutorialSerializer(tutorials, many=True)
+#         return Response(serializer.data)

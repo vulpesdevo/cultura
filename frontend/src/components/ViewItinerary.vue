@@ -1,15 +1,15 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field pt-14 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
 	>
 		<div
-			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white rounded-2xl p-1"
+			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white  dark:sm:bg-dark-interface dark:bg-notif rounded-2xl p-1"
 		>
 			<div
-				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field sm:bg-transparent z-10"
+				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl dark:bg-dark-second-dark bg-field sm:bg-transparent z-10"
 			>
 				<div
-					class="w-screen sm:w-full sm:h-[87%] bg-second sm:rounded-2xl"
+					class="w-screen sm:w-full sm:h-[87%] bg-second  sm:rounded-2xl"
 				>
 					<img
 						:src="itineraryDetails.main_image"
@@ -87,7 +87,7 @@
 					<div class="w-full mx-3 mt-3 sm:m-0">
 						<div class="flex flex-col items-start border-b-2">
 							<small
-								class="hidden sm:flex items-center justify-center font-montserrat text-prime text-base pb-1"
+								class="hidden sm:flex items-center justify-center font-montserrat text-prime dark:text-interface text-base pb-1"
 							>
 								@{{ itineraryDetails.creator_name }}
 							</small>
@@ -95,12 +95,12 @@
 								>date here</small
 							>
 							<p
-								class="font-montserrat sm:hidden pb-1 text-lg text-prime"
+								class="font-montserrat sm:hidden pb-1 text-lg text-prime dark:text-interface"
 							>
 								Description
 							</p>
 						</div>
-						<p class="w-full sm:w-[90.5%] p-4 text-justify">
+						<p class="w-full sm:w-[90.5%] p-4 text-justify dark:text-interface">
 							{{ itineraryDetails.main_description }}
 						</p>
 					</div>
@@ -109,7 +109,7 @@
 					class="flex flex-col items-center justify-center w-screen sm:mx-0 sm:mt-4 sm:w-full"
 				>
 					<p
-						class="font-montserrat text-prime w-full px-3 mb-1 text-lg sm:text-xl sm:font-semibold border-b"
+						class="font-montserrat text-prime dark:text-interface w-full px-3 mb-1 text-lg sm:text-xl sm:font-semibold border-b"
 					>
 						General Tips
 					</p>
@@ -118,7 +118,7 @@
 						class="flex flex-col items-start justify-center w-full px-3 sm:px-0 sm:w-[83%]"
 					>
 						<p
-							class="w-full text-justify p-4"
+							class="w-full text-justify p-4 dark:text-interface"
 							v-for="(paragraph, index) in paragraphs"
 							:key="index"
 							v-html="formatText(paragraph)"
@@ -129,7 +129,7 @@
 					class="font-montserrat flex flex-col justify-center items-center w-screen sm:w-full py-3"
 				>
 					<p
-						class="text-prime text-lg sm:text-xl sm:font-semibold m-3 pl-3 sm:px-2 w-full text-left"
+						class="text-prime dark:text-interface text-lg sm:text-xl sm:font-semibold m-3 pl-3 sm:px-2 w-full text-left"
 					>
 						Budgeting
 					</p>
@@ -141,7 +141,12 @@
 							class="flex flex-col justify-center items-center bg-prime w-1/2 mr-2 rounded-lg"
 						>
 							<p class="">Total Budget</p>
-							<p class="text-2xl">{{ convertedBudget }}</p>
+							<p class="text-sm sm:text-2xl">
+								<span class="font-bold">{{
+									selectedSymbol
+								}}</span
+								>{{ total_budget }}
+							</p>
 						</div>
 						<div
 							class="flex flex-col justify-center bg-prime w-3/4 rounded-lg p-3"
@@ -149,8 +154,8 @@
 							<p class="">Currency</p>
 							<select
 								ref="toDropDown"
-								@change="convertCurrency"
-								class="w-full text-white pb-1 text-xl bg-transparent outline-none"
+								@change="checkCode"
+								class="w-full text-white pb-1 text-sm sm:text-xl bg-transparent outline-none"
 							>
 								<!-- Options will be populated by the method -->
 							</select>
@@ -163,7 +168,7 @@
 				id="itinerary-section"
 			>
 				<h1
-					class="hidden sm:flex items-center justify-center text-center text-prime text-xl mb-4"
+					class="hidden sm:flex items-center justify-center text-center text-prime dark:text-interface text-xl mb-4"
 				>
 					Main Itinerary
 				</h1>
@@ -175,11 +180,11 @@
 						class="flex flex-col justify-center-center w-full sm:w-1/2 m-0 sm:mr-5 pb-5 sm:pb-0"
 					>
 						<div
-							class="sm:overflow-auto h-screen rounded-lg"
+							class="sm:overflow-auto h-screen rounded-lg px-3"
 							style="scrollbar-width: none"
 						>
 							<div
-								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-interface drop-shadow-md mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime dark:bg-dark-second-dark  bg-interface drop-shadow-md mb-3 rounded-lg"
 							>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
@@ -187,13 +192,13 @@
 									alt=""
 								/>
 								<div
-									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
+									class="px-4 flex flex-col justify-normal sm:justify-evenly items-left"
 								>
-									<h1 class="text-2xl py-3 text-center">
+									<h1 class="text-2xl px-4  py-3 text-left dark:text-interface ">
 										Lucky Chinatown Mall
 									</h1>
 									<p
-										class="text-justify text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16"
+										class="text-left text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16 dark:text-interface "
 									>
 										Lucky Chinatown offers a unique blend of
 										history, tradition and modern shopping
@@ -212,7 +217,7 @@
 								</div>
 							</div>
 							<div
-								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-white sm:bg-interface drop-shadow-md mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-white dark:bg-dark-second-dark  sm:bg-interface drop-shadow-md mb-3 rounded-lg"
 								v-for="(itinerary, index) in list_itineraries"
 								:key="index"
 							>
@@ -222,21 +227,29 @@
 									alt=""
 								/>
 								<div
-									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
+									class="px-4 flex flex-col justify-normal sm:justify-evenly items-left"
 								>
-									<h1 class="text-2xl py-3 text-center">
+									<h1 class="text-2xl px-4   py-3 text-left dark:text-interface">
 										{{ itinerary.title }}
 									</h1>
 									<p
-										class="text-justify text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16"
+										class="text-left text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16 dark:text-interface"
 									>
 										{{ itinerary.description }}
 									</p>
 									<div
 										class="flex w-full h-8 text-center items-center justify-end sm:justify-center"
 									>
-										<p class="bg-second w-24 rounded-full">
-											{{ itinerary.convertedBudget }}
+										<p
+											class="flex justify-start items-center font-montserrat font-semibold h-full text-sm text-interface bg-second w-28 rounded-full"
+										>
+											<span
+												class=" pr-2 mr-2 ml-3"
+												>{{
+													getSymbol(itinerary.code)
+												}}</span
+											>
+											{{ itinerary.budget.toFixed(2) }}
 										</p>
 									</div>
 									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
@@ -291,7 +304,7 @@ export default {
 
 			total_budget: 0,
 			convertedBudget: "",
-			api: "https://v6.exchangerate-api.com/v6/81e258f64025e4102d1e5f15/latest/USD",
+			api: "https://v6.exchangerate-api.com/v6/dfbd57179cf6a5ebcd1a6b59/latest/USD",
 			currency_list: [
 				["AED", "United Arab Emirates Dirhams", "د.إ"],
 				["AFN", "Afghan Afghani", "؋"],
@@ -442,6 +455,7 @@ export default {
 				["ZWL", "Zimbabwean Dollar (2009)", "$"],
 			],
 			selectedCurrency: "",
+			selectedSymbol: "",
 			currency_save: "",
 			converted: 0,
 
@@ -548,7 +562,7 @@ export default {
 		async fetchSavedItineraries() {
 			try {
 				if (this.itinerary_id == null) {
-					this.$router.push({ name: "itinerary" });
+					// /
 				} else {
 					const response = await this.client.get(
 						`/api/viewing-itinerary/${this.itinerary_id}`
@@ -573,7 +587,7 @@ export default {
 						this.total_budget = itinerary.total_budget;
 					});
 					this.fetchItineraries();
-					this.convertCurrency() 
+					// this.convertCurrency()
 					this.paragraphs =
 						this.itineraryDetails.gen_tips.split(/\n+/);
 					console.log("this is the paragraph", this.list_itineraries);
@@ -597,90 +611,83 @@ export default {
 				this.toDropDown.add(option);
 			});
 
-			this.getSelectedCurrencyCode();
-			this.convertCurrency(); // Assuming you want to set the default selected value
-			
+			// this.getSelectedCurrencyCode();
+			// this.convertCurrency(); // Assuming you want to set the default selected value
 		},
-		getSelectedCurrencyCode() {
-			const toCurrency = this.itineraryDetails.currency;
-			this.currency_save = toCurrency;
-			console.log("Selected currency code:", this.currency_save); // This returns the code of the selected currency
-		},
-		indivConvert(to,from) {
-			const fromCurrency = this.currency_save;
-			const toCurrency = this.$refs.toDropDown.value;
-			this.currency_save = toCurrency;
-			if (this.total_budget.length !== 0) {
-				fetch(this.api) // Assuming 'this.api' is your API URL
-					.then((resp) => resp.json())
-					.then((data) => {
-						let fromExchangeRate =
-							data.conversion_rates[fromCurrency];
-						// let toExchangeRate = data.conversion_rates[toCurrency];
-						this.list_itineraries.forEach((itinerary) => {
-							const convertedAmount =
-								(itinerary.budget / from) *
-								to;
-
-							// Find the symbol for the target currency
-							let symbol = this.currency_list.find(
-								(currency) => currency[0] === toCurrency
-							)[2];
-
-							itinerary.budget = convertedAmount.toFixed(2);
-							itinerary.convertedBudget = `${symbol} ${convertedAmount.toFixed(
-								2
-							)}`;
-							console.log(
-								"Converted budgets:",
-								to,
-								" ",
-								from
-							);
-						});
-
-						// console.log(
-						// 	"Converted budgets:",
-						// 	this.list_itineraries
-						// );
-					});
+		getSymbol(code) {
+			for (let i = 0; i < this.currency_list.length; i++) {
+				if (this.currency_list[i][0] === code) {
+					return this.currency_list[i][2];
+				}
 			}
+			return null; // or some default value if code is not found
 		},
-		convertCurrency() {
-			const fromCurrency = this.currency_save;
+		checkCode() {
 			const toCurrency = this.$refs.toDropDown.value;
-			this.currency_save = toCurrency;
+			this.selectedCurrency = toCurrency;
+			console.log("Selected currency code:", toCurrency);
+			this.selectedSymbol = this.currency_list.find(
+				(currency) => currency[0] === toCurrency
+			)[2];
+			let newvalue = 0;
+			this.list_itineraries.forEach((itinerary) => {
+				// Your code here
+				console.log("the code ", itinerary);
+				if (itinerary.code != toCurrency) {
+					//convert to selected currency
+					// this.indivConvert(this.selectedCurrency, itinerary.code);
+					if (itinerary.budget.length !== 0) {
+						console.log(
+							"convert the value to what selected currency"
+						);
+						fetch(this.api) // Assuming 'this.api' is your API URL
+							.then((resp) => resp.json())
+							.then((data) => {
+								let fromExchangeRate =
+									data.conversion_rates[itinerary.code];
+								let toExchangeRate =
+									data.conversion_rates[toCurrency];
+								const convertedAmount =
+									(itinerary.budget / fromExchangeRate) *
+									toExchangeRate;
 
-			if (this.total_budget.length !== 0) {
-				fetch(this.api) // Assuming 'this.api' is your API URL
-					.then((resp) => resp.json())
-					.then((data) => {
-						let fromExchangeRate =
-							data.conversion_rates[fromCurrency];
-						let toExchangeRate = data.conversion_rates[toCurrency];
-						const convertedAmount =
-							(this.total_budget / fromExchangeRate) *
-							toExchangeRate;
+								// Find the symbol for the target currency
 
-						// Find the symbol for the target currency
-						let symbol = this.currency_list.find(
-							(currency) => currency[0] === toCurrency
-						)[2];
+								// const finalAmount = `${symbol} ${convertedAmount.toFixed(
+								// 	2
+								// )}`;
+								// this.total_budget = convertedAmount.toFixed(2);
 
-						const finalAmount = `${symbol} ${convertedAmount.toFixed(
-							2
-						)}`;
-						this.total_budget = convertedAmount.toFixed(2);
+								newvalue += parseFloat(
+									convertedAmount.toFixed(2)
+								);
+								console.log(
+									"in check code if",
+									newvalue.toFixed(2)
+								);
+								this.total_budget = newvalue.toFixed(2);
+								console.log(
+									"total_budget == ",
+									this.total_budget
+								);
+								// this.convertedBudget = finalAmount;
+								// this.indivConvert(toExchangeRate, fromExchangeRate);
+								// Assuming 'result' is a reference to an element for displaying the result
+								// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
+								// 	2
+								// )} ${toCurrency}`;
+							});
+					}
+				} else {
+					//add to total budget
 
-						console.log(toExchangeRate, " --- ", fromExchangeRate);
-						this.convertedBudget = finalAmount;
-						this.indivConvert(toExchangeRate, fromExchangeRate);
-						// Assuming 'result' is a reference to an element for displaying the result
-						// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
-						// 	2
-						// )} ${toCurrency}`;
-					});
-			}
+					console.log(
+						"do not convert the value to what selected currency"
+					);
+					newvalue += itinerary.budget;
+					console.log("in check code else", newvalue);
+				}
+			});
 		},
 		handleTitleChange() {
 			if (this.main_title.trim() === "") {
@@ -791,14 +798,16 @@ export default {
 					(itinerary) => itinerary.id
 				);
 				console.log("itineraryIds:", this.itineraryIds);
-
+				this.checkCode();
 				console.log("Total Budget:", this.budget);
 				let symbol = this.currency_list.find(
 					(currency) => currency[0] === this.currency_save
 				)[2];
-				this.convertedBudget = `${symbol}${this.total_budget}`;
-				// Sort the itineraries by proximity before showing them on the map
-				this.toDropDown.value = this.currency_save;
+				this.selectedSymbol = symbol;
+				// this.convertedBudget = `${symbol}${this.total_budget}`;
+				// // Sort the itineraries by proximity before showing them on the map
+				console.log("enter :::", symbol);
+				this.$refs.toDropDown.value = this.currency_save;
 				await this.sortItinerariesByProximity();
 				this.showLocationOntheMap();
 			} catch (error) {
