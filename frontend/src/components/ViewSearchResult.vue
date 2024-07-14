@@ -2,126 +2,193 @@
 	<div
 		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
-		<section class="posts mb-10 sm:mb-0">
-			<div
-				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
-				v-for="post in posts"
-				:key="post._id"
-			>
-				<div class="post-title flex justify-center items-center">
+		<section class="mb-10 sm:mb-0">
+			<div class="flex flex-col">
+				<label
+					for=""
+					class="text-prime dark:text-interface text-lg pb-2"
+					>Users:</label
+				>
+				<div class="grid sm:grid-cols-2 gap-4">
 					<div
-						class="flex w-full sm:w-[90%] justify-between items-center"
+						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
 					>
-						<h1
-							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
+						<div
+							class="w-20 h-20 mr-2 flex justify-center items-center"
 						>
-							{{ post.title }}
-						</h1>
-						<small class="text-second ml-5">{{
-							timesince(post.date_posted)
-						}}</small>
-					</div>
-				</div>
-
-				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
-					<div class="w-14 h-14 mr-4">
-						<img
-							:src="post.author_user_photo"
-							alt="Profile"
-							class="rounded-full cursor-pointer object-cover"
-						/>
-					</div>
-					<div class="w-full">
-						<div class="flex border-b-2 dark:border-gray-400">
-							<small
-								class="font-montserrat text-prime dark:text-dark-prime pr-5"
-							>
-								@{{ post.author }}
-							</small>
-							<small
-								class="about-post font-montserrat dark:text-gray-400"
-							>
-								{{ post.category }} | {{ post.country }}
-							</small>
-						</div>
-						<p
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal"
-						>
-							{{ post.content }}
-						</p>
-						<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
 							<img
-								:src="post.image"
-								alt=""
-								class="h-full object-contain rounded-lg"
+								src="/sample_img/mark.png"
+								alt="Profile"
+								class="rounded-full cursor-pointer"
 							/>
 						</div>
-						<div class="h-auto pb-2 sm:p-4" v-else>
-							<div
-								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-								:key="post.itinerary_in_post.id"
-								@click="
-									goToViewItinerary(post.itinerary_in_post.id)
-								"
+						<div class="font-montserrat text-left w-full">
+							<p class="font-bold">Mark francis N. Galan</p>
+							<small>Philippines | mark@gmail.com</small>
+						</div>
+						<button class="bg-second w-36 h-8 rounded-lg">
+							Follow
+						</button>
+					</div>
+					<router-link
+						:to="{
+							name: 'user-profile',
+							params: { username: user.username,user: JSON.stringify(user)},
+						}"
+						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
+						v-for="user in users"
+						:key="user.id"
+					>
+						<div
+							class="w-20 h-20 mr-4 flex justify-center items-center"
+						>
+							<img
+								:src="user.user_photo"
+								alt="Profile"
+								class="rounded-full cursor-pointer"
+							/>
+						</div>
+						<div class="font-montserrat text-left w-full">
+							<p class="font-bold">{{ user.fullname }}</p>
+							<small>{{ user.country }} | {{ user.email }}</small>
+						</div>
+						<button class="bg-second w-36 h-8 rounded-lg">
+							Follow
+						</button>
+					</router-link>
+				</div>
+			</div>
+			<div class="flex flex-col pt-4">
+				<label for="" class="text-prime dark:text-interface text-lg"
+					>Posts:</label
+				>
+				<div
+					class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+					v-for="post in posts"
+					:key="post._id"
+				>
+					<div class="post-title flex justify-center items-center">
+						<div
+							class="flex w-full sm:w-[90%] justify-between items-center"
+						>
+							<h1
+								class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
 							>
-								<div
-									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+								{{ post.title }}
+							</h1>
+							<small class="text-second ml-5">{{
+								timesince(post.date_posted)
+							}}</small>
+						</div>
+					</div>
+					<div
+						class="post-content flex w-full mt-4 dark:text-dark-prime"
+					>
+						<div class="w-14 h-14 mr-4">
+							<img
+								:src="post.author_user_photo"
+								alt="Profile"
+								class="rounded-full cursor-pointer object-cover"
+							/>
+						</div>
+						<div class="w-full">
+							<div class="flex border-b-2 dark:border-gray-400">
+								<small
+									class="font-montserrat text-prime dark:text-dark-prime pr-5"
 								>
-									<img
-										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
-										:src="post.itinerary_in_post.main_image"
-										alt=""
-									/>
-									<div class="w-full h-auto py-2">
-										<h1
-											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
-										>
-											{{
+									@{{ post.author }}
+								</small>
+								<small
+									class="about-post font-montserrat dark:text-gray-400"
+								>
+									{{ post.category }} | {{ post.country }}
+								</small>
+							</div>
+							<p
+								class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal"
+							>
+								{{ post.content }}
+							</p>
+							<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
+								<img
+									:src="post.image"
+									alt=""
+									class="h-full object-contain rounded-lg"
+								/>
+							</div>
+							<div class="h-auto pb-2 sm:p-4" v-else>
+								<div
+									class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
+									:key="post.itinerary_in_post.id"
+									@click="
+										goToViewItinerary(
+											post.itinerary_in_post.id
+										)
+									"
+								>
+									<div
+										class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+									>
+										<img
+											class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
+											:src="
 												post.itinerary_in_post
-													.main_title
-											}}
-										</h1>
-										<p
-											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
-										>
-											{{
-												post.itinerary_in_post
-													.main_description
-											}}
-										</p>
+													.main_image
+											"
+											alt=""
+										/>
+										<div class="w-full h-auto py-2">
+											<h1
+												class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+											>
+												{{
+													post.itinerary_in_post
+														.main_title
+												}}
+											</h1>
+											<p
+												class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
+											>
+												{{
+													post.itinerary_in_post
+														.main_description
+												}}
+											</p>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="flex items-center justify-end">
-					<i
-						class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
-						@click.prevent="selectPost(post)"
-					></i>
-					<div
-						@click="likePost(post._id)"
-						class="flex items-center justify-start w-14"
-					>
-						<span
-							v-if="post.is_liked"
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+					<div class="flex items-center justify-end">
+						<i
+							class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
+							@click.prevent="selectPost(post)"
+						></i>
+						<div
+							@click="likePost(post._id)"
+							class="flex items-center justify-start w-14"
 						>
-							favorite
-						</span>
-						<span
-							v-else
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
-							>favorite_border</span
-						>
-						<small class="text-prime dark:text-dark-prime pl-1">
-							{{
-								post.like_count >= 1000
-									? (post.like_count / 1000).toFixed(1) + "k"
-									: post.like_count
-							}}
-						</small>
+							<span
+								v-if="post.is_liked"
+								class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+							>
+								favorite
+							</span>
+							<span
+								v-else
+								class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+								>favorite_border</span
+							>
+							<small class="text-prime dark:text-dark-prime pl-1">
+								{{
+									post.like_count >= 1000
+										? (post.like_count / 1000).toFixed(1) +
+										  "k"
+										: post.like_count
+								}}
+							</small>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -295,7 +362,9 @@ export default {
 			categoryOption: "",
 			postContent: "",
 			countryPost: "",
+
 			posts: [],
+			users: [],
 
 			selectedPost: [],
 			reply: "",
@@ -327,17 +396,19 @@ export default {
 		});
 
 		// this.posts = this.$route.params.result;
-	}, beforeRouteEnter(to, from, next) {
-    if (!to.params.result) {
-      next({ name: 'dashboard' });
-    } else {
-      next();
-    }
-  },
+	},
+	beforeRouteEnter(to, from, next) {
+		if (!to.params.result) {
+			next({ name: "dashboard" });
+		} else {
+			next();
+		}
+	},
 	mounted() {
 		const result = JSON.parse(this.$route.params.result);
-        console.log("valid object", result)
-        this.posts = result.posts;
+		console.log("valid object", result);
+		this.posts = result.posts;
+		this.users = result.users;
 	},
 	methods: {
 		goToViewItinerary(itinerarydata) {

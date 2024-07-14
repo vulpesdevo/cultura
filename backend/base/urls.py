@@ -36,6 +36,11 @@ urlpatterns = [
         name="search",
     ),
     path(
+        "public-profile-posts/",
+        views.PublicPostProfile.as_view(),
+        name="public-profile-posts",
+    ),
+    path(
         "liked-post-view/<str:post_id>/<str:notif>",
         views.LikedPostView.as_view(),
         name="liked-post-view",

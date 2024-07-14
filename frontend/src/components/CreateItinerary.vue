@@ -3,13 +3,13 @@
 		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
 	>
 		<div
-			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white dark:bg-dark-interface rounded-2xl p-1"
+			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white dark:bg-notif rounded-2xl p-1"
 		>
 			<div
-				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field sm:bg-transparent z-10"
+				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field dark:bg-dark-interface sm:bg-transparent z-10"
 			>
 				<div
-					class="flex items-center justify-center w-screen h-[70%] sm:w-full sm:h-[87%] bg-field hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
+					class="flex items-center justify-center w-screen h-[70%] sm:w-full sm:h-[87%] bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
 				>
 					<label
 						for="imgSelect"
@@ -102,7 +102,7 @@
 			</div>
 
 			<section
-				class="mt-80 itinerary-1 flex flex-col items-center sm:mt-10 px-16 w-full"
+				class="mt-80 itinerary-1 flex flex-col items-center sm:mt-10 px-16 w-full dark:bg-notif"
 				id="overview-section"
 			>
 				<button

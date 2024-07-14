@@ -996,6 +996,62 @@ class GetSettings(APIView):
             status=status.HTTP_200_OK,
         )
 
+class PublicPostProfile(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        data = request.data
+        user= request.GET.get("user_id", "").strip()
+        print('user-id: ',user)
+
+        posts = Post.objects.filter(author=user)
+
+        # Serialize the posts
+        serializer = PostSerializer(posts, many=True, context={"user": request.user})
+        # Include the image URLs in the response
+
+        for post_data in serializer.data:
+
+            image = post_data.get("image", None)
+            if image:
+                # Build the absolute URI for the image
+                abs_image_url = request.build_absolute_uri(image)
+                # Update the post data with the absolute URI
+                post_data["image"] = abs_image_url
+            author_user_photo = CulturaUser.objects.get(
+                user=post_data["author"]
+            ).user_photo
+            # Build the absolute URI for the post author's user_photo
+            abs_author_user_photo_url = request.build_absolute_uri(
+                author_user_photo.url
+            )
+            # Update the post data with the absolute URI of the post author's user_photo
+            post_data["author_user_photo"] = abs_author_user_photo_url
+            comments = Comment.objects.filter(post_id=post_data["_id"])
+
+            comment_serializer = CommentSerializer(comments, many=True)
+            comment_data = comment_serializer.data
+            for comment in comment_data:
+                user = User.objects.get(id=comment["author"]).username
+                author_user_photo = CulturaUser.objects.get(
+                    user=comment["author"]
+                ).user_photo
+
+                # Build the absolute URI for each comment author's user_photo
+                abs_author_user_photo_url = request.build_absolute_uri(
+                    author_user_photo.url
+                )
+                # Update the comment data with the absolute URI of each comment author's user_photo
+                comment["author_user_photo"] = abs_author_user_photo_url
+                comment["author"] = user
+
+            post_data["comments"] = comment_data
+
+            post_user = User.objects.get(id=post_data["author"]).username
+            post_data["author"] = post_user
+        # Return the modified serialized data in the response
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ##Searching
 
@@ -1060,9 +1116,25 @@ class SearchView(APIView):
         notifications = LikeNotification.objects.filter(q)
 
         user_serializer = CulturaUserSerializer(users, many=True)
+        for user_data in user_serializer.data:
+            image = user_data.get("user_photo", None)
+            if image:
+                # Build the absolute URI for the image
+                abs_image_url = request.build_absolute_uri(image)
+                # Update the post data with the absolute URI
+                user_data["user_photo"] = abs_image_url
+            username = User.objects.get(id=user_data["user"]).username
+            user_data["username"] = username
+            # user_id = User.objects.get(id=user_data["user"])
+            # post_ = Post.objects.get(author=user_data["user"])._id
+            # posts = Post.objects.filter(author=user_data['user'])
+            # print(posts)
+            # user_data["post_id"] = [post['_id'] for post in posts]
+
         save_itinerary_serializer = SaveItinerarySerializer(save_itineraries, many=True)
         # itinerary_serializer = ItinerarySerializer(itineraries, many=True)
         # comment_serializer = CommentSerializer(comments, many=True)
+
         post_serializer = PostSerializer(posts, many=True)
 
         for post_data in post_serializer.data:
