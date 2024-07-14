@@ -49,7 +49,7 @@ class UserView(APIView):
     def get(self, request):
         authorization_header = request.headers.get("Authorization")
         # Print the Authorization header value
-        print("Header Auth: ", authorization_header)
+        # print("Header Auth: ", authorization_header)
         from django.core import serializers
 
         UserView.token_auth = str(authorization_header).replace("Token", "").strip()
@@ -150,7 +150,7 @@ class ChangeForgotPassword(APIView):
         email = data.get("email", "").strip()
         user = UserModel.objects.get(email=email)
         new_password = data.get("password", "").strip()
-        print(user)
+        # print(user)
         # email = data.get("email", "").strip()
         if new_password:
             user.set_password(new_password)
@@ -164,7 +164,7 @@ class ForgotPassword(APIView):
     def post(self, request):
         data = request.data
         email = data["email"].strip()
-        print(email)
+        # print(email)
         if UserModel.objects.filter(email=email):
 
             from email.message import EmailMessage
@@ -249,7 +249,7 @@ class EditUserInformation(APIView):
         email = data["email"].strip()
         # cultura_user.fullname = fullname
         cultura_user = CulturaUser.objects.get(user=user)
-        print(user.check_password(password))
+        # print(user.check_password(password))
         if not user.check_password(password):
             return Response(
                 {"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST
@@ -343,7 +343,7 @@ class EditUserProfile(APIView):
     def post(self, request):
 
         image = request.FILES.get("image", None)
-        print(image)
+        # print(image)
 
         cultura_user = CulturaUser.objects.get(user=request.user)
         cultura_user.user_photo = image
@@ -399,19 +399,20 @@ class PostCreate(APIView):
         # imgs = data.get("imgs", "").strip()
         image = request.FILES.get("image", None)
         country = data.get("country", "").strip()
-        print("image: ", image)
+        itinerary_id = data.get("itinerary_id", 0).strip()
+        # print("image: ", image)
         # Check for profanity in title and body
-        try:
-            if validate_is_profane(title) or validate_is_profane(body):
-                raise ValidationError(["Please remove any profanity/swear words."])
-        except ValidationError as e:
-            return Response(
-                {
-                    "error": e.messages,
-                    "field": "title" if "title" in e.messages[0] else "body",
-                },
-                status=400,
-            )
+        # try:
+        #     if validate_is_profane(title) or validate_is_profane(body):
+        #         raise ValidationError(["Please remove any profanity/swear words."])
+        # except ValidationError as e:
+        #     return Response(
+        #         {
+        #             "error": e.messages,
+        #             "field": "title" if "title" in e.messages[0] else "body",
+        #         },
+        #         status=400,
+        #     )
 
         try:
             post = Post(
@@ -420,6 +421,7 @@ class PostCreate(APIView):
                 category=category,
                 content=body,
                 image=image,
+                itinerary=itinerary_id,
                 country=country,
             )
             post.save()
@@ -451,14 +453,15 @@ class PostViewSet(viewsets.ModelViewSet):
             post.likes.remove(user)
             message = "post unliked"
             LikeNotification.objects.filter(post_obj_id=object_id).delete()
-            user = CulturaUser.objects.get(user=request.user)
-            user.like_leader -= 1
-            user.save()
+            user_cult = CulturaUser.objects.get(user=request.user)
+            user_cult.like_leader -= 1
+            user_cult.save()
         else:
             post.likes.add(user)
-            user = CulturaUser.objects.get(user=request.user)
-            user.like_leader += 1
-            user.save()
+            user_cult = CulturaUser.objects.get(user=request.user)
+            # print(user_cult.user)
+            user_cult.like_leader += 1
+            user_cult.save()
             message = "post liked"
             like_notification = LikeNotification(
                 post_obj_id=object_id,
@@ -466,7 +469,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 notif_type="like",
                 post_title=post.title,
                 post_content=post.content,
-                audience=user,
+                audience=user_cult.user,
             )
             like_notification.save()
 
@@ -489,6 +492,12 @@ class LikesNotificationList(APIView):
         )
 
         serializer = LikeSerializer(data, many=True)
+        # print('NOTIFICATIONS ',serializer.data)
+        # for post_data in serializer.data:
+        #     post_user = CulturaUser.objects.get(
+        #         _id=ObjectId(post_data["audience"])
+        #     )
+        #     post_data["audience"] = post_user
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -503,8 +512,9 @@ class PostListView(APIView):
 
     def get(self, request):
         posts = Post.objects.all()
-        print(request.user)
+        # print(request.user)
         # Serialize the posts
+        
         serializer = PostSerializer(posts, many=True, context={"user": request.user})
         # Include the image URLs in the response
 
@@ -549,6 +559,22 @@ class PostListView(APIView):
             post_user = User.objects.get(id=post_data["author"]).username
             post_data["author"] = post_user
 
+            # get-itineraries
+            Itinerary_ID = post_data.get("itinerary", 0)
+            # print(post_data)
+            if Itinerary_ID:
+                itineraries = SaveItinerary.objects.filter(id=int(Itinerary_ID))
+                IT_serializer = SaveItinerarySerializer(itineraries, many=True)
+                # print(IT_serializer)
+                for itinerary_data in IT_serializer.data:
+                    main_image = itinerary_data.get("main_image", None)
+                    if main_image:
+                        # Build the absolute URI for the main image
+                        abs_main_image_url = request.build_absolute_uri(main_image)
+                        # Update the itinerary data with the absolute URI
+                        itinerary_data["main_image"] = abs_main_image_url
+                post_data["itinerary_in_post"] = itinerary_data
+
             # Get the user_photo of the post author
 
             # Get the user_photo of each comment author
@@ -581,7 +607,7 @@ class LikedPostView(APIView):
         data = request.data
 
         notif_id = ObjectId(notif)
-        print("NOTIFICATION ID :: ", notif)
+        # print("NOTIFICATION ID :: ", notif)
         LikeNotification.objects.filter(_id=notif_id).update(is_read=True)
         # Include the image URLs in the response
         for post_data in serializer.data:
@@ -655,6 +681,7 @@ class ProfilePostListView(APIView):
                 comment["author"] = user
 
             post_data["comments"] = comment_data
+
             post_user = User.objects.get(id=post_data["author"]).username
             post_data["author"] = post_user
         # Return the modified serialized data in the response
@@ -663,6 +690,7 @@ class ProfilePostListView(APIView):
     def post(self, request):
 
         data = request.data
+        
         post_id = data.get("post_id", "").strip()
         object_id = ObjectId(post_id)
         user = CulturaUser.objects.get(user=request.user)
@@ -787,7 +815,7 @@ class ItineraryCreate(APIView):
             longitude=longitude,
             latitude=latitude,
             place_name=place_name,
-            code = code ,
+            code=code,
             description=description,
             budget=budget,
         )
@@ -922,7 +950,7 @@ class ViewItinerary(APIView):
                 # Update the itinerary data with the absolute URI
                 itinerary_data["main_image"] = abs_main_image_url
         # serializer.data['itineraries'] = serialized_itineraries
-        print(serializer.data[0]["itineraries"])
+        # print(serializer.data[0]["itineraries"])
         # itiner = Itinerary.objects.filter(id=itinerary_ids)
         # serializer.data['itineraries'] = ItinerarySerializer(itiner, many=True).data
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -962,7 +990,7 @@ class GetSettings(APIView):
         user = CulturaUser.objects.filter(user=request.user)
         user_information = CulturaUserSerializer(user, many=True)
         serializer = SettingSerializer(settings, many=True)
-        print("where ::", serializer.data)
+        # print("where ::", serializer.data)
         return Response(
             {"user_information": user_information.data, "set": serializer.data},
             status=status.HTTP_200_OK,
@@ -971,10 +999,130 @@ class GetSettings(APIView):
 
 ##Searching
 
+from functools import reduce
+from django.db.models import Q
 
-# class SearchTutorialView(APIView):
-#     def get(self, request):
-#         query = request.GET.get("title")
-#         tutorials = Tutorial.objects.filter(title__icontains=query)
-#         serializer = TutorialSerializer(tutorials, many=True)
-#         return Response(serializer.data)
+class SearchView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        data = request.data
+
+        # logging.debug('Request GET: %s', request.GET)
+        print("data", data)
+        query = request.GET.get("title", "").strip()
+        print('INPUT ',query)
+        if query is None:  # Check if query is None
+            # Return an error response or a default response if search query is missing
+            return Response({"error": "Search query is missing"}, status=400)
+        search_words = query.split()
+
+        # Use Q objects to create a dynamic filter query
+
+        if not search_words:  # Check if search_words is empty
+            # Return an empty response or a default response if search query is empty
+            return Response({})
+
+        # Use Q objects to create a dynamic filter query
+        q = Q()
+        for word in search_words:
+            q |= Q(fullname__icontains=word)
+        users = CulturaUser.objects.filter(q)
+
+        q = Q()
+        for word in search_words:
+            q |= Q(main_title__icontains=word)
+        save_itineraries = SaveItinerary.objects.filter(q)
+
+        # q = Q()
+        # for word in search_words:
+        #     q |= Q(title__icontains=word)
+        # itineraries = Itinerary.objects.filter(q)
+
+        # q = Q()
+        # for word in search_words:
+        #     q |= Q(body__icontains=word)
+        # comments = Comment.objects.filter(q)
+
+        q = Q()
+        for word in search_words:
+            q |= (
+                Q(title__icontains=word)
+                | Q(category__icontains=word)
+                | Q(country__icontains=word)
+                | Q(content__icontains=word)
+            )
+        posts = Post.objects.filter(q)
+
+        q = Q()
+        for word in search_words:
+            q |= Q(post_title__icontains=word)
+        notifications = LikeNotification.objects.filter(q)
+
+        user_serializer = CulturaUserSerializer(users, many=True)
+        save_itinerary_serializer = SaveItinerarySerializer(save_itineraries, many=True)
+        # itinerary_serializer = ItinerarySerializer(itineraries, many=True)
+        # comment_serializer = CommentSerializer(comments, many=True)
+        post_serializer = PostSerializer(posts, many=True)
+
+        for post_data in post_serializer.data:
+            image = post_data.get("image", None)
+            if image:
+                # Build the absolute URI for the image
+                abs_image_url = request.build_absolute_uri(image)
+                # Update the post data with the absolute URI
+                post_data["image"] = abs_image_url
+            author_user_photo = CulturaUser.objects.get(
+                user=post_data["author"]
+            ).user_photo
+            # Build the absolute URI for the post author's user_photo
+            abs_author_user_photo_url = request.build_absolute_uri(
+                author_user_photo.url
+            )
+            # Update the post data with the absolute URI of the post author's user_photo
+            post_data["author_user_photo"] = abs_author_user_photo_url
+            comments = Comment.objects.filter(post_id=post_data["_id"])
+            # Retrieve comments for the post
+            comments = Comment.objects.filter(post_id=post_data["_id"])
+            comment_serializer = CommentSerializer(comments, many=True)
+            comment_data = comment_serializer.data
+
+            for comment in comment_data:
+                user = User.objects.get(id=comment["author"]).username
+                author_user_photo = CulturaUser.objects.get(user=comment["author"]).user_photo
+
+                # Build the absolute URI for each comment author's user_photo
+                abs_author_user_photo_url = request.build_absolute_uri(author_user_photo.url)
+                # Update the comment data with the absolute URI of each comment author's user_photo
+                comment["author_user_photo"] = abs_author_user_photo_url
+                comment["author"] = user
+
+            post_data["comments"] = comment_data
+            post_user = User.objects.get(id=post_data["author"]).username
+            post_data["author"] = post_user
+
+            # get-itineraries
+            Itinerary_ID = post_data.get("itinerary", 0)
+            if Itinerary_ID:
+                itineraries = SaveItinerary.objects.filter(id=int(Itinerary_ID))
+                IT_serializer = SaveItinerarySerializer(itineraries, many=True)
+
+                for itinerary_data in IT_serializer.data:
+                    main_image = itinerary_data.get("main_image", None)
+                    if main_image:
+                        # Build the absolute URI for the main image
+                        abs_main_image_url = request.build_absolute_uri(main_image)
+                        # Update the itinerary data with the absolute URI
+                        itinerary_data["main_image"] = abs_main_image_url
+
+                post_data["itinerary_in_post"] = itinerary_data
+
+        return Response(
+            {
+                "users": user_serializer.data,
+                "save_itineraries": save_itinerary_serializer.data,
+                # "itineraries": itinerary_serializer.data,
+
+                "posts": post_serializer.data,
+            }
+        )

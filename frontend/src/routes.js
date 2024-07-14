@@ -9,6 +9,7 @@ import CreateItinerary from "./components/CreateItinerary.vue";
 import Settings from "./components/Settings.vue";
 import ViewItinerary from "./components/ViewItinerary.vue";
 import PostViewing from "./components/PostViewing.vue";
+import ViewSearchResult from "./components/ViewSearchResult.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -39,6 +40,11 @@ const router = createRouter({
 			path: "/view-post",
 			component: PostViewing,
 			name: "view-post",
+		},
+		{
+			path: "/search-result",
+			component: ViewSearchResult,
+			name: "search-result",
 		},
 		{ path: "/profile", component: Profile, name: "profile" },
 		{

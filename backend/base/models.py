@@ -99,7 +99,9 @@ class Post(models.Model):
     content = models.TextField(validators=[validate_is_profane])
     image = models.ImageField(upload_to="post_images", null=True, blank=True)
     country = models.CharField(max_length=200)
-    itinerary = models.CharField(max_length=200, null=True, blank=True)
+    itinerary = models.CharField( 
+        max_length=200, null=True, blank=True
+    )
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, blank=True)
     comments = models.ManyToManyField(Comment, blank=True)
@@ -126,40 +128,3 @@ class UserSetting(models.Model):
     theme = models.BooleanField(default=False)
 
 
-#     def create_user(self, email, username, password=None):
-#         if not email:
-#             raise ValueError("An email is required.")
-#         if not password:
-#             raise ValueError("A password is required.")
-#         if not username:
-#             raise ValueError("A username is required.")
-#         email = self.normalize_email(email)
-#         user = self.model(email=email, username=username)
-#         user.set_password(password)
-#         user.save()
-#         return user
-
-#     def create_superuser(self, email, username, password=None):
-#         if not email:
-#             raise ValueError("An email is required.")
-#         if not password:
-#             raise ValueError("A password is required.")
-#         if not username:
-#             raise ValueError("A username is required.")
-#         user = self.create_user(email, username, password)
-#         user.is_superuser = True
-#         user.is_staff = True
-#         user.save()
-#         return user
-
-
-# class AppUser(AbstractBaseUser, PermissionsMixin):
-#     user_id = models.AutoField(primary_key=True)
-#     email = models.EmailField(max_length=50)
-#     username = models.CharField(max_length=50, unique=True)
-#     USERNAME_FIELD = "username"
-#     REQUIRED_FIELDS = ["email"]
-#     objects = AppUserManager()
-#     groups = models.ManyToManyField(Group)
-#     def __str__(self):
-#         return self.username

@@ -100,7 +100,7 @@ export default {
 				this.unreadCount = this.like_notification.filter(
 					(data) => !data.is_read
 				).length;
-				console.log(this.like_notification);
+				console.log("NOTIFSSS",this.like_notification);
 			} catch (error) {
 				console.log(error);
 			}

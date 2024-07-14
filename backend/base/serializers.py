@@ -84,6 +84,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class LikeSerializer(serializers.ModelSerializer):
     # user = UserSerializer(read_only=True)
+
     class Meta:
         model = LikeNotification
         fields = (
@@ -97,6 +98,7 @@ class LikeSerializer(serializers.ModelSerializer):
             "is_read",
             "created_at",
         )
+
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -121,6 +123,7 @@ class PostSerializer(serializers.ModelSerializer):
             "country",
             "date_posted",
             "likes",
+            'itinerary',
             "like_count",
             "is_liked",
             "comments",

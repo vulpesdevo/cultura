@@ -31,6 +31,11 @@ urlpatterns = [
         name="like-notif-list",
     ),
     path(
+        "search/",
+        views.SearchView.as_view(),
+        name="search",
+    ),
+    path(
         "liked-post-view/<str:post_id>/<str:notif>",
         views.LikedPostView.as_view(),
         name="liked-post-view",

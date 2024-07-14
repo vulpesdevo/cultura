@@ -19,6 +19,7 @@
 					type="search"
 					placeholder="Search..."
 					class="ml-auto pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
+					v-model="searchQuery"
 				/>
 				<span
 					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700 dark:text-dark-prime"
@@ -218,14 +219,28 @@ export default {
 	},
 	watch: {
 		searchQuery(newQuery) {
-			axios
-				.get("/api/tutorials/search/", {
+			console.log(newQuery);
+			this.client
+				.get("api/search/", {
 					params: {
 						title: newQuery,
 					},
 				})
 				.then((response) => {
 					this.searchResults = response.data;
+					let result = response.data;
+					console.log("SEARCH RESULT :: ", result);
+
+					if (this.searchQuery) {
+						this.$router.replace({
+							name: "search-result",
+							params: { result: JSON.stringify(result) },
+						});
+					} else {
+						this.$router.push({
+							name: "dashboard",
+						});
+					}
 				})
 				.catch((error) => {
 					console.error(error);
@@ -246,7 +261,7 @@ export default {
 				this.unreadCount = response.data.filter(
 					(data) => !data.is_read
 				).length;
-				console.log(this.unreadCount);
+				
 			} catch (error) {
 				console.log(error);
 			}

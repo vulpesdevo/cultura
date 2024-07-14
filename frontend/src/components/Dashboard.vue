@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto scroll-smooth h-screen pt-20 sm:pt-3 bg-light-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
 			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -81,11 +81,15 @@
 				</div>
 				<!-- v-if="selectedItinerary" -->
 				<div
-					class="added-itinerary-container flex items-center bg-field h-10 pl-3 sm:ml-[4.5rem] mt-2 rounded-lg"
+					class="added-itinerary-container flex items-center justify-between bg-field dark:bg-dark-second-dark h-10 w-1/3 p-3 sm:ml-[4.5rem] mt-2 rounded-lg"
 					v-if="selectedItinerary"
 				>
-					{{ selectedItinerary.main_title }} (ID:
-					{{ selectedItinerary.id }})
+					<p class="">{{ selectedItinerary.main_title }}</p>
+					<span
+						class="material-icons-outlined text-second text-2xl cursor-pointer"
+						@click="selectedItinerary = null"
+						>close</span
+					>
 				</div>
 			</div>
 			<div
@@ -222,6 +226,7 @@
 			</div>
 		</div>
 		<section class="posts mb-10 sm:mb-0">
+			
 			<div
 				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 				v-for="post in posts"
@@ -241,10 +246,7 @@
 						}}</small>
 					</div>
 				</div>
-				<!-- Post Delete Modal Button Includes "isMenuOpen" and "toggleMenu" in script-->
-
-				<!-- Post Delete Modal, Includes "modalDeleteActive" and "deleteItem" in script -->
-
+				
 				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
 					<div class="w-14 h-14 mr-4">
 						<img
@@ -277,6 +279,37 @@
 								alt=""
 								class="h-full object-contain rounded-lg"
 							/>
+						</div>
+						<div class="h-auto pb-2 sm:p-4" v-else>
+							<div
+								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
+								
+								:key="post.itinerary_in_post.id"
+								@click="goToViewItinerary(post.itinerary_in_post.id)"
+							>
+								<div class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full">
+									<img
+										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
+										:src="post.itinerary_in_post.main_image"
+										alt=""
+									/>
+									<div class="w-full h-auto py-2">
+										<h1
+											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+										>
+											{{ post.itinerary_in_post.main_title }}
+										</h1>
+										<p
+											class="font-montserrat text-sm text-justify h-20 overflow-hidden   dark:text-interface"
+										>
+											{{
+												post.itinerary_in_post.main_description
+											}}
+
+										</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -516,11 +549,11 @@
 									>
 										Cancel
 									</button>
-									<input
+									<!-- <input
 										type="submit"
 										value="Save"
 										class="text-interface cursor-pointer text-lg bg-second p-2 rounded-3xl w-32 h-12 mb-3 hover:bg-second-light"
-									/>
+									/> -->
 								</div>
 							</div>
 						</div>
@@ -565,7 +598,10 @@ export default {
 			comments_in_post: [],
 
 			itineraries: [],
+			itineraries_frompost: [],
 			selectedItinerary: null,
+			id_of_selected: "",
+			isFullTextShown: {},
 		};
 	},
 	created() {
@@ -596,6 +632,15 @@ export default {
 		setInterval(this.fetchSavedItineraries, 5000);
 	},
 	methods: {
+		toggleText(index) {
+			this.isFullTextShown[index] = !this.isFullTextShown[index];
+		},
+		goToViewItinerary(itinerarydata) {
+			this.$router.push({
+				name: "view-itinerary",
+				params: { itinerarydata },
+			});
+		},
 		fetchUser() {
 			this.client
 				.get("api/user")
@@ -622,7 +667,11 @@ export default {
 				});
 		},
 		selectItinerary(itinerary) {
-			this.selectedItinerary = itinerary; // Update the selectedItinerary with the clicked one
+			this.selectedItinerary = itinerary;
+			this.id_of_selected = itinerary.id;
+			console.log(this.selectedItinerary);
+			this.addItineraryModal = false;
+			// Update the selectedItinerary with the clicked one
 		},
 		handleFileSelection(event) {
 			const file = event.target.files[0];
@@ -686,6 +735,8 @@ export default {
 				formData.append("category", this.categoryOption);
 				formData.append("body", this.postContent);
 				formData.append("country", this.countryPost);
+				formData.append("itinerary_id", this.id_of_selected);
+				console.log(this.id_of_selected);
 				if (this.picture && this.picture instanceof File) {
 					formData.append("image", this.picture, this.picture.name);
 				}
@@ -739,6 +790,7 @@ export default {
 				console.error(error);
 			}
 		},
+
 		fetchComments() {
 			this.client
 				.get("/api/comments")
@@ -757,9 +809,9 @@ export default {
 					if (this.posts.length > 0) {
 						// Set selectedPost to the first post
 						console.log("GET POST fetch", this.selectedPost);
-						this.post_id = this.selectedPost[0]._id;
-
-						this.replied_to = this.selectedPost[0].author;
+						// this.post_id = this.selectedPost[0]._id;
+						this.itineraries_frompost = this.posts[0].itinerary_in_post
+						// this.replied_to = this.selectedPost[0].author;
 						this.comments_in_post =
 							this.posts.find((p) => p._id === this.post_id)
 								?.comments || [];
@@ -767,7 +819,7 @@ export default {
 					}
 
 					// this.comments_in_post = this.posts[0].comments;
-					console.log("updateed :", this.posts);
+					console.log("updateed :",this.posts[0]);
 				})
 				.catch((error) => {
 					console.log(error);
