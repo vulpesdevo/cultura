@@ -205,7 +205,12 @@
 							class="flex flex-col justify-center items-center bg-prime w-1/2 mr-2 rounded-lg"
 						>
 							<p class="">Total Budget</p>
-							<p class="text-2xl"><span class="font-bold">{{selectedSymbol}}</span>{{ total_budget }}</p>
+							<p class="text-2xl">
+								<span class="font-bold">{{
+									selectedSymbol
+								}}</span
+								>{{ total_budget }}
+							</p>
 						</div>
 						<div
 							class="flex flex-col justify-center bg-prime w-3/4 rounded-lg p-3"
@@ -247,7 +252,7 @@
 							Add place
 						</button>
 						<div
-							class="sm:overflow-auto h-screen rounded-lg  p-3"
+							class="sm:overflow-auto h-screen rounded-lg p-3"
 							style="scrollbar-width: none"
 						>
 							<div
@@ -293,7 +298,9 @@
 								<div
 									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
 								>
-									<h1 class="text-2xl px-4 dark:text-interface py-3 text-center">
+									<h1
+										class="text-2xl px-4 dark:text-interface py-3 text-center"
+									>
 										{{ itinerary.title }}
 									</h1>
 									<p
@@ -307,12 +314,9 @@
 										<p
 											class="flex justify-start items-center font-montserrat font-semibold h-full text-sm text-interface bg-second w-28 rounded-full"
 										>
-											<span
-												class=" pr-2 mr-2 ml-3"
-												>{{
-													getSymbol(itinerary.code)
-												}}</span
-											>
+											<span class="pr-2 mr-2 ml-3">{{
+												getSymbol(itinerary.code)
+											}}</span>
 											{{ itinerary.budget.toFixed(2) }}
 										</p>
 									</div>
@@ -365,15 +369,37 @@
 					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle w-screen sm:w-[35%]"
 				>
 					<div
-						class="bg-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
+						class="bg-interface dark:bg-dark-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
 					>
 						<div
-							class="flex justify-center items-center w-full h-52 rounded-lg bg-field"
+							class="flex items-center justify-center w-screen h-[70%] sm:w-full sm:h-[10rem] bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
 						>
-							<p>+ Add Image</p>
+							<label
+								for="imgSelect"
+								class="w-screen sm:w-full h-full flex items-center justify-center bg-field dark:bg-gray-900 cursor-pointer rounded-xl"
+							>
+								<img
+									:class="{ hidden: !selectedImageUrl }"
+									:src="selectedImageUrl"
+									class="w-full h-full object-cover rounded-xl z-0"
+									alt="Selected image"
+								/>
+								<div
+									:class="{ hidden: selectedImageUrl }"
+									class="flex items-center justify-center font-montserrat w-full h-full text-prime dark:text-dark-prime text-xl z-0"
+								>
+									<span>+ Add Image</span>
+								</div>
+							</label>
 						</div>
+						<input
+							type="file"
+							id="imgSelect"
+							class="hidden"
+							@change="handleFileSelection"
+						/>
 						<h3
-							class="font-bebas-neue text-2xl pt-5 sm:text-3xl leading-6 font-medium text-prime"
+							class="font-bebas-neue text-2xl pt-5 sm:text-3xl leading-6 font-medium text-prime  dark:text-interface"
 							id="modal-title"
 						>
 							add place
@@ -382,7 +408,7 @@
 						<form class="mt-2" @submit.prevent="submitItinerary">
 							<div class="flex">
 								<div
-									class="w-full px-3 text-start text-sm font-montserrat"
+									class="w-full px-3 text-start text-sm font-montserrat dark:text-interface"
 								>
 									<div class="">
 										<label for="it-title">Title</label>
@@ -392,7 +418,8 @@
 											name="it-title"
 											id="it-title"
 											v-model="title"
-											class="mt-2 pl-5 w-full rounded-full h-12 bg-field"
+											class="mt-2 pl-5 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none "
+											required
 										/>
 									</div>
 									<div class="mt-2">
@@ -409,10 +436,11 @@
 												ref="autocomplete"
 												id="autocomplete"
 												v-model="location"
-												class="mt-2 pl-5 w-full rounded-full h-12 bg-field"
+												class="mt-2 pl-5 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
+											required
 											/>
 											<span
-												class="flex justify-center items-center material-icons-outlined absolute right-0 bottom-0 text-prime text-center bg-gray-500 hover:bg-gray-400 w-12 h-12 rounded-full cursor-pointer"
+												class="flex justify-center items-center material-icons-outlined absolute right-0 bottom-0 text-prime text-center bg-gray-500 hover:bg-gray-400 dark:text-interface w-12 h-12 rounded-full cursor-pointer"
 												@click="locatorBtn"
 											>
 												location_searching
@@ -423,26 +451,33 @@
 										<label for="it-budget"
 											>Set a Budget</label
 										>
-										<input
-											type="text"
-											placeholder="Budget"
-											name="it-budget"
-											id="it-budget"
-											v-model="budget"
-											class="mt-2 pl-5 w-full rounded-full h-12 bg-field"
-										/>
+										<div class="relative">
+											<span class="absolute bottom-[.72rem] text-lg font-semibold left-4">{{ selectedSymbol }}</span>
+											<input
+												type="text"
+												placeholder="Budget"
+												name="it-budget"
+												id="it-budget"
+												v-model="budget"
+												class="mt-2 pl-12 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
+												required
+											/>
+
+										</div>
 									</div>
 									<div class="flex flex-col mt-2">
 										<label for="it-description "
 											>Add description</label
 										>
 										<textarea
-											class="rounded-lg resize-none mt-2 p-4 outline-none bg-field"
+											class="rounded-lg resize-none mt-2 p-4 outline-none bg-field dark:bg-dark-second-dark "
+											required
 											name=""
 											id="it-description"
 											v-model="description"
 											cols="30"
 											rows="4"
+											pattern="^[A-Z][a-zA-Z\s]*[.]$"
 											placeholder="Add notes, links, descriptions or whatever you want your fellow travelers to know about this place!"
 										></textarea>
 									</div>
@@ -662,12 +697,12 @@ export default {
 				["ZMW", "Zambian Kwacha", "ZK"],
 				["ZWL", "Zimbabwean Dollar (2009)", "$"],
 			],
-		
+
 			selectedPera: null,
 			list_budget: [],
 
 			selectedCurrency: "",
-			selectedSymbol:'',
+			selectedSymbol: "",
 			currency_save: "",
 			converted: 0,
 			paragraphs: [],
@@ -913,7 +948,10 @@ export default {
 								newvalue += parseFloat(
 									convertedAmount.toFixed(2)
 								);
-								console.log("in check code if", newvalue.toFixed(2));
+								console.log(
+									"in check code if",
+									newvalue.toFixed(2)
+								);
 								this.total_budget = newvalue.toFixed(2);
 								console.log(
 									"total_budget == ",

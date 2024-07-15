@@ -42,7 +42,7 @@ const router = createRouter({
 			name: "view-post",
 		},
 		{
-			path: "/search-result",
+			path: "/search-result/",
 			component: ViewSearchResult,
 			name: "search-result",
 		},

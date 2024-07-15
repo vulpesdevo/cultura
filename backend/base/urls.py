@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'like-posts', views.PostViewSet, basename='like-posts')
-
+router.register(r"follow", views.Following, basename="follow")
 urlpatterns = [
     path("user", views.UserView.as_view(), name="user"),
     path("registration", views.UserRegister.as_view(), name="registration"),
@@ -62,6 +62,11 @@ urlpatterns = [
         views.ItinerariesInView.as_view(),
         name="itineraries-in-viewing",
     ),
+    # path(
+    #     "follow/<int:id>",
+    #     views.Following.as_view(),
+    #     name="follow",
+    # ),
     path("save-itinerary", views.SaveItineraryView.as_view(), name="save-itinerary"),
     path(
         "saved-itinerary", views.SaveItineraryListView.as_view(), name="saved-itinerary"

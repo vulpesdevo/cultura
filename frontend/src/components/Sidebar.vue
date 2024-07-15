@@ -20,6 +20,7 @@
 					placeholder="Search..."
 					class="ml-auto pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
 					v-model="searchQuery"
+					@input="saveSearchQuery"
 				/>
 				<span
 					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700 dark:text-dark-prime"
@@ -252,6 +253,9 @@ export default {
 		setInterval(this.fetchLikenotification, 5000);
 	},
 	methods: {
+		saveSearchQuery(event) {
+			this.searchQuery = event.target.value;
+		},
 		async fetchLikenotification() {
 			try {
 				const response = await this.client.get(
@@ -261,7 +265,6 @@ export default {
 				this.unreadCount = response.data.filter(
 					(data) => !data.is_read
 				).length;
-				
 			} catch (error) {
 				console.log(error);
 			}

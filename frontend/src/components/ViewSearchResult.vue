@@ -26,14 +26,14 @@
 							<p class="font-bold">Mark francis N. Galan</p>
 							<small>Philippines | mark@gmail.com</small>
 						</div>
-						<button class="bg-second w-36 h-8 rounded-lg">
-							Follow
-						</button>
 					</div>
 					<router-link
 						:to="{
 							name: 'user-profile',
-							params: { username: user.username,user: JSON.stringify(user)},
+							params: {
+								username: user.username,
+								user: JSON.stringify(user),
+							},
 						}"
 						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
 						v-for="user in users"
@@ -52,7 +52,19 @@
 							<p class="font-bold">{{ user.fullname }}</p>
 							<small>{{ user.country }} | {{ user.email }}</small>
 						</div>
-						<button class="bg-second w-36 h-8 rounded-lg">
+
+						<button
+							v-if="user.is_followed"
+							class="bg-dark-second-dark w-36 h-8 rounded-lg"
+							@click.prevent="follow(user.user)"
+						>
+							Followed
+						</button>
+						<button
+							v-if="!user.is_followed"
+							class="bg-second w-36 h-8 rounded-lg"
+							@click.prevent="follow(user.user)"
+						>
 							Follow
 						</button>
 					</router-link>
@@ -365,6 +377,7 @@ export default {
 
 			posts: [],
 			users: [],
+			result:null,
 
 			selectedPost: [],
 			reply: "",
@@ -394,7 +407,6 @@ export default {
 				"Content-Type": "application/json",
 			},
 		});
-
 		// this.posts = this.$route.params.result;
 	},
 	beforeRouteEnter(to, from, next) {
@@ -404,13 +416,45 @@ export default {
 			next();
 		}
 	},
+
 	mounted() {
-		const result = JSON.parse(this.$route.params.result);
-		console.log("valid object", result);
-		this.posts = result.posts;
-		this.users = result.users;
+		this.result = JSON.parse(this.$route.params.result);
+		console.log("valid object", this.result);
+		this.posts = this.result.posts;
+		this.users = this.result.users;
 	},
 	methods: {
+		follow(userId) {
+			this.client
+				.post(`api/follow/${userId}/follow/`)
+				.then((response) => {
+					// Handle success response
+					console.log(response.data);
+					// Update the is_followed property of the user object
+					const userIndex = this.users.findIndex(
+						(user) => user.user === userId
+					);
+					
+					this.result.users = this.result.users.map(user => {
+						if (user.user === userId) {
+							user.is_followed = response.data.is_followed;
+						}
+						if (userIndex !== -1) {
+						this.users[userIndex].is_followed =
+							response.data.is_followed;
+					}
+						return user;
+					});
+					
+					
+
+					// Optionally, update your UI based on the successful follow
+				})
+				.catch((error) => {
+					// Handle error
+					console.error("Error following the user:", error);
+				});
+		},
 		goToViewItinerary(itinerarydata) {
 			this.$router.push({
 				name: "view-itinerary",

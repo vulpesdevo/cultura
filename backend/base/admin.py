@@ -97,8 +97,6 @@ class UserSettingsAdmin(admin.ModelAdmin):
     )
 
 
-
-
 admin.site.register(UserSetting, UserSettingsAdmin)
 
 admin.site.register(LikeNotification, LikeNotificationAdmin)
@@ -107,4 +105,3 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Itinerary, ItineraryAdmin)
 admin.site.register(SaveItinerary, SaveItineraryAdmin)
-

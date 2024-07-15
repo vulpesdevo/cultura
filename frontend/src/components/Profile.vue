@@ -290,6 +290,43 @@
 								class="h-full object-contain rounded-lg"
 							/>
 						</div>
+						<div class="h-auto pb-2 sm:p-4" v-else>
+							<div
+								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
+								:key="post.itinerary_in_post.id"
+								@click="
+									goToViewItinerary(post.itinerary_in_post.id)
+								"
+							>
+								<div
+									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+								>
+									<img
+										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
+										:src="post.itinerary_in_post.main_image"
+										alt=""
+									/>
+									<div class="w-full h-auto py-2">
+										<h1
+											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+										>
+											{{
+												post.itinerary_in_post
+													.main_title
+											}}
+										</h1>
+										<p
+											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
+										>
+											{{
+												post.itinerary_in_post
+													.main_description
+											}}
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="flex items-center justify-end">
@@ -334,7 +371,6 @@
 					>
 						<img
 							src="`/achievements/welcome-wanderer.png`"
-							
 							alt=""
 						/>
 					</div>
@@ -379,7 +415,9 @@
 					>
 						<img
 							:src="`/achievements/comment-connoisseur.png`"
-							:class="{ 'brightness-[10%]': !hasCommentConnoisseur }"
+							:class="{
+								'brightness-[10%]': !hasCommentConnoisseur,
+							}"
 							alt=""
 						/>
 					</div>
@@ -417,7 +455,9 @@
 					>
 						<img
 							:src="`/achievements/cultura-contributor.png`"
-							:class="{ 'brightness-[10%]': !hasCulturaContributor }"
+							:class="{
+								'brightness-[10%]': !hasCulturaContributor,
+							}"
 							alt=""
 						/>
 					</div>
@@ -501,40 +541,40 @@
 						</div>
 						<div class="p-2 overflow-auto max-h-60">
 							<div
-									class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
-									v-for="comment in comments_in_post"
-									:key="comment._id"
-								>
-									<div class="w-10 h-10 mr-4">
-										<img
-											:src="comment.author_user_photo"
-											alt="Profile"
-											class="rounded-full cursor-pointer"
-										/>
-									</div>
-									<div class="font-montserrat w-full">
-										<div
-											class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700 pb-2 w-full text-xs"
-										>
-											<small
-												class="text-prime dark:text-interface pr-5"
-											>
-												{{ comment.author }} to
-												<span class="text-second">{{
-													comment.replied_to
-												}}</span>
-											</small>
-											<small class="text-second">{{
-												timesince(comment.date_posted)
-											}}</small>
-										</div>
-										<p
-											class="w-full rounded-lg resize-none p-4 text-xs text-justify whitespace-normal dark:text-interface"
-										>
-											{{ comment.body }}
-										</p>
-									</div>
+								class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
+								v-for="comment in comments_in_post"
+								:key="comment._id"
+							>
+								<div class="w-10 h-10 mr-4">
+									<img
+										:src="comment.author_user_photo"
+										alt="Profile"
+										class="rounded-full cursor-pointer"
+									/>
 								</div>
+								<div class="font-montserrat w-full">
+									<div
+										class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700 pb-2 w-full text-xs"
+									>
+										<small
+											class="text-prime dark:text-interface pr-5"
+										>
+											{{ comment.author }} to
+											<span class="text-second">{{
+												comment.replied_to
+											}}</span>
+										</small>
+										<small class="text-second">{{
+											timesince(comment.date_posted)
+										}}</small>
+									</div>
+									<p
+										class="w-full rounded-lg resize-none p-4 text-xs text-justify whitespace-normal dark:text-interface"
+									>
+										{{ comment.body }}
+									</p>
+								</div>
+							</div>
 						</div>
 						<div class="reply-post flex w-full mt-4">
 							<div class="w-14 h-14 mr-4">
@@ -832,7 +872,7 @@ export default {
 					// this.fetchComments();
 					this.fetchPosts();
 					// setInterval(this.fetchComments, 5000);
-					
+
 					// Handle successful response here
 				})
 				.catch((error) => {
@@ -845,7 +885,7 @@ export default {
 		},
 		selectPost(post) {
 			this.showModal = true;
-			
+
 			this.selectedPost = [post];
 			console.log("GET POST", this.selectedPost);
 			this.post_id = this.selectedPost[0]._id;
@@ -874,9 +914,9 @@ export default {
 					if (this.posts.length > 0) {
 						// Set selectedPost to the first post
 						console.log("GET POST fetch", this.selectedPost);
-						this.post_id = this.selectedPost[0]._id;
-
-						this.replied_to = this.selectedPost[0].author;
+						// this.post_id = this.selectedPost[0]._id;
+						this.itineraries_frompost = this.posts[0].itinerary_in_post
+						// this.replied_to = this.selectedPost[0].author;
 						this.comments_in_post =
 							this.posts.find((p) => p._id === this.post_id)
 								?.comments || [];

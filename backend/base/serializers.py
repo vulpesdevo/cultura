@@ -16,27 +16,6 @@ from djongo import models
 UserModel = get_user_model()
 
 
-class CulturaUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CulturaUser
-        fields = [
-            "user",
-            "user_photo",
-            "fullname",
-            "country",
-            "email",
-            "trend_setter",
-            "share_star",
-            "like_leader",
-            "knowledge_seeker",
-            "guide_guru",
-            "explorer_extraordinaire",
-            "cultura_contributor",
-            "content_creator",
-            "comment_connoisseur",
-        ]
-
-
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
@@ -76,7 +55,45 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("id", "username", "email")
 
 
+class CulturaUserSerializer(serializers.ModelSerializer):
+    followers = UserSerializer(many=True, read_only=True)
+    follow_count = serializers.SerializerMethodField()
+    is_followed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CulturaUser
+        fields = [
+            "user",
+            "user_photo",
+            "fullname",
+            "country",
+            "email",
+            "followers",
+            "is_followed",
+            "follow_count",
+            "is_active",
+            "trend_setter",
+            "share_star",
+            "like_leader",
+            "knowledge_seeker",
+            "guide_guru",
+            "explorer_extraordinaire",
+            "cultura_contributor",
+            "content_creator",
+            "comment_connoisseur",
+        ]
+
+    def get_follow_count(self, obj):
+        return len(obj.followers.all())
+
+    def get_is_followed(self, obj):
+        user = self.context.get("user")
+        print("USER : ",user)
+        return True if user in obj.followers.all() else False
+
+
 class CommentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Comment
         fields = "__all__"
@@ -98,7 +115,6 @@ class LikeSerializer(serializers.ModelSerializer):
             "is_read",
             "created_at",
         )
-
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -123,7 +139,7 @@ class PostSerializer(serializers.ModelSerializer):
             "country",
             "date_posted",
             "likes",
-            'itinerary',
+            "itinerary",
             "like_count",
             "is_liked",
             "comments",

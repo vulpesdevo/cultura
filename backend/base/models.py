@@ -31,6 +31,8 @@ class CulturaUser(models.Model):
     fullname = models.CharField(max_length=120)
     country = models.CharField(max_length=120, blank=True, null=True)
     email = models.EmailField()
+    followers = models.ManyToManyField(User, blank=True,related_name='follower')
+
     is_active = models.BooleanField(default=True)
 
     trend_setter = models.IntegerField(default=0, null=True, blank=True)
@@ -119,6 +121,17 @@ class LikeNotification(models.Model):
     is_read = models.BooleanField(default=False)
 
 
+class FollowingNotification(models.Model):
+    followed_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="followed"
+    )
+
+    following = models.CharField(max_length=255)
+    notif_type = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+
 class UserSetting(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="settings")
     in_app_notification = models.BooleanField(default=False)
@@ -126,5 +139,3 @@ class UserSetting(models.Model):
     vibration = models.BooleanField(default=False)
     sound = models.BooleanField(default=False)
     theme = models.BooleanField(default=False)
-
-

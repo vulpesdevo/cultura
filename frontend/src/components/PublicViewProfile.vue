@@ -3,7 +3,7 @@
 		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
-			class="profile-1 w-screen sm:w-full mt-12 sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+			class="profile-1 flex flex-col justify-center items-center w-screen sm:w-full mt-12 sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 			v-show="user"
 		>
 			<div
@@ -85,6 +85,27 @@
 						{{ user.country }}
 					</small>
 				</div>
+			</div>
+			<div class="flex w-3/4 items-center justify-evenly mb-5">
+				<div class="flex justify-end w-36 h-8 text-interface ">
+					<span class="material-icons-outlined text-second"> person </span>
+					{{ user.follow_count }}
+					Followers
+				</div>
+				<button
+					v-if="user.is_followed"
+					class="bg-dark-second-dark w-36 h-8 rounded-lg"
+					@click.prevent="follow(user.user)"
+				>
+					Followed
+				</button>
+				<button
+					v-if="!user.is_followed"
+					class="bg-second w-36 h-8 rounded-lg"
+					@click.prevent="follow(user.user)"
+				>
+					Follow
+				</button>
 			</div>
 		</div>
 		<div class="profile-tabs flex justify-center w-full my-5 px-2">
@@ -217,6 +238,43 @@
 								class="h-full object-contain rounded-lg"
 							/>
 						</div>
+						<div class="h-auto pb-2 sm:p-4" v-else>
+							<div
+								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
+								:key="post.itinerary_in_post.id"
+								@click="
+									goToViewItinerary(post.itinerary_in_post.id)
+								"
+							>
+								<div
+									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+								>
+									<img
+										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
+										:src="post.itinerary_in_post.main_image"
+										alt=""
+									/>
+									<div class="w-full h-auto py-2">
+										<h1
+											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+										>
+											{{
+												post.itinerary_in_post
+													.main_title
+											}}
+										</h1>
+										<p
+											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
+										>
+											{{
+												post.itinerary_in_post
+													.main_description
+											}}
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="flex items-center justify-end">
@@ -286,7 +344,9 @@
 					>
 						<img
 							:src="`/achievements/like-leader.png`"
-							:class="{ 'brightness-[10%]': user.like_leader < 10 }"
+							:class="{
+								'brightness-[10%]': user.like_leader < 10,
+							}"
 							alt=""
 						/>
 					</div>
@@ -295,7 +355,9 @@
 					>
 						<img
 							:src="`/achievements/share-star.png`"
-							:class="{ 'brightness-[10%]': user.share_star < 10 }"
+							:class="{
+								'brightness-[10%]': user.share_star < 10,
+							}"
 							alt=""
 						/>
 					</div>
@@ -305,7 +367,8 @@
 						<img
 							:src="`/achievements/comment-connoisseur.png`"
 							:class="{
-								'brightness-[10%]': user.comment_connoisseur < 5,
+								'brightness-[10%]':
+									user.comment_connoisseur < 5,
 							}"
 							alt=""
 						/>
@@ -338,7 +401,9 @@
 					>
 						<img
 							:src="`/achievements/trend-setter.png`"
-							:class="{ 'brightness-[10%]': user.trend_setter < 50 }"
+							:class="{
+								'brightness-[10%]': user.trend_setter < 50,
+							}"
 							alt=""
 						/>
 					</div>
@@ -592,6 +657,25 @@ export default {
 		// this.fetchPosts();
 	},
 	methods: {
+		follow(userId) {
+			this.client
+				.post(`api/follow/${userId}/follow/`)
+				.then((response) => {
+					// Handle success response
+					console.log(response.data);
+					// Update the is_followed property of the user object
+					// const userIndex = this.users.findIndex(
+					// 	(user) => user.user === userId
+					// );
+					this.user.is_followed = response.data.is_followed;
+					this.user.follow_count = response.data.follow_count;
+					// Optionally, update your UI based on the successful follow
+				})
+				.catch((error) => {
+					// Handle error
+					console.error("Error following the user:", error);
+				});
+		},
 		timesince(date) {
 			return moment(date).fromNow();
 		},
@@ -618,7 +702,7 @@ export default {
 				});
 		},
 		fetchPosts(uses_id) {
-			console.log("this.user_id : ", uses_id);
+			// console.log("this.user_id : ", uses_id);
 			this.client
 				.get(`/api/public-profile-posts/`, {
 					params: {
@@ -629,7 +713,7 @@ export default {
 					this.posts = response.data.reverse();
 					if (this.posts.length > 0) {
 						// Set selectedPost to the first post
-						console.log("GET POST fetch", this.selectedPost);
+						// console.log("GET POST fetch", this.selectedPost);
 						// this.post_id = this.selectedPost[0]._id;
 						this.itineraries_frompost =
 							this.posts[0].itinerary_in_post;
