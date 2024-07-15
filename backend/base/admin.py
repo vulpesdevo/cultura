@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CulturaUser, Itinerary, LikeNotification, Post, Comment, SaveItinerary, UserSetting
+from .models import CulturaUser, FollowingNotification, Itinerary, LikeNotification, Post, Comment, SaveItinerary, UserSetting
 
 
 class CulturaUserAdmin(admin.ModelAdmin):
@@ -95,7 +95,16 @@ class UserSettingsAdmin(admin.ModelAdmin):
         'sound',
         'theme',
     )
+class FollowingNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        'followed_by',
+        'following',
+        'notif_type',
+        'created_at',
+        'is_read',
+    )
 
+admin.site.register(FollowingNotification, FollowingNotificationAdmin)
 
 admin.site.register(UserSetting, UserSettingsAdmin)
 

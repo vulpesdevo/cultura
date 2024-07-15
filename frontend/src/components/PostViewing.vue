@@ -3,22 +3,25 @@
 		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-dark-notif pt-20 sm:pt-3"
 	>
 		<div
-			class="relative post-contents w-full p-3  sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+			class="relative post-contents w-full p-3 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 			v-for="post in posts"
 			:key="post._id"
 		>
 			<div class="post-title flex justify-start items-center">
-				<div class="flex w-full items-center justify-between sm:justify-normal">
-					<h1 class="font-bebas-neue text-lg text-prime dark:text-interface sm:text-2xl">
+				<div
+					class="flex w-full items-center justify-between sm:justify-normal"
+				>
+					<h1
+						class="font-bebas-neue text-lg text-prime dark:text-interface sm:text-2xl"
+					>
 						{{ post.title }}
 					</h1>
 					<small class="text-second ml-5">{{
 						timesince(post.date_posted)
 					}}</small>
 				</div>
-				
 			</div>
-			
+
 			<div class="post-content flex w-full mt-4">
 				<div class="w-14 h-14 mr-4">
 					<img
@@ -29,10 +32,14 @@
 				</div>
 				<div class="w-full">
 					<div class="flex border-b-2 dark:border-slate-500">
-						<small class="font-montserrat text-prime dark:text-interface pr-5">
+						<small
+							class="font-montserrat text-prime dark:text-interface pr-5"
+						>
 							@{{ post.author }}
 						</small>
-						<small class="about-post font-montserrat dark:text-slate-400">
+						<small
+							class="about-post font-montserrat dark:text-slate-400"
+						>
 							{{ post.category }} | {{ post.country }}
 						</small>
 					</div>
@@ -47,6 +54,38 @@
 							alt=""
 							class="h-full object-contain rounded-lg"
 						/>
+					</div>
+					<div class="h-auto pb-2 sm:p-4" v-else>
+						<div
+							class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
+							:key="post.itinerary_in_post.id"
+							@click="
+								goToViewItinerary(post.itinerary_in_post.id)
+							"
+						>
+							<div class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full">
+								<img
+									class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
+									:src="post.itinerary_in_post.main_image"
+									alt=""
+								/>
+								<div class="w-full h-auto py-2">
+									<h1
+										class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+									>
+										{{ post.itinerary_in_post.main_title }}
+									</h1>
+									<p
+										class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
+									>
+										{{
+											post.itinerary_in_post
+												.main_description
+										}}
+									</p>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -87,40 +126,40 @@
 			>
 				<div class="">
 					<div
-									class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
-									v-for="comment in comments_in_post"
-									:key="comment._id"
+						class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
+						v-for="comment in comments_in_post"
+						:key="comment._id"
+					>
+						<div class="w-10 h-10 mr-4">
+							<img
+								src="/sample_img/mark.png"
+								alt="Profile"
+								class="rounded-full cursor-pointer"
+							/>
+						</div>
+						<div class="font-montserrat w-full">
+							<div
+								class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700 pb-2 w-full text-xs"
+							>
+								<small
+									class="text-prime dark:text-interface pr-5"
 								>
-									<div class="w-10 h-10 mr-4">
-										<img
-											src="/sample_img/mark.png"
-											alt="Profile"
-											class="rounded-full cursor-pointer"
-										/>
-									</div>
-									<div class="font-montserrat w-full">
-										<div
-											class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700 pb-2 w-full text-xs"
-										>
-											<small
-												class="text-prime dark:text-interface pr-5"
-											>
-												{{ comment.author }} to
-												<span class="text-second">{{
-													comment.replied_to
-												}}</span>
-											</small>
-											<small class="text-second">{{
-												timesince(comment.date_posted)
-											}}</small>
-										</div>
-										<p
-											class="w-full rounded-lg resize-none p-4 text-xs text-justify whitespace-normal dark:text-interface"
-										>
-											{{ comment.body }}
-										</p>
-									</div>
-								</div>
+									{{ comment.author }} to
+									<span class="text-second">{{
+										comment.replied_to
+									}}</span>
+								</small>
+								<small class="text-second">{{
+									timesince(comment.date_posted)
+								}}</small>
+							</div>
+							<p
+								class="w-full rounded-lg resize-none p-4 text-xs text-justify whitespace-normal dark:text-interface"
+							>
+								{{ comment.body }}
+							</p>
+						</div>
+					</div>
 				</div>
 				<div id="comment_reply" class="reply-post flex w-full mt-4">
 					<div class="w-14 h-14 mr-4">
@@ -192,6 +231,11 @@ export default {
 			replied_to: "",
 			post_id: "",
 			showModal: false,
+			comments_in_post: [],
+selectedItinerary: null,
+			id_of_selected: "",
+			itineraries: [],
+			itineraries_frompost: [],
 		};
 	},
 	created() {
@@ -230,22 +274,29 @@ export default {
 		},
 		timesince(date) {
 			return moment(date).fromNow();
+		},goToViewItinerary(itinerarydata) {
+			this.$router.push({
+				name: "view-itinerary",
+				params: { itinerarydata },
+			});
 		},
 		fetchPosts() {
 			this.client
-				.get(`/api/liked-post-view/${this.$route.params.post_id_notif}/${this.$route.params.notif_id}`)
+				.get(
+					`/api/liked-post-view/${this.$route.params.post_id_notif}/${this.$route.params.notif_id}`
+				)
 				.then((response) => {
 					this.posts = response.data;
+					
 					this.selectedPost = response.data;
 					this.post_id = this.selectedPost[0]._id;
-                    this.replied_to = this.selectedPost[0].author;
-                    this.comments_in_post = this.posts[0].comments
+					this.replied_to = this.selectedPost[0].author;
+					this.comments_in_post = this.posts[0].comments;
 					console.log("updateed :", this.posts);
 					console.log(this.replied_to);
-					
 				})
 				.catch((error) => {
-					this.$router.push({ name: "notifications" })
+					this.$router.push({ name: "notifications" });
 				});
 		},
 		// fetchComments() {

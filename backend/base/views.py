@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .serializers import (
     CulturaUserSerializer,
+    FollowSerializer,
     ItinerarySerializer,
     LikeSerializer,
     SaveItinerarySerializer,
@@ -26,6 +27,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status, viewsets
 from .validations import custom_validation, validate_username, validate_password
 from .models import (
+    FollowingNotification,
     Itinerary,
     LikeNotification,
     Post,
@@ -448,7 +450,7 @@ class PostViewSet(viewsets.ModelViewSet):
         post = Post.objects.get(_id=object_id)
 
         user = request.user
-
+        print(post.likes.all())
         if user in post.likes.all():
             post.likes.remove(user)
             message = "post unliked"
@@ -480,6 +482,80 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
+class Following(viewsets.ModelViewSet):
+    queryset = CulturaUser.objects.all()
+    serializer_class = CulturaUserSerializer
+
+    @action(detail=True, methods=["post"])
+    def follow(self, request, pk):
+        print(pk)
+        user = request.user
+
+        user_to_follow = CulturaUser.objects.get(user=pk)
+        serializer = CulturaUserSerializer(
+            user_to_follow, context={"user": self.request.user}
+        )  # pass the request to the serializer
+
+        print("user that followed: ", user_to_follow.id)
+        if user in user_to_follow.followers.all():
+            user_to_follow.followers.remove(user)
+            FollowingNotification.objects.filter(
+                followed_by=user, following=pk
+            ).delete()
+            user_to_follow.save()
+
+            message = "User unfollowed"
+        else:
+            user_to_follow.followers.add(user)
+
+            user_to_follow.save()
+            following_notif = FollowingNotification(
+                followed_by=user,
+                following=pk,
+                notif_type="follow",
+            )
+            following_notif.save()
+            message = "User followed"
+
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )  # return the serialized data
+
+
+class FollowedNotification(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        following_data = (
+            FollowingNotification.objects.filter(following=request.user.id)
+            .exclude(followed_by=request.user)
+            .order_by("-created_at")
+        )
+
+        # print('Followed: ',follow_serializer.data)
+
+        follow_serializer = FollowSerializer(following_data, many=True)
+        for follow_data in follow_serializer.data:
+            who_followed = follow_data.get("followed_by")
+            username_ = User.objects.get(id=follow_data["followed_by"]).username
+            follow_data["followed_by"] = username_
+            user_follow = CulturaUser.objects.filter(user=who_followed)
+            # print(user_follow)
+            user_serializer = CulturaUserSerializer(user_follow, many=True)
+            print(user_serializer.data)
+            for user_data in user_serializer.data:
+                image = user_data.get("user_photo", None)
+                if image:
+                    # Build the absolute URI for the image
+                    abs_image_url = request.build_absolute_uri(image)
+                    # Update the post data with the absolute URI
+                    user_data["user_photo"] = abs_image_url
+                username = User.objects.get(id=user_data["user"]).username
+                user_data["username"] = username
+                follow_data["user_data"] = user_serializer.data
+        return Response(follow_serializer.data, status=status.HTTP_200_OK)
+
+
 class LikesNotificationList(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
@@ -491,13 +567,9 @@ class LikesNotificationList(APIView):
             .order_by("-created_at")
         )
 
+        # following_data = FollowingNotification.objects.filter(following=request.user.id)
+
         serializer = LikeSerializer(data, many=True)
-        # print('NOTIFICATIONS ',serializer.data)
-        # for post_data in serializer.data:
-        #     post_user = CulturaUser.objects.get(
-        #         _id=ObjectId(post_data["audience"])
-        #     )
-        #     post_data["audience"] = post_user
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -624,8 +696,25 @@ class LikedPostView(APIView):
                 user = User.objects.get(id=comment["author"]).username
                 comment["author"] = user
             post_data["comments"] = comment_serializer.data
+            
             post_user = User.objects.get(id=post_data["author"]).username
             post_data["author"] = post_user
+
+            # get-itineraries
+            Itinerary_ID = post_data.get("itinerary", 0)
+            # print(post_data)
+            if Itinerary_ID:
+                itineraries = SaveItinerary.objects.filter(id=int(Itinerary_ID))
+                IT_serializer = SaveItinerarySerializer(itineraries, many=True)
+                # print(IT_serializer)
+                for itinerary_data in IT_serializer.data:
+                    main_image = itinerary_data.get("main_image", None)
+                    if main_image:
+                        # Build the absolute URI for the main image
+                        abs_main_image_url = request.build_absolute_uri(main_image)
+                        # Update the itinerary data with the absolute URI
+                        itinerary_data["main_image"] = abs_main_image_url
+                post_data["itinerary_in_post"] = itinerary_data
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -1088,35 +1177,6 @@ class PublicPostProfile(APIView):
 
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class Following(viewsets.ModelViewSet):
-    queryset = CulturaUser.objects.all()
-    serializer_class = CulturaUserSerializer
-
-    @action(detail=True, methods=["post"])
-    def follow(self, request, pk):
-        print(pk)
-        user = request.user
-
-        user_to_follow = CulturaUser.objects.get(user=pk)
-        serializer = self.serializer_class(
-            user_to_follow, context={"request": self.request, "user": self.request.user}
-        )  # pass the request to the serializer
-
-        if user in user_to_follow.followers.all():
-            user_to_follow.followers.remove(user)
-            user_to_follow.save()
-
-            message = "User unfollowed"
-        else:
-            user_to_follow.followers.add(user)
-            user_to_follow.save()
-            message = "User followed"
-
-        return Response(
-            serializer.data, status=status.HTTP_200_OK
-        )  # return the serialized data
 
 
 ##Searching

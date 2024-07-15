@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 from .models import (
+    FollowingNotification,
     LikeNotification,
     Post,
     Comment,
@@ -88,7 +89,7 @@ class CulturaUserSerializer(serializers.ModelSerializer):
 
     def get_is_followed(self, obj):
         user = self.context.get("user")
-        print("USER : ",user)
+        print("USER : ", user)
         return True if user in obj.followers.all() else False
 
 
@@ -96,6 +97,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
+        fields = "__all__"
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    # user = UserSerializer(read_only=True)
+    class Meta:
+        model = FollowingNotification
         fields = "__all__"
 
 

@@ -633,6 +633,7 @@ export default {
 		this.user = user;
 
 		this.user_id = this.user.user;
+		console.log("USER ID::",this.user_id)
 		this.fetchPosts(this.user_id);
 	},
 	setup() {
@@ -658,6 +659,7 @@ export default {
 	},
 	methods: {
 		follow(userId) {
+			console.log("HEHE :::",userId)
 			this.client
 				.post(`api/follow/${userId}/follow/`)
 				.then((response) => {
@@ -676,8 +678,39 @@ export default {
 					console.error("Error following the user:", error);
 				});
 		},
+		goToViewItinerary(itinerarydata) {
+			this.$router.push({
+				name: "view-itinerary",
+				params: { itinerarydata },
+			});
+		},
 		timesince(date) {
 			return moment(date).fromNow();
+		},likePost(post_id) {
+			this.client
+				.post(`api/like-posts/${post_id}/like_post/`)
+				.then((response) => {
+					// Handle success response
+					console.log(response.data);
+					this.fetchPosts();
+					// Optionally, update your UI based on the successful like
+				})
+				.catch((error) => {
+					// Handle error
+					console.error("Error liking the post:", error);
+				});
+		},
+		selectPost(post) {
+			this.showModal = true;
+
+			this.selectedPost = [post];
+			console.log("GET POST", this.selectedPost);
+			this.post_id = this.selectedPost[0]._id;
+
+			this.replied_to = this.selectedPost[0].author;
+			this.comments_in_post =
+				this.posts.find((p) => p._id === this.post_id)?.comments || [];
+			console.log("the id : ", this.comments_in_post);
 		},
 		submitReply() {
 			this.client

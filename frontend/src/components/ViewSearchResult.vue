@@ -55,14 +55,14 @@
 
 						<button
 							v-if="user.is_followed"
-							class="bg-dark-second-dark w-36 h-8 rounded-lg"
+							class="bg-dark-second-dark w-36 h-8 rounded-xl"
 							@click.prevent="follow(user.user)"
 						>
 							Followed
 						</button>
 						<button
 							v-if="!user.is_followed"
-							class="bg-second w-36 h-8 rounded-lg"
+							class="bg-second w-36 h-8 rounded-xl"
 							@click.prevent="follow(user.user)"
 						>
 							Follow

@@ -4,25 +4,39 @@
 	>
 		<div class="flex w-full mb-4 justify-between sm:w-3/4">
 			<h1
-				class="font-montserrat text-left  text-prime dark:text-dark-prime font-semibold sm:text-3xl"
+				class="font-montserrat text-left text-prime dark:text-dark-prime font-semibold sm:text-3xl"
 			>
 				Notifications
 			</h1>
 			<div class="flex items-center">
 				<a
-					class="font-montserrat text-prime dark:text-dark-prime  text-right sm:text-lg border border-l-0 border-y-0 border-r-prime pr-3 hover:underline cursor-pointer"
+					class="font-montserrat text-prime dark:text-dark-prime text-right sm:text-lg border border-l-0 border-y-0 border-r-prime pr-3 hover:underline cursor-pointer"
 					>Mark all as read</a
 				>
-				<span class="text-prime dark:text-dark-second  material-icons-outlined pl-3"
+				<span
+					class="text-prime dark:text-dark-second material-icons-outlined pl-3"
 					>settings</span
 				>
 			</div>
 		</div>
 		<div
 			class="w-full justify-between sm:mt-2 sm:w-3/4 cursor-pointer"
+			v-for="(data, index) in follow_notification_list"
+			:key="index"
+			@click="view_user(follow_notification_list[index].user_data)"
+		>
+			<div
+				class="w-full mt-1 p-3 sm:p-5 rounded-lg shadow-lg sm:mt-2"
+				:class="!data.is_read ? 'bg-interface' : 'bg-zinc-400'"
+			>
+				@{{ data.followed_by }} followed you
+			</div>
+		</div>
+		<div
+			class="w-full justify-between sm:mt-2 sm:w-3/4 cursor-pointer"
 			v-for="(data, index) in like_notification"
 			:key="index"
-			@click="view_post(data.post_obj_id,data._id)"
+			@click="view_post(data.post_obj_id, data._id)"
 		>
 			<div
 				class="w-full mt-1 p-3 sm:p-5 rounded-lg shadow-lg sm:mt-2"
@@ -70,11 +84,24 @@ export default {
 		return {
 			like_notification: [],
 			unreadCount: null,
+			follow_notification_list: [],
 		};
 	},
-	mounted() {
+	async mounted() {
 		this.fetchLikenotification();
 		setInterval(this.fetchLikenotification, 5000);
+		try {
+			const response = await this.client.get(
+				"/api/follow-notification-list"
+			);
+			this.follow_notification_list = response.data;
+			this.unreadCount = this.follow_notification_list.filter(
+				(data) => !data.is_read
+			).length;
+			console.log("FOLLOW", this.follow_notification_list);
+		} catch (error) {
+			console.log(error);
+		}
 	},
 	created() {
 		this.token = localStorage.getItem("token");
@@ -100,16 +127,40 @@ export default {
 				this.unreadCount = this.like_notification.filter(
 					(data) => !data.is_read
 				).length;
-				console.log("NOTIFSSS",this.like_notification);
+				console.log("NOTIFSSS", this.like_notification);
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		async fetchFollownotification() {
+			try {
+				const response = await this.client.get(
+					"/api/follow-notification-list"
+				);
+				this.follow_notification_list = response.data;
+				this.unreadCount = this.follow_notification_list.filter(
+					(data) => !data.is_read
+				).length;
+				console.log("FOLLOW", this.follow_notification_list);
 			} catch (error) {
 				console.log(error);
 			}
 		},
 
-		view_post(post_id_notif,notif_id) {
+		view_post(post_id_notif, notif_id) {
 			this.$router.push({
 				name: "view-post",
-				params: { post_id_notif,notif_id },
+				params: { post_id_notif, notif_id },
+			});
+		},
+		view_user(user_data) {
+			console.log('FGFGF',user_data[0])
+			this.$router.push({
+				name: "user-profile",
+				params: {
+					username: user_data[0].username,
+					user: JSON.stringify(user_data[0]),
+				},
 			});
 		},
 	},
