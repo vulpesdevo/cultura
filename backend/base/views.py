@@ -696,7 +696,7 @@ class LikedPostView(APIView):
                 user = User.objects.get(id=comment["author"]).username
                 comment["author"] = user
             post_data["comments"] = comment_serializer.data
-            
+            post_data["comments"] = comment_data
             post_user = User.objects.get(id=post_data["author"]).username
             post_data["author"] = post_user
 

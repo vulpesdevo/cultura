@@ -692,7 +692,7 @@ export default {
 				.then((response) => {
 					// Handle success response
 					console.log(response.data);
-					this.fetchPosts();
+					this.fetchPosts(this.user_id);
 					// Optionally, update your UI based on the successful like
 				})
 				.catch((error) => {
