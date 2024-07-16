@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 sm:px-8 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-dark-notif pt-5 sm:pt-7"
+		class="profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 sm:px-8 py-5 sm:ml-64 overflow-auto overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-5 sm:pt-7"
 	>
 		<div
 			class="profile-1 w-screen sm:w-full mt-12 sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -133,82 +133,136 @@
 				</div>
 			</div>
 		</div>
-		<div class="profile-tabs flex justify-center w-full my-5 px-2">
+		<div class="profile-tabs flex justify-center w-full my-5 sm:px-2">
 			<button
-				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-64 text-xl sm:text-2xl"
+				class="font-montserrat text-prime  h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
 				@click="activeTab = 'posts'"
 				:class="{
-					'bg-second text-white': activeTab === 'posts',
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white ': activeTab === 'posts',
 					'bg-none text-second': activeTab !== 'posts',
 				}"
 			>
 				Posts
 			</button>
 			<button
-				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-64 text-xl sm:text-2xl ms-5 sm:ms-10"
+				class="font-montserrat text-prime  h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
 				@click="activeTab = 'achievements'"
 				:class="{
-					'bg-second text-white': activeTab === 'achievements',
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white': activeTab === 'achievements',
 					'bg-none text-second': activeTab !== 'achievements',
 				}"
 			>
 				Achievements
 			</button>
+			<button
+				class="font-montserrat text-prime  h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
+				@click="activeTab = 'follower_tab'"
+				:class="{
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white': activeTab === 'follower_tab',
+					'bg-none text-second': activeTab !== 'follower_tab',
+				}"
+			>
+				Followers ({{ users.length }})
+			</button>
+		</div>
+		<div class="w-full px-2" v-if="activeTab === 'follower_tab'">
+			<div class="w-full">
+				<div class="w-full grid sm:grid-cols-2 gap-4 ">
+						
+						<router-link
+				
+							class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl "
+							v-for="user in users"
+							:key="user.id"
+							:to="{
+								name: 'user-profile',
+								params: {
+									username: user.user_data[0].username,
+									user: JSON.stringify(user.user_data[0]),
+								},
+							}"
+				
+						>
+							<div
+								class="w-16 h-20 mr-2 sm:mr-4 flex justify-center items-center "
+							>
+								<img
+									:src="user.user_data[0].user_photo"
+									alt="Profile"
+									class="rounded-full cursor-pointer"
+								/>
+							</div>
+							<div class="font-montserrat text-left w-full  ">
+								<p class="font-bold">{{ user.user_data[0].fullname }}</p>
+								<small class="flex-col text-nowrap">{{ user.user_data[0].country }} | {{ user.user_data[0].email }}</small>
+							</div>
+						</router-link>
+					</div>
+			</div>
+				
 		</div>
 
 		<div class="posts-in-profile w-full" v-if="activeTab === 'posts'">
 			<div
-				v-if="!posts.length"
-				class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+				v-if="!posts.length && checkedAfterDelay"
+				class="flex items-center justify-center text-3xl text-gray-500 font-bold text-center h-48"
 			>
-				<div class="animate-pulse flex space-x-4">
-					<div
-						class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
-					></div>
-					<div class="flex-1 space-y-6 py-1">
+				No Post Yet
+			</div>
+			<div v-if="!posts.length && !checkedAfterDelay">
+				<div
+					
+					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+				>
+					<div class="animate-pulse flex space-x-4">
 						<div
-							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+							class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
 						></div>
-						<div class="space-y-3">
-							<div class="grid grid-cols-3 gap-4">
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
-								></div>
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
-								></div>
-							</div>
+						<div class="flex-1 space-y-6 py-1">
 							<div
 								class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
 							></div>
+							<div class="space-y-3">
+								<div class="grid grid-cols-3 gap-4">
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
+									></div>
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
+									></div>
+								</div>
+								<div
+									class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+								></div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div
-				v-if="!posts.length"
-				class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
-			>
-				<div class="animate-pulse flex space-x-4">
-					<div
-						class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
-					></div>
-					<div class="flex-1 space-y-6 py-1">
+				<div
+					
+					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+				>
+					<div class="animate-pulse flex space-x-4">
 						<div
-							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+							class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
 						></div>
-						<div class="space-y-3">
-							<div class="grid grid-cols-3 gap-4">
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
-								></div>
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
-								></div>
-							</div>
+						<div class="flex-1 space-y-6 py-1">
 							<div
 								class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
 							></div>
+							<div class="space-y-3">
+								<div class="grid grid-cols-3 gap-4">
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
+									></div>
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
+									></div>
+								</div>
+								<div
+									class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+								></div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -679,6 +733,7 @@ export default {
 			},
 			showModal: false,
 			posts: [],
+			users:[],
 
 			activeTab: "posts", // Default active tab
 
@@ -699,13 +754,17 @@ export default {
 
 			changingPhoto: false,
 			picture: null,
+			checkedAfterDelay: false,
 		};
 	},
-	mounted() {
+		mounted() {
+		setTimeout(() => {
+			this.checkedAfterDelay = true;
+		}, 5000);
 		// this.fetchPosts();
 		// setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds -->> polling
 		// this.fetchComments();
-		setInterval(this.fetchComments, 5000);
+		// setInterval(this.fetchComments, 5000);
 		// Check if the user has met the criteria for each achievement
 		// and update the corresponding data property
 	},
@@ -725,7 +784,40 @@ export default {
 		this.fetchUser();
 		this.fetchPosts();
 	},
-	methods: {
+		methods: {
+			follow(userId) {
+			console.log('The user',userId);
+			this.client
+				.post(`api/follow/${userId}/follow/`)
+				.then((response) => {
+					// Handle success response
+					console.log(response.data);
+					// Update the is_followed property of the user object
+					this.fetchPosts();
+					// const userIndex = this.users.findIndex(
+					// 	(user) => user.user === userId
+					// );
+					
+					// this.users = this.users.map(user => {
+					// 	if (user.user === userId) {
+					// 		user.is_followed = response.data.is_followed;
+					// 	}
+					// 	if (userIndex !== -1) {
+					// 	this.users[userIndex].is_followed =
+					// 		response.data.is_followed;
+					// }
+					// 	return user;
+					// });
+					
+					
+
+					// Optionally, update your UI based on the successful follow
+				})
+				.catch((error) => {
+					// Handle error
+					console.error("Error following the user:", error);
+				});
+		},
 		fetchUser() {
 			this.client
 				.get("api/user")
@@ -895,22 +987,32 @@ export default {
 				this.posts.find((p) => p._id === this.post_id)?.comments || [];
 			console.log("the id : ", this.comments_in_post);
 		},
-		fetchComments() {
-			axios
-				.get("/api/comments")
-				.then((response) => {
-					this.comments = response.data;
-					console.log("comments:", this.comments);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
+		// fetchComments() {
+		// 	axios
+		// 		.get("/api/comments")
+		// 		.then((response) => {
+		// 			this.comments = response.data;
+		// 			console.log("comments:", this.comments);
+		// 		})
+		// 		.catch((error) => {
+		// 			console.log(error);
+		// 		});
+			// },
+		view_user(user_data) {
+			console.log('FGFGF',user_data[0].username)
+			this.$router.push({
+				name: "user-profile",
+				params: {
+					username: user_data[0].username,
+					user: JSON.stringify(user_data[0]),
+				},
+			});
 		},
 		fetchPosts() {
 			this.client
 				.get(`/api/profile-posts`)
 				.then((response) => {
-					this.posts = response.data.reverse();
+					this.posts = response.data.posts.reverse();
 					if (this.posts.length > 0) {
 						// Set selectedPost to the first post
 						console.log("GET POST fetch", this.selectedPost);
@@ -922,7 +1024,8 @@ export default {
 								?.comments || [];
 						console.log("the id : ", this.comments_in_post);
 					}
-					console.log("updateed asdasd:", this.comments_in_post);
+					this.users = response.data.followers
+					console.log("updateed asdasd:", this.posts);
 				})
 				.catch((error) => {
 					console.log(error);

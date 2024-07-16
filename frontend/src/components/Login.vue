@@ -51,7 +51,7 @@
 				<input
 					type="submit"
 					value="Log in"
-					class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light"
+					class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light cursor-pointer"
 				/>
 				<span class="flex"
 					><p class="text-black dark:text-dark-prime">

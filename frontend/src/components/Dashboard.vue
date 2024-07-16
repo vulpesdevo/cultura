@@ -791,16 +791,16 @@ export default {
 			}
 		},
 
-		fetchComments() {
-			this.client
-				.get("/api/comments")
-				.then((response) => {
-					this.comments = response.data;
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		},
+		// fetchComments() {
+		// 	this.client
+		// 		.get("/api/comments")
+		// 		.then((response) => {
+		// 			this.comments = response.data;
+		// 		})
+		// 		.catch((error) => {
+		// 			console.log(error);
+		// 		});
+		// },
 		fetchPosts() {
 			this.client
 				.get(`/api/posts-list`)

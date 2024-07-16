@@ -8,7 +8,20 @@
 			:src="isDark ? '/logo1Light.png':'/culturalink_logo.png'"
 			alt="Logo"
 			class="h-full w-auto"
-		/>
+		/><div class="relative">
+				<input
+					type="search"
+					:class="{ 'has-input': searchQuery }"
+					placeholder="Search..."
+					class="ml-auto pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
+					v-model="searchQuery"
+					@input="saveSearchQuery"
+				/>
+				<span
+					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700 dark:text-dark-prime"
+					>search</span
+				>
+			</div>
 		<div class="sm:flex w-10 h-full" @click.self="showPopup = false">
 			<img
 				:src="user.profile"
@@ -17,6 +30,7 @@
 				@click="togglePopup"
 			/>
 		</div>
+		
 		<div
 			v-if="showPopup"
 			class="sm:flex bg-cl-purple text-prime absolute top-16 right-5 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg bg-interface dark:bg-dark-second dark:text-dark-prime"
@@ -80,12 +94,43 @@ export default {
 	},
 	data() {
 		return {
+			searchQuery: "",
+			searchResults: [],
 			showPopup: false,
 			user: {
 				isAuthenticated: true,
 				profile:null
 			},
 		};
+	},watch: {
+		searchQuery(newQuery) {
+			console.log(newQuery);
+			this.client
+				.get("api/search/", {
+					params: {
+						title: newQuery,
+					},
+				})
+				.then((response) => {
+					this.searchResults = response.data;
+					let result = response.data;
+					console.log("SEARCH RESULT :: ", result);
+
+					if (this.searchQuery) {
+						this.$router.replace({
+							name: "search-result",
+							params: { result: JSON.stringify(result) },
+						});
+					} else {
+						this.$router.push({
+							name: "dashboard",
+						});
+					}
+				})
+				.catch((error) => {
+					console.error(error);
+				});
+		},
 	},
 	methods: {
 		togglePopup() {
@@ -122,17 +167,21 @@ export default {
 		},
 	},
 	created() {
-		const client = axios.create({
+		this.token = localStorage.getItem("token");
+		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
+			withCredentials: true,
+			timeout: 5000,
+			xsrfCookieName: "csrftoken",
+			xsrfHeaderName: "X-Csrftoken",
+			headers: {
+				Authorization: `Token ${this.token}`,
+				"Content-Type": "application/json",
+			},
 		});
-		const token = localStorage.getItem("token");
-		const headers = {
-			Authorization: `Token ${token}`,
-			"Content-Type": "application/json",
-		};
 
-		client
-			.get("api/user", { headers: headers })
+		this.client
+			.get("api/user", )
 			.then((res) => {
 				// console.log(res.data);
 				this.user.isAuthenticated = true;

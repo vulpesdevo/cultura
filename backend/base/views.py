@@ -733,7 +733,7 @@ class ProfilePostListView(APIView):
         # Serialize the posts
         serializer = PostSerializer(posts, many=True, context={"user": request.user})
         # Include the image URLs in the response
-
+        
         for post_data in serializer.data:
             image = post_data.get("image", None)
             if image:
@@ -791,8 +791,35 @@ class ProfilePostListView(APIView):
                         itinerary_data["main_image"] = abs_main_image_url
                 post_data["itinerary_in_post"] = itinerary_data
 
+        following_data = (
+            FollowingNotification.objects.filter(following=request.user.id)
+        )
+        # print('Followed: ',follow_serializer.data)
+        follow_serializer = FollowSerializer(
+            following_data, many=True, context={"user": request.user}
+        )
+        print('USER  NOW',request.user)
+        for follow_data in follow_serializer.data:
+            who_followed = follow_data.get("followed_by")
+            username_ = User.objects.get(id=follow_data["followed_by"]).username
+            follow_data["followed_by"] = username_
+            user_follow = CulturaUser.objects.filter(user=who_followed)
+            # print(user_follow)
+            user_serializer = CulturaUserSerializer(user_follow, many=True,context={"user": request.user})
+            print(user_serializer.data)
+            for user_data in user_serializer.data:
+                image = user_data.get("user_photo", None)
+                if image:
+                    # Build the absolute URI for the image
+                    abs_image_url = request.build_absolute_uri(image)
+                    # Update the post data with the absolute URI
+                    user_data["user_photo"] = abs_image_url
+                username = User.objects.get(id=user_data["user"]).username
+                user_data["username"] = username
+                follow_data["user_data"] = user_serializer.data
+        
         # Return the modified serialized data in the response
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'followers':follow_serializer.data,'posts':serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
 
@@ -884,6 +911,20 @@ class CommentListView(APIView):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class DeleteItinerary(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+
+        itinerary_id = data.get("itinerary_id", 0)
+        
+        try:
+            itinerary = Itinerary.objects.get(id=itinerary_id)
+            itinerary.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except SaveItinerary.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 class ItineraryCreate(APIView):
     """
@@ -914,9 +955,10 @@ class ItineraryCreate(APIView):
         description = data.get("description", "").strip()
         budget = data.get("budget", 0.0)
         code = data.get("code", "").strip()
-
+        image = request.FILES.get("image", None)
         itinerary = Itinerary.objects.create(
             owner=request.user,
+            place_image=image,
             creator_name=request.user.username,
             title=title,
             longitude=longitude,
@@ -1174,7 +1216,7 @@ class PublicPostProfile(APIView):
                         # Update the itinerary data with the absolute URI
                         itinerary_data["main_image"] = abs_main_image_url
                 post_data["itinerary_in_post"] = itinerary_data
-
+            
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
 

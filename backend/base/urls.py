@@ -62,6 +62,7 @@ urlpatterns = [
     # creating and calling itineraries
     path("create-itinerary", views.ItineraryCreate.as_view(), name="create-itinerary"),
     path("itinerary", views.ItineraryListView.as_view(), name="itineraries"),
+    path("delete-itinerary", views.DeleteItinerary.as_view(), name="delete-itinerary"),
     path(
         "itinerary/<int:id>",
         views.ItinerariesInView.as_view(),

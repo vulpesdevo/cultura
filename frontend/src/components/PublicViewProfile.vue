@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto overflow-x-hidden scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
-			class="profile-1 flex flex-col justify-center items-center w-screen sm:w-full mt-12 sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+			class="profile-1 flex flex-col justify-center items-center w-screen sm:w-full sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 			v-show="user"
 		>
 			<div
@@ -86,44 +86,50 @@
 					</small>
 				</div>
 			</div>
-			<div class="flex w-3/4 items-center justify-evenly mb-5">
-				<div class="flex justify-end w-36 h-8 text-interface ">
-					<span class="material-icons-outlined text-second"> person </span>
+			<div class="flex w-3/4 items-center sm:justify-evenly mb-5">
+				<div
+					class="flex justify-end items-center w-36 h-8 text-sm sm:text-lg text-interface pr-2 sm:pr-0"
+				>
+					<span class="material-icons-outlined text-second">
+						person
+					</span>
 					{{ user.follow_count }}
 					Followers
 				</div>
 				<button
 					v-if="user.is_followed"
-					class="bg-dark-second-dark w-36 h-8 rounded-lg"
+					class="bg-dark-second-dark w-24 sm:w-36 h-8 rounded-lg pl-2 sm:pl-0"
 					@click.prevent="follow(user.user)"
 				>
 					Followed
 				</button>
 				<button
 					v-if="!user.is_followed"
-					class="bg-second w-36 h-8 rounded-lg"
+					class="bg-second w-24 sm:w-36 h-8 rounded-lg pl-2 sm:pl-0"
 					@click.prevent="follow(user.user)"
 				>
 					Follow
 				</button>
 			</div>
 		</div>
-		<div class="profile-tabs flex justify-center w-full my-5 px-2">
+		<div class="profile-tabs flex justify-center w-full my-5">
 			<button
-				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-64 text-xl sm:text-2xl"
+				class="font-montserrat text-prime h-10 sm:h-12 w-1/2 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
 				@click="activeTab = 'posts'"
 				:class="{
-					'bg-second text-white': activeTab === 'posts',
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white ':
+						activeTab === 'posts',
 					'bg-none text-second': activeTab !== 'posts',
 				}"
 			>
 				Posts
 			</button>
 			<button
-				class="font-montserrat text-prime rounded-full h-10 sm:h-12 w-1/2 sm:w-64 text-xl sm:text-2xl ms-5 sm:ms-10"
+				class="font-montserrat text-prime h-10 sm:h-12 w-1/2 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
 				@click="activeTab = 'achievements'"
 				:class="{
-					'bg-second text-white': activeTab === 'achievements',
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white':
+						activeTab === 'achievements',
 					'bg-none text-second': activeTab !== 'achievements',
 				}"
 			>
@@ -131,59 +137,70 @@
 			</button>
 		</div>
 
-		<div class="posts-in-profile w-full" v-if="activeTab === 'posts'">
+		<div
+			class="posts-in-profile w-screen mb-10"
+			v-if="activeTab === 'posts'"
+		>
 			<div
-				v-if="!posts.length"
-				class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+				v-if="!posts.length && checkedAfterDelay"
+				class="flex items-center justify-center text-3xl text-gray-500 font-bold text-center h-48"
 			>
-				<div class="animate-pulse flex space-x-4">
-					<div
-						class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
-					></div>
-					<div class="flex-1 space-y-6 py-1">
+				No Post Yet
+			</div>
+			<div v-if="!posts.length && !checkedAfterDelay">
+				<div
+					
+					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+				>
+					<div class="animate-pulse flex space-x-4">
 						<div
-							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+							class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
 						></div>
-						<div class="space-y-3">
-							<div class="grid grid-cols-3 gap-4">
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
-								></div>
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
-								></div>
-							</div>
+						<div class="flex-1 space-y-6 py-1">
 							<div
 								class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
 							></div>
+							<div class="space-y-3">
+								<div class="grid grid-cols-3 gap-4">
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
+									></div>
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
+									></div>
+								</div>
+								<div
+									class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+								></div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div
-				v-if="!posts.length"
-				class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
-			>
-				<div class="animate-pulse flex space-x-4">
-					<div
-						class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
-					></div>
-					<div class="flex-1 space-y-6 py-1">
+				<div
+					
+					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+				>
+					<div class="animate-pulse flex space-x-4">
 						<div
-							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+							class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
 						></div>
-						<div class="space-y-3">
-							<div class="grid grid-cols-3 gap-4">
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
-								></div>
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
-								></div>
-							</div>
+						<div class="flex-1 space-y-6 py-1">
 							<div
 								class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
 							></div>
+							<div class="space-y-3">
+								<div class="grid grid-cols-3 gap-4">
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
+									></div>
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
+									></div>
+								</div>
+								<div
+									class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+								></div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -609,6 +626,7 @@ export default {
 			countryPost: "",
 
 			posts: [],
+			// users:[],
 			user: [],
 			user_id: 0,
 			selectedPost: [],
@@ -623,9 +641,14 @@ export default {
 			selectedItinerary: null,
 			id_of_selected: "",
 			isFullTextShown: {},
+
+			checkedAfterDelay: false,
 		};
 	},
 	mounted() {
+		setTimeout(() => {
+			this.checkedAfterDelay = true;
+		}, 5000);
 		const user = JSON.parse(this.$route.params.user);
 		// const posts = JSON.parse(this.$route.params.posts);
 		// console.log("valid object", posts);
@@ -633,7 +656,7 @@ export default {
 		this.user = user;
 
 		this.user_id = this.user.user;
-		console.log("USER ID::",this.user_id)
+		console.log("USER ID::", this.user_id);
 		this.fetchPosts(this.user_id);
 	},
 	setup() {
@@ -659,7 +682,7 @@ export default {
 	},
 	methods: {
 		follow(userId) {
-			console.log("HEHE :::",userId)
+			console.log("HEHE :::", userId);
 			this.client
 				.post(`api/follow/${userId}/follow/`)
 				.then((response) => {
@@ -686,7 +709,8 @@ export default {
 		},
 		timesince(date) {
 			return moment(date).fromNow();
-		},likePost(post_id) {
+		},
+		likePost(post_id) {
 			this.client
 				.post(`api/like-posts/${post_id}/like_post/`)
 				.then((response) => {
@@ -756,7 +780,7 @@ export default {
 								?.comments || [];
 						console.log("the id : ", this.comments_in_post);
 					}
-
+					// this.users = this.posts[0].followers_data
 					// this.comments_in_post = this.posts[0].comments;
 					console.log("updateed :", this.posts);
 				})

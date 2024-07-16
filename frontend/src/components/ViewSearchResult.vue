@@ -1,15 +1,16 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto overflow-x-hidden
+		 scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
-		<section class="mb-10 sm:mb-0">
-			<div class="flex flex-col">
+		<section class="w-full mb-10 sm:mb-0 ">
+			<div class="flex flex-col w-full">
 				<label
 					for=""
 					class="text-prime dark:text-interface text-lg pb-2"
 					>Users:</label
 				>
-				<div class="grid sm:grid-cols-2 gap-4">
+				<div class="w-full grid sm:grid-cols-2 gap-4 ">
 					<div
 						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
 					>
@@ -40,7 +41,7 @@
 						:key="user.id"
 					>
 						<div
-							class="w-20 h-20 mr-4 flex justify-center items-center"
+							class="w-14 sm:w-20 h-20 mr-2 sm:mr-4 flex justify-center items-center"
 						>
 							<img
 								:src="user.user_photo"
@@ -48,21 +49,21 @@
 								class="rounded-full cursor-pointer"
 							/>
 						</div>
-						<div class="font-montserrat text-left w-full">
+						<div class="font-montserrat text-left w-1/2 sm:w-full ">
 							<p class="font-bold">{{ user.fullname }}</p>
-							<small>{{ user.country }} | {{ user.email }}</small>
+							<small class="flex sm:flex-row flex-col">{{ user.country }} <span>| {{ user.email }}</span></small>
 						</div>
 
 						<button
 							v-if="user.is_followed"
-							class="bg-dark-second-dark w-36 h-8 rounded-xl"
+							class="bg-dark-second-dark w-24 sm:w-36 h-8 rounded-xl"
 							@click.prevent="follow(user.user)"
 						>
 							Followed
 						</button>
 						<button
 							v-if="!user.is_followed"
-							class="bg-second w-36 h-8 rounded-xl"
+							class="bg-second w-24 sm:w-36 h-8 rounded-xl"
 							@click.prevent="follow(user.user)"
 						>
 							Follow

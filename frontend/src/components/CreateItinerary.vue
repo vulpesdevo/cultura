@@ -6,14 +6,14 @@
 			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white dark:bg-notif rounded-2xl p-1"
 		>
 			<div
-				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field dark:bg-dark-interface sm:bg-transparent z-10"
+				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field dark:bg-notif sm:bg-transparent z-10"
 			>
 				<div
 					class="flex items-center justify-center w-screen h-[70%] sm:w-full sm:h-[87%] bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
 				>
 					<label
 						for="imgSelect"
-						class="w-screen sm:w-full h-full flex items-center justify-center bg-field dark:bg-gray-900 cursor-pointer rounded-xl"
+						class="w-screen sm:w-full h-full flex items-center justify-center bg-field dark:bg-gray-400 cursor-pointer rounded-xl"
 					>
 						<img
 							:class="{ hidden: !selectedImageUrl }"
@@ -62,56 +62,13 @@
 						</h1>
 					</div>
 				</div>
-				<div
-					class="sm:hidden flex items-center justify-center h-14 w-full"
-					id="navs"
-				>
-					<div
-						class="w-3/4 justify-center items-center font-montserrat"
-					>
-						<button
-							class="bg-second h-9 w-1/2 rounded-full"
-							:class="{
-								'bg-second text-interface':
-									currentView === 'overview',
-								'bg-transparent text-black':
-									currentView !== 'overview',
-							}"
-							@click="showItinerary('overview')"
-						>
-							<a href="#overview-section" class="h-full w-full"
-								>Overview</a
-							>
-						</button>
-						<button
-							class="h-9 w-1/2 rounded-full"
-							:class="{
-								'bg-second text-interface':
-									currentView === 'itinerary',
-								'bg-transparent text-black':
-									currentView !== 'itinerary',
-							}"
-							@click="showItinerary('itinerary')"
-						>
-							<a href="#itinerary-section" class="h-full w-full"
-								>Itinerary</a
-							>
-						</button>
-					</div>
-				</div>
 			</div>
 
 			<section
 				class="mt-80 itinerary-1 flex flex-col items-center sm:mt-10 px-16 w-full dark:bg-notif"
 				id="overview-section"
 			>
-				<button
-					@click="saveMainItinerary"
-					class="bg-second w-full h-10 rounded-lg mb-3"
-				>
-					Save
-				</button>
-				<div class="post-content flex w-screen sm:w-full">
+				<div class="post-content flex w-screen sm:w-full" id="overview">
 					<div
 						class="hidden w-[9.2%] sm:flex items-start justify-center"
 					>
@@ -202,7 +159,7 @@
 						class="flex sm:justify-between w-full px-3 sm:p-0 sm:w-[83%] h-20 text-interface"
 					>
 						<div
-							class="flex flex-col justify-center items-center bg-prime w-1/2 mr-2 rounded-lg"
+							class="flex flex-col justify-center items-center bg-prime dark:bg-second w-1/2 mr-2 rounded-lg"
 						>
 							<p class="">Total Budget</p>
 							<p class="text-2xl">
@@ -213,7 +170,7 @@
 							</p>
 						</div>
 						<div
-							class="flex flex-col justify-center bg-prime w-3/4 rounded-lg p-3"
+							class="flex flex-col justify-center bg-prime dark:bg-second w-3/4 rounded-lg p-3"
 						>
 							<p class="">Currency</p>
 							<select
@@ -242,22 +199,111 @@
 					class="flex justify-center w-full h-auto sm:h-[700px] px-3 pb-5 sm:px-16"
 				>
 					<div
-						class="flex flex-col justify-center-center w-full sm:w-1/2 m-0 sm:mr-5 pb-5 sm:pb-0"
+						class="flex flex-col justify-center-center overflow-hidden h-auto w-full sm:w-1/2 m-0 sm:mr-5 pb-5 sm:pb-0"
 					>
-						<button
-							class="font-montserrat text-interface h-10 sm:h-[7%] w-auto mb-2 bg-second rounded-lg"
-							@click.prevent="showModal = true"
-							@click="initializeAutocomplete"
-						>
-							Add place
-						</button>
+						<div class="flex w-full h-10 sm:h-[7%] mb-2">
+							<button
+								class="flex justify-center items-center font-montserrat text-interface w-full h-full bg-second rounded-lg mr-2"
+								@click.prevent="showModal = true"
+								@click="initializeAutocomplete"
+							>
+								<span class="material-icons-outlined">
+									place
+								</span>
+								Add place
+							</button>
+							<button
+								class="font-montserrat text-interface w-full h-full bg-second rounded-lg"
+								@click="saveMainItinerary"
+							>
+								Save
+							</button>
+						</div>
 						<div
-							class="sm:overflow-auto h-screen rounded-lg p-3"
+							class="sm:overflow-auto overflow-hidden h-auto sm:h-screen rounded-lg p-3"
 							style="scrollbar-width: none"
 						>
 							<div
-								class="flex-col justify-center items-center w-full h-[13.5rem] sm:h-[17rem] font-montserrat text-prime dark:bg-dark-second-dark bg-interface drop-shadow-md mb-3 rounded-lg"
+								class="itir relative flex-col justify-center items-center w-full h-[13.5rem] sm:h-[17rem] font-montserrat text-prime dark:bg-dark-interface bg-interface drop-shadow-md mb-3 rounded-lg"
 							>
+								<div
+									class="absolute marker-container flex items-center justify-center"
+								>
+									<svg
+										width="64px"
+										height="64px"
+										viewBox="-4 0 36 36"
+										version="1.1"
+										xmlns="http://www.w3.org/2000/svg"
+										xmlns:xlink="http://www.w3.org/1999/xlink"
+										fill="#000000"
+									>
+										<g
+											id="SVGRepo_bgCarrier"
+											stroke-width="0"
+										></g>
+										<g
+											id="SVGRepo_tracerCarrier"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										></g>
+										<g id="SVGRepo_iconCarrier">
+											<title>map-marker</title>
+											<desc>Created with Sketch.</desc>
+											<defs></defs>
+											<g
+												id="Vivid.JS"
+												stroke="none"
+												stroke-width="1"
+												fill="none"
+												fill-rule="evenodd"
+											>
+												<g
+													id="Vivid-Icons"
+													transform="translate(-125.000000, -643.000000)"
+												>
+													<g
+														id="Icons"
+														transform="translate(37.000000, 169.000000)"
+													>
+														<g
+															id="map-marker"
+															transform="translate(78.000000, 468.000000)"
+														>
+															<g
+																transform="translate(10.000000, 6.000000)"
+															>
+																<path
+																	d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"
+																	id="Shape"
+																	fill="#6A7FDB"
+																></path>
+																<circle
+																	id="Oval"
+																	fill="#6A7FDB"
+																	fill-rule="nonzero"
+																	cx="14"
+																	cy="14"
+																	r="7"
+																></circle>
+																<!-- Adding the letter A -->
+																<text
+																	x="11"
+																	y="20"
+																	font-family="Arial"
+																	font-size="10"
+																	fill="#FFFFFF"
+																>
+																	A
+																</text>
+															</g>
+														</g>
+													</g>
+												</g>
+											</g>
+										</g>
+									</svg>
+								</div>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
 									src="/sample_img/binondo.webp"
@@ -286,15 +332,123 @@
 								</div>
 							</div>
 							<div
-								class="flex-col justify-center items-center w-full h-[13rem] sm:h-[17rem] font-montserrat text-prime bg-white sm:bg-interface dark:bg-dark-second-dark drop-shadow-md mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-[15rem] sm:h-[17rem] font-montserrat text-prime bg-white sm:bg-interface dark:bg-dark-interface drop-shadow-md mb-3 rounded-lg"
 								v-for="(itinerary, index) in list_itineraries"
 								:key="index"
 							>
+								<div
+									class="absolute w-full marker-container flex items-start justify-between p-4"
+								>
+									<svg
+										width="64px"
+										height="64px"
+										viewBox="-4 0 36 36"
+										version="1.1"
+										xmlns="http://www.w3.org/2000/svg"
+										xmlns:xlink="http://www.w3.org/1999/xlink"
+										fill="#000000"
+									>
+										<defs>
+											<filter
+												id="icon-shadow"
+												x="-50%"
+												y="-50%"
+												width="200%"
+												height="200%"
+											>
+												<feDropShadow
+													dx="0"
+													dy="2"
+													stdDeviation="3"
+													flood-color="rgba(0,0,0,0.5)"
+												/>
+											</filter>
+										</defs>
+										<g filter="url(#icon-shadow)">
+											<g
+												id="SVGRepo_bgCarrier"
+												stroke-width="0"
+											></g>
+											<g
+												id="SVGRepo_tracerCarrier"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											></g>
+											<g id="SVGRepo_iconCarrier">
+												<title>
+													{{ itinerary.title }}
+												</title>
+												<desc>
+													Created with Sketch.
+												</desc>
+												<g
+													id="Vivid.JS"
+													stroke="none"
+													stroke-width="1"
+													fill="none"
+													fill-rule="evenodd"
+												>
+													<g
+														id="Vivid-Icons"
+														transform="translate(-125.000000, -643.000000)"
+													>
+														<g
+															id="Icons"
+															transform="translate(37.000000, 169.000000)"
+														>
+															<g
+																id="map-marker"
+																transform="translate(78.000000, 468.000000)"
+															>
+																<g
+																	transform="translate(10.000000, 6.000000)"
+																>
+																	<path
+																		d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"
+																		id="Shape"
+																		fill="#6A7FDB"
+																	></path>
+																	<circle
+																		id="Oval"
+																		fill="#6A7FDB"
+																		fill-rule="nonzero"
+																		cx="14"
+																		cy="14"
+																		r="7"
+																	></circle>
+																	<!-- Adding the letter A -->
+																	<text
+																		x="11"
+																		y="20"
+																		font-family="Arial"
+																		font-size="10"
+																		fill="#FFFFFF"
+																	>
+																		{{
+																			itinerary.order
+																		}}
+																	</text>
+																</g>
+															</g>
+														</g>
+													</g>
+												</g>
+											</g>
+										</g>
+									</svg>
+									<span
+										class="flex items-center justify-center material-icons-outlined text-interface bg-rose-500 h-10 w-10 rounded-full cursor-pointer"
+										@click="deleteItinerary(itinerary.id)"
+									>
+										delete
+									</span>
+								</div>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
 									src="/sample_img/binondo.webp"
 									alt=""
 								/>
+
 								<div
 									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
 								>
@@ -330,7 +484,7 @@
 					<div
 						:class="{
 							'translate-y-0': showMap,
-							'translate-y-full': !showMap,
+							'translate-y-full ': !showMap,
 
 							'duration-500': true,
 							'ease-in-out': true,
@@ -372,20 +526,20 @@
 						class="bg-interface dark:bg-dark-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
 					>
 						<div
-							class="flex items-center justify-center w-screen h-[70%] sm:w-full sm:h-[10rem] bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
+							class="flex items-center justify-center h-[70%] w-full sm:h-[10rem] bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
 						>
 							<label
-								for="imgSelect"
-								class="w-screen sm:w-full h-full flex items-center justify-center bg-field dark:bg-gray-900 cursor-pointer rounded-xl"
+								for="imgSelectIn"
+								class="w-full h-44 flex items-center justify-center bg-field dark:bg-gray-900 cursor-pointer rounded-xl"
 							>
 								<img
-									:class="{ hidden: !selectedImageUrl }"
-									:src="selectedImageUrl"
+									:class="{ hidden: !selectedImageUrlIn }"
+									:src="selectedImageUrlIn"
 									class="w-full h-full object-cover rounded-xl z-0"
 									alt="Selected image"
 								/>
 								<div
-									:class="{ hidden: selectedImageUrl }"
+									:class="{ hidden: selectedImageUrlIn }"
 									class="flex items-center justify-center font-montserrat w-full h-full text-prime dark:text-dark-prime text-xl z-0"
 								>
 									<span>+ Add Image</span>
@@ -394,12 +548,12 @@
 						</div>
 						<input
 							type="file"
-							id="imgSelect"
+							id="imgSelectIn"
 							class="hidden"
-							@change="handleFileSelection"
+							@change="handleFileSelectionIn"
 						/>
 						<h3
-							class="font-bebas-neue text-2xl pt-5 sm:text-3xl leading-6 font-medium text-prime  dark:text-interface"
+							class="font-bebas-neue text-2xl pt-5 sm:text-3xl leading-6 font-medium text-prime dark:text-interface"
 							id="modal-title"
 						>
 							add place
@@ -418,7 +572,7 @@
 											name="it-title"
 											id="it-title"
 											v-model="title"
-											class="mt-2 pl-5 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none "
+											class="mt-2 pl-5 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
 											required
 										/>
 									</div>
@@ -437,7 +591,7 @@
 												id="autocomplete"
 												v-model="location"
 												class="mt-2 pl-5 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
-											required
+												required
 											/>
 											<span
 												class="flex justify-center items-center material-icons-outlined absolute right-0 bottom-0 text-prime text-center bg-gray-500 hover:bg-gray-400 dark:text-interface w-12 h-12 rounded-full cursor-pointer"
@@ -452,7 +606,10 @@
 											>Set a Budget</label
 										>
 										<div class="relative">
-											<span class="absolute bottom-[.72rem] text-lg font-semibold left-4">{{ selectedSymbol }}</span>
+											<span
+												class="absolute bottom-[.72rem] text-lg font-semibold left-4"
+												>{{ selectedSymbol }}</span
+											>
 											<input
 												type="text"
 												placeholder="Budget"
@@ -462,7 +619,6 @@
 												class="mt-2 pl-12 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
 												required
 											/>
-
 										</div>
 									</div>
 									<div class="flex flex-col mt-2">
@@ -470,7 +626,7 @@
 											>Add description</label
 										>
 										<textarea
-											class="rounded-lg resize-none mt-2 p-4 outline-none bg-field dark:bg-dark-second-dark "
+											class="rounded-lg resize-none mt-2 p-4 outline-none bg-field dark:bg-dark-second-dark"
 											required
 											name=""
 											id="it-description"
@@ -542,6 +698,9 @@ export default {
 			main_title: "ITINERARY TITLE",
 			selectedImageUrl: null,
 			picture: null,
+
+			selectedImageUrlIn: null,
+			pictureIn: null,
 
 			setTips: "",
 			setAboutMe: "",
@@ -780,12 +939,40 @@ export default {
 		this.initializeAutocomplete();
 	},
 	methods: {
+		deleteItinerary(itineraryId) {
+			this.client
+				.post("/api/delete-itinerary", {
+					itinerary_id: itineraryId,
+				})
+				.then((response) => {
+					this.fetchItineraries();
+				})
+				.catch((error) => {
+					console.error(error);
+				});
+		},
+		scrollToElement() {
+			const targetElement = document.getElementById("target-element");
+			targetElement.scrollIntoView({
+				behavior: "smooth",
+				block: "center",
+			});
+		},
 		handleFileSelection(event) {
 			const file = event.target.files[0];
 			if (file) {
 				this.selectedImageUrl = URL.createObjectURL(file);
 				this.picture = file;
 				console.log("Image :", this.picture);
+				this.isEditing = true;
+			}
+		},
+		handleFileSelectionIn(event) {
+			const file = event.target.files[0];
+			if (file) {
+				this.selectedImageUrlIn = URL.createObjectURL(file);
+				this.pictureIn = file;
+				console.log("Image :", this.pictureIn);
 				this.isEditing = true;
 			}
 		},
@@ -821,6 +1008,7 @@ export default {
 			// this.checkCode();
 			// Assuming you want to set the default selected value
 		},
+
 		// getSelectedCurrencyCode() {
 
 		// 	// this.currency_save = toCurrency;
@@ -1061,6 +1249,7 @@ export default {
 						this.setTips = "";
 
 						this.selectedImageUrl = null;
+						this.selectedImageUrlIn = null;
 						window.scrollTo(0, 0);
 						router.push({ name: "itinerary" }).then(() => {
 							window.location.reload();
@@ -1081,6 +1270,7 @@ export default {
 					budget: this.budget,
 					code: this.selectedCurrency,
 					description: this.description,
+					image: this.pictureIn,
 				})
 				.then((response) => {
 					console.log(response.data);
@@ -1129,7 +1319,10 @@ export default {
 				});
 
 				this.list_itineraries.sort((a, b) => a.distance - b.distance);
-
+				this.list_itineraries.forEach((itinerary, index) => {
+					itinerary.order = String.fromCharCode(65 + index);
+				});
+				console.log("ORDER", this.list_itineraries);
 				// After sorting, you can now update the map
 				this.showLocationOntheMap();
 			} catch (error) {

@@ -17,6 +17,7 @@
 			<div class="relative">
 				<input
 					type="search"
+					:class="{ 'has-input': searchQuery }"
 					placeholder="Search..."
 					class="ml-auto pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
 					v-model="searchQuery"
@@ -334,6 +335,19 @@ export default {
 </script>
 
 <style scoped>
+
+.has-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background-color: red; /* change the color here */
+  cursor: pointer;
+}
+
+.has-input::-webkit-search-cancel-button:hover {
+  background-color: #ccc; /* change the hover color here */
+}
 a {
 	text-decoration: none;
 }
