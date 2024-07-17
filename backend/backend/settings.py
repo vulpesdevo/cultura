@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 # ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOST").split(" ")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(" ")
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -105,24 +105,24 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
-    "default": {
-        "ENGINE": "djongo",
-        "NAME": "culturalink",
-        # 'CLIENT': {
-        #     'host': 'mongodb://localhost:27017/',
-        # }
-        "CLIENT": {
-            "host": "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
-        },
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "djongo",
+#         "NAME": "culturalink",
+#         # 'CLIENT': {
+#         #     'host': 'mongodb://localhost:27017/',
+#         # }
+#         "CLIENT": {
+#             "host": "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+#         },
+#     }
+# }
 
 database_url = os.environ.get("DATABASE_URL")
 # postgresql://culturalink_user:ppqKedOOxzT3HILbTF7IsQN1kM2Qpya2@dpg-cqbv42qju9rs7399l6rg-a.oregon-postgres.render.com/culturalink
