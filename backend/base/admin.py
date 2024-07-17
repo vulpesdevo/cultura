@@ -6,6 +6,7 @@ from .models import (
     LikeNotification,
     Post,
     Comment,
+    Ratings,
     SaveItinerary,
     Survey,
     UserSetting,
@@ -87,6 +88,7 @@ class SaveItineraryAdmin(admin.ModelAdmin):
     list_display = (
         "owner",
         "creator_name",
+    
         "main_image",
         "main_title",
         "main_description",
@@ -95,6 +97,14 @@ class SaveItineraryAdmin(admin.ModelAdmin):
         "total_budget",
         "itineraries",
         "status",
+    )
+
+class RatingsAdmin(admin.ModelAdmin):
+    list_display = (
+        "owner",
+        "itinerary",
+        "rating",
+        "date_posted",
     )
 
 
@@ -138,7 +148,7 @@ class SurveyAdmin(admin.ModelAdmin):
 
 admin.site.register(Survey, SurveyAdmin)
 
-
+admin.site.register(Ratings, RatingsAdmin)
 admin.site.register(FollowingNotification, FollowingNotificationAdmin)
 
 admin.site.register(UserSetting, UserSettingsAdmin)

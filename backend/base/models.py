@@ -68,6 +68,12 @@ class SaveItinerary(models.Model):
     date_posted = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False)
 
+class Ratings(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    itinerary = models.ForeignKey(SaveItinerary, on_delete=models.CASCADE)
+    rating = models.FloatField()
+    # comment = models.TextField()
+    date_posted = models.DateTimeField(auto_now_add=True)
 
 class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

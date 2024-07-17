@@ -34,6 +34,7 @@ from .models import (
     Post,
     Comment,
     CulturaUser,
+    Ratings,
     SaveItinerary,
     Survey,
     UserSetting,
@@ -1012,8 +1013,7 @@ class ItineraryListView(APIView):
         itineraries = Itinerary.objects.filter(status="onqueue", owner=request.user)
         serializer = ItinerarySerializer(itineraries, many=True)
         for itinerary_data in serializer.data:
-            main_image = itinerary_data.get("place_image", None)
-            if main_image:
+            if main_image := itinerary_data.get("place_image", None):
                 # Build the absolute URI for the main image
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
@@ -1075,6 +1075,22 @@ class SaveItineraryView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class RatingItinerary(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        data = request.data
+        itinerary_id = data.get("itinerary_id", 0)
+        rate = data.get("rate", 0)
+        print(rate," ----- ", itinerary_id)
+        itinerary, created = Ratings.objects.update_or_create(
+            owner=request.user,
+            itinerary=itinerary_id,
+            defaults={"rating": rate},
+        )
+        return Response(status=status.HTTP_201_CREATED)
+
+
 class SaveItineraryListView(APIView):
 
     permission_classes = [permissions.AllowAny]
@@ -1086,12 +1102,12 @@ class SaveItineraryListView(APIView):
         serializer = SaveItinerarySerializer(itineraries, many=True)
 
         for itinerary_data in serializer.data:
-            main_image = itinerary_data.get("main_image", None)
-            if main_image:
+            if main_image := itinerary_data.get("main_image", None):
                 # Build the absolute URI for the main image
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
                 itinerary_data["main_image"] = abs_main_image_url
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

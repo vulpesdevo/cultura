@@ -12,14 +12,11 @@
 			>
 		</div>
 
-		
 		<div
 			class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
 			v-for="(itinerary, index) in itineraries"
 			:key="itinerary.id"
-			@click="goToViewItinerary(itinerary.id)"
 		>
-			
 			<div class="mt-2 sm:px-5 sm:pt-5 mb-10 w-full">
 				<img
 					class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
@@ -27,23 +24,85 @@
 					alt=""
 				/>
 				<div class="w-full h-auto py-2">
-					<h1
-						class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+					<!-- <div class="flex flex-row justify-start items-center"> -->
+						<h1
+							class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+						>
+							{{ itinerary.main_title }}
+						</h1>
+						<!-- <fieldset class="rating mt-5 sm:ml-3 w-full">
+							<input
+								type="radio"
+								id="star5"
+								name="rating"
+								value="5"
+								v-model="itinerary.rating"
+								@change="
+									updateRating(itinerary.id, itinerary.rating)
+								"
+							/>
+							<label class="full" for="star5" title="5"></label>
+							<input
+								type="radio"
+								id="star4"
+								name="rating"
+								value="4"
+								v-model="itinerary.rating"
+								@change="
+									updateRating(itinerary.id, itinerary.rating)
+								"
+							/>
+							<label class="full" for="star4" title="4"></label>
+							<input
+								type="radio"
+								id="star3"
+								name="rating"
+								value="3"
+								v-model="itinerary.rating"
+								@change="
+									updateRating(itinerary.id, itinerary.rating)
+								"
+							/>
+							<label class="full" for="star3" title="3"></label>
+							<input
+								type="radio"
+								id="star2"
+								name="rating"
+								value="2"
+								v-model="itinerary.rating"
+								@change="
+									updateRating(itinerary.id, itinerary.rating)
+								"
+							/>
+							<label class="full" for="star2" title="2"></label>
+							<input
+								type="radio"
+								id="star1"
+								name="rating"
+								value="1"
+								v-model="itinerary.rating"
+								@change="
+									updateRating(itinerary.id, itinerary.rating)
+								"
+							/>
+							<label class="full" for="star1" title="1"></label>
+						</fieldset>
+					</div> -->
+					<p
+						class="font-montserrat text-sm text-justify h-auto dark:text-interface"
 					>
-						{{ itinerary.main_title }}
-					</h1>
-					<p class="font-montserrat text-sm text-justify h-auto dark:text-interface">
 						{{
 							isFullTextShown[index]
 								? itinerary.main_description
 								: itinerary.main_description.length > 100
-								? itinerary.main_description.substring(0, 100) +"..."
+								? itinerary.main_description.substring(0, 100) +
+								  "..."
 								: itinerary.main_description
 						}}
 						<!-- Toggle link -->
 						<a
 							href="#"
-							@click.prevent="toggleText(index)"
+							@click="goToViewItinerary(itinerary.id)"
 							class="text-blue-500"
 						>
 							{{
@@ -59,7 +118,7 @@
 						alt=""
 					/>
 					<h1
-						class="font-montserrat font-semibold text-prime dark:text-interface  ml-2 pr-2 border border-l-0 border-y-0 border-r-prime dark:border-r-interface hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
+						class="font-montserrat font-semibold text-prime dark:text-interface ml-2 pr-2 border border-l-0 border-y-0 border-r-prime dark:border-r-interface hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
 					>
 						@{{ itinerary.creator_name }}
 					</h1>
@@ -96,6 +155,7 @@ export default {
 		return {
 			itineraries: [],
 			isFullTextShown: {}, // Initialize as empty object
+			rating: 0,
 		};
 	},
 	watch: {
@@ -105,6 +165,11 @@ export default {
 				acc[index] = false; // Initialize all as false (collapsed)
 				return acc;
 			}, {});
+		},
+		rating(newValue, itinerarId) {
+			console.log(`Rating changed to: ${newValue}`);
+			this.client.post("api/rating", { rate: newValue });
+			// Perform an action when the rating changes
 		},
 	},
 	mounted() {
@@ -127,8 +192,25 @@ export default {
 		this.fetchItineraries();
 	},
 	methods: {
+		// updateRating(itineraryId, rating) {
+		// 	console.log(`Rating changed to: ${rating} for itinerary ${itineraryId}`);
+		// 	this.client.post("api/rating", {
+		// 		rate: rating,
+		// 		itinerary_id: itineraryId,
+		// 	}).then(res => {
+		// 		console.loh(res);
+		// 		// Handle the response here
+		// 	}).catch(error => {
+		// 		console.error(error);
+		// 	});
+		// },
+	
+
 		goToViewItinerary(itinerarydata) {
-			this.$router.push({ name: "view-itinerary", params: { itinerarydata } });
+			this.$router.push({
+				name: "view-itinerary",
+				params: { itinerarydata },
+			});
 		},
 		toggleText(index) {
 			this.isFullTextShown[index] = !this.isFullTextShown[index];
@@ -146,4 +228,54 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+fieldset,
+
+
+
+
+/****** Style Star Rating Widget *****/
+
+.rating {
+	border: none;
+	float: left;
+}
+
+.rating > input {
+	display: none;
+}
+.rating > label:before {
+	margin: 5px;
+	font-size: 1.25em;
+	font-family: FontAwesome;
+	display: inline-block;
+	content: "\f005";
+}
+
+.rating > .half:before {
+	content: "\f089";
+	position: absolute;
+}
+
+.rating > label {
+	color: #ddd;
+	float: right;
+}
+
+/***** CSS Magic to Highlight Stars on Hover *****/
+
+.rating > input:checked ~ label, /* show gold star when clicked */
+.rating:not(:checked) > label:hover, /* hover current star */
+.rating:not(:checked) > label:hover ~ label {
+	color: #ffd700;
+} /* hover previous stars in list */
+
+.rating > input:checked + label:hover, /* hover current star when changing rating */
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label, /* lighten current selection */
+.rating > input:checked ~ label:hover ~ label {
+	color: #ffed85;
+}
+</style>

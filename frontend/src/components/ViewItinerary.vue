@@ -3,10 +3,10 @@
 		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
 	>
 		<div
-			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white  dark:sm:bg-dark-interface dark:bg-notif rounded-2xl p-1"
+			class="field-editable flex flex-col justify-start items-center w-full bg-fiel sm:bg-white  dark:sm:bg-dark-interface dark:bg-notif rounded-2xl p-1"
 		>
 			<div
-				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl dark:bg-dark-second-dark bg-field sm:bg-transparent z-10"
+				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl dark:bg-notif bg-field sm:bg-transparent z-10"
 			>
 				<div
 					class="w-screen sm:w-full sm:h-[87%] bg-second  sm:rounded-2xl"
@@ -35,38 +35,7 @@
 					class="sm:hidden flex items-center justify-center h-14 w-full"
 					id="navs"
 				>
-					<div
-						class="w-3/4 justify-center items-center font-montserrat"
-					>
-						<button
-							class="bg-second h-9 w-1/2 rounded-full"
-							:class="{
-								'bg-second text-interface':
-									currentView === 'overview',
-								'bg-transparent text-black':
-									currentView !== 'overview',
-							}"
-							@click="showItinerary('overview')"
-						>
-							<a href="#overview-section" class="h-full w-full"
-								>Overview</a
-							>
-						</button>
-						<button
-							class="h-9 w-1/2 rounded-full"
-							:class="{
-								'bg-second text-interface':
-									currentView === 'itinerary',
-								'bg-transparent text-black':
-									currentView !== 'itinerary',
-							}"
-							@click="showItinerary('itinerary')"
-						>
-							<a href="#itinerary-section" class="h-full w-full"
-								>Itinerary</a
-							>
-						</button>
-					</div>
+					
 				</div>
 			</div>
 
@@ -183,47 +152,117 @@
 							class="sm:overflow-auto h-screen rounded-lg px-3"
 							style="scrollbar-width: none"
 						>
-							<div
-								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime dark:bg-dark-second-dark  bg-interface drop-shadow-md mb-3 rounded-lg"
-							>
-								<img
-									class="w-full object-cover h-2/5 rounded-lg"
-									src="/sample_img/binondo.webp"
-									alt=""
-								/>
-								<div
-									class="px-4 flex flex-col justify-normal sm:justify-evenly items-left"
-								>
-									<h1 class="text-2xl px-4  py-3 text-left dark:text-interface ">
-										Lucky Chinatown Mall
-									</h1>
-									<p
-										class="text-left text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16 dark:text-interface "
-									>
-										Lucky Chinatown offers a unique blend of
-										history, tradition and modern shopping
-										and world-class leisure experience.
-									</p>
-									<div
-										class="flex w-full h-8 text-center items-center justify-end sm:justify-center"
-									>
-										<p class="bg-second w-24 rounded-full">
-											P2000
-										</p>
-									</div>
-									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
-										:style="{ width: `${text.length * 10}px` }"
-									>{{ text }}</p> -->
-								</div>
-							</div>
+							
 							<div
 								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-white dark:bg-dark-second-dark  sm:bg-interface drop-shadow-md mb-3 rounded-lg"
 								v-for="(itinerary, index) in list_itineraries"
 								:key="index"
 							>
+							<div
+									class="absolute w-full marker-container flex items-start justify-between p-4"
+								>
+									<svg
+										width="64px"
+										height="64px"
+										viewBox="-4 0 36 36"
+										version="1.1"
+										xmlns="http://www.w3.org/2000/svg"
+										xmlns:xlink="http://www.w3.org/1999/xlink"
+										fill="#000000"
+									>
+										<defs>
+											<filter
+												id="icon-shadow"
+												x="-50%"
+												y="-50%"
+												width="200%"
+												height="200%"
+											>
+												<feDropShadow
+													dx="0"
+													dy="2"
+													stdDeviation="3"
+													flood-color="rgba(0,0,0,0.5)"
+												/>
+											</filter>
+										</defs>
+										<g filter="url(#icon-shadow)">
+											<g
+												id="SVGRepo_bgCarrier"
+												stroke-width="0"
+											></g>
+											<g
+												id="SVGRepo_tracerCarrier"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											></g>
+											<g id="SVGRepo_iconCarrier">
+												<title>
+													{{ itinerary.title }}
+												</title>
+												<desc>
+													Created with Sketch.
+												</desc>
+												<g
+													id="Vivid.JS"
+													stroke="none"
+													stroke-width="1"
+													fill="none"
+													fill-rule="evenodd"
+												>
+													<g
+														id="Vivid-Icons"
+														transform="translate(-125.000000, -643.000000)"
+													>
+														<g
+															id="Icons"
+															transform="translate(37.000000, 169.000000)"
+														>
+															<g
+																id="map-marker"
+																transform="translate(78.000000, 468.000000)"
+															>
+																<g
+																	transform="translate(10.000000, 6.000000)"
+																>
+																	<path
+																		d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"
+																		id="Shape"
+																		fill="#6A7FDB"
+																	></path>
+																	<circle
+																		id="Oval"
+																		fill="#6A7FDB"
+																		fill-rule="nonzero"
+																		cx="14"
+																		cy="14"
+																		r="7"
+																	></circle>
+																	<!-- Adding the letter A -->
+																	<text
+																		x="11"
+																		y="20"
+																		font-family="Arial"
+																		font-size="10"
+																		fill="#FFFFFF"
+																	>
+																		{{
+																			itinerary.order
+																		}}
+																	</text>
+																</g>
+															</g>
+														</g>
+													</g>
+												</g>
+											</g>
+										</g>
+									</svg>
+									
+								</div>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
-									src="/sample_img/binondo.webp"
+									:src="itinerary.place_image"
 									alt=""
 								/>
 								<div
@@ -764,6 +803,9 @@ export default {
 				});
 
 				this.list_itineraries.sort((a, b) => a.distance - b.distance);
+				this.list_itineraries.forEach((itinerary, index) => {
+					itinerary.order = String.fromCharCode(65 + index);
+				});
 
 				// After sorting, you can now update the map
 				this.showLocationOntheMap();
