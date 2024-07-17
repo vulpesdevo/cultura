@@ -173,12 +173,27 @@
 							class="flex flex-col justify-center bg-prime dark:bg-second w-3/4 rounded-lg p-3"
 						>
 							<p class="">Currency</p>
+							<!-- <select
+								ref="toDropDown"
+								@change="checkCode"
+								class="w-ful text-white pb-1 text-xl bg-transparent outline-none"
+							>
+								
+							</select> -->
 							<select
+								v-model="selectedCurrency"
 								ref="toDropDown"
 								@change="checkCode"
 								class="w-full text-white pb-1 text-xl bg-transparent outline-none"
 							>
-								<!-- Options will be populated by the method -->
+								<option
+									v-for="(currency, index) in currency_list"
+									:key="index"
+									:value="currency[0]"
+									class="bg-interface dark:bg-dark-interface text-prime dark:text-interface text-nowrap w-10 text-sm hover:bg-second"
+								>
+									{{ currency[0] }} - {{ currency[1] }}
+								</option>
 							</select>
 						</div>
 					</div>
@@ -445,7 +460,7 @@
 								</div>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
-									src="/sample_img/binondo.webp"
+									:src="itinerary.place_image"
 									alt=""
 								/>
 
@@ -860,7 +875,7 @@ export default {
 			selectedPera: null,
 			list_budget: [],
 
-			selectedCurrency: "",
+			selectedCurrency: "PHP",
 			selectedSymbol: "",
 			currency_save: "",
 			converted: 0,
@@ -935,7 +950,7 @@ export default {
 		this.fetchItineraries();
 	},
 	mounted() {
-		this.populateDropdown();
+		// this.populateDropdown();
 		this.initializeAutocomplete();
 	},
 	methods: {
@@ -946,6 +961,7 @@ export default {
 				})
 				.then((response) => {
 					this.fetchItineraries();
+					this.checkCode();
 				})
 				.catch((error) => {
 					console.error(error);
@@ -972,7 +988,7 @@ export default {
 			if (file) {
 				this.selectedImageUrlIn = URL.createObjectURL(file);
 				this.pictureIn = file;
-				console.log("Image :", this.pictureIn);
+				console.log("Image IN:", this.pictureIn);
 				this.isEditing = true;
 			}
 		},
@@ -990,104 +1006,19 @@ export default {
 				})
 				.join("<br><br>");
 		},
-		populateDropdown() {
-			const toDropDown = this.$refs.toDropDown;
-			this.currency_list.forEach((currency) => {
-				const [code, countryName] = currency;
-				const option = document.createElement("option");
-				option.value = code; // Assuming 'sysmbol' was a typo and should be 'code'
-				option.textContent = `${code} - ${countryName}`;
-				option.classList.add(
-					"text-prime",
-					"bg-interface",
-					"appearance-none"
-				);
+		// populateDropdown() {
+		// 	const toDropDown = this.$refs.toDropDown;
+		// 	this.currency_list.forEach((currency) => {
+		// 		const [code, countryName] = currency;
+		// 		const option = document.createElement("option");
+		// 		option.value = code; // Assuming 'sysmbol' was a typo and should be 'code'
+		// 		option.textContent = `${code} - ${countryName}`;
+		// 		option.classList.add(
+		// 			"text-prime",
+		// 			"bg-interface",
+		// 			"appearance-none","w-5"
+		// 		);
 
-				toDropDown.add(option);
-			});
-			// this.checkCode();
-			// Assuming you want to set the default selected value
-		},
-
-		// getSelectedCurrencyCode() {
-
-		// 	// this.currency_save = toCurrency;
-		// 	console.log("Selected currency code:", this.selectedCurrency); // This returns the code of the selected currency
-		// },
-		// indivConvert(to, from) {
-		// 	const fromCurrency = this.currency_save;
-		// 	const toCurrency = this.$refs.toDropDown.value;
-		// 	this.currency_save = toCurrency;
-
-		// 	if (this.total_budget.length !== 0) {
-		// 		fetch(this.api) // Assuming 'this.api' is your API URL
-		// 			.then((resp) => resp.json())
-		// 			.then((data) => {
-		// 				let fromExchangeRate =
-		// 					data.conversion_rates[fromCurrency];
-		// 				// let toExchangeRate = data.conversion_rates[toCurrency];
-		// 				this.list_itineraries.forEach((itinerary) => {
-		// 					const convertedAmount =
-		// 						(itinerary.budget / from) * to;
-
-		// 					// Find the symbol for the target currency
-		// 					let symbol = this.currency_list.find(
-		// 						(currency) => currency[0] === toCurrency
-		// 					)[2];
-
-		// 					itinerary.budget = convertedAmount.toFixed(2);
-		// 					itinerary.convertedBudget = `${symbol} ${convertedAmount.toFixed(
-		// 						2
-		// 					)}`;
-		// 					console.log("Converted budgets:", to, " ", from);
-		// 				});
-
-		// 				// console.log(
-		// 				// 	"Converted budgets:",
-		// 				// 	this.list_itineraries
-		// 				// );
-		// 			});
-		// 	}
-		// },
-		// 		convertCurrency() {
-		// 			const fromCurrency = this.currency_save;
-		// 			const toCurrency = this.$refs.toDropDown.value;
-		// 			this.currency_save = toCurrency;
-		// 			this.selectedCurrency = toCurrency;
-
-		// console.log("Selected currency code:", this.selectedCurrency);
-		// 			if (this.total_budget.length !== 0) {
-		// 				fetch(this.api) // Assuming 'this.api' is your API URL
-		// 					.then((resp) => resp.json())
-		// 					.then((data) => {
-		// 						let fromExchangeRate =
-		// 							data.conversion_rates[fromCurrency];
-		// 						let toExchangeRate = data.conversion_rates[toCurrency];
-		// 						const convertedAmount =
-		// 							(this.total_budget / fromExchangeRate) *
-		// 							toExchangeRate;
-
-		// 						// Find the symbol for the target currency
-		// 						let symbol = this.currency_list.find(
-		// 							(currency) => currency[0] === toCurrency
-		// 						)[2];
-
-		// 						const finalAmount = `${symbol} ${convertedAmount.toFixed(
-		// 							2
-		// 						)}`;
-		// 						this.total_budget += convertedAmount;
-		// 						// this.total_budget = convertedAmount.toFixed(2);
-
-		// 						// console.log(total_budget);
-		// 						// this.convertedBudget = finalAmount;
-		// 						// this.indivConvert(toExchangeRate, fromExchangeRate);
-		// 						// Assuming 'result' is a reference to an element for displaying the result
-		// 						// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
-		// 						// 	2
-		// 						// )} ${toCurrency}`;
-		// 					});
-		// 			}
-		// 		},
 		getSymbol(code) {
 			for (let i = 0; i < this.currency_list.length; i++) {
 				if (this.currency_list[i][0] === code) {
@@ -1261,21 +1192,31 @@ export default {
 			}
 		},
 		submitItinerary() {
+			this.client;
+			const formData = new FormData();
+			formData.append("title", this.title);
+			formData.append("place_name", this.location);
+			formData.append("longitude", this.longitude);
+			formData.append("latitude", this.latitude);
+			formData.append("budget", this.budget);
+			formData.append("code", this.selectedCurrency);
+			formData.append("description", this.description);
+			if (this.pictureIn && this.pictureIn instanceof File) {
+				formData.append("image", this.pictureIn, this.pictureIn.name);
+			}
+			// console.log("THIS PICTURE :", formData.getAll);
+
 			this.client
-				.post("/api/create-itinerary", {
-					title: this.title,
-					place_name: this.location,
-					longitude: this.longitude,
-					latitude: this.latitude,
-					budget: this.budget,
-					code: this.selectedCurrency,
-					description: this.description,
-					image: this.pictureIn,
+				.post("/api/create-itinerary", formData, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
 				})
 				.then((response) => {
 					console.log(response.data);
 					this.showModal = false;
 					this.fetchItineraries();
+					this.checkCode();
 				})
 				.catch((error) => {
 					console.error(error);

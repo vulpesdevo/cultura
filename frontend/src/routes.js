@@ -11,6 +11,7 @@ import ViewItinerary from "./components/ViewItinerary.vue";
 import PostViewing from "./components/PostViewing.vue";
 import ViewSearchResult from "./components/ViewSearchResult.vue";
 import PublicViewProfile from "./components/PublicViewProfile.vue";
+import Test from "./components/Test.vue"
 const router = createRouter({
 	history: createWebHistory(),
 	routes: [
@@ -47,6 +48,7 @@ const router = createRouter({
 			name: "search-result",
 		},
 		{ path: "/profile", component: Profile, name: "profile" },
+		{ path: "/test", component: Test, name: "test" },
 		{
 			path: "/user-profile/:username/:user",
 			component: PublicViewProfile,

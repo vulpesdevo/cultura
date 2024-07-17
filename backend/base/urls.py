@@ -54,6 +54,7 @@ urlpatterns = [
     path(
         "profile-posts", views.ProfilePostListView.as_view(), name="profile-post-list"
     ),
+    path("get-survey", views.GetSurvey.as_view(), name="get-survey"),
     path("delete-post", views.ProfilePostListView.as_view(), name="delete-post"),
     path("change-profile", views.EditUserProfile.as_view(), name="change-profile"),
     # creating and calling comments

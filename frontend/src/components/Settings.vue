@@ -506,7 +506,7 @@
 				</div>
 			</div>
 
-			<div
+			<!-- <div
 				class="flex items-center w-full font-montserrat text-prime mt-7 mb-3 sm:mb-5"
 			>
 				<span
@@ -526,8 +526,7 @@
 				Customize where you want your notifications to show up.
 			</h1>
 			<div class="flex-col w-full">
-				<!-- test -->
-				<!-- <span class="text-prime font-montserrat text-lg mb-3 sm:text-2xl sm:ms-14 sm:mb-7">In-app Notifications</span> -->
+				
 				<div class="flex mb-2 sm:mb-4">
 					<label
 						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
@@ -650,7 +649,7 @@
 						</div>
 					</label>
 				</div>
-			</div>
+			</div> -->
 			<div
 				class="flex items-center w-full font-montserrat text-prime mt-4 sm:mt-7 mb-3 sm:mb-5"
 			>

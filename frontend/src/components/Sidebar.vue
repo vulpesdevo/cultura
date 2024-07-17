@@ -152,7 +152,7 @@ export default {
 
 			searchQuery: "",
 			searchResults: [],
-
+			client: null,
 			unreadCount: null,
 			user: {
 				isAuthenticated: false,
@@ -279,18 +279,26 @@ export default {
 				Authorization: `Token ${token}`,
 				"Content-Type": "application/json",
 			};
-			axios
-				.post("http://127.0.0.1:8000/api/logout", { headers: headers })
+			this.client
+				.post("http://127.0.0.1:8000/api/logout")
 				.then((res) => {
-					this.user.isAuthenticated = false;
-
-					localStorage.removeItem("token");
-					localStorage.removeItem("username");
-					window.scrollTo(0, 0);
-					router.push({ name: "login" }).then(() => {
-						window.location.reload();
-					});
-					console.log("User logged out");
+					// this.user.isAuthenticated = false;
+					if (
+						res.data.message ===
+						"You have not completed the survey yet."
+					) {
+						router.push({ name: "test" }).then(() => {
+							window.location.reload();
+						});
+					} else {
+						localStorage.removeItem("token");
+						localStorage.removeItem("username");
+						window.scrollTo(0, 0);
+						router.push({ name: "login" }).then(() => {
+							window.location.reload();
+						});
+						console.log("User logged out", res);
+					}
 				})
 				.catch((error) => {
 					console.log(error);
@@ -335,18 +343,17 @@ export default {
 </script>
 
 <style scoped>
-
 .has-input::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-  height: 15px;
-  width: 15px;
-  border-radius: 50%;
-  background-color: red; /* change the color here */
-  cursor: pointer;
+	-webkit-appearance: none;
+	height: 15px;
+	width: 15px;
+	border-radius: 50%;
+	background-color: red; /* change the color here */
+	cursor: pointer;
 }
 
 .has-input::-webkit-search-cancel-button:hover {
-  background-color: #ccc; /* change the hover color here */
+	background-color: #ccc; /* change the hover color here */
 }
 a {
 	text-decoration: none;

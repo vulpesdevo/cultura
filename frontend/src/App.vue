@@ -47,6 +47,7 @@ export default {
 			})
 			.catch((error) => {
 				console.log("ERROR", error);
+				this.user.isAuthenticated = false;
 			});
 	},
 	methods: {},

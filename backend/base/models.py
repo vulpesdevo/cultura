@@ -139,3 +139,12 @@ class UserSetting(models.Model):
     vibration = models.BooleanField(default=False)
     sound = models.BooleanField(default=False)
     theme = models.BooleanField(default=False)
+
+class Survey(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='respondent')
+    q1= models.CharField(max_length=255)
+    q2 = models.CharField(max_length=255)
+    q3 = models.CharField(max_length=255)
+    q4 = models.CharField(max_length=255)
+    q5 = models.CharField(max_length=255)
+    q6 = models.CharField(max_length=255)

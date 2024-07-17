@@ -16,6 +16,7 @@ from .serializers import (
     LikeSerializer,
     SaveItinerarySerializer,
     SettingSerializer,
+    SurveySerializer,
     UserRegisterSerializer,
     UserLoginSerializer,
     UserSerializer,
@@ -34,6 +35,7 @@ from .models import (
     Comment,
     CulturaUser,
     SaveItinerary,
+    Survey,
     UserSetting,
 )
 
@@ -355,17 +357,45 @@ class EditUserProfile(APIView):
 
 
 class UserLogout(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
+    permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = ()
 
     def post(self, request):
-
-        get_token = UserView.token_auth
+        user = request.user
+        print('logout user: ',user)
         # print("Logout Token: ", get_token.replace("Token", "").strip())
-        del_token = Token.objects.get(key=get_token)
-        del_token.delete()
+        if not Survey.objects.filter(user=user):
+            print('Exist')
+            return Response(
+                {"message": "You have not completed the survey yet."},
+                status=status.HTTP_200_OK,
+            )
+
+        token = UserView.token_auth
+        token_obj = Token.objects.get(key=token)
+        token_obj.delete()
         logout(request)
         return Response(status=status.HTTP_200_OK)
+
+
+class GetSurvey(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        q1 = data.get("q1", "").strip()
+        q2 = data.get("q2", "").strip()
+        q3 = data.get("q3", "").strip()
+        q4 = data.get("q4", "").strip()
+        q5 = data.get("q5", "").strip()
+        q6 = data.get("q6", "").strip()
+
+        survey_data = Survey.objects.create(
+            user=request.user, q1=q1, q2=q2, q3=q3, q4=q4, q5=q5, q6=q6
+        )
+        serializer = SurveySerializer(survey_data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 from django.contrib.auth import get_user_model
@@ -402,19 +432,6 @@ class PostCreate(APIView):
         image = request.FILES.get("image", None)
         country = data.get("country", "").strip()
         itinerary_id = data.get("itinerary_id", 0).strip()
-        # print("image: ", image)
-        # Check for profanity in title and body
-        # try:
-        #     if validate_is_profane(title) or validate_is_profane(body):
-        #         raise ValidationError(["Please remove any profanity/swear words."])
-        # except ValidationError as e:
-        #     return Response(
-        #         {
-        #             "error": e.messages,
-        #             "field": "title" if "title" in e.messages[0] else "body",
-        #         },
-        #         status=400,
-        #     )
 
         try:
             post = Post(
@@ -733,7 +750,7 @@ class ProfilePostListView(APIView):
         # Serialize the posts
         serializer = PostSerializer(posts, many=True, context={"user": request.user})
         # Include the image URLs in the response
-        
+
         for post_data in serializer.data:
             image = post_data.get("image", None)
             if image:
@@ -791,21 +808,21 @@ class ProfilePostListView(APIView):
                         itinerary_data["main_image"] = abs_main_image_url
                 post_data["itinerary_in_post"] = itinerary_data
 
-        following_data = (
-            FollowingNotification.objects.filter(following=request.user.id)
-        )
+        following_data = FollowingNotification.objects.filter(following=request.user.id)
         # print('Followed: ',follow_serializer.data)
         follow_serializer = FollowSerializer(
             following_data, many=True, context={"user": request.user}
         )
-        print('USER  NOW',request.user)
+        print("USER  NOW", request.user)
         for follow_data in follow_serializer.data:
             who_followed = follow_data.get("followed_by")
             username_ = User.objects.get(id=follow_data["followed_by"]).username
             follow_data["followed_by"] = username_
             user_follow = CulturaUser.objects.filter(user=who_followed)
             # print(user_follow)
-            user_serializer = CulturaUserSerializer(user_follow, many=True,context={"user": request.user})
+            user_serializer = CulturaUserSerializer(
+                user_follow, many=True, context={"user": request.user}
+            )
             print(user_serializer.data)
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
@@ -817,9 +834,12 @@ class ProfilePostListView(APIView):
                 username = User.objects.get(id=user_data["user"]).username
                 user_data["username"] = username
                 follow_data["user_data"] = user_serializer.data
-        
+
         # Return the modified serialized data in the response
-        return Response({'followers':follow_serializer.data,'posts':serializer.data}, status=status.HTTP_200_OK)
+        return Response(
+            {"followers": follow_serializer.data, "posts": serializer.data},
+            status=status.HTTP_200_OK,
+        )
 
     def post(self, request):
 
@@ -911,6 +931,7 @@ class CommentListView(APIView):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class DeleteItinerary(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -918,13 +939,14 @@ class DeleteItinerary(APIView):
         data = request.data
 
         itinerary_id = data.get("itinerary_id", 0)
-        
+
         try:
             itinerary = Itinerary.objects.get(id=itinerary_id)
             itinerary.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except SaveItinerary.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 class ItineraryCreate(APIView):
     """
@@ -968,7 +990,7 @@ class ItineraryCreate(APIView):
             description=description,
             budget=budget,
         )
-
+        # itinerary.save()
         serializer = ItinerarySerializer(itinerary)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -989,6 +1011,13 @@ class ItineraryListView(APIView):
 
         itineraries = Itinerary.objects.filter(status="onqueue", owner=request.user)
         serializer = ItinerarySerializer(itineraries, many=True)
+        for itinerary_data in serializer.data:
+            main_image = itinerary_data.get("place_image", None)
+            if main_image:
+                # Build the absolute URI for the main image
+                abs_main_image_url = request.build_absolute_uri(main_image)
+                # Update the itinerary data with the absolute URI
+                itinerary_data["place_image"] = abs_main_image_url
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -1216,7 +1245,7 @@ class PublicPostProfile(APIView):
                         # Update the itinerary data with the absolute URI
                         itinerary_data["main_image"] = abs_main_image_url
                 post_data["itinerary_in_post"] = itinerary_data
-            
+
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
 
