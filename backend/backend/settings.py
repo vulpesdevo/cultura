@@ -18,20 +18,18 @@ from pymongo.server_api import ServerApi
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-import dj_database_url
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
-# SECRET_KEY = "django-insecure-c^c(w^2rg32e#co9gj@-du$@&fvub9m-=sth(o^mcz7w^+$)5#"
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = "django-insecure-c^c(w^2rg32e#co9gj@-du$@&fvub9m-=sth(o^mcz7w^+$)5#"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = True
 
-# ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(" ")
+ALLOWED_HOSTS = ["*"]
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -105,29 +103,25 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 # DATABASES = {
-#     "default": {
-#         "ENGINE": "djongo",
-#         "NAME": "culturalink",
-#         # 'CLIENT': {
-#         #     'host': 'mongodb://localhost:27017/',
-#         # }
-#         "CLIENT": {
-#             "host": "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
-#         },
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+DATABASES = {
+    "default": {
+        "ENGINE": "djongo",
+        "NAME": "cultura",
+        # 'CLIENT': {
+        #     'host': 'mongodb://localhost:27017/',
+        # }
+        # "CLIENT": {
+        #     "host": "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+        # },
+    }
+}
 
-database_url = os.environ.get("DATABASE_URL")
-# postgresql://culturalink_user:ppqKedOOxzT3HILbTF7IsQN1kM2Qpya2@dpg-cqbv42qju9rs7399l6rg-a.oregon-postgres.render.com/culturalink
-# postgresql://culturalink_user:ppqKedOOxzT3HILbTF7IsQN1kM2Qpya2@dpg-cqbv42qju9rs7399l6rg-a/culturalink
-DATABASES["default"] = dj_database_url.parse(database_url)
 # from pymongo.mongo_client import MongoClient
 # from pymongo.server_api import ServerApi
 

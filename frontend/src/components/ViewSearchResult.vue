@@ -1,33 +1,15 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto overflow-x-hidden
-		 scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto overflow-x-hidden scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
-		<section class="w-full mb-10 sm:mb-0 ">
+		<section class="w-full mb-10 sm:mb-0">
 			<div class="flex flex-col w-full">
 				<label
 					for=""
 					class="text-prime dark:text-interface text-lg pb-2"
 					>Users:</label
 				>
-				<div class="w-full grid sm:grid-cols-2 gap-4 ">
-					<div
-						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
-					>
-						<div
-							class="w-20 h-20 mr-2 flex justify-center items-center"
-						>
-							<img
-								src="/sample_img/mark.png"
-								alt="Profile"
-								class="rounded-full cursor-pointer"
-							/>
-						</div>
-						<div class="font-montserrat text-left w-full">
-							<p class="font-bold">Mark francis N. Galan</p>
-							<small>Philippines | mark@gmail.com</small>
-						</div>
-					</div>
+				<div class="w-full grid sm:grid-cols-2 gap-4">
 					<router-link
 						:to="{
 							name: 'user-profile',
@@ -49,9 +31,12 @@
 								class="rounded-full cursor-pointer"
 							/>
 						</div>
-						<div class="font-montserrat text-left w-1/2 sm:w-full ">
+						<div class="font-montserrat text-left w-1/2 sm:w-full">
 							<p class="font-bold">{{ user.fullname }}</p>
-							<small class="flex sm:flex-row flex-col">{{ user.country }} <span>| {{ user.email }}</span></small>
+							<small class="flex sm:flex-row flex-col"
+								>{{ user.country }}
+								<span>| {{ user.email }}</span></small
+							>
 						</div>
 
 						<button
@@ -378,7 +363,7 @@ export default {
 
 			posts: [],
 			users: [],
-			result:null,
+			result: null,
 
 			selectedPost: [],
 			reply: "",
@@ -435,19 +420,17 @@ export default {
 					const userIndex = this.users.findIndex(
 						(user) => user.user === userId
 					);
-					
-					this.result.users = this.result.users.map(user => {
+
+					this.result.users = this.result.users.map((user) => {
 						if (user.user === userId) {
 							user.is_followed = response.data.is_followed;
 						}
 						if (userIndex !== -1) {
-						this.users[userIndex].is_followed =
-							response.data.is_followed;
-					}
+							this.users[userIndex].is_followed =
+								response.data.is_followed;
+						}
 						return user;
 					});
-					
-					
 
 					// Optionally, update your UI based on the successful follow
 				})
