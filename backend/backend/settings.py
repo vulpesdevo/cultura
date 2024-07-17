@@ -18,18 +18,20 @@ from pymongo.server_api import ServerApi
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+import dj_database_url
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-c^c(w^2rg32e#co9gj@-du$@&fvub9m-=sth(o^mcz7w^+$)5#"
+
+# SECRET_KEY = "django-insecure-c^c(w^2rg32e#co9gj@-du$@&fvub9m-=sth(o^mcz7w^+$)5#"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["*"]
-
+# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOST").split(" ")
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -62,9 +64,8 @@ INSTALLED_APPS = [
     "import_export",
     "corsheaders",
     "djoser",
-    'profanity',
+    "profanity",
     "base.apps.BaseConfig",
-    
 ]
 
 IMPORT_EXPORT_USE_TRANSACTIONS = False
@@ -113,29 +114,59 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "djongo",
-        "NAME": "cultura",
+        "NAME": "culturalink",
         # 'CLIENT': {
         #     'host': 'mongodb://localhost:27017/',
         # }
-        # 'CLIENT': {
-        #         'host': 'mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/'
-        #     } 
+        "CLIENT": {
+            "host": "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+        },
     }
 }
-# Create a new client and connect to the server
-# client = MongoClient("mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/")
 
-# uri = "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
-# # Create a new client and connect to the server
-# client = MongoClient(uri, server_api=ServerApi('1'))
+database_url = os.environ.get("DATABASE_URL")
+# postgresql://culturalink_user:ppqKedOOxzT3HILbTF7IsQN1kM2Qpya2@dpg-cqbv42qju9rs7399l6rg-a.oregon-postgres.render.com/culturalink
+# postgresql://culturalink_user:ppqKedOOxzT3HILbTF7IsQN1kM2Qpya2@dpg-cqbv42qju9rs7399l6rg-a/culturalink
+DATABASES["default"] = dj_database_url.parse(database_url)
+# from pymongo.mongo_client import MongoClient
+# from pymongo.server_api import ServerApi
+
+uri = "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi("1"))
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command("ping")
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+# Create a new client and connect to the server
+# client = MongoClient(
+#     "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+# )
+
+# # uri = "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
+# # # Create a new client and connect to the server
+# # client = MongoClient(uri, server_api=ServerApi("1"))
 # # Send a ping to confirm a successful connection
 # try:
-#     client.admin.command('ping')
+#     client.admin.command("ping")
 #     print("Pinged your deployment. You successfully connected to MongoDB!")
 # except Exception as e:
 #     print(e)
 
+# from pymongo.mongo_client import MongoClient
+# from pymongo.server_api import ServerApi
 
+# uri = "mongodb+srv://vulpescodev:2sg5IrIemQjd0d1S@cluster0.okctdpo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# # Create a new client and connect to the server
+# client = MongoClient(uri, server_api=ServerApi("1"))
+# # Send a ping to confirm a successful connection
+# try:
+#     client.admin.command("ping")
+#     print("Pinged your deployment. You successfully connected to MongoDB!")
+# except Exception as e:
+#     print(e)
 # AUTH_USER_MODEL = "base.AppUser"
 
 REST_FRAMEWORK = {
@@ -184,7 +215,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 MEDIA_URL = "/uploads/"
-MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 # BASE_URL = 'http://127.0.0.1:8000/'
 # DEFAULT_FILE_STORAGE = 'djongo.storage.GridFSStorage'
 # UPLOADED_FILES_USE_URL = True

@@ -39,7 +39,7 @@ from .models import (
     UserSetting,
 )
 
-from profanity.validators import validate_is_profane
+# from profanity.validators import validate_is_profane
 
 
 class UserView(APIView):

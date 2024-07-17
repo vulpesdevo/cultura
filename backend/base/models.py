@@ -13,7 +13,8 @@ from django.contrib.auth.models import User
 ## models.py
 from djongo.storage import GridFSStorage
 from django.conf import settings
-from profanity.validators import validate_is_profane
+
+# from profanity.validators import validate_is_profane
 
 # Define your GridFSStorage instance
 # grid_fs_storage = GridFSStorage(collection='uploads', base_url=''.join([str(settings.BASE_URL), '/uploads/'])),storage=grid_fs_storage
@@ -31,7 +32,7 @@ class CulturaUser(models.Model):
     fullname = models.CharField(max_length=120)
     country = models.CharField(max_length=120, blank=True, null=True)
     email = models.EmailField()
-    followers = models.ManyToManyField(User, blank=True,related_name='follower')
+    followers = models.ManyToManyField(User, blank=True, related_name="follower")
 
     is_active = models.BooleanField(default=True)
 
@@ -50,11 +51,15 @@ class SaveItinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     creator_name = models.CharField(max_length=50)
     main_image = models.ImageField(blank=True, null=True, upload_to="main_images")
-    main_title = models.CharField(max_length=255, validators=[validate_is_profane])
-    main_description = models.CharField(
-        max_length=255, validators=[validate_is_profane]
+    main_title = models.CharField(
+        max_length=255,
     )
-    gen_tips = models.CharField(max_length=255, validators=[validate_is_profane])
+    main_description = models.CharField(
+        max_length=255,
+    )
+    gen_tips = models.CharField(
+        max_length=255,
+    )
     currency = models.CharField(
         max_length=255,
     )
@@ -68,11 +73,13 @@ class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     creator_name = models.CharField(max_length=50)
     place_image = models.ImageField(upload_to="place_images", null=True, blank=True)
-    title = models.CharField(max_length=255, validators=[validate_is_profane])
+    title = models.CharField(
+        max_length=255,
+    )
     longitude = models.FloatField()
     latitude = models.FloatField()
     place_name = models.CharField(max_length=255)
-    description = models.TextField(validators=[validate_is_profane])
+    description = models.TextField()
     code = models.CharField(blank=True, null=True, max_length=50)
     budget = models.FloatField(null=True, blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
@@ -86,7 +93,7 @@ class Comment(models.Model):
         max_length=255,
     )
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    body = models.TextField(validators=[validate_is_profane])
+    body = models.TextField()
     date_posted = models.DateTimeField(auto_now_add=True)
 
 
@@ -96,14 +103,14 @@ from django.utils import timezone
 class Post(models.Model):
     _id = ObjectIdField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author")
-    title = models.CharField(max_length=200, validators=[validate_is_profane])
+    title = models.CharField(
+        max_length=200,
+    )
     category = models.CharField(max_length=255, default=None)
-    content = models.TextField(validators=[validate_is_profane])
+    content = models.TextField()
     image = models.ImageField(upload_to="post_images", null=True, blank=True)
     country = models.CharField(max_length=200)
-    itinerary = models.CharField( 
-        max_length=200, null=True, blank=True
-    )
+    itinerary = models.CharField(max_length=200, null=True, blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, blank=True)
     comments = models.ManyToManyField(Comment, blank=True)
@@ -113,8 +120,12 @@ class LikeNotification(models.Model):
     _id = ObjectIdField()
     post_author = models.CharField(max_length=255)
     post_obj_id = models.CharField(max_length=255)
-    post_title = models.CharField(max_length=255, validators=[validate_is_profane])
-    post_content = models.CharField(max_length=255, validators=[validate_is_profane])
+    post_title = models.CharField(
+        max_length=255,
+    )
+    post_content = models.CharField(
+        max_length=255,
+    )
     notif_type = models.CharField(max_length=255)
     audience = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -125,7 +136,7 @@ class FollowingNotification(models.Model):
     followed_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="followed"
     )
-    
+
     following = models.CharField(max_length=255)
     notif_type = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -140,9 +151,10 @@ class UserSetting(models.Model):
     sound = models.BooleanField(default=False)
     theme = models.BooleanField(default=False)
 
+
 class Survey(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='respondent')
-    q1= models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="respondent")
+    q1 = models.CharField(max_length=255)
     q2 = models.CharField(max_length=255)
     q3 = models.CharField(max_length=255)
     q4 = models.CharField(max_length=255)
