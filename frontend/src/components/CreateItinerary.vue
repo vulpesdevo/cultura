@@ -73,7 +73,7 @@
 						class="hidden w-[9.2%] sm:flex items-start justify-center"
 					>
 						<img
-							src="/sample_img/mark.png"
+							:src="user_photo"
 							alt="Profile"
 							class="w-12 h-12 rounded-full cursor-pointer"
 						/>
@@ -775,6 +775,7 @@ export default {
 			paragraphs: [],
 
 			username: "",
+			user_photo:null,
 
 			location: "",
 			title: "",
@@ -835,6 +836,8 @@ export default {
 			.get("api/user")
 			.then((res) => {
 				this.username = res.data.user.username;
+				this.user_photo = res.data.profile[0].user_photo;
+				console.log('HALAAA',this.user_photo)
 			})
 			.catch((error) => {
 				console.log("ERROR", error.message);

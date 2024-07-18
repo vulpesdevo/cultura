@@ -48,7 +48,7 @@
 						class="hidden w-[9.2%] sm:flex items-start justify-center"
 					>
 						<img
-							src="/sample_img/mark.png"
+							:src="itineraryDetails.user_photo"
 							alt="Profile"
 							class="w-14 h-14 rounded-full cursor-pointer"
 						/>
@@ -527,6 +527,7 @@ export default {
 				currency: null,
 				date_posted: null,
 				gen_tips: "",
+				user_photo:null,
 				id: null,
 				itineraries: [],
 				main_description: "",
@@ -607,10 +608,12 @@ export default {
 						`/api/viewing-itinerary/${this.itinerary_id}`
 					);
 					this.itineraries = response.data;
-
+					console.log("ITINERARIES", this.itineraries);
 					this.itineraries.forEach((itinerary) => {
 						this.itineraryDetails.creator_name =
 							itinerary.creator_name;
+						this.itineraryDetails.user_photo =
+							itinerary.user_photo;	
 						this.currency_save = itinerary.currency;
 						this.itineraryDetails.date_posted =
 							itinerary.date_posted;

@@ -225,7 +225,7 @@
 				</div>
 			</div>
 		</div>
-		<section class="posts mb-10 sm:mb-0">
+		<section class="posts w-full mb-10 sm:mb-0">
 			
 			<div
 				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -815,11 +815,11 @@ export default {
 						this.comments_in_post =
 							this.posts.find((p) => p._id === this.post_id)
 								?.comments || [];
-						console.log("the id : ", this.comments_in_post);
+						console.log("the id : ", this.itineraries_frompost);
 					}
 
 					// this.comments_in_post = this.posts[0].comments;
-					console.log("updateed :",this.posts[0]);
+					console.log("updateed :",this.post);
 				})
 				.catch((error) => {
 					console.log(error);

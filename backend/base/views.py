@@ -62,7 +62,7 @@ class UserView(APIView):
         # cultura_user = CulturaUser.objects.get(user=request.user)
         # cultura_users = CulturaUser.objects.filter(user=request.user)
         cult_user_name = "cultura_users.fullname"
-        cultura_user = CulturaUser.objects.filter(user=request.user)
+        cultura_user = CulturaUser.objects.filter(user=request.user.id)
         profile = CulturaUserSerializer(cultura_user, many=True)
 
         for post_data in profile.data:
@@ -78,6 +78,7 @@ class UserView(APIView):
                 "user": serializer.data,
                 "userfullname": cult_user_name,
                 "profile": profile.data,
+                
             },
             status=status.HTTP_200_OK,
         )
@@ -1100,13 +1101,26 @@ class SaveItineraryListView(APIView):
 
         itineraries = SaveItinerary.objects.all()
         serializer = SaveItinerarySerializer(itineraries, many=True)
+        users = CulturaUser.objects.filter(user=request.user)
+        user_serializer = CulturaUserSerializer(
+            users, many=True, context={"user": request.user}
+        )
 
         for itinerary_data in serializer.data:
-            if main_image := itinerary_data.get("main_image", None):
+
+            main_image=itinerary_data.get("main_image", None)
+            if main_image :    
                 # Build the absolute URI for the main image
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
                 itinerary_data["main_image"] = abs_main_image_url
+            for user_data in user_serializer.data:
+                image = user_data.get("user_photo", None)
+                if image:
+                    # Build the absolute URI for the image
+                    abs_image_url = request.build_absolute_uri(image)
+                    # Update the post data with the absolute URI
+                    itinerary_data["user_photo"] = abs_image_url
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -1143,6 +1157,16 @@ class ViewItinerary(APIView):
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
                 itinerary_data["main_image"] = abs_main_image_url
+                cultura_user = CulturaUser.objects.filter(user=itinerary_data["owner"])
+                profile = CulturaUserSerializer(cultura_user, many=True)
+
+                for post_data in profile.data:
+                    image = post_data.get("user_photo", None)
+                    if image:
+                        # Build the absolute URI for the image
+                        abs_image_url = request.build_absolute_uri(image)
+                        # Update the post data with the absolute URI
+                        itinerary_data["user_photo"] = abs_image_url
         # serializer.data['itineraries'] = serialized_itineraries
         # print(serializer.data[0]["itineraries"])
         # itiner = Itinerary.objects.filter(id=itinerary_ids)

@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 
 router = DefaultRouter()
-router.register(r'like-posts', views.PostViewSet, basename='like-posts')
+router.register(r"like-posts", views.PostViewSet, basename="like-posts")
 router.register(r"follow", views.Following, basename="follow")
 urlpatterns = [
     path("user", views.UserView.as_view(), name="user"),

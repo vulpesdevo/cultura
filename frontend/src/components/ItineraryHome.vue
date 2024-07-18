@@ -30,64 +30,7 @@
 						>
 							{{ itinerary.main_title }}
 						</h1>
-						<!-- <fieldset class="rating mt-5 sm:ml-3 w-full">
-							<input
-								type="radio"
-								id="star5"
-								name="rating"
-								value="5"
-								v-model="itinerary.rating"
-								@change="
-									updateRating(itinerary.id, itinerary.rating)
-								"
-							/>
-							<label class="full" for="star5" title="5"></label>
-							<input
-								type="radio"
-								id="star4"
-								name="rating"
-								value="4"
-								v-model="itinerary.rating"
-								@change="
-									updateRating(itinerary.id, itinerary.rating)
-								"
-							/>
-							<label class="full" for="star4" title="4"></label>
-							<input
-								type="radio"
-								id="star3"
-								name="rating"
-								value="3"
-								v-model="itinerary.rating"
-								@change="
-									updateRating(itinerary.id, itinerary.rating)
-								"
-							/>
-							<label class="full" for="star3" title="3"></label>
-							<input
-								type="radio"
-								id="star2"
-								name="rating"
-								value="2"
-								v-model="itinerary.rating"
-								@change="
-									updateRating(itinerary.id, itinerary.rating)
-								"
-							/>
-							<label class="full" for="star2" title="2"></label>
-							<input
-								type="radio"
-								id="star1"
-								name="rating"
-								value="1"
-								v-model="itinerary.rating"
-								@change="
-									updateRating(itinerary.id, itinerary.rating)
-								"
-							/>
-							<label class="full" for="star1" title="1"></label>
-						</fieldset>
-					</div> -->
+						
 					<p
 						class="font-montserrat text-sm text-justify h-auto dark:text-interface"
 					>
@@ -114,7 +57,7 @@
 				<div class="flex items-center mt-5">
 					<img
 						class="rounded-full w-12 shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
-						src="/sample_img/mark.png"
+						:src="itinerary.user_photo"
 						alt=""
 					/>
 					<h1
