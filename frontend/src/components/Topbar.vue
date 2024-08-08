@@ -2,26 +2,27 @@
 	<div
 		v-if="user.isAuthenticated"
 		v-show="user"
-		class=" flex justify-between w-screen h-16 bg-interface dark:bg-dark-interface fixed sm:top-0 p-3 z-50"
+		class="flex justify-between w-screen h-16 bg-interface dark:bg-dark-interface fixed sm:top-0 p-3 z-50"
 	>
 		<img
-			:src="isDark ? '/logo1Light.png':'/culturalink_logo.png'"
+			:src="isDark ? '/logo1Light.png' : '/culturalink_logo.png'"
 			alt="Logo"
 			class="h-full w-auto"
-		/><div class="relative">
-				<input
-					type="search"
-					:class="{ 'has-input': searchQuery }"
-					placeholder="Search..."
-					class="ml-auto pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
-					v-model="searchQuery"
-					@input="saveSearchQuery"
-				/>
-				<span
-					class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700 dark:text-dark-prime"
-					>search</span
-				>
-			</div>
+		/>
+		<div class="relative">
+			<input
+				type="search"
+				:class="{ 'has-input': searchQuery }"
+				placeholder="Search..."
+				class="ml-auto pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
+				v-model="searchQuery"
+				@input="saveSearchQuery"
+			/>
+			<span
+				class="material-icons-outlined absolute left-0 pl-3 pt-2 text-gray-700 dark:text-dark-prime"
+				>search</span
+			>
+		</div>
 		<div class="sm:flex w-10 h-full" @click.self="showPopup = false">
 			<img
 				:src="user.profile"
@@ -30,7 +31,7 @@
 				@click="togglePopup"
 			/>
 		</div>
-		
+
 		<div
 			v-if="showPopup"
 			class="sm:flex bg-cl-purple text-prime absolute top-16 right-5 rounded-lg p-4 w-36 h-40 transition-all duration-500 shadow-lg bg-interface dark:bg-dark-second dark:text-dark-prime"
@@ -84,7 +85,7 @@
 import axios from "axios";
 import router from "../routes";
 import { useDark, useToggle } from "@vueuse/core";
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 export default {
 	setup() {
 		const isDark = useDark();
@@ -99,10 +100,11 @@ export default {
 			showPopup: false,
 			user: {
 				isAuthenticated: true,
-				profile:null
+				profile: null,
 			},
 		};
-	},watch: {
+	},
+	watch: {
 		searchQuery(newQuery) {
 			console.log(newQuery);
 			this.client
@@ -148,7 +150,7 @@ export default {
 					this.user.isAuthenticated = false;
 
 					localStorage.removeItem("token");
-					localStorage.removeItem("username");
+
 					window.scrollTo(0, 0);
 					router.push({ name: "login" }).then(() => {
 						window.location.reload();
@@ -181,7 +183,7 @@ export default {
 		});
 
 		this.client
-			.get("api/user", )
+			.get("api/user")
 			.then((res) => {
 				// console.log(res.data);
 				this.user.isAuthenticated = true;

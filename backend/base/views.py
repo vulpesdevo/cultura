@@ -78,7 +78,6 @@ class UserView(APIView):
                 "user": serializer.data,
                 "userfullname": cult_user_name,
                 "profile": profile.data,
-                
             },
             status=status.HTTP_200_OK,
         )
@@ -364,10 +363,10 @@ class UserLogout(APIView):
 
     def post(self, request):
         user = request.user
-        print('logout user: ',user)
+        print("logout user: ", user)
         # print("Logout Token: ", get_token.replace("Token", "").strip())
         if not Survey.objects.filter(user=user):
-            print('Exist')
+            print("Exist")
             return Response(
                 {"message": "You have not completed the survey yet."},
                 status=status.HTTP_200_OK,
@@ -664,7 +663,7 @@ class PostListView(APIView):
                         abs_main_image_url = request.build_absolute_uri(main_image)
                         # Update the itinerary data with the absolute URI
                         itinerary_data["main_image"] = abs_main_image_url
-                post_data["itinerary_in_post"] = itinerary_data
+                    post_data["itinerary_in_post"] = itinerary_data
 
             # Get the user_photo of the post author
 
@@ -1083,7 +1082,7 @@ class RatingItinerary(APIView):
         data = request.data
         itinerary_id = data.get("itinerary_id", 0)
         rate = data.get("rate", 0)
-        print(rate," ----- ", itinerary_id)
+        print(rate, " ----- ", itinerary_id)
         itinerary, created = Ratings.objects.update_or_create(
             owner=request.user,
             itinerary=itinerary_id,
@@ -1108,8 +1107,8 @@ class SaveItineraryListView(APIView):
 
         for itinerary_data in serializer.data:
 
-            main_image=itinerary_data.get("main_image", None)
-            if main_image :    
+            main_image = itinerary_data.get("main_image", None)
+            if main_image:
                 # Build the absolute URI for the main image
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI

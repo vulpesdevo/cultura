@@ -815,7 +815,7 @@ export default {
 						this.comments_in_post =
 							this.posts.find((p) => p._id === this.post_id)
 								?.comments || [];
-						console.log("the id : ", this.itineraries_frompost);
+						console.log("the id : ", this.posts);
 					}
 
 					// this.comments_in_post = this.posts[0].comments;
