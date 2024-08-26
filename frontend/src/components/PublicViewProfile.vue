@@ -88,7 +88,7 @@
 			</div>
 			<div class="flex w-3/4 items-center sm:justify-evenly mb-5">
 				<div
-					class="flex justify-end items-center w-36 h-8 text-sm sm:text-lg text-interface pr-2 sm:pr-0"
+					class="flex justify-end items-center w-36 h-8 text-sm sm:text-lg text-prime dark:text-interface pr-2 sm:pr-0"
 				>
 					<span class="material-icons-outlined text-second">
 						person
@@ -137,10 +137,7 @@
 			</button>
 		</div>
 
-		<div
-			class="posts-in-profile w-screen mb-10"
-			v-if="activeTab === 'posts'"
-		>
+		<div class="posts-in-profile w-full mb-10" v-if="activeTab === 'posts'">
 			<div
 				v-if="!posts.length && checkedAfterDelay"
 				class="flex items-center justify-center text-3xl text-gray-500 font-bold text-center h-48"
@@ -149,7 +146,6 @@
 			</div>
 			<div v-if="!posts.length && !checkedAfterDelay">
 				<div
-					
 					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 				>
 					<div class="animate-pulse flex space-x-4">
@@ -177,7 +173,6 @@
 					</div>
 				</div>
 				<div
-					
 					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 				>
 					<div class="animate-pulse flex space-x-4">

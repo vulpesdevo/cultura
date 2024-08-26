@@ -165,10 +165,13 @@ class PostSerializer(serializers.ModelSerializer):
         user = self.context.get("user")
 
         return True if user in obj.likes.all() else False
+
+
 class SurveySerializer(serializers.ModelSerializer):
     class Meta:
-        model= Survey
+        model = Survey
         fields = "__all__"
+
 
 class SettingSerializer(serializers.ModelSerializer):
     class Meta:
