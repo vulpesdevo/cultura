@@ -598,7 +598,7 @@ class PostListView(APIView):
     Any user, authenticated or not, is allowed to access this view.
     """
 
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         posts = Post.objects.all()
@@ -1150,6 +1150,7 @@ class ViewItinerary(APIView):
                 pass
         serializer.data[0]["itineraries"] = serialized_itineraries
         for itinerary_data in serializer.data:
+
             main_image = itinerary_data.get("main_image", None)
             if main_image:
                 # Build the absolute URI for the main image
@@ -1166,6 +1167,15 @@ class ViewItinerary(APIView):
                         abs_image_url = request.build_absolute_uri(image)
                         # Update the post data with the absolute URI
                         itinerary_data["user_photo"] = abs_image_url
+            # print(itinerary_data)
+            for item in itinerary_data["itineraries"]:
+                print(item)
+                place_image = item.get("place_image", None)
+                if place_image:
+                    # Build the absolute URI for the main image
+                    abs_place_image_url = request.build_absolute_uri(place_image)
+                    # Update the itinerary data with the absolute URI
+                    item["place_image"] = abs_place_image_url
         # serializer.data['itineraries'] = serialized_itineraries
         # print(serializer.data[0]["itineraries"])
         # itiner = Itinerary.objects.filter(id=itinerary_ids)

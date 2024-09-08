@@ -2,14 +2,16 @@
 	<div
 		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
 	>
+		<!-- Header -->
+
 		<div
-			class="field-editable flex flex-col justify-start items-center w-full bg-fiel sm:bg-white  dark:sm:bg-dark-interface dark:bg-notif rounded-2xl p-1"
+			class="field-editable flex flex-col justify-start items-center w-full bg-fiel sm:bg-white dark:sm:bg-dark-interface dark:bg-notif rounded-2xl p-1"
 		>
 			<div
 				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl dark:bg-notif bg-field sm:bg-transparent z-10"
 			>
 				<div
-					class="w-screen sm:w-full sm:h-[87%] bg-second  sm:rounded-2xl"
+					class="w-screen sm:w-full sm:h-[87%] h-[14rem] bg-second sm:rounded-2xl"
 				>
 					<img
 						:src="itineraryDetails.main_image"
@@ -27,16 +29,14 @@
 						<h1
 							class="font-bebas-neue text-lg text-interface sm:text-5xl"
 						>
-							{{ main_title }}
+							{{ itineraryDetails.main_title }}
 						</h1>
 					</div>
 				</div>
 				<div
 					class="sm:hidden flex items-center justify-center h-14 w-full"
 					id="navs"
-				>
-					
-				</div>
+				></div>
 			</div>
 
 			<section
@@ -69,7 +69,9 @@
 								Description
 							</p>
 						</div>
-						<p class="w-full sm:w-[90.5%] p-4 text-justify dark:text-interface">
+						<p
+							class="w-full sm:w-[90.5%] p-4 text-justify dark:text-interface"
+						>
 							{{ itineraryDetails.main_description }}
 						</p>
 					</div>
@@ -152,13 +154,12 @@
 							class="sm:overflow-auto h-screen rounded-lg px-3"
 							style="scrollbar-width: none"
 						>
-							
 							<div
-								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-white dark:bg-dark-second-dark  sm:bg-interface drop-shadow-md mb-3 rounded-lg"
+								class="flex-col justify-center items-center w-full h-56 sm:h-80 font-montserrat text-prime bg-white dark:bg-dark-second-dark sm:bg-interface drop-shadow-md mb-3 rounded-lg"
 								v-for="(itinerary, index) in list_itineraries"
 								:key="index"
 							>
-							<div
+								<div
 									class="absolute w-full marker-container flex items-start justify-between p-4"
 								>
 									<svg
@@ -258,7 +259,6 @@
 											</g>
 										</g>
 									</svg>
-									
 								</div>
 								<img
 									class="w-full object-cover h-2/5 rounded-lg"
@@ -268,7 +268,9 @@
 								<div
 									class="px-4 flex flex-col justify-normal sm:justify-evenly items-left"
 								>
-									<h1 class="text-2xl px-4   py-3 text-left dark:text-interface">
+									<h1
+										class="text-2xl px-4 py-3 text-left dark:text-interface"
+									>
 										{{ itinerary.title }}
 									</h1>
 									<p
@@ -282,12 +284,9 @@
 										<p
 											class="flex justify-start items-center font-montserrat font-semibold h-full text-sm text-interface bg-second w-28 rounded-full"
 										>
-											<span
-												class=" pr-2 mr-2 ml-3"
-												>{{
-													getSymbol(itinerary.code)
-												}}</span
-											>
+											<span class="pr-2 mr-2 ml-3">{{
+												getSymbol(itinerary.code)
+											}}</span>
 											{{ itinerary.budget.toFixed(2) }}
 										</p>
 									</div>
@@ -527,7 +526,7 @@ export default {
 				currency: null,
 				date_posted: null,
 				gen_tips: "",
-				user_photo:null,
+				user_photo: null,
 				id: null,
 				itineraries: [],
 				main_description: "",
@@ -536,6 +535,7 @@ export default {
 				owner: null,
 				status: null,
 			},
+			nearestTouristInterest: null,
 		};
 	},
 	computed: {
@@ -602,7 +602,7 @@ export default {
 		async fetchSavedItineraries() {
 			try {
 				if (this.itinerary_id == null) {
-					// /
+					//
 				} else {
 					const response = await this.client.get(
 						`/api/viewing-itinerary/${this.itinerary_id}`
@@ -612,8 +612,7 @@ export default {
 					this.itineraries.forEach((itinerary) => {
 						this.itineraryDetails.creator_name =
 							itinerary.creator_name;
-						this.itineraryDetails.user_photo =
-							itinerary.user_photo;	
+						this.itineraryDetails.user_photo = itinerary.user_photo;
 						this.currency_save = itinerary.currency;
 						this.itineraryDetails.date_posted =
 							itinerary.date_posted;
@@ -727,6 +726,7 @@ export default {
 						"do not convert the value to what selected currency"
 					);
 					newvalue += itinerary.budget;
+					this.total_budget = newvalue;
 					console.log("in check code else", newvalue);
 				}
 			});
@@ -777,6 +777,7 @@ export default {
 								latitude: position.coords.latitude,
 								longitude: position.coords.longitude,
 							});
+							this.findNearestTouristAttractions();
 						},
 						(error) => {
 							reject(error);
@@ -790,6 +791,81 @@ export default {
 					);
 				}
 			});
+		},
+
+		//search nearby tourist attractions
+		async findNearestTouristAttractions() {
+			const { AdvancedMarkerElement } = await google.maps.importLibrary(
+				"marker"
+			);
+			try {
+				const location = await this.getCurrentLocation();
+				const map = new google.maps.Map(
+					document.getElementById("the-map")
+				);
+				const service = new google.maps.places.PlacesService(map);
+
+				const request = {
+					location: new google.maps.LatLng(
+						location.latitude,
+						location.longitude
+					),
+					radius: "1500",
+					type: ["tourist_attraction"],
+				};
+
+				service.nearbySearch(request, (results, status) => {
+					if (status === google.maps.places.PlacesServiceStatus.OK) {
+						results.forEach((place) => {
+							const name = place.name;
+							const description = place.vicinity;
+							let photoUrl = "No photo available";
+							if (place.photos && place.photos.length > 0) {
+								const photoUrl = place.photos[0].getUrl({
+									maxWidth: 400,
+								});
+								console.log(
+									`Place: ${place.geometry.location}, Photo URL: ${photoUrl}`
+								);
+							} else {
+								console.log(
+									`Place: ${place.name}, No photo available`
+								);
+							}
+
+							const marker = new AdvancedMarkerElement({
+								map: map,
+								position: place.geometry.location,
+								title: place.name,
+							});
+
+							// Add an info window for each marker
+							const infoWindow = new google.maps.InfoWindow({
+								content: `<div><strong>${name}</strong><br>${description}<br><img src="${photoUrl}" alt="${name}" style="max-width: 100px;"></div>`,
+							});
+
+							marker.addListener("click", () => {
+								infoWindow.open(
+									new google.maps.Map(
+										document.getElementById("the-map")
+									),
+									marker
+								);
+							});
+						});
+					} else {
+						console.error(
+							"Error finding tourist attractions:",
+							status
+						);
+					}
+				});
+			} catch (error) {
+				console.error(
+					"Error finding nearest tourist attractions:",
+					error
+				);
+			}
 		},
 
 		// Step 2 & 3: Calculate Distances and Sort Itineraries
@@ -865,6 +941,7 @@ export default {
 				zoom: 8,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
 			});
+
 			// Optionally, add a marker at the location
 		},
 		showLocationOntheMap() {

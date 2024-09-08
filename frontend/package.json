@@ -26,6 +26,7 @@
     "nodemailer": "^6.9.14",
     "primevue": "^4.0.0",
     "vue": "^3.4.21",
+    "vue-pull-refresh": "^0.2.7",
     "vue-router": "^4.0.13"
   },
   "devDependencies": {

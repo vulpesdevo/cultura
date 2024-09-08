@@ -25,12 +25,12 @@
 				/>
 				<div class="w-full h-auto py-2">
 					<!-- <div class="flex flex-row justify-start items-center"> -->
-						<h1
-							class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
-						>
-							{{ itinerary.main_title }}
-						</h1>
-						
+					<h1
+						class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+					>
+						{{ itinerary.main_title }}
+					</h1>
+
 					<p
 						class="font-montserrat text-sm text-justify h-auto dark:text-interface"
 					>
@@ -147,7 +147,6 @@ export default {
 		// 		console.error(error);
 		// 	});
 		// },
-	
 
 		goToViewItinerary(itinerarydata) {
 			this.$router.push({

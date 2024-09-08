@@ -226,7 +226,6 @@
 			</div>
 		</div>
 		<section class="posts w-full mb-10 sm:mb-0">
-			
 			<div
 				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 				v-for="post in posts"
@@ -246,7 +245,7 @@
 						}}</small>
 					</div>
 				</div>
-				
+
 				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
 					<div class="w-14 h-14 mr-4">
 						<img
@@ -283,11 +282,14 @@
 						<div class="h-auto pb-2 sm:p-4" v-else>
 							<div
 								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-								
 								:key="post.itinerary_in_post.id"
-								@click="goToViewItinerary(post.itinerary_in_post.id)"
+								@click="
+									goToViewItinerary(post.itinerary_in_post.id)
+								"
 							>
-								<div class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full">
+								<div
+									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+								>
 									<img
 										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
 										:src="post.itinerary_in_post.main_image"
@@ -297,15 +299,18 @@
 										<h1
 											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
 										>
-											{{ post.itinerary_in_post.main_title }}
+											{{
+												post.itinerary_in_post
+													.main_title
+											}}
 										</h1>
 										<p
-											class="font-montserrat text-sm text-justify h-20 overflow-hidden   dark:text-interface"
+											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
 										>
 											{{
-												post.itinerary_in_post.main_description
+												post.itinerary_in_post
+													.main_description
 											}}
-
 										</p>
 									</div>
 								</div>
@@ -810,7 +815,8 @@ export default {
 						// Set selectedPost to the first post
 						console.log("GET POST fetch", this.selectedPost);
 						// this.post_id = this.selectedPost[0]._id;
-						this.itineraries_frompost = this.posts[0].itinerary_in_post
+						this.itineraries_frompost =
+							this.posts[0].itinerary_in_post;
 						// this.replied_to = this.selectedPost[0].author;
 						this.comments_in_post =
 							this.posts.find((p) => p._id === this.post_id)
@@ -819,7 +825,7 @@ export default {
 					}
 
 					// this.comments_in_post = this.posts[0].comments;
-					console.log("updateed :",this.post);
+					console.log("updated :", this.post);
 				})
 				.catch((error) => {
 					console.log(error);

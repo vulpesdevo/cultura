@@ -98,10 +98,10 @@
 				</div>
 				<button
 					v-if="user.is_followed"
-					class="bg-dark-second-dark w-24 sm:w-36 h-8 rounded-lg pl-2 sm:pl-0"
+					class="bg-gray-300 dark:bg-dark-second-dark w-24 sm:w-36 h-8 rounded-lg pl-2 sm:pl-0 text-center"
 					@click.prevent="follow(user.user)"
 				>
-					Followed
+					Unfollow
 				</button>
 				<button
 					v-if="!user.is_followed"

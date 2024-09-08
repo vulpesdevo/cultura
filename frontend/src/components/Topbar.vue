@@ -66,7 +66,7 @@
 				</div>
 				<li>
 					<router-link
-						to="/"
+						to="/login"
 						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
 						@click="submitLogout"
 						><span
@@ -144,8 +144,8 @@ export default {
 				Authorization: `Token ${token}`,
 				"Content-Type": "application/json",
 			};
-			axios
-				.post("http://127.0.0.1:8000/api/logout", { headers: headers })
+			this.client
+				.post("http://127.0.0.1:8000/api/logout")
 				.then((res) => {
 					this.user.isAuthenticated = false;
 

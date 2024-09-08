@@ -96,7 +96,7 @@
 							<!-- For setAboutMe -->
 							<textarea
 								v-if="!setAboutMe || isEditingAboutMe"
-								class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none bg-gray-200 dark:text-interface dark:bg-dark-interface dark:ring-notif ring-1"
+								class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none text-black bg-gray-200 dark:text-interface dark:bg-dark-interface dark:ring-notif ring-1"
 								v-model="setAboutMe"
 								@blur="isEditingAboutMe = false"
 								@keyup.tab="isEditingAboutMe = false"
@@ -107,7 +107,7 @@
 							<p
 								v-else
 								@click="isEditingAboutMe = true"
-								class="w-full sm:w-[90.5%] p-4"
+								class="w-full sm:w-[90.5%] p-4 text-black dark:text-interface"
 								v-html="formatText(setAboutMe)"
 							></p>
 						</div>
@@ -238,7 +238,6 @@
 							class="sm:overflow-auto overflow-hidden h-auto sm:h-screen rounded-lg p-3"
 							style="scrollbar-width: none"
 						>
-							
 							<div
 								class="flex-col justify-center items-center w-full h-[15rem] sm:h-[17rem] font-montserrat text-prime bg-white sm:bg-interface dark:bg-dark-interface drop-shadow-md mb-3 rounded-lg"
 								v-for="(itinerary, index) in list_itineraries"
@@ -775,7 +774,7 @@ export default {
 			paragraphs: [],
 
 			username: "",
-			user_photo:null,
+			user_photo: null,
 
 			location: "",
 			title: "",
@@ -837,7 +836,7 @@ export default {
 			.then((res) => {
 				this.username = res.data.user.username;
 				this.user_photo = res.data.profile[0].user_photo;
-				console.log('HALAAA',this.user_photo)
+				console.log("HALAAA", this.user_photo);
 			})
 			.catch((error) => {
 				console.log("ERROR", error.message);

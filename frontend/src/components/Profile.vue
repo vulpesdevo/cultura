@@ -135,30 +135,33 @@
 		</div>
 		<div class="profile-tabs flex justify-center w-full my-5 sm:px-2">
 			<button
-				class="font-montserrat text-prime  h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
+				class="font-montserrat text-prime h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
 				@click="activeTab = 'posts'"
 				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white ': activeTab === 'posts',
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second dark:text-white ':
+						activeTab === 'posts',
 					'bg-none text-second': activeTab !== 'posts',
 				}"
 			>
 				Posts
 			</button>
 			<button
-				class="font-montserrat text-prime  h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
+				class="font-montserrat text-prime h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
 				@click="activeTab = 'achievements'"
 				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white': activeTab === 'achievements',
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second dark:text-white':
+						activeTab === 'achievements',
 					'bg-none text-second': activeTab !== 'achievements',
 				}"
 			>
 				Achievements
 			</button>
 			<button
-				class="font-montserrat text-prime  h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
+				class="font-montserrat text-prime h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
 				@click="activeTab = 'follower_tab'"
 				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white': activeTab === 'follower_tab',
+					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second dark:text-white':
+						activeTab === 'follower_tab',
 					'bg-none text-second': activeTab !== 'follower_tab',
 				}"
 			>
@@ -167,39 +170,40 @@
 		</div>
 		<div class="w-full px-2" v-if="activeTab === 'follower_tab'">
 			<div class="w-full">
-				<div class="w-full grid sm:grid-cols-2 gap-4 ">
-						
-						<router-link
-				
-							class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl "
-							v-for="user in users"
-							:key="user.id"
-							:to="{
-								name: 'user-profile',
-								params: {
-									username: user.user_data[0].username,
-									user: JSON.stringify(user.user_data[0]),
-								},
-							}"
-				
+				<div class="w-full grid sm:grid-cols-2 gap-4">
+					<router-link
+						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
+						v-for="user in users"
+						:key="user.id"
+						:to="{
+							name: 'user-profile',
+							params: {
+								username: user.user_data[0].username,
+								user: JSON.stringify(user.user_data[0]),
+							},
+						}"
+					>
+						<div
+							class="w-16 h-20 mr-2 sm:mr-4 flex justify-center items-center"
 						>
-							<div
-								class="w-16 h-20 mr-2 sm:mr-4 flex justify-center items-center "
+							<img
+								:src="user.user_data[0].user_photo"
+								alt="Profile"
+								class="rounded-full cursor-pointer"
+							/>
+						</div>
+						<div class="font-montserrat text-left w-full">
+							<p class="font-bold">
+								{{ user.user_data[0].fullname }}
+							</p>
+							<small class="flex-col text-nowrap"
+								>{{ user.user_data[0].country }} |
+								{{ user.user_data[0].email }}</small
 							>
-								<img
-									:src="user.user_data[0].user_photo"
-									alt="Profile"
-									class="rounded-full cursor-pointer"
-								/>
-							</div>
-							<div class="font-montserrat text-left w-full  ">
-								<p class="font-bold">{{ user.user_data[0].fullname }}</p>
-								<small class="flex-col text-nowrap">{{ user.user_data[0].country }} | {{ user.user_data[0].email }}</small>
-							</div>
-						</router-link>
-					</div>
+						</div>
+					</router-link>
+				</div>
 			</div>
-				
 		</div>
 
 		<div class="posts-in-profile w-full" v-if="activeTab === 'posts'">
@@ -211,7 +215,6 @@
 			</div>
 			<div v-if="!posts.length && !checkedAfterDelay">
 				<div
-					
 					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 				>
 					<div class="animate-pulse flex space-x-4">
@@ -239,7 +242,6 @@
 					</div>
 				</div>
 				<div
-					
 					class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 				>
 					<div class="animate-pulse flex space-x-4">
@@ -733,7 +735,7 @@ export default {
 			},
 			showModal: false,
 			posts: [],
-			users:[],
+			users: [],
 
 			activeTab: "posts", // Default active tab
 
@@ -757,7 +759,7 @@ export default {
 			checkedAfterDelay: false,
 		};
 	},
-		mounted() {
+	mounted() {
 		setTimeout(() => {
 			this.checkedAfterDelay = true;
 		}, 5000);
@@ -784,9 +786,9 @@ export default {
 		this.fetchUser();
 		this.fetchPosts();
 	},
-		methods: {
-			follow(userId) {
-			console.log('The user',userId);
+	methods: {
+		follow(userId) {
+			console.log("The user", userId);
 			this.client
 				.post(`api/follow/${userId}/follow/`)
 				.then((response) => {
@@ -797,7 +799,7 @@ export default {
 					// const userIndex = this.users.findIndex(
 					// 	(user) => user.user === userId
 					// );
-					
+
 					// this.users = this.users.map(user => {
 					// 	if (user.user === userId) {
 					// 		user.is_followed = response.data.is_followed;
@@ -808,8 +810,6 @@ export default {
 					// }
 					// 	return user;
 					// });
-					
-					
 
 					// Optionally, update your UI based on the successful follow
 				})
@@ -997,9 +997,9 @@ export default {
 		// 		.catch((error) => {
 		// 			console.log(error);
 		// 		});
-			// },
+		// },
 		view_user(user_data) {
-			console.log('FGFGF',user_data[0].username)
+			console.log("FGFGF", user_data[0].username);
 			this.$router.push({
 				name: "user-profile",
 				params: {
@@ -1017,15 +1017,16 @@ export default {
 						// Set selectedPost to the first post
 						console.log("GET POST fetch", this.selectedPost);
 						// this.post_id = this.selectedPost[0]._id;
-						this.itineraries_frompost = this.posts[0].itinerary_in_post
+						this.itineraries_frompost =
+							this.posts[0].itinerary_in_post;
 						// this.replied_to = this.selectedPost[0].author;
 						this.comments_in_post =
 							this.posts.find((p) => p._id === this.post_id)
 								?.comments || [];
 						console.log("the id : ", this.comments_in_post);
 					}
-					this.users = response.data.followers
-					console.log("updateed asdasd:", this.posts);
+					this.users = response.data.followers;
+					console.log("updateed asdasd:", response.data.followers);
 				})
 				.catch((error) => {
 					console.log(error);
