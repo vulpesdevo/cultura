@@ -66,7 +66,7 @@
 				</div>
 				<li>
 					<router-link
-						to="/login"
+						to="/"
 						class="flex align-middle items-start border-t border-gray-500 pt-2 w-full"
 						@click="submitLogout"
 						><span

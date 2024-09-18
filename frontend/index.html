@@ -14,19 +14,22 @@
 		/>
 
 		<!-- from cdn -->
-		<link href="/output.css" rel="stylesheet">
+		<link href="/output.css" rel="stylesheet" />
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script
 			async
 			defer
-			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlo4jqabMxIygmvXtD-K0tm1HJEecnrEA&loading=async&libraries=places"
+			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlo4jqabMxIygmvXtD-K0tm1HJEecnrEA&loading=async&libraries=places,marker,maps"
 		></script>
 
 		<script>
 			tailwind.config = {
 				darkMode: ["class"],
-				content: ["./index.html", "./src/**/*.{html,vue,js,ts,jsx,tsx}"],
-				
+				content: [
+					"./index.html",
+					"./src/**/*.{html,vue,js,ts,jsx,tsx}",
+				],
+
 				theme: {
 					extend: {
 						screens: {
@@ -47,8 +50,6 @@
 								"second-dark": "#5B606F",
 								notif: "#1E1E1E",
 							},
-							
-							
 						},
 						fontFamily: {
 							montserrat: ["Montserrat", "sans-serif"],
@@ -61,7 +62,6 @@
 						},
 					},
 				},
-				
 			};
 			if (
 				localStorage.theme === "dark" ||

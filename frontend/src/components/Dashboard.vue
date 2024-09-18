@@ -281,6 +281,7 @@
 						</div>
 						<div class="h-auto pb-2 sm:p-4" v-else>
 							<div
+								v-if="post.itinerary_in_post"
 								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
 								:key="post.itinerary_in_post.id"
 								@click="

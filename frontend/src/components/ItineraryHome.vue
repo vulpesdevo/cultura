@@ -56,7 +56,7 @@
 				</div>
 				<div class="flex items-center mt-5">
 					<img
-						class="rounded-full w-12 shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
+						class="rounded-full w-12 object-cover shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
 						:src="itinerary.user_photo"
 						alt=""
 					/>

@@ -350,6 +350,7 @@
 							<div
 								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
 								:key="post.itinerary_in_post.id"
+								v-if="post.itinerary_in_post"
 								@click="
 									goToViewItinerary(post.itinerary_in_post.id)
 								"

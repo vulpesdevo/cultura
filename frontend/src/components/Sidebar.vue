@@ -75,7 +75,7 @@
 			<img
 				:src="user.profile"
 				alt="Profile"
-				class="rounded-full w-12 cursor-pointer"
+				class="rounded-full object-cover w-12 cursor-pointer"
 				@click="togglePopup"
 			/>
 			<div class="flex flex-col font-montserrat pl-4 w-full font-medium">
