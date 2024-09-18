@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full px-5 sm:px-7 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
 	>
 		<div
 			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white dark:bg-notif rounded-2xl p-1"
@@ -161,7 +161,7 @@
 						<div
 							class="flex flex-col justify-center items-center bg-prime dark:bg-second w-1/2 mr-2 rounded-lg"
 						>
-							<p class="">Total Budget</p>
+							<p class="">Suggested Budget</p>
 							<p class="text-2xl">
 								<span class="font-bold">{{
 									selectedSymbol
@@ -613,7 +613,7 @@ export default {
 			setAboutMe: "",
 			total_budget: 0,
 			convertedBudget: "",
-			api: "https://v6.exchangerate-api.com/v6/dfbd57179cf6a5ebcd1a6b59/latest/USD",
+			api: "https://v6.exchangerate-api.com/v6/eab4e81875a8acd578c8d5c1/latest/USD",
 			currency_list: [
 				["AED", "United Arab Emirates Dirhams", "د.إ"],
 				["AFN", "Afghan Afghani", "؋"],
@@ -986,6 +986,7 @@ export default {
 						"do not convert the value to what selected currency"
 					);
 					newvalue += itinerary.budget;
+					this.total_budget = newvalue;
 					console.log("in check code else", newvalue);
 				}
 			});
