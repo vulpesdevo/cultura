@@ -25,7 +25,7 @@
 			<div class="post-content flex w-full mt-4">
 				<div class="w-14 h-14 mr-4">
 					<img
-						src="/sample_img/mark.png"
+						:src="post.author_user_photo"
 						alt="Profile"
 						class="rounded-full cursor-pointer object-cover"
 					/>
