@@ -874,6 +874,7 @@ import axios from "axios";
 import { useDark, useToggle } from "@vueuse/core";
 import { ref } from "vue";
 import router from "../routes";
+import { mapActions } from "vuex";
 // import emailjs from "emailjs-com";
 
 export default {
@@ -898,7 +899,7 @@ export default {
 			input4: "", // Comment: Placeholder for the fourth input field
 			input5: "", // Comment: Placeholder for the fifth input field
 			input6: "", // Comment: Placeholder for the sixth input field
-			
+
 			showRePassword: false, // Comment: Controls the visibility of the re-enter password field
 			showPassword: false, // Comment: Controls the visibility of the password field
 
@@ -950,7 +951,7 @@ export default {
 		isGmailEmail() {
 			this.error_email = false;
 			const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/;
-			return emailRegex.test(this.email) ;
+			return emailRegex.test(this.email);
 		},
 		match() {
 			return this.rpassword === this.repassword && this.rpassword !== "";
@@ -1247,6 +1248,7 @@ export default {
 				console.log("Password does not match");
 			}
 		},
+		...mapActions(["saveOtp"]),
 		submitRegistration() {
 			if (this.rpassword === this.repassword) {
 				this.url
@@ -1257,8 +1259,23 @@ export default {
 					.then((response) => {
 						console.log("Otp send successful:", response.data);
 						this.otp = response.data.otp;
-						this.modalActive = true;
-						this.modalOTPActive = true;
+						// this.modalActive = true;
+						// this.modalOTPActive = true;
+						// Save OTP in Vuex store
+						this.saveOtp(this.otp);
+						// Navigate to Otp.vue with OTP as query parameter
+						this.$router.push({
+							name: "otp",
+							query: {
+								otp: this.otp,
+								email: this.email,
+								fullname: this.rname,
+								country: this.rcountry,
+								username: this.rusername,
+								rpassword: this.rpassword,
+							},
+						});
+
 						this.error = false;
 					})
 					.catch((error) => {
