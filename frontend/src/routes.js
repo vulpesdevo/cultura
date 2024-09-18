@@ -11,12 +11,17 @@ import ViewItinerary from "./components/ViewItinerary.vue";
 import PostViewing from "./components/PostViewing.vue";
 import ViewSearchResult from "./components/ViewSearchResult.vue";
 import PublicViewProfile from "./components/PublicViewProfile.vue";
-import Test from "./components/Test.vue"
+import Test from "./components/Test.vue";
+import Otp from "./components/Otp.vue"
+import Report from "./components/Report.vue"
+
 const router = createRouter({
 	history: createWebHistory(),
 	routes: [
 		{ path: "/", component: Login, name: "login" },
 		{ path: "/dashboard", component: Dashboard, name: "dashboard" },
+		{ path: "/otp", name: "otp", component: Otp },
+		{path: "/report", name: "report", component: Report},
 		{
 			path: "/notifications",
 			component: Notification,
