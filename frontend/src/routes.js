@@ -28,6 +28,11 @@ const router = createRouter({
 			name: "notifications",
 		},
 		{
+			path: "/tamsurvey",
+			component: TamSurvey,
+			name: "tamsurvey",
+		},
+		{
 			path: "/itinerary",
 			component: ItineraryHome,
 			name: "itinerary",

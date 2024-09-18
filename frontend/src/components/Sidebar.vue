@@ -287,7 +287,7 @@ export default {
 						res.data.message ===
 						"You have not completed the survey yet."
 					) {
-						router.push({ name: "test" }).then(() => {
+						router.push({ name: "tamsurvey" }).then(() => {
 							window.location.reload();
 						});
 					} else {
