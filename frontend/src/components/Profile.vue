@@ -298,12 +298,12 @@
 							class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
 						>
 							<!-- @click.prevent="editItem" -->
-							<a
+							<!-- <a
 								href="#"
 								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
 								aria-disabled="true"
 								>Edit</a
-							>
+							> -->
 							<a
 								href="#"
 								@click.prevent="deleteItem(post._id)"

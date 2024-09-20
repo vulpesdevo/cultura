@@ -232,20 +232,14 @@
 				:key="post._id"
 			>
 				<div class="post-title flex justify-center items-center">
-					<div
-						class="flex w-full sm:w-[90%] justify-between items-center"
-					>
-						<h1
-							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
-						>
+					<div class="flex w-full sm:w-[90%] justify-between items-center">
+						<h1 class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl">
 							{{ post.title }}
 						</h1>
-						<small class="text-second ml-5">{{
-							timesince(post.date_posted)
-						}}</small>
+						<small class="text-second ml-5">{{ timesince(post.date_posted) }}</small>
 					</div>
 				</div>
-
+			
 				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
 					<div class="w-14 h-14 mr-4">
 						<img
@@ -255,63 +249,83 @@
 						/>
 					</div>
 					<div class="w-full">
-						<div class="flex border-b-2 dark:border-gray-400">
-							<small
-								class="font-montserrat text-prime dark:text-dark-prime pr-5"
-							>
-								@{{ post.author }}
-							</small>
-							<small
-								class="about-post font-montserrat dark:text-gray-400"
-							>
-								{{ post.category }} | {{ post.country }}
-							</small>
+						<div class="flex border-b-2 dark:border-gray-400 w-full mb-5">
+							<div class="w-1/2">
+								<small class="font-montserrat text-prime dark:text-dark-prime pr-5">
+									@{{ post.author }}
+								</small>
+								<small class="about-post font-montserrat dark:text-gray-400">
+									{{ post.category }} | {{ post.country }}
+								</small>
+							</div>
+			
+							<div class="w-1/2 text-right">
+								<!-- Toggle between "Save" and "Edit" -->
+								<span
+									class="px-5 material-icons-outlined text-second text-2xl cursor-pointer custom-cursor-on-hover"
+									@click="toggleEdit(post)"
+								>
+									{{ post.isEditing ? 'save' : 'edit' }}
+								</span>
+							</div>
 						</div>
+			
+						<!-- Conditional rendering for the post content -->
 						<p
+							v-if="!post.isEditing"
 							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal"
 						>
 							{{ post.content }}
 						</p>
-						<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
+			
+						<!-- Editable text input when in editing mode -->
+						<textarea
+							v-else
+							v-model="post.editedContent"
+							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal bg-interface dark:bg-dark-interface border border-prime dark:border-dark-prime text-prime dark:text-dark-prime"
+						></textarea>
+			
+						<!-- Image Section -->
+						<div class="sm:h-96 pb-2 sm:p-4" v-if="!post.isEditing && post.image">
+							<img :src="post.image" alt="" class="h-full object-contain rounded-lg" />
+						</div>
+			
+						<!-- Editable image when in edit mode -->
+						<div v-else-if="post.image || post.isEditing" class="sm:h-96 pb-2 sm:p-4">
+							<input
+								type="file"
+								@change="handleImageUpload($event, post)"
+								accept="image/*"
+								class="file-input text-prime dark:text-dark-prime"
+							/>
+							<!-- Show the preview of the image if uploaded -->
 							<img
-								:src="post.image"
-								alt=""
-								class="h-full object-contain rounded-lg"
+								v-if="post.previewImage"
+								:src="post.previewImage"
+								alt="Preview"
+								class="h-full object-contain rounded-lg mt-2"
 							/>
 						</div>
-						<div class="h-auto pb-2 sm:p-4" v-else>
+			
+						<!-- Optional: Itinerary -->
+						<div class="h-auto pb-2 sm:p-4" v-if="post.itinerary_in_post">
 							<div
-								v-if="post.itinerary_in_post"
 								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
 								:key="post.itinerary_in_post.id"
-								@click="
-									goToViewItinerary(post.itinerary_in_post.id)
-								"
+								@click="goToViewItinerary(post.itinerary_in_post.id)"
 							>
-								<div
-									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
-								>
+								<div class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full">
 									<img
 										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
 										:src="post.itinerary_in_post.main_image"
 										alt=""
 									/>
 									<div class="w-full h-auto py-2">
-										<h1
-											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
-										>
-											{{
-												post.itinerary_in_post
-													.main_title
-											}}
+										<h1 class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl">
+											{{ post.itinerary_in_post.main_title }}
 										</h1>
-										<p
-											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
-										>
-											{{
-												post.itinerary_in_post
-													.main_description
-											}}
+										<p class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface">
+											{{ post.itinerary_in_post.main_description }}
 										</p>
 									</div>
 								</div>
@@ -319,6 +333,7 @@
 						</div>
 					</div>
 				</div>
+			
 				<div class="flex items-center justify-end">
 					<i
 						class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
@@ -340,15 +355,12 @@
 							>favorite_border</span
 						>
 						<small class="text-prime dark:text-dark-prime pl-1">
-							{{
-								post.like_count >= 1000
-									? (post.like_count / 1000).toFixed(1) + "k"
-									: post.like_count
-							}}
+							{{ post.like_count >= 1000 ? (post.like_count / 1000).toFixed(1) + "k" : post.like_count }}
 						</small>
 					</div>
 				</div>
 			</div>
+
 
 			<div
 				class="fixed z-50 inset-0 overflow-y-auto"
@@ -396,14 +408,14 @@
 							<div class="post-content flex w-full mt-4">
 								<div class="w-14 h-14 mr-4">
 									<img
-										:src="post.author_user_photo"
+										:src="data.author_user_photo"
 										alt="Profile"
 										class="rounded-full cursor-pointer"
 									/>
 								</div>
 								<div class="w-full">
 									<div
-										class="flex border-b-2 dark:border-gray-700"
+										class="flex border-b-2 dark:border-gray-700 justify-between"
 									>
 										<p
 											class="font-montserrat text-prime dark:text-interface pr-5"
@@ -578,6 +590,25 @@ import moment from "moment";
 export default {
 	data() {
 		return {
+			posts: [
+				{
+				_id: 1,
+				title: 'Post Title',
+				content: 'This is a post content.',
+				author: 'John Doe',
+				author_user_photo: 'path-to-photo',
+				category: 'Category',
+				country: 'Country',
+				date_posted: new Date(),
+				isEditing: false,
+				editedContent: '', // To store edited content temporarily
+				is_liked: false,
+				like_count: 1200,
+				image: 'path-to-image', // Current image
+				previewImage: null, // Preview of the new uploaded image
+				itinerary_in_post: null // Optional itinerary
+				},
+			],
 			post_profile_display: null,
 			selectedImageUrl: null,
 			picture: null,
@@ -638,6 +669,39 @@ export default {
 		setInterval(this.fetchSavedItineraries, 5000);
 	},
 	methods: {
+		toggleEdit(post) {
+		if (post.isEditing) {
+			// Save the edited content and image
+			post.content = post.editedContent;
+			if (post.previewImage) {
+			post.image = post.previewImage;
+			}
+		} else {
+			// Initialize the editedContent and previewImage with the current content and image
+			post.editedContent = post.content;
+			post.previewImage = post.image;
+		}
+		post.isEditing = !post.isEditing;
+		},
+		handleImageUpload(event, post) {
+		const file = event.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+			post.previewImage = e.target.result; // Set the previewImage to the file data
+			};
+			reader.readAsDataURL(file); // Read the file as a Data URL
+		}
+		},
+		likePost(postId) {
+		// Logic to like the post
+		},
+		selectPost(post) {
+		// Logic to select the post for commenting
+		},
+		goToViewItinerary(itineraryId) {
+		// Logic to view the itinerary
+		},
 		toggleText(index) {
 			this.isFullTextShown[index] = !this.isFullTextShown[index];
 		},
