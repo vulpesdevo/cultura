@@ -54,33 +54,43 @@
 						</a>
 					</p>
 				</div>
-				<div class="flex items-center mt-5">
-					<img
-						class="rounded-full w-12 object-cover shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
-						:src="itinerary.user_photo"
-						alt=""
-					/>
-					<h1
-						class="font-montserrat font-semibold text-prime dark:text-interface ml-2 pr-2 border border-l-0 border-y-0 border-r-prime dark:border-r-interface hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
-					>
-						@{{ itinerary.creator_name }}
-					</h1>
-					<h1
-						class="font-montserrat text-xs text-second ml-2 sm:text-sm sm:ml-5"
-					>
-						{{
-							new Date(itinerary.date_posted).toLocaleDateString(
-								"en-US",
-								{
-									month: "long",
-									day: "numeric",
-									year: "numeric",
-								}
-							)
-						}}
-					</h1>
+				<div class="flex justify-between ">
+					<div class="flex items-center mt-5">
+						<img
+							class="rounded-full w-12 object-cover shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
+							:src="itinerary.user_photo"
+							alt=""
+						/>
+						<h1
+							class="font-montserrat font-semibold text-prime dark:text-interface ml-2 pr-2 border border-l-0 border-y-0 border-r-prime dark:border-r-interface hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
+						>
+							@{{ itinerary.creator_name }}
+						</h1>
+						<h1
+							class="font-montserrat text-xs text-second ml-2 sm:text-sm sm:ml-5"
+						>
+							{{
+								new Date(itinerary.date_posted).toLocaleDateString(
+									"en-US",
+									{
+										month: "long",
+										day: "numeric",
+										year: "numeric",
+									}
+								)
+							}}
+						</h1>
+					</div>
+					<!-- | RATING CONTAINER--> 
+					<div class="flex items-center -ml-24 sm:mt-5 -mt-40 "> 
+						<i class="fa-solid fa-star sm:text-2xl text-xl text-second"></i>
+						<div class="sm:text-lg ml-2 font-montserrat text-lg text-white">
+							{{ avgRating.toFixed(1) }} / 5
+						</div>
+					</div>
 				</div>
 			</div>
+				
 		</div>
 
 		<div class="mt-10"></div>
@@ -94,11 +104,14 @@ export default {
 	components: {
 		ViewItinerary,
 	},
+	
 	data() {
 		return {
 			itineraries: [],
 			isFullTextShown: {}, // Initialize as empty object
-			rating: 0,
+			//Uncommnet this line to use the initial ratings from the backend
+			allRatings: [4, 3.5, 5, 4.2], // Simulated ratings from different users
+			//allRatings: [...this.initialRatings], // Initial ratings from the backend
 		};
 	},
 	watch: {
@@ -134,6 +147,14 @@ export default {
 		});
 		this.fetchItineraries();
 	},
+	computed: {
+	// Compute the average rating from all ratings
+	avgRating() {
+		if (this.allRatings.length === 0) return 0;
+		const total = this.allRatings.reduce((sum, current) => sum + current, 0);
+		return total / this.allRatings.length;
+		},
+	},
 	methods: {
 		// updateRating(itineraryId, rating) {
 		// 	console.log(`Rating changed to: ${rating} for itinerary ${itineraryId}`);
@@ -166,6 +187,8 @@ export default {
 				console.error(error);
 			}
 		},
+
+		
 	},
 };
 </script>

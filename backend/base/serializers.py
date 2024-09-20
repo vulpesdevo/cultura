@@ -12,6 +12,7 @@ from .models import (
     SaveItinerary,
     Survey,
     UserSetting,
+    Report
 )
 from djongo import models
 
@@ -184,7 +185,10 @@ class SettingSerializer(serializers.ModelSerializer):
             "theme",
         ]
 
-
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = '__all__'
 class ItinerarySerializer(serializers.ModelSerializer):
 
     class Meta:

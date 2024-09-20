@@ -81,10 +81,12 @@ urlpatterns = [
     path(
         "saved-itinerary", views.SaveItineraryListView.as_view(), name="saved-itinerary"
     ),
+    path('ratings/', views.SaveItineraryView.as_view(), name='update_rating'),
     path(
         "viewing-itinerary/<int:id>",
         views.ViewItinerary.as_view(),
         name="check-itinerary",
     ),
+    path('reports/', views.ReportListCreateView.as_view(), name='report-list-create'),
     # path("viewing-itinerary", views.ViewingSaveItineraryListView.as_view(), name="viewing-itinerary"),
 ]

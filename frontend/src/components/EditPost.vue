@@ -189,7 +189,7 @@ export default {
 					})
 					.then((response) => {
 						console.log(response.data);
-						this.$router.push({ name: "PostList" }); // Redirect to the post list or another appropriate page
+						this.$router.push({ name: "profile" }); // Redirect to the post list or another appropriate page
 					})
 					.catch((error) => {
 						console.log(

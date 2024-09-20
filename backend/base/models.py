@@ -46,6 +46,15 @@ class CulturaUser(models.Model):
     content_creator = models.IntegerField(default=0, null=True, blank=True)
     comment_connoisseur = models.IntegerField(default=0, null=True, blank=True)
 
+class Report(models.Model):
+    _id = ObjectIdField()
+    post_id = models.CharField(max_length=255)
+    user_id = models.IntegerField()
+    category = models.CharField(max_length=255)
+    details = models.CharField(max_length=2550)
+
+
+from django.db.models import JSONField
 
 class SaveItinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
@@ -66,7 +75,7 @@ class SaveItinerary(models.Model):
     total_budget = models.FloatField()
     itineraries = models.CharField(default=list, max_length=255)
     date_posted = models.DateTimeField(auto_now_add=True)
-    rating = models.CharField(default=list, max_length=255)
+    rating = JSONField(default=list)
     status = models.BooleanField(default=False)
 
 

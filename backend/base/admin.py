@@ -6,7 +6,7 @@ from .models import (
     LikeNotification,
     Post,
     Comment,
- 
+    Report,
     SaveItinerary,
     Survey,
     UserSetting,
@@ -133,7 +133,13 @@ class FollowingNotificationAdmin(admin.ModelAdmin):
         "created_at",
         "is_read",
     )
-
+class ReportAdmin(admin.ModelAdmin):
+    list_display = (
+        "post_id",
+        "user_id",
+        "category",
+        "details",
+    )
 
 class SurveyAdmin(admin.ModelAdmin):
     list_display = ("user", "q1", "q2", "q3", "q4", "q5", "q6")
@@ -144,7 +150,7 @@ admin.site.register(Survey, SurveyAdmin)
 admin.site.register(FollowingNotification, FollowingNotificationAdmin)
 
 admin.site.register(UserSetting, UserSettingsAdmin)
-
+admin.site.register(Report, ReportAdmin)
 admin.site.register(LikeNotification, LikeNotificationAdmin)
 admin.site.register(CulturaUser, CulturaUserAdmin)
 admin.site.register(Post, PostAdmin)

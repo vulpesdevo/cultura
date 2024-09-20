@@ -21,7 +21,7 @@ from .serializers import (
     UserLoginSerializer,
     UserSerializer,
     PostSerializer,
-    CommentSerializer,
+    CommentSerializer,ReportSerializer
 )
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -34,7 +34,7 @@ from .models import (
     Post,
     Comment,
     CulturaUser,
-  
+    Report,
     SaveItinerary,
     Survey,
     UserSetting,
@@ -461,11 +461,11 @@ class PostCreate(APIView):
         """
         data = request.data
         object_id = ObjectId(post_id)
-        print("MY OBJ ID ",object_id)
+        # print("MY OBJ ID ",object_id)
         title = data.get("title", "").strip()
         body = data.get("body", "").strip()
         image = request.FILES.get("image", None)
-        print("MY IMAGE ",image)
+        # print("MY IMAGE ",image)
 
         try:
             post = Post.objects.get(_id=object_id, author=request.user)
@@ -540,7 +540,7 @@ class Following(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def follow(self, request, pk):
-        print(pk)
+        # print(pk)
         user = request.user
 
         user_to_follow = CulturaUser.objects.get(user=pk)
@@ -548,7 +548,7 @@ class Following(viewsets.ModelViewSet):
             user_to_follow, context={"user": self.request.user}
         )  # pass the request to the serializer
 
-        print("user that followed: ", user_to_follow.id)
+        # print("user that followed: ", user_to_follow.id)
         if user in user_to_follow.followers.all():
             user_to_follow.followers.remove(user)
             FollowingNotification.objects.filter(
@@ -848,7 +848,7 @@ class ProfilePostListView(APIView):
         follow_serializer = FollowSerializer(
             following_data, many=True, context={"user": request.user}
         )
-        print("USER  NOW", request.user)
+        # print("USER  NOW", request.user)
         for follow_data in follow_serializer.data:
             who_followed = follow_data.get("followed_by")
             username_ = User.objects.get(id=follow_data["followed_by"]).username
@@ -1037,8 +1037,43 @@ import random
 from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
+class ReportListCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
+    # def get(self, request):
+    #     reports = Report.objects.all()
+    #     serializer = ReportSerializer(reports, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request):
+
+        data = request.data
+        print("Incoming data:", data)  # Print the incoming data for debugging
+        post_id = data.get('post_id')
+        user_id = data.get('user_id')
+        category = data.get('category')
+        details = data.get('details')
+
+        
+        # Fetch the User instance
+        user = User.objects.get(id=user_id)
+
+        # Create and save the Report instance
+        report = Report.objects.create(
+            post_id=post_id,
+            user_id=user.id,  # Use user.id directly
+            category=category,
+            details=details
+        )
+        report.save()
+
+        # Serialize the saved report
+        serializer = ReportSerializer(report)
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+       
 class ItineraryListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -1052,7 +1087,7 @@ class ItineraryListView(APIView):
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
                 itinerary_data["place_image"] = abs_main_image_url
-
+        # print(itinerary_data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -1063,7 +1098,7 @@ class ItinerariesInView(APIView):
 
         itineraries = Itinerary.objects.filter(id=id)
         serializer = ItinerarySerializer(itineraries, many=True)
-
+        # print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
         # Your logic to return the itineraries
 
@@ -1106,23 +1141,53 @@ class SaveItineraryView(APIView):
         # for itinerary in itineraries_init:
         #     itinerary.status = True
         #     itinerary.save()
+        
+        
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class RatingItinerary(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def post(self, request):
+    def put(self, request):
         data = request.data
-        itinerary_id = data.get("itinerary_id", 0)
-        rate = data.get("rate", 0)
-        print(rate, " ----- ", itinerary_id)
-        itinerary, created = Ratings.objects.update_or_create(
-            owner=request.user,
-            itinerary=itinerary_id,
-            defaults={"rating": rate},
-        )
-        return Response(status=status.HTTP_201_CREATED)
+        user_id = data.get('user_id')
+        itinerary_id = data.get('itinerary_id')
+        new_rating = data.get('rating')
+
+        try:
+            itinerary = SaveItinerary.objects.get(id=itinerary_id)
+            if not isinstance(itinerary.rating, list):
+                itinerary.rating = []
+
+            # Check if the user_id is already in the rating list
+            user_exists = any(rating['user_id'] == user_id for rating in itinerary.rating)
+
+            if not user_exists:
+                print("NOT IN RATINGS")
+                itinerary.rating.append(data)  # Append the new rating to the list
+                itinerary.save()
+            else:
+                print("IN RATINGS")
+            serializer = SaveItinerarySerializer(itinerary)
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        except SaveItinerary.DoesNotExist:
+            return Response({'error': 'Itinerary not found'}, status=status.HTTP_404_NOT_FOUND)
+        except json.JSONDecodeError as e:
+            return Response({'error': f'Failed to parse rating: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# class RatingItinerary(APIView):
+#     permission_classes = (permissions.IsAuthenticated,)
+
+#     def post(self, request):
+#         data = request.data
+#         itinerary_id = data.get("itinerary_id", 0)
+#         rate = data.get("rate", 0)
+#         print(rate, " ----- ", itinerary_id)
+#         itinerary, created = Ratings.objects.update_or_create(
+#             owner=request.user,
+#             itinerary=itinerary_id,
+#             defaults={"rating": rate},
+#         )
+#         return Response(status=status.HTTP_201_CREATED)
 
 
 class SaveItineraryListView(APIView):
@@ -1147,6 +1212,8 @@ class SaveItineraryListView(APIView):
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
                 itinerary_data["main_image"] = abs_main_image_url
+             # Ensure rating_str is a string before calling replace
+            
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
                 if image:
@@ -1154,7 +1221,7 @@ class SaveItineraryListView(APIView):
                     abs_image_url = request.build_absolute_uri(image)
                     # Update the post data with the absolute URI
                     itinerary_data["user_photo"] = abs_image_url
-
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -1203,7 +1270,7 @@ class ViewItinerary(APIView):
                         itinerary_data["user_photo"] = abs_image_url
             # print(itinerary_data)
             for item in itinerary_data["itineraries"]:
-                print(item)
+                # print(item)
                 place_image = item.get("place_image", None)
                 if place_image:
                     # Build the absolute URI for the main image
@@ -1264,7 +1331,7 @@ class PublicPostProfile(APIView):
     def get(self, request):
         data = request.data
         user = request.GET.get("user_id", "").strip()
-        print("user-id: ", user)
+        # print("user-id: ", user)
 
         posts = Post.objects.filter(author=user)
 
@@ -1346,9 +1413,9 @@ class SearchView(APIView):
         data = request.data
 
         # logging.debug('Request GET: %s', request.GET)
-        print("data", data)
+        # print("data", data)
         query = request.GET.get("title", "").strip()
-        print("INPUT ", query)
+        # print("INPUT ", query)
         if query is None:  # Check if query is None
             # Return an error response or a default response if search query is missing
             return Response({"error": "Search query is missing"}, status=400)
