@@ -12,11 +12,10 @@ import PostViewing from "./components/PostViewing.vue";
 import ViewSearchResult from "./components/ViewSearchResult.vue";
 import PublicViewProfile from "./components/PublicViewProfile.vue";
 import Test from "./components/Test.vue";
-import TamSurvey from "./components/TamSurvey.vue";
 import Otp from "./components/Otp.vue";
 import Report from "./components/Report.vue";
-import Flight from "./components/FlightCheck.vue";
-import TestTrivia from "./components/TestTrivia.vue";
+import TamSurvey from "./components/TamSurvey.vue";
+import Trivia from "./components/Trivia.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -25,12 +24,15 @@ const router = createRouter({
 		{ path: "/dashboard", component: Dashboard, name: "dashboard" },
 		{ path: "/otp", name: "otp", component: Otp },
 		{ path: "/report", name: "report", component: Report },
-		{ path: "/flights", name: "flights", component: Flight },
-		{ path: "/trivia", name: "trivia", component: TestTrivia },
 		{
 			path: "/notifications",
 			component: Notification,
 			name: "notifications",
+		},
+		{
+			path: "/trivia",
+			component: Trivia,
+			name: "trivia",
 		},
 		{
 			path: "/tamsurvey",

@@ -179,6 +179,12 @@ export default {
 					// showIcon: true,
 					label: "explore",
 				},
+				{
+					name: "Trivia",
+					path: "/trivia",
+					// showIcon: true,
+					label: "tips_and_updates",
+				},
 			],
 		};
 	},

@@ -43,15 +43,15 @@ export default {
 		const error = ref(null);
 		const showSnackbar = ref(false);
 
-		const apiKey = "hqBX2srRNSFlCwNetgPcTg==XZfDOuHYLmfm4Bc5"; // Replace with your actual API key
+		const apiKey = "14L4SCh7Me4KaDH1xLnMmw==wik53BlNsvI2cN3k"; // Replace with your actual API key
 		const categories = [
 			"artliterature",
-			"language",
+
 			"sciencenature",
 			"general",
 			"fooddrink",
 			"peopleplaces",
-			"geography",
+
 			"historyholidays",
 			"entertainment",
 			"toysgames",
@@ -103,7 +103,7 @@ export default {
 
 		onMounted(() => {
 			fetchTriviaQuestions();
-			const intervalId = setInterval(fetchTriviaQuestions, 5000); // Fetch new questions every 60 seconds
+			const intervalId = setInterval(fetchTriviaQuestions, 10000); // Fetch new questions every 60 seconds
 
 			onBeforeUnmount(() => {
 				clearInterval(intervalId);
