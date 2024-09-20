@@ -34,7 +34,7 @@ from .models import (
     Post,
     Comment,
     CulturaUser,
-    Ratings,
+  
     SaveItinerary,
     Survey,
     UserSetting,
@@ -453,6 +453,40 @@ class PostCreate(APIView):
 
         serializer = PostSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def put(self, request, post_id):
+        """
+        Handles the updating of an existing Post instance.
+        Extracts title, body, and image from the request data.
+        Updates the Post object, serializes it, and returns the serialized data in the response.
+        """
+        data = request.data
+        object_id = ObjectId(post_id)
+        print("MY OBJ ID ",object_id)
+        title = data.get("title", "").strip()
+        body = data.get("body", "").strip()
+        image = request.FILES.get("image", None)
+        print("MY IMAGE ",image)
+
+        try:
+            post = Post.objects.get(_id=object_id, author=request.user)
+            post.title = title
+            post.content = body
+            if image:
+                post.image = image
+            post.save()
+        except Post.DoesNotExist:
+            return Response(
+                {"error": "Post not found or you do not have permission to edit this post."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            return Response(
+                {"error": "An error occurred while updating the post."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        serializer = PostSerializer(post, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 from bson import ObjectId

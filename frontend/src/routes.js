@@ -26,8 +26,8 @@ const router = createRouter({
 		{ path: "/otp", name: "otp", component: Otp },
 		{ path: "/report", name: "report", component: Report },
 		{
-			path: '/editpost',
-			name: 'EditPost',
+			path: "/edit-post/:post",
+			name: "editpost",
 			component: EditPost,
 		},
 		{

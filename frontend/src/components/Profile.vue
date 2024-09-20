@@ -304,6 +304,17 @@
 								aria-disabled="true"
 								>Edit</a
 							> -->
+							<router-link
+								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+								:to="{
+									name: 'editpost',
+									params: {
+										post: JSON.stringify(post),
+									},
+								}"
+							>
+								Edit
+							</router-link>
 							<a
 								href="#"
 								@click.prevent="deleteItem(post._id)"
@@ -999,8 +1010,17 @@ export default {
 		// 			console.log(error);
 		// 		});
 		// },
+		edit_post(post_data) {
+			// console.log("FGFGF", user_data[0].username);
+			this.$router.push({
+				name: "editpost",
+				params: {
+					user: JSON.stringify(data),
+				},
+			});
+		},
 		view_user(user_data) {
-			console.log("FGFGF", user_data[0].username);
+			// console.log("FGFGF", user_data[0].username);
 			this.$router.push({
 				name: "user-profile",
 				params: {
