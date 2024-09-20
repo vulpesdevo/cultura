@@ -67,7 +67,7 @@
                 <button @click="goBack" class="bg-gray-500 text-white px-8 py-4 rounded-full text-lg font-montserrat font-bold">
                     Cancel
                 </button>
-                <button @click="nextStep" class="bg-second text-white px-10 py-4 rounded-full text-lg font-montserrat font-bold">
+                <button @click="submitReport" class="bg-second text-white px-10 py-4 rounded-full text-lg font-montserrat font-bold">
                     Submit
                 </button>
             </div>
@@ -82,8 +82,14 @@ export default {
     return {
         step: 1,
         selectedCategory: '',
-        reportDetails: ''
-    };
+        reportDetails: '',
+        postId: null,
+        userId: null
+        };
+    },
+    created() {
+        this.postId = this.$route.query.post_id;
+        this.userId = this.$route.query.user_id;
     },
     methods: {
     nextStep() {
@@ -98,7 +104,33 @@ export default {
     submitReport() {
         console.log('Selected Category:', this.selectedCategory);
         console.log('Report Details:', this.reportDetails);
-        // Add your submission logic here
+        console.log('Post ID:', this.postId);
+        console.log('User ID:', this.userId);
+
+        const reportData = {
+            post_id: this.postId,
+            user_id: this.userId,
+            category: this.selectedCategory,
+            details: this.reportDetails
+        };
+        //ADD DATABASE KINESO HERE TO SAVE REPORT 
+        // Replace with your actual API endpoint
+        //   fetch('https://your-api-endpoint.com/reports', {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify(reportData)
+        //   })
+        //   .then(response => response.json())
+        //   .then(data => {
+        //     console.log('Report submitted successfully:', data);
+        //     // Redirect or show success message
+        //   })
+        //   .catch(error => {
+        //     console.error('Error submitting report:', error);
+        //   });
+        
     },
     goBack() {
         if (this.step === 1) {

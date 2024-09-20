@@ -233,7 +233,7 @@
 			>
 				<div class="post-title flex justify-center items-center">
 					<div
-						class="flex w-full sm:w-[90%] justify-between items-center"
+						class="flex w-full sm:w-[90%]  items-center"
 					>
 						<h1
 							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
@@ -243,7 +243,13 @@
 						<small class="text-second ml-5">{{
 							timesince(post.date_posted)
 						}}</small>
-					</div>
+					</div>	
+					<!-- REPORT BUTTON -->
+					<router-link :to="{ name: 'report', query: { post_id: post._id, user_id: user_id } }">
+						<div>
+							<i class="fa-solid fa-circle-exclamation text-second text-2xl cursor-pointer"></i>
+						</div>
+					</router-link> 
 				</div>
 
 				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
@@ -583,6 +589,7 @@ export default {
 			picture: null,
 
 			auth_user: "",
+			user_id: "",
 
 			isEditing: true,
 			postTitle: "",
@@ -652,7 +659,8 @@ export default {
 				.get("api/user")
 				.then((res) => {
 					this.post_profile_display = res.data.profile[0].user_photo;
-					console.log(this.post_profile_display);
+					this.user_id = res.data.user.id;
+					console.log('USER DATA FROM FETCHUSER HERE',res.data.user.id);
 				})
 				.catch((error) => {
 					console.log("ERROR", error);

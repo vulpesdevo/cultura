@@ -21,6 +21,14 @@
 						{{ itineraryDetails.main_title }}
 					</h1>
 
+					<!-- RATING DISPLAY CONTAINER -->
+					<div class="flex items-center absolute bottom-0 right-5 mb-2"> 
+						<i class="fa-solid fa-star sm:text-3xl text-xl text-second"></i>
+						<div class="sm:text-2xl ml-2 font-montserrat text-lg text-white">
+							{{ avgRating.toFixed(1) }} / 5
+						</div>
+					</div>
+
 					<!-- <div
 						class="flex absolute left-[3.2rem] bottom-[4rem] sm:bottom-0 sm:left-[5.7rem] bg-dark-interface w-3/4 h-16 sm:h-24 z-10 rounded-md text-center items-center justify-center"
 					>
@@ -38,7 +46,46 @@
 					class="mt-64 itinerary-1 flex flex-col items-center sm:mt-10 px-10 w-full"
 					id="overview-section"
 				>
+					<div class="flex flex-col  w-screen sm:w-full sm:-mt-7 items-end sm:-mb-10 -mb-8">
+						<!-- Disable button if the user has already submitted their rating -->
+						<button
+							@click="submitRating"
+							class="text-white flex mr-5 font-montserrat" 
+							:disabled="hasSubmitted">
+							{{ hasSubmitted ? 'Rating Submitted' : 'Submit a Rating' }}
+						</button>
+						<div class="flex">
+						<div
+							v-for="star in 5"
+							:key="star"
+							class="relative flex items-center"
+							@mouseover="!hasSubmitted && hoverRating(star)"
+							@mouseleave="!hasSubmitted && resetRating"
+							@click="!hasSubmitted && setRating(star)"
+						>
+							<!-- Full star when hovered or rated -->
+							<i
+							:class="{
+								'fa-solid fa-star text-second': star <= (tempRating || rating),
+								'fa-regular fa-star text-gray-300': star > (tempRating || rating)
+							}"
+							class="text-2xl cursor-pointer mr-2 "
+							></i>
+					
+							<input
+							type="radio"
+							:id="'star' + star"
+							:value="star"
+							v-model="rating"
+							class="hidden"
+							/>
+						</div>
+
+						</div>
+						
+					</div>
 					<div class="post-content flex w-screen sm:w-full">
+						
 						<div
 							class="hidden w-[9.2%] sm:flex items-start justify-center"
 						>
@@ -49,31 +96,39 @@
 							/>
 						</div>
 						<div class="w-full mx-3 mt-3 sm:m-0">
+
 							<div
-								class="flex flex-row items-start border-b-2 border-gray-700"
+								class="flex flex-row items-start border-b-2 border-gray-700 justify-between"
 							>
-								<small
-									class="hidden sm:flex items-center justify-center font-montserrat text-prime dark:text-interface text-sm pb-1"
-								>
-									@{{ itineraryDetails.creator_name }}
-								</small>
-								<small
-									class="hidden sm:flex pl-5 pb-3 text-second"
-									>{{
-										new Date(
-											itineraryDetails.date_posted
-										).toLocaleDateString("en-US", {
-											month: "long",
-											day: "numeric",
-											year: "numeric",
-										})
-									}}</small
-								>
-								<p
-									class="font-montserrat sm:hidden pb-1 text-lg text-prime dark:text-interface"
-								>
-									Description
-								</p>
+								<div class="">
+									<small
+										class="hidden sm:flex items-center justify-center font-montserrat text-prime dark:text-interface text-sm pb-1"
+									>
+										@{{ itineraryDetails.creator_name }}
+									</small>
+									<small
+										class="hidden sm:flex pl-5 pb-3 text-second"
+										>{{
+											new Date(
+												itineraryDetails.date_posted
+											).toLocaleDateString("en-US", {
+												month: "long",
+												day: "numeric",
+												year: "numeric",
+											})
+										}}</small
+									>
+									
+									<p
+										class="font-montserrat sm:hidden pb-1 text-lg text-prime dark:text-interface"
+									>
+										Description
+									</p>
+								</div>
+								
+								
+
+								
 							</div>
 							<p
 								class="w-full sm:w-[90.5%] p-4 text-justify text-sm dark:text-interface font-montserrat"
@@ -445,8 +500,17 @@ import { ref } from "vue";
 // import { Loader } from "@googlemaps/js-api-loader";
 import router from "../routes";
 export default {
+	
 	data() {
 		return {
+			user_id: "",
+			rating: 0, // Current user's rating
+			tempRating: 0, // Used for hover effect
+			hasSubmitted: false,
+			//Uncommnet this line to use the initial ratings from the backend
+			allRatings: [4, 3.5, 5, 4.2], // Simulated ratings from different users
+			//allRatings: [...this.initialRatings], // Initial ratings from the backend
+
 			suggested_places: [],
 			paragraphs: [],
 
@@ -660,6 +724,13 @@ export default {
 			// This example uses 768px as the threshold for mobile devices
 			return window.innerWidth < 768;
 		},
+
+		avgRating() {
+			if (this.allRatings.length === 0) return 0;
+			const total = this.allRatings.reduce((sum, current) => sum + current, 0);
+			return total / this.allRatings.length;
+		},
+		
 	},
 	// watch: {
 	// 	total_budget(newVal, oldVal) {
@@ -707,6 +778,8 @@ export default {
 		console.log("FROM  OTHER", this.itineraryfrom);
 
 		this.fetchSavedItineraries();
+		this.fetchUser();
+		
 	},
 	mounted() {
 		this.populateDropdown();
@@ -717,6 +790,49 @@ export default {
 	},
 	filters: {},
 	methods: {
+		fetchUser() {
+		this.client
+			.get("api/user")
+			.then((res) => {
+				this.user_id = res.data.user.id;
+				console.log('USER DATA FROM FETCHUSER HERE', res.data.user.id);
+			})
+			.catch((error) => {
+				console.log("ERROR", error);
+			});
+
+		},
+		// Hover effect to display temporary rating
+		hoverRating(star) {
+			this.tempRating = star;
+		},
+		// Reset the rating display when hover ends
+		resetRating() {
+			this.tempRating = 0;
+		},
+		// Set and submit the rating
+		setRating(star) {
+			this.rating = star;
+			console.log(`User selected rating: ${star}`); // Log the user input rating
+			this.allRatings.push(star); // Add the rating to the array
+			this.submitRating(); // Call method to send data to the backend
+		},
+		/// Method to send the new rating to the backend
+		submitRating() {
+			if (this.hasSubmitted) return;
+			const data = {
+				userId: this.user_id,
+				postId: this.itinerary_id, // Include the postId
+				rating: this.rating,
+			};
+			
+			console.log("Submit rating to backend:", data);
+			this.hasSubmitted = true; 
+			//ADD SUBMIT RATING TO BACKEND HERE
+
+			// Simulate API call (this should be replaced with an actual API request)
+		},
+
 		async fetchSavedItineraries() {
 			try {
 				if (this.itinerary_id == null) {

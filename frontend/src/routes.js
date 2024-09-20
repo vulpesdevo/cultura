@@ -14,6 +14,7 @@ import PublicViewProfile from "./components/PublicViewProfile.vue";
 import Test from "./components/Test.vue";
 import Otp from "./components/Otp.vue";
 import Report from "./components/Report.vue";
+import TamSurvey from "./components/TamSurvey.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
