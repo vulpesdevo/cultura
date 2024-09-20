@@ -16,6 +16,7 @@ import Otp from "./components/Otp.vue";
 import Report from "./components/Report.vue";
 import TamSurvey from "./components/TamSurvey.vue";
 import Trivia from "./components/Trivia.vue";
+import EditPost from "./components/EditPost.vue";
 
 
 const router = createRouter({
@@ -25,6 +26,11 @@ const router = createRouter({
 		{ path: "/dashboard", component: Dashboard, name: "dashboard" },
 		{ path: "/otp", name: "otp", component: Otp },
 		{ path: "/report", name: "report", component: Report },
+		{
+			path: '/editpost',
+			name: 'EditPost',
+			component: EditPost,
+		},
 		{
 			path: "/notifications",
 			component: Notification,
