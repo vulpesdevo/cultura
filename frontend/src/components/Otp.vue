@@ -52,12 +52,15 @@
 
 <script>
 import Vue3OtpInput from "vue3-otp-input";
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
+import axios from "axios";
+import router from "../routes";
 export default {
 	data() {
 		return {
 			// authentication and authorization
-			otp: this.$route.query.otp,
+			// otp: this.$route.query.otp,
+			url: null,
 			email: this.$route.query.email,
 			fullname: this.$route.query.rname,
 			country: this.$route.query.rcountry,
@@ -108,15 +111,21 @@ export default {
 		...mapState(["otp"]),
 	},
 	methods: {
+		...mapActions(["saveOtp"]),
 		verifyOTP(modal) {
-			console.log(this.otp);
+			console.log("Email:", this.email);
+			console.log("Fullname:", this.fullname);
+			console.log("Country:", this.country);
+			console.log("Username:", this.rusername);
+			console.log("Password:", this.rpassword);
+			console.log("OTP in OTP.vue ", this.otp, " ", this.inputs);
 			if (modal == "register") {
 				if (this.otp === parseInt(this.inputs.join(""))) {
 					this.url
 						.post("/api/registration", {
 							email: this.email,
-							fullname: this.rname,
-							country: this.rcountry,
+							fullname: this.fullname,
+							country: this.country,
 							username: this.rusername,
 							password: this.rpassword,
 						})
@@ -127,8 +136,8 @@ export default {
 									password: this.rpassword,
 								})
 								.then((response) => {
-									this.showModal = false;
-									this.modalOTPActive = false;
+									// this.showModal = false;
+									// this.modalOTPActive = false;
 									const token = response.data.token; // Replace with your token
 									localStorage.setItem("token", token);
 									// localStorage.setItem(

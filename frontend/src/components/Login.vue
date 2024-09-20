@@ -1267,11 +1267,10 @@ export default {
 						this.$router.push({
 							name: "otp",
 							query: {
-								otp: this.otp,
 								email: this.email,
-								fullname: this.rname,
-								country: this.rcountry,
-								username: this.rusername,
+								rname: this.rname,
+								rcountry: this.rcountry,
+								rusername: this.rusername,
 								rpassword: this.rpassword,
 							},
 						});

@@ -436,6 +436,19 @@
 		>
 			<div id="the-map" class="the-map h-full w-full rounded-lg"></div>
 		</div>
+		<div
+			v-if="showModal"
+			class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+		>
+			<div class="bg-white rounded-lg shadow-lg p-6 w-4/5 sm:w-1/2">
+				<span
+					class="text-gray-500 float-right text-2xl font-bold cursor-pointer"
+					@click="closeModal"
+					>&times;</span
+				>
+				<p class="mt-4">{{ arrivalMessage }}</p>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -652,6 +665,7 @@ export default {
 
 			userMarker: null,
 			userLocation: null,
+			arrivalMessage: "",
 		};
 	},
 	computed: {
@@ -714,6 +728,8 @@ export default {
 		this.initializeAutocomplete();
 		// this.trackUserLocation();
 		this.findNearestTouristAttractions();
+
+		this.checkArrival(this.destination);
 	},
 	filters: {},
 	methods: {
@@ -1018,6 +1034,36 @@ export default {
 				console.error(error);
 			}
 		},
+		closeModal() {
+			this.showModal = false;
+		},
+		openModal(message) {
+			this.arrivalMessage = message;
+			this.showModal = true;
+		},
+		checkArrival(destination) {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition((position) => {
+					const userLat = position.coords.latitude;
+					const userLng = position.coords.longitude;
+					const destinationLat = destination.latitude;
+					const destinationLng = destination.longitude;
+
+					const distance = this.calculateDistance(
+						userLat,
+						userLng,
+						destinationLat,
+						destinationLng
+					);
+					if (distance < 0.1) {
+						// Adjust the threshold as needed
+						this.openModal(
+							`You have arrived at ${destination.name}`
+						);
+					}
+				});
+			}
+		},
 
 		// Helper Method: Calculate Distance Between Two Coordinates
 		calculateDistance(lat1, lon1, lat2, lon2) {
@@ -1163,6 +1209,9 @@ export default {
 							new google.maps.LatLng(end.latitude, end.longitude)
 						);
 						map.fitBounds(bounds);
+
+						// Check arrival at destination
+						this.checkArrival(end);
 					},
 					() => {
 						console.error("Unable to retrieve current location");

@@ -396,7 +396,7 @@
 							<div class="post-content flex w-full mt-4">
 								<div class="w-14 h-14 mr-4">
 									<img
-										:src="post.author_user_photo"
+										:src="data.author_user_photo"
 										alt="Profile"
 										class="rounded-full cursor-pointer"
 									/>
@@ -575,6 +575,8 @@ import axios from "axios";
 import { ref } from "vue";
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
+import { clean } from "profanity-cleaner";
+import filipinoBadWords from "../custom-badwords";
 export default {
 	data() {
 		return {
@@ -811,7 +813,19 @@ export default {
 			this.client
 				.get(`/api/posts-list`)
 				.then((response) => {
-					this.posts = response.data.reverse();
+					this.posts = response.data.reverse().map((post) => {
+						return {
+							...post,
+							title: clean(post.title, {
+								customMatch: (word) => word.length % 2 !== 0,
+								customBadWords: filipinoBadWords,
+							}),
+							content: clean(post.content, {
+								customMatch: (word) => word.length % 2 !== 0,
+								customBadWords: filipinoBadWords,
+							}),
+						};
+					});
 					if (this.posts.length > 0) {
 						// Set selectedPost to the first post
 						console.log("GET POST fetch", this.selectedPost);
