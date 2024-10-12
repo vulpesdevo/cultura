@@ -98,6 +98,9 @@
 						</div>
 					</div>
 					<div class="post-content flex w-screen sm:w-full">
+						<button @click="showLocationOntheMap()">
+							Optimize
+						</button>
 						<div
 							class="hidden w-[9.2%] sm:flex items-start justify-center"
 						>
@@ -416,9 +419,12 @@
 								style="scrollbar-width: none"
 							>
 								<div
-									class="flex-col justify-center items-center w-full h-32 sm:h-52 font-montserrat text-prime bg-white dark:bg-dark-interface sm:bg-interface drop-shadow-md mb-3 rounded-lg"
+									class="flex-col justify-center items-center w-full h-32 sm:h-60 font-montserrat text-prime bg-white dark:bg-dark-interface sm:bg-interface drop-shadow-md mb-3 rounded-lg cursor-pointer z-20"
 									v-for="(place, index) in suggested_places"
 									:key="index"
+									@click="
+										locateSuggestedPlace(place.geometry)
+									"
 								>
 									<img
 										v-if="place?.photos?.length > 0"
@@ -429,16 +435,18 @@
 									<div
 										class="font-montserrat px-2 flex flex-col justify-normal sm:justify-between items-left"
 									>
+										<div
+											class="text-end text-xs px-4 py-3 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full dark:text-interface"
+										>
+											rating: {{ place.rating }}
+										</div>
+
 										<h1
-											class="text-base px-4 py-3 text-left dark:text-interface truncate"
+											class="text-sm px-4 py-3 text-left dark:text-interface truncate"
 										>
 											{{ place.name }}
 										</h1>
-										<p
-											class="text-left text-xs px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16 dark:text-interface"
-										>
-											{{ place.vicinity }}
-										</p>
+
 										<!-- <div
 												class="fixed bottom-0 left-0 mb-2 flex w-full h-8 text-center items-center justify-end sm:justify-center"
 											>
@@ -456,6 +464,21 @@
 										<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
 												:style="{ width: `${text.length * 10}px` }"
 											>{{ text }}</p> -->
+										<div class="w-full px-5">
+											<ul
+												class="w-full grid grid-cols-2 list-disc justify-end"
+											>
+												<li
+													class="text-xs text-prime dark:text-interface text-wrap"
+													v-for="(
+														type, index
+													) in place.types"
+													:key="index"
+												>
+													{{ type }}
+												</li>
+											</ul>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -732,7 +755,7 @@ export default {
 				status: null,
 			},
 			nearestTouristInterest: null,
-
+			map: null,
 			userMarker: null,
 			userLocation: null,
 			arrivalMessage: "",
@@ -813,6 +836,46 @@ export default {
 	},
 	filters: {},
 	methods: {
+		locateSuggestedPlace(latlng) {
+			console.log("lat long: ", latlng);
+
+			// Ensure latlng is a string
+			const latlngStr = String(latlng.location);
+
+			// Extract lat and lng from the string format "(lat, lng)"
+			const match = latlngStr.match(/\(([^,]+),\s*([^)]+)\)/);
+			console.log("match :", latlngStr);
+
+			if (match) {
+				const lat = parseFloat(match[1]);
+				const lng = parseFloat(match[2]);
+
+				// Check if lat and lng are valid numbers
+				if (!isNaN(lat) && !isNaN(lng)) {
+					// Initialize map
+					const mapId = "2c9b57c42de97202";
+					const map = new google.maps.Map(
+						document.getElementById("the-map"),
+						{
+							center: { lat: lat, lng: lng },
+							zoom: 15, // Set a default zoom level
+							mapId: mapId,
+						}
+					);
+
+					// Add a marker to the new center using AdvancedMarkerElement
+					new google.maps.marker.AdvancedMarkerElement({
+						position: { lat: lat, lng: lng },
+						map: map,
+						title: "Suggested Place Marker",
+					});
+				} else {
+					console.error("Invalid latitude or longitude values");
+				}
+			} else {
+				console.error("Invalid latlng format");
+			}
+		},
 		fetchUser() {
 			this.client
 				.get("api/user")
@@ -909,6 +972,7 @@ export default {
 					const response = await this.client.get(
 						`/api/viewing-itinerary/${this.itinerary_id}`
 					);
+
 					this.itineraries = response.data;
 					console.log("ITINERARIES", this.itineraries);
 					this.itineraries.forEach((itinerary) => {
@@ -1120,12 +1184,13 @@ export default {
 			);
 			try {
 				const location = await this.getCurrentLocation();
-				const map = new google.maps.Map(
+				const mapId = "2c9b57c42de97202";
+				const map1 = new google.maps.Map(
 					document.getElementById("the-map")
 				);
 				// new google.maps.LatLng(new google.maps.LatLng(-34, 151), true);
 
-				const service = new google.maps.places.PlacesService(map);
+				const service = new google.maps.places.PlacesService(map1);
 
 				const request = {
 					location: new google.maps.LatLng(
@@ -1152,31 +1217,45 @@ export default {
 							} else {
 								console.log(`Place: ${place}`);
 							}
-							const marker = new AdvancedMarkerElement({
-								map: map,
-								position: { lat: 14.4296611, lng: 120.9737983 },
-								// Use the provided coordinates
-								title: place.name,
-							});
+							const latlngStr = String(place.geometry.location);
 
-							// Add an info window for each marker
-							// const infoWindow = new google.maps.InfoWindow({
-							// 	content: `<div><strong>${name}</strong><br>${description}<br><img src="${photoUrl}" alt="${name}" style="max-width: 100px;"></div>`,
-							// });
+							// Extract lat and lng from the string format "(lat, lng)"
+							const match = latlngStr.match(
+								/\(([^,]+),\s*([^)]+)\)/
+							);
+							if (match) {
+								const lat = parseFloat(match[1]);
+								const lng = parseFloat(match[2]);
 
-							// marker.addListener("click", () => {
-							// 	infoWindow.open(this.map, marker);
-							// });
+								console.log("latlong::::::", lat, lng);
 
-							// console.log("Marker added:", marker);
-							// let bounds = new google.maps.LatLngBounds();
-							// bounds.extend(
-							// 	new google.maps.LatLng(
-							// 		place.geometry.location[0],
-							// 		place.geometry.location[1]
-							// 	)
-							// );
-							// map.fitBounds(bounds);
+								// Check if lat and lng are valid numbers
+								if (!isNaN(lat) && !isNaN(lng)) {
+									// Initialize map
+									const map = new google.maps.Map(
+										document.getElementById("the-map"),
+										{
+											center: { lat: lat, lng: lng },
+											zoom: 15,
+											mapId: mapId,
+										}
+									);
+									// Add a marker to the new center using AdvancedMarkerElement
+									new google.maps.marker.AdvancedMarkerElement(
+										{
+											position: { lat: lat, lng: lng },
+											map: map,
+											title: "Suggested Place Marker",
+										}
+									);
+								} else {
+									console.error(
+										"Invalid latitude or longitude values"
+									);
+								}
+							} else {
+								console.error("Invalid latlng format");
+							}
 						});
 					} else {
 						console.error(

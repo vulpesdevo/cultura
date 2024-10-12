@@ -54,7 +54,7 @@
 						</a>
 					</p>
 				</div>
-				<div class="flex justify-between ">
+				<div class="flex justify-between">
 					<div class="flex items-center mt-5">
 						<img
 							class="rounded-full w-12 object-cover shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
@@ -70,27 +70,29 @@
 							class="font-montserrat text-xs text-second ml-2 sm:text-sm sm:ml-5"
 						>
 							{{
-								new Date(itinerary.date_posted).toLocaleDateString(
-									"en-US",
-									{
-										month: "long",
-										day: "numeric",
-										year: "numeric",
-									}
-								)
+								new Date(
+									itinerary.date_posted
+								).toLocaleDateString("en-US", {
+									month: "long",
+									day: "numeric",
+									year: "numeric",
+								})
 							}}
 						</h1>
 					</div>
-					<!-- | RATING CONTAINER--> 
-					<div class="flex items-center -ml-24 sm:mt-5 -mt-40 "> 
-						<i class="fa-solid fa-star sm:text-2xl text-xl text-second"></i>
-						<div class="sm:text-lg ml-2 font-montserrat text-lg text-white">
+					<!-- | RATING CONTAINER-->
+					<div class="flex items-center -ml-24 sm:mt-5 -mt-40">
+						<i
+							class="fa-solid fa-star sm:text-2xl text-xl text-second"
+						></i>
+						<div
+							class="sm:text-lg ml-2 font-montserrat text-lg text-prime dark:text-white"
+						>
 							{{ avgRating.toFixed(1) }} / 5
 						</div>
 					</div>
 				</div>
 			</div>
-				
 		</div>
 
 		<div class="mt-10"></div>
@@ -104,7 +106,7 @@ export default {
 	components: {
 		ViewItinerary,
 	},
-	
+
 	data() {
 		return {
 			itineraries: [],
@@ -148,11 +150,14 @@ export default {
 		this.fetchItineraries();
 	},
 	computed: {
-	// Compute the average rating from all ratings
-	avgRating() {
-		if (this.allRatings.length === 0) return 0;
-		const total = this.allRatings.reduce((sum, current) => sum + current, 0);
-		return total / this.allRatings.length;
+		// Compute the average rating from all ratings
+		avgRating() {
+			if (this.allRatings.length === 0) return 0;
+			const total = this.allRatings.reduce(
+				(sum, current) => sum + current,
+				0
+			);
+			return total / this.allRatings.length;
 		},
 	},
 	methods: {
@@ -187,8 +192,6 @@ export default {
 				console.error(error);
 			}
 		},
-
-		
 	},
 };
 </script>

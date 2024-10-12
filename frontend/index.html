@@ -19,7 +19,7 @@
 		<script
 			async
 			defer
-			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlo4jqabMxIygmvXtD-K0tm1HJEecnrEA&loading=async&libraries=places,marker,maps"
+			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s&loading=async&libraries=places,marker,maps"
 		></script>
 
 		<script>
@@ -84,6 +84,31 @@
 		</script>
 		<script>
 			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+		</script>
+		<script type="text/javascript">
+			window.tiledeskSettings = {
+				projectid: "670a45a5c982220013ce26ae",
+			};
+			(function (d, s, id) {
+				var w = window;
+				var d = document;
+				var i = function () {
+					i.c(arguments);
+				};
+				i.q = [];
+				i.c = function (args) {
+					i.q.push(args);
+				};
+				w.Tiledesk = i;
+				var js,
+					fjs = d.getElementsByTagName(s)[0];
+				if (d.getElementById(id)) return;
+				js = d.createElement(s);
+				js.id = id;
+				js.async = true;
+				js.src = "https://widget.tiledesk.com/v6/launch.js";
+				fjs.parentNode.insertBefore(js, fjs);
+			})(document, "script", "tiledesk-jssdk");
 		</script>
 		<title>Culturalink</title>
 	</head>
