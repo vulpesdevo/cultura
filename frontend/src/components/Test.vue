@@ -675,7 +675,7 @@ export default {
 		};
 	},
 	created() {
-		this.token = localStorage.getItem("token");
+		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,
@@ -760,19 +760,19 @@ export default {
 				console.log("res6", this.selectedResponse6); // Reset the selected response for the next survey
 				this.tamCompleteResponse = true;
 				this.client
-                    .post(`api/get-survey`, {
-                        q1: this.selectedResponse1,
-                        q2: this.selectedResponse2,
-                        q3: this.selectedResponse3,
-                        q4: this.selectedResponse4,
-                        q5: this.selectedResponse5,
-                        q6: this.selectedResponse6,
-                    })
+					.post(`api/get-survey`, {
+						q1: this.selectedResponse1,
+						q2: this.selectedResponse2,
+						q3: this.selectedResponse3,
+						q4: this.selectedResponse4,
+						q5: this.selectedResponse5,
+						q6: this.selectedResponse6,
+					})
 					.then((response) => {
 						// Handle success response
 						console.log(response.data);
 						// this.$router.push({ name: "SurveyComplete" });
-						
+
 						// Optionally, update your UI based on the successful like
 					})
 					.catch((error) => {
@@ -787,11 +787,10 @@ export default {
 			this.client
 				.post("api/logout")
 				.then((res) => {
-					
 					// console.log("User logged out:", res);
 					// this.user.isAuthenticated = false;
 
-					localStorage.removeItem("token");
+					sessionStorage.removeItem("TOKEN");
 					// localStorage.setItem("isSurvey", true);
 					window.scrollTo(0, 0);
 					router.push({ name: "login" }).then(() => {

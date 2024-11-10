@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="flex flex-col items-center just align-middle w-screen sm:px-8 pb-2 sm:ml-64 overflow-x-hidden h-screen bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center just align-middle w-full sm:px-8 pb-2 overflow-x-hidden h-screen bg-field dark:bg-dark-notif px-2"
 	>
 		<div
-			class="post-contents w-screen p-5 mb-5 pb-3 pt-7 mt-12 px-6 sm:mt-0 sm:px-52 shadow-lg bg-[#7f93e9] dark:bg-[#111731]"
+			class="post-contents w-screen p-5 mb-5 pb-3 pt-7 px-6 sm:mt-0 sm:px-52 shadow-lg bg-[#7f93e9] dark:bg-[#111731]"
 		>
 			<div class="post-title flex justify-center items-center">
 				<div class="flex w-full justify-between items-center">

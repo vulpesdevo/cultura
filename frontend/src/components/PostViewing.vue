@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-dark-notif pt-20 sm:pt-3"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 overflow-auto h-screen bg-field dark:bg-dark-notif pt-20 sm:pt-3"
 	>
 		<div
 			class="relative post-contents w-full p-3 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -232,14 +232,14 @@ export default {
 			post_id: "",
 			showModal: false,
 			comments_in_post: [],
-selectedItinerary: null,
+			selectedItinerary: null,
 			id_of_selected: "",
 			itineraries: [],
 			itineraries_frompost: [],
 		};
 	},
 	created() {
-		this.token = localStorage.getItem("token");
+		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,
@@ -274,7 +274,8 @@ selectedItinerary: null,
 		},
 		timesince(date) {
 			return moment(date).fromNow();
-		},goToViewItinerary(itinerarydata) {
+		},
+		goToViewItinerary(itinerarydata) {
 			this.$router.push({
 				name: "view-itinerary",
 				params: { itinerarydata },
@@ -287,7 +288,7 @@ selectedItinerary: null,
 				)
 				.then((response) => {
 					this.posts = response.data;
-					
+
 					this.selectedPost = response.data;
 					this.post_id = this.selectedPost[0]._id;
 					this.replied_to = this.selectedPost[0].author;

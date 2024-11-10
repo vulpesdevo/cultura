@@ -147,7 +147,7 @@ export default {
 		if (postParam) {
 			this.post = JSON.parse(postParam);
 		}
-		this.token = localStorage.getItem("token");
+		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,

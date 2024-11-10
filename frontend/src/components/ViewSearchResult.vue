@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto overflow-x-hidden scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<section class="w-full mb-10 sm:mb-0">
 			<div class="flex flex-col w-full">
@@ -337,196 +337,162 @@
 		</section>
 	</div>
 </template>
-<script>
+<script setup>
 import axios from "axios";
-import { ref } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
-export default {
-	data() {
-		return {
-			post_profile_display: null,
-			selectedImageUrl: null,
-			picture: null,
+import { useRouter, useRoute } from "vue-router";
 
-			auth_user: "",
+const router = useRouter();
+const route = useRoute();
 
-			isEditing: true,
-			postTitle: "",
+const post_profile_display = ref(null);
+const selectedImageUrl = ref(null);
+const picture = ref(null);
+const auth_user = ref("");
+const isEditing = ref(true);
+const postTitle = ref("");
+const addItineraryModal = ref(false);
+const showModal = ref(false);
+const categoryOption = ref("");
+const postContent = ref("");
+const countryPost = ref("");
+const posts = ref([]);
+const users = ref([]);
+const result = ref(null);
+const selectedPost = ref([]);
+const reply = ref("");
+const replied_to = ref("");
+const post_id = ref("");
+const comments = ref([]);
+const comments_in_post = ref([]);
+const itineraries = ref([]);
+const itineraries_frompost = ref([]);
+const selectedItinerary = ref(null);
+const id_of_selected = ref("");
+const isFullTextShown = ref({});
+const token = sessionStorage.getItem("TOKEN");
 
-			addItineraryModal: false,
-			showModal: false,
-
-			categoryOption: "",
-			postContent: "",
-			countryPost: "",
-
-			posts: [],
-			users: [],
-			result: null,
-
-			selectedPost: [],
-			reply: "",
-			replied_to: "",
-			post_id: "",
-
-			comments: [],
-			comments_in_post: [],
-
-			itineraries: [],
-			itineraries_frompost: [],
-			selectedItinerary: null,
-			id_of_selected: "",
-			isFullTextShown: {},
-		};
+const client = axios.create({
+	baseURL: "http://127.0.0.1:8000",
+	withCredentials: true,
+	timeout: 5000,
+	xsrfCookieName: "csrftoken",
+	xsrfHeaderName: "X-Csrftoken",
+	headers: {
+		Authorization: `Token ${token}`,
+		"Content-Type": "application/json",
 	},
-	created() {
-		this.token = localStorage.getItem("token");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
-			},
-		});
-		// this.posts = this.$route.params.result;
-	},
-	beforeRouteEnter(to, from, next) {
-		if (!to.params.result) {
-			next({ name: "dashboard" });
-		} else {
-			next();
-		}
-	},
+});
 
-	mounted() {
-		this.result = JSON.parse(this.$route.params.result);
-		console.log("valid object", this.result);
-		this.posts = this.result.posts;
-		this.users = this.result.users;
-	},
-	methods: {
-		follow(userId) {
-			this.client
-				.post(`api/follow/${userId}/follow/`)
-				.then((response) => {
-					// Handle success response
-					console.log(response.data);
-					// Update the is_followed property of the user object
-					const userIndex = this.users.findIndex(
-						(user) => user.user === userId
-					);
+onMounted(() => {
+	if (!route.params.result) {
+		router.push({ name: "dashboard" });
+	} else {
+		result.value = JSON.parse(route.params.result);
+		console.log("valid object", result.value);
+		posts.value = result.value.posts;
+		users.value = result.value.users;
+	}
+});
 
-					this.result.users = this.result.users.map((user) => {
-						if (user.user === userId) {
-							user.is_followed = response.data.is_followed;
-						}
-						if (userIndex !== -1) {
-							this.users[userIndex].is_followed =
-								response.data.is_followed;
-						}
-						return user;
-					});
+const follow = (userId) => {
+	client
+		.post(`api/follow/${userId}/follow/`)
+		.then((response) => {
+			console.log(response.data);
+			const userIndex = users.value.findIndex(
+				(user) => user.user === userId
+			);
 
-					// Optionally, update your UI based on the successful follow
-				})
-				.catch((error) => {
-					// Handle error
-					console.error("Error following the user:", error);
-				});
-		},
-		goToViewItinerary(itinerarydata) {
-			this.$router.push({
-				name: "view-itinerary",
-				params: { itinerarydata },
+			result.value.users = result.value.users.map((user) => {
+				if (user.user === userId) {
+					user.is_followed = response.data.is_followed;
+				}
+				if (userIndex !== -1) {
+					users.value[userIndex].is_followed =
+						response.data.is_followed;
+				}
+				return user;
 			});
-		},
-		likePost(post_id) {
-			this.client
-				.post(`api/like-posts/${post_id}/like_post/`)
-				.then((response) => {
-					// Handle success response
-					console.log(response.data);
-					this.fetchPosts();
-					// Optionally, update your UI based on the successful like
-				})
-				.catch((error) => {
-					// Handle error
-					console.error("Error liking the post:", error);
-				});
-		},
-		timesince(date) {
-			return moment(date).fromNow();
-		},
-		selectPost(post) {
-			this.showModal = true;
-
-			this.selectedPost = [post];
-			console.log("GET POST", this.selectedPost);
-			this.post_id = this.selectedPost[0]._id;
-
-			this.replied_to = this.selectedPost[0].author;
-			this.comments_in_post =
-				this.posts.find((p) => p._id === this.post_id)?.comments || [];
-			console.log("the id : ", this.comments_in_post);
-		},
-		submitReply() {
-			this.client
-				.post("/api/commenting", {
-					post_id: this.post_id,
-					replied_to: this.replied_to,
-					body: this.reply,
-				})
-				.then((response) => {
-					console.log(response.data);
-					this.reply = "";
-					// this.fetchComments();
-					this.fetchPosts();
-
-					// setInterval(this.fetchComments, 5000);
-
-					// Handle successful response here
-				})
-				.catch((error) => {
-					console.error(error);
-					// Handle error here
-				});
-		},
-		fetchPosts() {
-			this.client
-				.get(`/api/posts-list`)
-				.then((response) => {
-					this.posts = response.data.reverse();
-					if (this.posts.length > 0) {
-						// Set selectedPost to the first post
-						console.log("GET POST fetch", this.selectedPost);
-						// this.post_id = this.selectedPost[0]._id;
-						this.itineraries_frompost =
-							this.posts[0].itinerary_in_post;
-						// this.replied_to = this.selectedPost[0].author;
-						this.comments_in_post =
-							this.posts.find((p) => p._id === this.post_id)
-								?.comments || [];
-						console.log("the id : ", this.comments_in_post);
-					}
-
-					// this.comments_in_post = this.posts[0].comments;
-					console.log("updateed :", this.posts[0]);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		},
-	},
-	setup() {
-		const isDark = useDark();
-		const toggleDark = useToggle(isDark);
-
-		return { isDark, toggleDark };
-	},
+		})
+		.catch((error) => {
+			console.error("Error following the user:", error);
+		});
 };
+
+const goToViewItinerary = (itinerarydata) => {
+	router.push({
+		name: "view-itinerary",
+		params: { itinerarydata },
+	});
+};
+
+const likePost = (post_id) => {
+	client
+		.post(`api/like-posts/${post_id}/like_post/`)
+		.then((response) => {
+			console.log(response.data);
+			fetchPosts();
+		})
+		.catch((error) => {
+			console.error("Error liking the post:", error);
+		});
+};
+
+const timesince = (date) => {
+	return moment(date).fromNow();
+};
+
+const selectPost = (post) => {
+	showModal.value = true;
+	selectedPost.value = [post];
+	console.log("GET POST", selectedPost.value);
+	post_id.value = selectedPost.value[0]._id;
+	replied_to.value = selectedPost.value[0].author;
+	comments_in_post.value =
+		posts.value.find((p) => p._id === post_id.value)?.comments || [];
+	console.log("the id : ", comments_in_post.value);
+};
+
+const submitReply = () => {
+	client
+		.post("/api/commenting", {
+			post_id: post_id.value,
+			replied_to: replied_to.value,
+			body: reply.value,
+		})
+		.then((response) => {
+			console.log(response.data);
+			reply.value = "";
+			fetchPosts();
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const fetchPosts = () => {
+	client
+		.get(`/api/posts-list`)
+		.then((response) => {
+			posts.value = response.data.reverse();
+			if (posts.value.length > 0) {
+				console.log("GET POST fetch", selectedPost.value);
+				itineraries_frompost.value = posts.value[0].itinerary_in_post;
+				comments_in_post.value =
+					posts.value.find((p) => p._id === post_id.value)
+						?.comments || [];
+				console.log("the id : ", comments_in_post.value);
+			}
+			console.log("updated :", posts.value[0]);
+		})
+		.catch((error) => {
+			console.log(error);
+		});
+};
+
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
 </script>

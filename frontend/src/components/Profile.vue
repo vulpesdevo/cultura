@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 sm:px-8 py-5 sm:ml-64 overflow-auto overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-5 sm:pt-7"
+		class="profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 sm:px-8 py-5 overflow-auto overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-5 sm:pt-7"
 	>
 		<div
 			class="profile-1 w-screen sm:w-full mt-12 sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -783,7 +783,7 @@ export default {
 		// and update the corresponding data property
 	},
 	created() {
-		this.token = localStorage.getItem("token");
+		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,

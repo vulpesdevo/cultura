@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center just align-middle w-screen sm:px-8 py-2 sm:ml-64 overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-[4.5rem] sm:pt-7 px-2"
+		class="flex flex-col items-center just align-middle w-full sm:px-8 py-2 overflow-x-hidden h-screen bg-field dark:bg-dark-notif sm:pt-7 px-2"
 	>
 		<div
 			class="flex flex-col justify-start w-full text-prime bg-[#E8E8E8] dark:bg-dark-interface p-7 mb-5 sm:mb-10 sm:p-7 sm:px-20 rounded-3xl"
@@ -133,7 +133,9 @@
 								class="flex items-start mt-3 mb-4"
 								v-if="isGmailEmail && editing"
 							>
-								<label for="" class="w-1/2 text-end dark:text-dark-second-dark"
+								<label
+									for=""
+									class="w-1/2 text-end dark:text-dark-second-dark"
 									>verify password:</label
 								>
 								<div class="relative w-3/4 px-1">
@@ -797,7 +799,7 @@ export default {
 			showsetPass: false,
 			showNewPassword: false,
 			showConfirmPassword: false,
-			
+
 			hasCapitalLetter: false,
 			hasSymbol: false,
 			hasNumber: false,
@@ -845,7 +847,7 @@ export default {
 		},
 	},
 	created() {
-		this.token = localStorage.getItem("token");
+		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,
@@ -916,7 +918,7 @@ export default {
 						"success"
 					);
 					this.editing = false;
-					this.setpassword = '';
+					this.setpassword = "";
 				})
 				.catch((error) => {
 					console.log("ERROR", error);

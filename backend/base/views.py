@@ -21,7 +21,8 @@ from .serializers import (
     UserLoginSerializer,
     UserSerializer,
     PostSerializer,
-    CommentSerializer,ReportSerializer
+    CommentSerializer,
+    ReportSerializer,
 )
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -58,6 +59,7 @@ class UserView(APIView):
         from django.core import serializers
 
         UserView.token_auth = str(authorization_header).replace("Token", "").strip()
+        print("TOKEN ", request)
         serializer = UserSerializer(request.user)
         # cultura_user = CulturaUser.objects.get(user=request.user)
         # cultura_users = CulturaUser.objects.filter(user=request.user)
@@ -231,11 +233,18 @@ class UserLogin(APIView):
             # password = serializer.validated_data["password"]
             user = serializer.check_user(data)
             # User is already authenticated, return appropriate response
+            cultura_user = CulturaUser.objects.get(user=user)
+
+            # Serialize the CulturaUser instance
+            user_serializer = CulturaUserSerializer(
+                cultura_user, context={"request": request}
+            )
             login(request, user)
             token, create = Token.objects.get_or_create(user=user)
             # return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(
-                {"token": token.key, "user": serializer.data}, status=status.HTTP_200_OK
+                {"token": token.key, "user": user_serializer.data},
+                status=status.HTTP_200_OK,
             )
 
 
@@ -453,6 +462,7 @@ class PostCreate(APIView):
 
         serializer = PostSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def put(self, request, post_id):
         """
         Handles the updating of an existing Post instance.
@@ -476,7 +486,9 @@ class PostCreate(APIView):
             post.save()
         except Post.DoesNotExist:
             return Response(
-                {"error": "Post not found or you do not have permission to edit this post."},
+                {
+                    "error": "Post not found or you do not have permission to edit this post."
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         except Exception as e:
@@ -1038,6 +1050,8 @@ from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
+
 class ReportListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -1050,12 +1064,11 @@ class ReportListCreateView(APIView):
 
         data = request.data
         print("Incoming data:", data)  # Print the incoming data for debugging
-        post_id = data.get('post_id')
-        user_id = data.get('user_id')
-        category = data.get('category')
-        details = data.get('details')
+        post_id = data.get("post_id")
+        user_id = data.get("user_id")
+        category = data.get("category")
+        details = data.get("details")
 
-        
         # Fetch the User instance
         user = User.objects.get(id=user_id)
 
@@ -1064,7 +1077,7 @@ class ReportListCreateView(APIView):
             post_id=post_id,
             user_id=user.id,  # Use user.id directly
             category=category,
-            details=details
+            details=details,
         )
         report.save()
 
@@ -1072,8 +1085,8 @@ class ReportListCreateView(APIView):
         serializer = ReportSerializer(report)
         print(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-       
+
+
 class ItineraryListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -1141,15 +1154,14 @@ class SaveItineraryView(APIView):
         # for itinerary in itineraries_init:
         #     itinerary.status = True
         #     itinerary.save()
-        
-        
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def put(self, request):
         data = request.data
-        user_id = data.get('user_id')
-        itinerary_id = data.get('itinerary_id')
-        new_rating = data.get('rating')
+        user_id = data.get("user_id")
+        itinerary_id = data.get("itinerary_id")
+        new_rating = data.get("rating")
 
         try:
             itinerary = SaveItinerary.objects.get(id=itinerary_id)
@@ -1157,7 +1169,9 @@ class SaveItineraryView(APIView):
                 itinerary.rating = []
 
             # Check if the user_id is already in the rating list
-            user_exists = any(rating['user_id'] == user_id for rating in itinerary.rating)
+            user_exists = any(
+                rating["user_id"] == user_id for rating in itinerary.rating
+            )
 
             if not user_exists:
                 print("NOT IN RATINGS")
@@ -1166,13 +1180,21 @@ class SaveItineraryView(APIView):
             else:
                 print("IN RATINGS")
             serializer = SaveItinerarySerializer(itinerary)
-            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+            return Response({"data": serializer.data}, status=status.HTTP_200_OK)
         except SaveItinerary.DoesNotExist:
-            return Response({'error': 'Itinerary not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         except json.JSONDecodeError as e:
-            return Response({'error': f'Failed to parse rating: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": f"Failed to parse rating: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 # class RatingItinerary(APIView):
 #     permission_classes = (permissions.IsAuthenticated,)
@@ -1212,8 +1234,8 @@ class SaveItineraryListView(APIView):
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 # Update the itinerary data with the absolute URI
                 itinerary_data["main_image"] = abs_main_image_url
-             # Ensure rating_str is a string before calling replace
-            
+            # Ensure rating_str is a string before calling replace
+
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
                 if image:
@@ -1221,7 +1243,7 @@ class SaveItineraryListView(APIView):
                     abs_image_url = request.build_absolute_uri(image)
                     # Update the post data with the absolute URI
                     itinerary_data["user_photo"] = abs_image_url
-        
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

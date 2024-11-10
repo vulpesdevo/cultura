@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 sm:ml-64 overflow-auto overflow-x-hidden scroll-smooth h-screen pt-20 sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
 			class="profile-1 flex flex-col justify-center items-center w-screen sm:w-full sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -661,7 +661,7 @@ export default {
 		return { isDark, toggleDark };
 	},
 	created() {
-		this.token = localStorage.getItem("token");
+		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,

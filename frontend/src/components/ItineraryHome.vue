@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif pt-20 sm:px-28 sm:ml-64 sm:pt-3 h-screen"
+		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-28 sm:pt-3 h-screen"
 	>
 		<div
 			class="flex justify-end items-center text-end w-full sm:w-11/12 h-10"
@@ -25,12 +25,24 @@
 				/>
 				<div class="w-full h-auto py-2">
 					<!-- <div class="flex flex-row justify-start items-center"> -->
-					<h1
-						class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
-					>
-						{{ itinerary.main_title }}
-					</h1>
-
+					<div class="flex justify-between items-center mt-5">
+						<h1
+							class="font-bebas-neue text-prime dark:text-interface text-3xl sm:text-4xl"
+						>
+							{{ itinerary.main_title }}
+						</h1>
+						<!-- | RATING CONTAINER-->
+						<div class="flex items-center">
+							<i
+								class="fa-solid fa-star sm:text-2xl text-xl text-second"
+							></i>
+							<div
+								class="sm:text-lg ml-2 font-montserrat text-sm text-prime dark:text-white"
+							>
+								{{ avgRating.toFixed(1) }} / 5
+							</div>
+						</div>
+					</div>
 					<p
 						class="font-montserrat text-sm text-justify h-auto dark:text-interface"
 					>
@@ -57,7 +69,7 @@
 				<div class="flex justify-between">
 					<div class="flex items-center mt-5">
 						<img
-							class="rounded-full w-12 object-cover shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
+							class="rounded-full size-12 object-cover shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
 							:src="itinerary.user_photo"
 							alt=""
 						/>
@@ -80,17 +92,6 @@
 							}}
 						</h1>
 					</div>
-					<!-- | RATING CONTAINER-->
-					<div class="flex items-center -ml-24 sm:mt-5 -mt-40">
-						<i
-							class="fa-solid fa-star sm:text-2xl text-xl text-second"
-						></i>
-						<div
-							class="sm:text-lg ml-2 font-montserrat text-lg text-prime dark:text-white"
-						>
-							{{ avgRating.toFixed(1) }} / 5
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -98,102 +99,54 @@
 		<div class="mt-10"></div>
 	</div>
 </template>
-
-<script>
-import axios from "axios";
+<script setup>
+import { ref, computed, onMounted, watch } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import ViewItinerary from "./ViewItinerary.vue";
-export default {
-	components: {
-		ViewItinerary,
-	},
 
-	data() {
-		return {
-			itineraries: [],
-			isFullTextShown: {}, // Initialize as empty object
-			//Uncommnet this line to use the initial ratings from the backend
-			allRatings: [4, 3.5, 5, 4.2], // Simulated ratings from different users
-			//allRatings: [...this.initialRatings], // Initial ratings from the backend
-		};
-	},
-	watch: {
-		// Watcher to update isFullTextShown when itineraries changes
-		itineraries(newVal) {
-			this.isFullTextShown = newVal.reduce((acc, _, index) => {
-				acc[index] = false; // Initialize all as false (collapsed)
-				return acc;
-			}, {});
-		},
-		rating(newValue, itinerarId) {
-			console.log(`Rating changed to: ${newValue}`);
-			this.client.post("api/rating", { rate: newValue });
-			// Perform an action when the rating changes
-		},
-	},
-	mounted() {
-		this.fetchItineraries();
-	},
-	created() {
-		const token = localStorage.getItem("token");
-		const headers = {
-			Authorization: `Token ${token}`,
-			"Content-Type": "application/json",
-		};
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: headers,
-		});
-		this.fetchItineraries();
-	},
-	computed: {
-		// Compute the average rating from all ratings
-		avgRating() {
-			if (this.allRatings.length === 0) return 0;
-			const total = this.allRatings.reduce(
-				(sum, current) => sum + current,
-				0
-			);
-			return total / this.allRatings.length;
-		},
-	},
-	methods: {
-		// updateRating(itineraryId, rating) {
-		// 	console.log(`Rating changed to: ${rating} for itinerary ${itineraryId}`);
-		// 	this.client.post("api/rating", {
-		// 		rate: rating,
-		// 		itinerary_id: itineraryId,
-		// 	}).then(res => {
-		// 		console.loh(res);
-		// 		// Handle the response here
-		// 	}).catch(error => {
-		// 		console.error(error);
-		// 	});
-		// },
+const store = useStore();
+const router = useRouter();
 
-		goToViewItinerary(itinerarydata) {
-			this.$router.push({
-				name: "view-itinerary",
-				params: { itinerarydata },
-			});
-		},
-		toggleText(index) {
-			this.isFullTextShown[index] = !this.isFullTextShown[index];
-		},
-		async fetchItineraries() {
-			try {
-				const response = await this.client.get("/api/saved-itinerary");
-				this.itineraries = response.data;
-				console.log(this.itineraries);
-			} catch (error) {
-				console.error(error);
-			}
-		},
-	},
+const itineraries = computed(() => store.getters.getItineraries);
+const isFullTextShown = ref({});
+const allRatings = ref([4, 3.5, 5, 4.2]); // Simulated ratings from different users
+
+const avgRating = computed(() => {
+	if (allRatings.value.length === 0) return 0;
+	const total = allRatings.value.reduce((sum, current) => sum + current, 0);
+	return total / allRatings.value.length;
+});
+
+const fetchItineraries = async () => {
+	try {
+		await store.dispatch("fetchItineraries");
+	} catch (error) {
+		console.error(error);
+	}
 };
+
+const goToViewItinerary = (itinerarydata) => {
+	router.push({
+		name: "view-itinerary",
+		params: { itinerarydata },
+	});
+};
+
+const toggleText = (index) => {
+	isFullTextShown.value[index] = !isFullTextShown.value[index];
+};
+
+watch(itineraries, (newVal) => {
+	isFullTextShown.value = newVal.reduce((acc, _, index) => {
+		acc[index] = false; // Initialize all as false (collapsed)
+		return acc;
+	}, {});
+});
+
+onMounted(() => {
+	fetchItineraries();
+});
 </script>
 
 <style scoped>

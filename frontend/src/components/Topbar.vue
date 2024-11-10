@@ -139,7 +139,7 @@ export default {
 			this.showPopup = !this.showPopup;
 		},
 		submitLogout() {
-			const token = localStorage.getItem("token");
+			const token = sessionStorage.getItem("TOKEN");
 			const headers = {
 				Authorization: `Token ${token}`,
 				"Content-Type": "application/json",
@@ -169,7 +169,7 @@ export default {
 		},
 	},
 	created() {
-		this.token = localStorage.getItem("token");
+		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
 			baseURL: "http://127.0.0.1:8000",
 			withCredentials: true,

@@ -1,7 +1,7 @@
 <template>
 	<div class="flex sm:ml-52 sm:w-full">
 		<div
-			class="flex flex-col items-center align-middle sm:w-[65%] px-5 sm:px-12 py-5 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-0"
+			class="flex flex-col items-center align-middle sm:w-[65%] px-5 sm:px-12 overflow-auto h-screen bg-field dark:bg-notif sm:pt-0"
 		>
 			<!-- Header -->
 			<div
@@ -799,7 +799,7 @@ export default {
 	// },
 	created() {
 		// this.itineraryfrom = this.$route.params.itinerarydata;
-		const token = localStorage.getItem("token");
+		const token = sessionStorage.getItem("TOKEN");
 		const headers = {
 			Authorization: `Token ${token}`,
 			"Content-Type": "application/json",

@@ -21,8 +21,7 @@ urlpatterns = [
     path("user-settings", views.GetSettings.as_view(), name="user-settings"),
     # creating and calling posts
     path("posting", views.PostCreate.as_view(), name="post-create"),
-    path('posting/<str:post_id>/', views.PostCreate.as_view(), name='update_post'),
-
+    path("posting/<str:post_id>/", views.PostCreate.as_view(), name="update_post"),
     path("send-otp", views.OTPVerification.as_view(), name="send-otp"),
     path("fp-otp", views.ForgotPassword.as_view(), name="fp-otp"),
     path("fp-change", views.ChangeForgotPassword.as_view(), name="fp-change"),
@@ -38,7 +37,7 @@ urlpatterns = [
         name="follow-notif-list",
     ),
     path(
-        "search/",
+        "search",
         views.SearchView.as_view(),
         name="search",
     ),
@@ -81,12 +80,12 @@ urlpatterns = [
     path(
         "saved-itinerary", views.SaveItineraryListView.as_view(), name="saved-itinerary"
     ),
-    path('ratings/', views.SaveItineraryView.as_view(), name='update_rating'),
+    path("ratings/", views.SaveItineraryView.as_view(), name="update_rating"),
     path(
         "viewing-itinerary/<int:id>",
         views.ViewItinerary.as_view(),
         name="check-itinerary",
     ),
-    path('reports/', views.ReportListCreateView.as_view(), name='report-list-create'),
+    path("reports/", views.ReportListCreateView.as_view(), name="report-list-create"),
     # path("viewing-itinerary", views.ViewingSaveItineraryListView.as_view(), name="viewing-itinerary"),
 ]

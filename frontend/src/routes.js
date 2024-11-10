@@ -17,87 +17,111 @@ import Report from "./components/Report.vue";
 import TamSurvey from "./components/TamSurvey.vue";
 import Trivia from "./components/Trivia.vue";
 import EditPost from "./components/EditPost.vue";
+// Import store for auth check
+import store from "./store";
+import DefaultLayout from "./components/DefaultLayout.vue";
+
+const routes = [
+	{
+		path: "/",
+		redirect: "/dashboard",
+		component: DefaultLayout,
+		meta: { requiresAuth: true },
+		children: [
+			{ path: "/", component: Login, name: "login" },
+			{ path: "/dashboard", component: Dashboard, name: "dashboard" },
+			{ path: "/report", name: "report", component: Report },
+			{
+				path: "/edit-post/:post",
+				name: "editpost",
+				component: EditPost,
+			},
+			{
+				path: "/notifications",
+				component: Notification,
+				name: "notifications",
+			},
+			{
+				path: "/trivia",
+				component: Trivia,
+				name: "trivia",
+			},
+			{
+				path: "/tamsurvey",
+				component: TamSurvey,
+				name: "tamsurvey",
+			},
+			{
+				path: "/itinerary",
+				component: ItineraryHome,
+				name: "itinerary",
+			},
+			{
+				path: "/create-itinerary",
+				component: CreateItinerary,
+				name: "create-itinerary",
+			},
+			{
+				path: "/view-itinerary",
+				component: ViewItinerary,
+				name: "view-itinerary",
+			},
+			{
+				path: "/view-post",
+				component: PostViewing,
+				name: "view-post",
+			},
+			{
+				path: "/search-result/",
+				component: ViewSearchResult,
+				name: "search-result",
+			},
+			{ path: "/profile", component: Profile, name: "profile" },
+			{ path: "/test", component: Test, name: "test" },
+			{
+				path: "/user-profile/:username/:user",
+				component: PublicViewProfile,
+				name: "user-profile",
+			},
+			{
+				path: "/settings",
+				component: Settings,
+				name: "settings",
+			},
+		],
+	},
+	{ path: "/login", name: "login", component: Login },
+	{
+		path: "/otp",
+		name: "otp",
+		component: Otp,
+		beforeEnter: (to, from, next) => {
+			if (store.getters.hasOtp) {
+				next();
+			} else {
+				next({ name: "login" });
+			}
+		},
+	},
+];
 
 const router = createRouter({
 	history: createWebHistory(),
-	routes: [
-		{ path: "/", component: Login, name: "login" },
-		{ path: "/dashboard", component: Dashboard, name: "dashboard" },
-		{ path: "/otp", name: "otp", component: Otp },
-		{ path: "/report", name: "report", component: Report },
-		{
-			path: "/edit-post/:post",
-			name: "editpost",
-			component: EditPost,
-		},
-		{
-			path: "/notifications",
-			component: Notification,
-			name: "notifications",
-		},
-		{
-			path: "/trivia",
-			component: Trivia,
-			name: "trivia",
-		},
-		{
-			path: "/tamsurvey",
-			component: TamSurvey,
-			name: "tamsurvey",
-		},
-		{
-			path: "/itinerary",
-			component: ItineraryHome,
-			name: "itinerary",
-		},
-		{
-			path: "/create-itinerary",
-			component: CreateItinerary,
-			name: "create-itinerary",
-		},
-		{
-			path: "/view-itinerary",
-			component: ViewItinerary,
-			name: "view-itinerary",
-		},
-		{
-			path: "/view-post",
-			component: PostViewing,
-			name: "view-post",
-		},
-		{
-			path: "/search-result/",
-			component: ViewSearchResult,
-			name: "search-result",
-		},
-		{ path: "/profile", component: Profile, name: "profile" },
-		{ path: "/test", component: Test, name: "test" },
-		{
-			path: "/user-profile/:username/:user",
-			component: PublicViewProfile,
-			name: "user-profile",
-		},
-		{
-			path: "/settings",
-			component: Settings,
-			name: "settings",
-		},
-	],
+	routes,
 });
-router.beforeEach((to, from, next) => {
-	// Check if the user is logged in before accessing protected routes
-	const token = localStorage.getItem("token");
 
-	if (to.name !== "login" && to.name !== "otp" && !token) {
-		// If the route is not the login page, home page, and the user is not logged in,
-		// redirect to the login page
+router.beforeEach((to, from, next) => {
+	if (to.meta.requiresAuth && !store.state.user.token) {
 		next({ name: "login" });
+	} else if (store.state.user.token && to.meta.isGuest) {
+		next({ name: "dashboard" });
 	} else {
-		// If the user is logged in or accessing the login page or home page, proceed to the next route
 		next();
 	}
+
 	if (to.name === "login" || to.name === "otp") {
 		window.scrollTo(0, 0);
 	}
 });
+
 export default router;

@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 py-5 4 ml-0 overflow-auto h-screen bg-field dark:bg-dark-notif pt-20 sm:px-28 sm:ml-64 sm:pt-3"
+		class="flex flex-col items-center align-middle px-5 py-5 4 ml-0 overflow-auto h-screen bg-field dark:bg-dark-notif sm:px-28 sm:pt-3"
 	>
 		<div class="flex w-full mb-4 justify-between sm:w-3/4">
 			<h1
@@ -77,94 +77,69 @@
 	</div>
 </template>
 
-<script>
-import axios from "axios";
-export default {
-	data() {
-		return {
-			like_notification: [],
-			unreadCount: null,
-			follow_notification_list: [],
-		};
-	},
-	async mounted() {
-		this.fetchLikenotification();
-		setInterval(this.fetchLikenotification, 5000);
-		try {
-			const response = await this.client.get(
-				"/api/follow-notification-list"
-			);
-			this.follow_notification_list = response.data;
-			this.unreadCount = this.follow_notification_list.filter(
-				(data) => !data.is_read
-			).length;
-			console.log("FOLLOW", this.follow_notification_list);
-		} catch (error) {
-			console.log(error);
-		}
-	},
-	created() {
-		this.token = localStorage.getItem("token");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
-			},
-		});
-	},
-	methods: {
-		async fetchLikenotification() {
-			try {
-				const response = await this.client.get(
-					"/api/like-notification-list"
-				);
-				this.like_notification = response.data;
-				this.unreadCount = this.like_notification.filter(
-					(data) => !data.is_read
-				).length;
-				console.log("NOTIFSSS", this.like_notification);
-			} catch (error) {
-				console.log(error);
-			}
-		},
-		async fetchFollownotification() {
-			try {
-				const response = await this.client.get(
-					"/api/follow-notification-list"
-				);
-				this.follow_notification_list = response.data;
-				this.unreadCount = this.follow_notification_list.filter(
-					(data) => !data.is_read
-				).length;
-				console.log("FOLLOW", this.follow_notification_list);
-			} catch (error) {
-				console.log(error);
-			}
-		},
+<script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
-		view_post(post_id_notif, notif_id) {
-			this.$router.push({
-				name: "view-post",
-				params: { post_id_notif, notif_id },
-			});
-		},
-		view_user(user_data) {
-			console.log('FGFGF',user_data[0])
-			this.$router.push({
-				name: "user-profile",
-				params: {
-					username: user_data[0].username,
-					user: JSON.stringify(user_data[0]),
-				},
-			});
-		},
-	},
+const store = useStore();
+const router = useRouter();
+
+const like_notification = ref([]);
+const unreadCount = ref(null);
+const follow_notification_list = ref([]);
+
+const fetchLikenotification = async () => {
+	try {
+		await store.dispatch("fetchLikeNotifications");
+		like_notification.value = store.getters.getLikeNotifications;
+		unreadCount.value = like_notification.value.filter(
+			(data) => !data.is_read
+		).length;
+	} catch (error) {
+		console.log(error);
+	}
 };
+
+const fetchFollownotification = async () => {
+	try {
+		await store.dispatch("fetchFollowNotifications");
+		follow_notification_list.value = store.getters.getFollowNotifications;
+		unreadCount.value = follow_notification_list.value.filter(
+			(data) => !data.is_read
+		).length;
+		console.log("FOLLOW", follow_notification_list.value);
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+const view_post = (post_id_notif, notif_id) => {
+	router.push({
+		name: "view-post",
+		params: { post_id_notif, notif_id },
+	});
+};
+
+const view_user = (user_data) => {
+	console.log("FGFGF", user_data[0]);
+	router.push({
+		name: "user-profile",
+		params: {
+			username: user_data[0].username,
+			user: JSON.stringify(user_data[0]),
+		},
+	});
+};
+
+onMounted(async () => {
+	await fetchLikenotification();
+	await fetchFollownotification();
+	const intervalId = setInterval(fetchLikenotification, 5000);
+	onUnmounted(() => {
+		clearInterval(intervalId);
+	});
+});
 </script>
 
 <style></style>
