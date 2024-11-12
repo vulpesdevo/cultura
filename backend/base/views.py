@@ -59,7 +59,6 @@ class UserView(APIView):
         from django.core import serializers
 
         UserView.token_auth = str(authorization_header).replace("Token", "").strip()
-        print("TOKEN ", request)
         serializer = UserSerializer(request.user)
         # cultura_user = CulturaUser.objects.get(user=request.user)
         # cultura_users = CulturaUser.objects.filter(user=request.user)
@@ -233,18 +232,11 @@ class UserLogin(APIView):
             # password = serializer.validated_data["password"]
             user = serializer.check_user(data)
             # User is already authenticated, return appropriate response
-            cultura_user = CulturaUser.objects.get(user=user)
-
-            # Serialize the CulturaUser instance
-            user_serializer = CulturaUserSerializer(
-                cultura_user, context={"request": request}
-            )
             login(request, user)
             token, create = Token.objects.get_or_create(user=user)
             # return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(
-                {"token": token.key, "user": user_serializer.data},
-                status=status.HTTP_200_OK,
+                {"token": token.key, "user": serializer.data}, status=status.HTTP_200_OK
             )
 
 
@@ -441,8 +433,8 @@ class PostCreate(APIView):
         # imgs = data.get("imgs", "").strip()
         image = request.FILES.get("image", None)
         country = data.get("country", "").strip()
-        itinerary_id = data.get("itinerary_id", 0).strip()
-
+        itinerary_id = data.get("itinerary_id", 0)
+        print("IMAGE ID ", image)
         try:
             post = Post(
                 author=request.user,
