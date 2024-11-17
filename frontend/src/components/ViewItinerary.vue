@@ -739,7 +739,7 @@ export default {
 			currentView: "itinerary", // 'overview' or 'itinerary'
 			showMap: false,
 
-			itinerary_id: this.$route.params.itinerarydata,
+			itinerary_id: this.$route.query.itinerarydata,
 			itineraryDetails: {
 				creator_name: null,
 				currency: null,

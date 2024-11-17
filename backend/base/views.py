@@ -40,6 +40,7 @@ from .models import (
     Survey,
     UserSetting,
 )
+from bson import ObjectId
 
 # from profanity.validators import validate_is_profane
 
@@ -67,8 +68,7 @@ class UserView(APIView):
         profile = CulturaUserSerializer(cultura_user, many=True)
 
         for post_data in profile.data:
-            image = post_data.get("user_photo", None)
-            if image:
+            if image := post_data.get("user_photo", None):
                 # Build the absolute URI for the image
                 abs_image_url = request.build_absolute_uri(image)
                 # Update the post data with the absolute URI
@@ -434,7 +434,6 @@ class PostCreate(APIView):
         image = request.FILES.get("image", None)
         country = data.get("country", "").strip()
         itinerary_id = data.get("itinerary_id", 0)
-        print("IMAGE ID ", image)
         try:
             post = Post(
                 author=request.user,
@@ -467,14 +466,11 @@ class PostCreate(APIView):
         title = data.get("title", "").strip()
         body = data.get("body", "").strip()
         image = request.FILES.get("image", None)
-        # print("MY IMAGE ",image)
-
         try:
             post = Post.objects.get(_id=object_id, author=request.user)
             post.title = title
             post.content = body
-            if image:
-                post.image = image
+            post.image = image
             post.save()
         except Post.DoesNotExist:
             return Response(
@@ -493,9 +489,6 @@ class PostCreate(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-from bson import ObjectId
-
-
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -506,7 +499,6 @@ class PostViewSet(viewsets.ModelViewSet):
         post = Post.objects.get(_id=object_id)
 
         user = request.user
-        print(post.likes.all())
         if user in post.likes.all():
             post.likes.remove(user)
             message = "post unliked"
@@ -598,7 +590,6 @@ class FollowedNotification(APIView):
             user_follow = CulturaUser.objects.filter(user=who_followed)
             # print(user_follow)
             user_serializer = CulturaUserSerializer(user_follow, many=True)
-            print(user_serializer.data)
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
                 if image:
@@ -628,6 +619,72 @@ class LikesNotificationList(APIView):
         serializer = LikeSerializer(data, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class NotificationStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        notification_type = request.data.get("notification_type")
+        notification_id = request.data.get("notification_id")
+        is_read = request.data.get("is_read", True)
+        print("notif id ", notification_id, "notif type: ", notification_type)
+        if notification_type not in ["like", "follow"]:
+            return Response(
+                {"error": "Invalid notification type"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if notification_type == "like":
+            try:
+                notification = LikeNotification.objects.get(
+                    _id=ObjectId(notification_id), post_author=request.user
+                )
+            except LikeNotification.DoesNotExist:
+                return Response(
+                    {"error": "Notification not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            notification.is_read = is_read
+            notification.save()
+            serializer = LikeSerializer(notification)
+        else:  # follow notification
+            try:
+                notification = FollowingNotification.objects.get(
+                    _id=ObjectId(notification_id), following=str(request.user.id)
+                )
+
+            except FollowingNotification.DoesNotExist:
+                return Response(
+                    {"error": "Notification not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            notification.is_read = is_read
+            notification.save()
+            serializer = FollowSerializer(notification)
+
+        return Response(serializer.data)
+
+
+class MarkAllNotificationsReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Update all unread like notifications
+        LikeNotification.objects.filter(post_author=request.user, is_read=False).update(
+            is_read=True
+        )
+
+        # Update all unread follow notifications
+        FollowingNotification.objects.filter(
+            following=str(request.user.id), is_read=False
+        ).update(is_read=True)
+
+        return Response(
+            {"message": "All notifications marked as read"}, status=status.HTTP_200_OK
+        )
 
 
 class PostListView(APIView):
@@ -845,7 +902,7 @@ class ProfilePostListView(APIView):
                         abs_main_image_url = request.build_absolute_uri(main_image)
                         # Update the itinerary data with the absolute URI
                         itinerary_data["main_image"] = abs_main_image_url
-                post_data["itinerary_in_post"] = itinerary_data
+                    post_data["itinerary_in_post"] = itinerary_data
 
         following_data = FollowingNotification.objects.filter(following=request.user.id)
         # print('Followed: ',follow_serializer.data)
@@ -862,7 +919,6 @@ class ProfilePostListView(APIView):
             user_serializer = CulturaUserSerializer(
                 user_follow, many=True, context={"user": request.user}
             )
-            print(user_serializer.data)
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
                 if image:
@@ -1055,7 +1111,6 @@ class ReportListCreateView(APIView):
     def post(self, request):
 
         data = request.data
-        print("Incoming data:", data)  # Print the incoming data for debugging
         post_id = data.get("post_id")
         user_id = data.get("user_id")
         category = data.get("category")
@@ -1075,7 +1130,6 @@ class ReportListCreateView(APIView):
 
         # Serialize the saved report
         serializer = ReportSerializer(report)
-        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -1344,10 +1398,10 @@ class PublicPostProfile(APIView):
 
     def get(self, request):
         data = request.data
-        user = request.GET.get("user_id", "").strip()
-        # print("user-id: ", user)
+        user = request.GET.get("user_id", 0)
+        print("user-id: ", user)
 
-        posts = Post.objects.filter(author=user)
+        posts = Post.objects.filter(author_id=int(user))
 
         # Serialize the posts
         serializer = PostSerializer(posts, many=True, context={"user": request.user})
@@ -1408,7 +1462,7 @@ class PublicPostProfile(APIView):
                         abs_main_image_url = request.build_absolute_uri(main_image)
                         # Update the itinerary data with the absolute URI
                         itinerary_data["main_image"] = abs_main_image_url
-                post_data["itinerary_in_post"] = itinerary_data
+                    post_data["itinerary_in_post"] = itinerary_data
 
         # Return the modified serialized data in the response
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -1554,8 +1608,8 @@ class SearchView(APIView):
                         abs_main_image_url = request.build_absolute_uri(main_image)
                         # Update the itinerary data with the absolute URI
                         itinerary_data["main_image"] = abs_main_image_url
-
-                post_data["itinerary_in_post"] = itinerary_data
+                    print("Updated", itinerary_data)
+                    post_data["itinerary_in_post"] = itinerary_data
 
         return Response(
             {

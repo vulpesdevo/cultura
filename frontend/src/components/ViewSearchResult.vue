@@ -15,6 +15,8 @@
 							name: 'user-profile',
 							params: {
 								username: user.username,
+							},
+							query: {
 								user: JSON.stringify(user),
 							},
 						}"

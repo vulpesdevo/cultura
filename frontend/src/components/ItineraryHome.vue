@@ -50,8 +50,7 @@
 							isFullTextShown[index]
 								? itinerary.main_description
 								: itinerary.main_description.length > 100
-								? itinerary.main_description.substring(0, 100) +
-								  "..."
+								? itinerary.main_description.substring(0, 100) + "..."
 								: itinerary.main_description
 						}}
 						<!-- Toggle link -->

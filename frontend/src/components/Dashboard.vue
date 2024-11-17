@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 overflow-auto scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-11 md:px-24 lg:px-20 py-5 overflow-auto scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
 			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -48,8 +48,8 @@
 				</div>
 			</div>
 			<div class="for-content flex flex-col w-full mt-3">
-				<div class="flex">
-					<div class="hidden sm:flex w-14 h-14 mr-5 rounded-full">
+				<div class="flex space-x-2">
+					<div class="hidden sm:flex size-14 rounded-full">
 						<img
 							:src="post_profile_display"
 							alt="Profile"
@@ -166,67 +166,77 @@
 			</div>
 		</div>
 		<section class="posts w-full mb-10 sm:mb-0">
-			<div
-				class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
-				v-for="post in posts"
-				:key="post._id"
-			>
-				<div class="post-title flex justify-center items-center">
-					<div
-						class="flex w-full sm:w-[90%] justify-between items-center mr-5"
-					>
-						<h1
-							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
-						>
-							{{ post.title }}
-						</h1>
-						<small class="text-second ml-5">{{
-							timesince(post.date_posted)
-						}}</small>
-					</div>
-					<router-link
-						:to="{
-							name: 'report',
-							query: { post_id: post._id, user_id: auth_user },
-						}"
-					>
-						<div>
-							<i
-								class="fa-solid fa-circle-exclamation text-second text-2xl cursor-pointer"
-							></i>
-						</div>
-					</router-link>
-				</div>
-
-				<div class="post-content flex w-full mt-4 dark:text-dark-prime">
-					<div class="w-14 h-14 mr-4">
-						<img
-							:src="post.author_user_photo"
-							alt="Profile"
-							class="rounded-full cursor-pointer object-cover"
-						/>
-					</div>
-					<div class="w-full">
-						<div
-							class="flex border-b-2 dark:border-gray-400 w-full mb-5"
-						>
-							<div class="w-1/2">
-								<small
-									class="font-montserrat text-prime dark:text-dark-prime pr-5"
-								>
-									@{{ post.author }}
-								</small>
-								<small
-									class="about-post font-montserrat dark:text-gray-400"
+			<div>
+				<div
+					class="relative post-contents w-full p-6 mt-4 rounded-xl shadow-lg bg-white dark:bg-dark-field transition-all duration-200 hover:shadow-xl font-montserrat"
+					v-for="post in posts"
+					:key="post._id"
+				>
+					<!-- Header Section -->
+					<div class="flex items-start justify-between mb-4">
+						<div class="flex items-center space-x-3">
+							<div
+								class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-700"
+							>
+								<img
+									:src="post.author_user_photo"
+									alt="Profile"
+									class="w-full h-full object-cover"
+								/>
+							</div>
+							<div class="flex flex-col space-y-1">
+								<div class="flex items-center space-x-2">
+									<span
+										class="font-medium text-xs text-gray-900 dark:text-white"
+										>@{{ post.author }}</span
+									>
+									<span
+										class="text-sm text-gray-500 dark:text-gray-400"
+										>•</span
+									>
+									<span
+										class="text-xs text-gray-500 dark:text-gray-400"
+										>{{ timesince(post.date_posted) }}</span
+									>
+								</div>
+								<div
+									class="text-xs text-gray-500 dark:text-gray-400"
 								>
 									{{ post.category }} | {{ post.country }}
-								</small>
+								</div>
 							</div>
 						</div>
 
+						<div class="flex items-center">
+							<router-link
+								:to="{
+									name: 'report',
+									query: {
+										post_id: post._id,
+										user_id: auth_user,
+									},
+								}"
+								class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-200"
+							>
+								<i
+									class="fa-solid fa-circle-exclamation text-gray-400 hover:text-red-500 text-xl"
+								></i>
+							</router-link>
+						</div>
+					</div>
+
+					<!-- Title Section -->
+					<h1
+						class="font-montserrat text-2xl font-bold text-second mb-3"
+					>
+						{{ post.title }}
+					</h1>
+
+					<!-- Content Section -->
+					<div class="space-y-4">
 						<p
 							v-if="!post.isEditing"
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal"
+							class="text-gray-600 dark:text-gray-300 leading-relaxed"
 						>
 							{{ post.content }}
 						</p>
@@ -234,108 +244,130 @@
 						<textarea
 							v-else
 							v-model="post.editedContent"
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal bg-interface dark:bg-dark-interface border border-prime dark:border-dark-prime text-prime dark:text-dark-prime"
+							class="w-full p-4 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+							rows="4"
 						></textarea>
 
+						<!-- Image Section -->
 						<div
-							class="sm:h-96 pb-2 sm:p-4"
 							v-if="!post.isEditing && post.image"
+							class="relative rounded-xl overflow-hidden cursor-pointer"
+							@click="openImageModal(post.image)"
 						>
 							<img
 								:src="post.image"
 								alt=""
-								class="h-full object-contain rounded-lg"
+								class="w-full h-auto max-h-[20rem] object-cover"
 							/>
+							<div
+								class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
+							>
+								<span
+									class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+								>
+									<i class="fas fa-search-plus text-4xl"></i>
+								</span>
+							</div>
 						</div>
 
-						<div
-							v-else-if="post.image || post.isEditing"
-							class="sm:h-96 pb-2 sm:p-4"
-						>
-							<input
-								type="file"
-								@change="handleImageUpload($event, post)"
-								accept="image/*"
-								class="file-input text-prime dark:text-dark-prime"
-							/>
+						<div v-else-if="post.image" class="space-y-4">
+							<label class="block">
+								<span class="sr-only">Choose image</span>
+								<input
+									type="file"
+									@change="handleImageUpload($event, post)"
+									accept="image/*"
+									class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-gray-700 dark:file:text-gray-200 hover:file:bg-blue-100 dark:hover:file:bg-gray-600 transition-all duration-200"
+								/>
+							</label>
 							<img
 								v-if="post.previewImage"
 								:src="post.previewImage"
 								alt="Preview"
-								class="h-full object-contain rounded-lg mt-2"
+								class="w-full h-auto max-h-[20rem] object-cover rounded-xl cursor-pointer"
+								@click="openImageModal(post.previewImage)"
 							/>
 						</div>
 
+						<!-- Itinerary Section -->
 						<div
-							class="h-auto pb-2 sm:p-4"
 							v-if="post.itinerary_in_post"
+							class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+							@click="
+								goToViewItinerary(post.itinerary_in_post.id)
+							"
 						>
-							<div
-								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-								:key="post.itinerary_in_post.id"
-								@click="
-									goToViewItinerary(post.itinerary_in_post.id)
-								"
-							>
-								<div
-									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+							<img
+								:src="post.itinerary_in_post.main_image"
+								alt=""
+								class="w-full h-48 object-cover"
+							/>
+							<div class="p-4 bg-gray-50 dark:bg-gray-800">
+								<h3
+									class="text-xl font-bold text-gray-900 dark:text-white mb-2"
 								>
-									<img
-										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
-										:src="post.itinerary_in_post.main_image"
-										alt=""
-									/>
-									<div class="w-full h-auto py-2">
-										<h1
-											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
-										>
-											{{
-												post.itinerary_in_post
-													.main_title
-											}}
-										</h1>
-										<p
-											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
-										>
-											{{
-												post.itinerary_in_post
-													.main_description
-											}}
-										</p>
-									</div>
-								</div>
+									{{ post.itinerary_in_post.main_title }}
+								</h3>
+								<p
+									class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+								>
+									{{
+										post.itinerary_in_post.main_description
+									}}
+								</p>
 							</div>
 						</div>
 					</div>
+
+					<!-- Actions Section -->
+					<div
+						class="flex items-center justify-end space-x-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700"
+					>
+						<button
+							@click.prevent="selectPost(post)"
+							class="flex items-center space-x-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+						>
+							<i class="fa-regular fa-comment text-xl"></i>
+							<span class="text-sm">{{
+								post.comments?.length || 0
+							}}</span>
+						</button>
+
+						<button
+							@click="likePost(post._id)"
+							class="flex items-center space-x-2 text-gray-500 hover:text-second dark:text-gray-400 dark:hover:text-second transition-colors duration-200"
+						>
+							<span class="material-icons-outlined text-xl">
+								{{
+									post.is_liked
+										? "favorite"
+										: "favorite_border"
+								}}
+							</span>
+							<span class="text-sm">
+								{{
+									post.like_count >= 1000
+										? (post.like_count / 1000).toFixed(1) +
+										  "k"
+										: post.like_count
+								}}
+							</span>
+						</button>
+					</div>
 				</div>
 
-				<div class="flex items-center justify-end">
-					<i
-						class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
-						@click.prevent="selectPost(post)"
-					></i>
-					<div
-						@click="likePost(post._id)"
-						class="flex items-center justify-start w-14"
-					>
-						<span
-							v-if="post.is_liked"
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
-						>
-							favorite
-						</span>
-						<span
-							v-else
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
-							>favorite_border</span
-						>
-						<small class="text-prime dark:text-dark-prime pl-1">
-							{{
-								post.like_count >= 1000
-									? (post.like_count / 1000).toFixed(1) + "k"
-									: post.like_count
-							}}
-						</small>
+				<!-- Image Modal -->
+				<div
+					v-if="showImageModal"
+					class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+					@click="closeImageModal"
+				>
+					<div class="max-w-4xl w-full max-h-screen p-4">
+						<img
+							:src="modalImage"
+							alt="Full size image"
+							class="w-full h-auto max-h-full object-contain"
+						/>
 					</div>
 				</div>
 			</div>
@@ -601,6 +633,18 @@ const itineraries = ref([]);
 const selectedItinerary = ref(null);
 const id_of_selected = ref("");
 const isFullTextShown = ref({});
+
+const showImageModal = ref(false);
+const modalImage = ref("");
+// functions for image modal
+const openImageModal = (imageUrl) => {
+	modalImage.value = imageUrl;
+	showImageModal.value = true;
+};
+
+const closeImageModal = () => {
+	showImageModal.value = false;
+};
 
 const client = axios.create({
 	baseURL: "http://127.0.0.1:8000",

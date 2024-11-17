@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-8 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-7 pt-5 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
-			class="profile-1 flex flex-col justify-center items-center w-screen sm:w-full sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+			class="relative profile-card flex sm:flex-row flex-col justify-center sm:justify-normal w-screen sm:w-full sm:mt-0 px-3 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 			v-show="user"
 		>
 			<div
@@ -18,123 +18,148 @@
 						alt=""
 					/>
 				</div>
+			</div>
+			<div class="flex flex-col justify-center items-center sm:pl-6">
+				<!-- Name Section -->
+				<div class="mb-4">
+					<div
+						v-if="!user.fullname"
+						class="animate-pulse bg-gray-400 bg-opacity-40 h-[2.5rem] sm:h-[4.5rem] w-48 rounded-lg"
+					></div>
+					<h1
+						class="font-bebas-neue profile-name text-3xl sm:text-6xl text-prime dark:text-dark-second text-nowrap"
+					>
+						{{ user.fullname }}
+					</h1>
+				</div>
 
+				<!-- User Details Grid -->
 				<div
-					v-if="!user.fullname"
-					class="animate-pulse bg-gray-400 bg-opacity-40 h-[2.5rem] sm:h-[4.5rem] w-1/2 rounded-lg"
-				></div>
-				<h1
-					class="font-bebas-neue profile-name text-4xl sm:text-7xl text-prime dark:text-dark-second"
+					class="profile-details flex justify-center w-full align-middle mb-4 text-prime space-x-1"
 				>
-					{{ user.fullname }}
-				</h1>
+					<div
+						class="profile-desc text-xm sm:text-base flex items-end justify-center sm:items-start flex-col sm:justify-between w-full sm:w-1/3"
+					>
+						<small
+							class="font-montserrat text-prime dark:text-gray-400"
+							>Username:</small
+						>
+						<small
+							class="font-montserrat text-prime dark:text-gray-400"
+							>Email:</small
+						>
+						<small
+							class="font-montserrat text-prime dark:text-gray-400"
+							>Country:</small
+						>
+					</div>
+
+					<div
+						class="profile-info text-xm sm:text-base flex items-start justify-center sm:items-start flex-col sm:justify-between w-full sm:w-1/2"
+					>
+						<div
+							v-if="!user.username"
+							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
+						></div>
+						<small
+							class="font-montserrat text-prime dark:text-dark-second h-4"
+						>
+							@{{ user.username }}
+						</small>
+
+						<div
+							v-if="!user.email"
+							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
+						></div>
+						<small
+							class="font-montserrat text-prime dark:text-dark-second h-4"
+						>
+							{{ user.email }}
+						</small>
+
+						<div
+							v-if="!user.country"
+							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
+						></div>
+						<small
+							class="font-montserrat text-prime dark:text-dark-second mb"
+						>
+							{{ user.country }}
+						</small>
+					</div>
+				</div>
 			</div>
 			<div
-				class="profile-details flex justify-center w-full align-middle mb-4 sm:mb-10 text-prime"
+				class="flex w-full items-center justify-center sm:justify-end sm:items-end mb-5 space-x-2 sm:space-x-4"
 			>
+				<!-- Enhanced Followers Count -->
 				<div
-					class="profile-desc text-xm sm:text-xl flex items-end flex-col justify-between sm:mr-3 w-1/2"
-				>
-					<small
-						class="font-montserrat text-prime dark:text-dark-prime mb-2"
-					>
-						Username:
-					</small>
-					<small
-						class="font-montserrat text-prime dark:text-dark-prime mb-2"
-					>
-						Email:
-					</small>
-
-					<small
-						class="font-montserrat text-prime dark:text-dark-prime mb-2"
-					>
-						Country:
-					</small>
-				</div>
-
-				<div
-					class="profile-info text-xm sm:text-xl ml-3 flex flex-col justify-between w-1/2"
+					class="flex justify-center items-center sm:justify-end w-full h-8 text-sm sm:text-base space-x-2"
 				>
 					<div
-						v-if="!user.username"
-						class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-					></div>
-					<small
-						class="font-montserrat text-prime dark:text-dark-second mb-2 h-4"
+						class="flex items-center justify-center space-x-1 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full transition-all duration-200"
 					>
-						{{ user.username }}
-					</small>
-					<div
-						v-if="!user.email"
-						class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-					></div>
-					<small
-						class="font-montserrat text-prime dark:text-dark-second mb-2 h-4"
+						<UserIcon class="w-4 h-4 text-second" />
+						<span
+							class="font-medium text-prime dark:text-interface"
+						>
+							{{ user.follow_count }}
+						</span>
+						<span class="text-gray-600 dark:text-gray-400"
+							>Followers</span
+						>
+					</div>
+					<!-- Enhanced Follow/Unfollow Button -->
+					<button
+						v-if="user.is_followed"
+						@click.prevent="follow(user.user)"
+						class="flex items-center justify-center w-32 h-7 py-4 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
 					>
-						{{ user.email }}
-					</small>
-					<div
-						v-if="!user.country"
-						class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-					></div>
+						<UserMinusIcon class="w-4 h-4" />
+						Unfollow
+					</button>
 
-					<small
-						class="font-montserrat text-prime dark:text-dark-second mb-2"
+					<button
+						v-if="!user.is_followed"
+						@click.prevent="follow(user.user)"
+						class="flex items-center justify-center w-32 h-7 py-4 rounded-full bg-second text-white text-sm font-medium transition-all duration-200 hover:bg-opacity-90 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-second focus:ring-offset-2 dark:focus:ring-offset-gray-800"
 					>
-						{{ user.country }}
-					</small>
+						<UserPlusIcon class="w-4 h-4 mr-1" />
+						Follow
+					</button>
 				</div>
-			</div>
-			<div class="flex w-3/4 items-center sm:justify-evenly mb-5">
-				<div
-					class="flex justify-end items-center w-36 h-8 text-sm sm:text-lg text-prime dark:text-interface pr-2 sm:pr-0"
-				>
-					<span class="material-icons-outlined text-second">
-						person
-					</span>
-					{{ user.follow_count }}
-					Followers
-				</div>
-				<button
-					v-if="user.is_followed"
-					class="bg-gray-300 dark:bg-dark-second-dark w-24 sm:w-36 h-8 rounded-lg pl-2 sm:pl-0 text-center"
-					@click.prevent="follow(user.user)"
-				>
-					Unfollow
-				</button>
-				<button
-					v-if="!user.is_followed"
-					class="bg-second w-24 sm:w-36 h-8 rounded-lg pl-2 sm:pl-0"
-					@click.prevent="follow(user.user)"
-				>
-					Follow
-				</button>
 			</div>
 		</div>
-		<div class="profile-tabs flex justify-center w-full my-5">
-			<button
-				class="font-montserrat text-prime h-10 sm:h-12 w-1/2 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
-				@click="activeTab = 'posts'"
-				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white ':
-						activeTab === 'posts',
-					'bg-none text-second': activeTab !== 'posts',
-				}"
-			>
-				Posts
-			</button>
-			<button
-				class="font-montserrat text-prime h-10 sm:h-12 w-1/2 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
-				@click="activeTab = 'achievements'"
-				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second text-white':
-						activeTab === 'achievements',
-					'bg-none text-second': activeTab !== 'achievements',
-				}"
-			>
-				Achievements
-			</button>
+		<div class="profile-tabs w-full my-5 px-4 sm:px-6 md:px-8">
+			<div class="max-w-3xl mx-auto">
+				<nav
+					class="flex flex-wrap justify-center space-x-2 sm:space-x-4"
+					aria-label="Profile tabs"
+				>
+					<button
+						v-for="tab in tabs"
+						:key="tab.id"
+						@click="setActiveTab(tab.id)"
+						:class="[
+							'px-4 py-2 text-sm sm:text-base font-medium rounded-full transition-all duration-200  ',
+							activeTab === tab.id
+								? 'bg-second text-white shadow-lg'
+								: 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white',
+						]"
+						:aria-current="
+							activeTab === tab.id ? 'page' : undefined
+						"
+					>
+						<span class="flex items-center space-x-2">
+							<component
+								:is="tab.icon"
+								class="w-4 h-4 sm:w-5 sm:h-5"
+							/>
+							<span>{{ tab.name }}</span>
+						</span>
+					</button>
+				</nav>
+			</div>
 		</div>
 
 		<div class="posts-in-profile w-full mb-10" v-if="activeTab === 'posts'">
@@ -252,39 +277,29 @@
 						</div>
 						<div class="h-auto pb-2 sm:p-4" v-else>
 							<div
-								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-								:key="post.itinerary_in_post.id"
+								v-if="post.itinerary_in_post"
 								@click="
 									goToViewItinerary(post.itinerary_in_post.id)
 								"
+								class="cursor-pointer bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4"
 							>
-								<div
-									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+								<img
+									:src="post.itinerary_in_post.main_image"
+									:alt="post.itinerary_in_post.main_title"
+									class="w-full h-32 object-cover rounded mb-2"
+								/>
+								<h3
+									class="font-semibold text-gray-900 dark:text-white mb-1"
 								>
-									<img
-										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
-										:src="post.itinerary_in_post.main_image"
-										alt=""
-									/>
-									<div class="w-full h-auto py-2">
-										<h1
-											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
-										>
-											{{
-												post.itinerary_in_post
-													.main_title
-											}}
-										</h1>
-										<p
-											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
-										>
-											{{
-												post.itinerary_in_post
-													.main_description
-											}}
-										</p>
-									</div>
-								</div>
+									{{ post.itinerary_in_post.main_title }}
+								</h3>
+								<p
+									class="text-sm text-gray-600 dark:text-gray-400"
+								>
+									{{
+										post.itinerary_in_post.main_description
+									}}
+								</p>
 							</div>
 						</div>
 					</div>
@@ -581,208 +596,181 @@
 		</div>
 	</div>
 </template>
-<script>
+<script setup>
 import axios from "axios";
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
+
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
-export default {
-	data() {
-		return {
-			hasContentCreator: false,
-			hasGuideGuru: false,
-			hasLikeLeader: false,
-			hasShareStar: false,
-			hasCommentConnoisseur: false,
-			hasExplorerExtraordinaire: false,
-			hasKnowledgeSeeker: false,
-			hasTrendsetter: false,
-			hasCulturaContributor: false,
+import {
+	UserIcon,
+	PhotoIcon,
+	TrophyIcon,
+	UserPlusIcon,
+	UserMinusIcon,
+} from "@heroicons/vue/24/outline";
+import { useRoute } from "vue-router";
+const route = useRoute();
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
 
-			profile: false,
-			activeTab: "posts",
-			showModal: false,
+const hasContentCreator = ref(false);
+const hasGuideGuru = ref(false);
+const hasLikeLeader = ref(false);
+const hasShareStar = ref(false);
+const hasCommentConnoisseur = ref(false);
+const hasExplorerExtraordinaire = ref(false);
+const hasKnowledgeSeeker = ref(false);
+const hasTrendsetter = ref(false);
+const hasCulturaContributor = ref(false);
 
-			comments_in_post: [],
-			reply: "",
-			post_profile_display: null,
-			selectedImageUrl: null,
-			picture: null,
+const profile = ref(false);
+const activeTab = ref("posts");
+const tabs = [
+	{ id: "posts", name: "Posts", icon: PhotoIcon },
+	{ id: "achievements", name: "Achievements", icon: TrophyIcon },
+];
 
-			auth_user: "",
+const setActiveTab = (tabId) => {
+	activeTab.value = tabId;
+};
 
-			isEditing: true,
-			postTitle: "",
+const showModal = ref(false);
 
-			addItineraryModal: false,
+const commentsInPost = ref([]);
+const reply = ref("");
+const postProfileDisplay = ref(null);
+const selectedImageUrl = ref(null);
+const picture = ref(null);
 
-			categoryOption: "",
-			postContent: "",
-			countryPost: "",
+const authUser = ref("");
+const isEditing = ref(true);
+const postTitle = ref("");
 
-			posts: [],
-			// users:[],
-			user: [],
-			user_id: 0,
-			selectedPost: [],
-			reply: "",
-			replied_to: "",
-			post_id: "",
+const addItineraryModal = ref(false);
 
-			comments: [],
+const categoryOption = ref("");
+const postContent = ref("");
+const countryPost = ref("");
 
-			itineraries: [],
-			itineraries_frompost: [],
-			selectedItinerary: null,
-			id_of_selected: "",
-			isFullTextShown: {},
+const posts = ref([]);
+const user = ref([]);
+const userId = ref(0);
+const selectedPost = ref([]);
+const repliedTo = ref("");
+const postId = ref("");
 
-			checkedAfterDelay: false,
-		};
+const comments = ref([]);
+
+const itineraries = ref([]);
+const itinerariesFromPost = ref([]);
+const selectedItinerary = ref(null);
+const idOfSelected = ref("");
+const isFullTextShown = ref({});
+
+const checkedAfterDelay = ref(false);
+let client;
+
+onMounted(() => {
+	setTimeout(() => {
+		checkedAfterDelay.value = true;
+	}, 5000);
+
+	const userData = JSON.parse(route.query.user);
+	user.value = userData;
+	userId.value = user.value.user;
+
+	console.log("USER ID::", userId.value);
+	fetchPosts(userId.value);
+});
+
+const token = sessionStorage.getItem("TOKEN");
+client = axios.create({
+	baseURL: "http://127.0.0.1:8000",
+	withCredentials: true,
+	timeout: 5000,
+	xsrfCookieName: "csrftoken",
+	xsrfHeaderName: "X-Csrftoken",
+	headers: {
+		Authorization: `Token ${token}`,
+		"Content-Type": "application/json",
 	},
-	mounted() {
-		setTimeout(() => {
-			this.checkedAfterDelay = true;
-		}, 5000);
-		const user = JSON.parse(this.$route.params.user);
-		// const posts = JSON.parse(this.$route.params.posts);
-		// console.log("valid object", posts);
-		// this.posts = posts;
-		this.user = user;
+});
 
-		this.user_id = this.user.user;
-		console.log("USER ID::", this.user_id);
-		this.fetchPosts(this.user_id);
-	},
-	setup() {
-		const isDark = useDark();
-		const toggleDark = useToggle(isDark);
-
-		return { isDark, toggleDark };
-	},
-	created() {
-		this.token = sessionStorage.getItem("TOKEN");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
-			},
+const follow = (userId) => {
+	console.log("HEHE :::", userId);
+	client
+		.post(`api/follow/${userId}/follow/`)
+		.then((response) => {
+			console.log(response.data);
+			user.value.is_followed = response.data.is_followed;
+			user.value.follow_count = response.data.follow_count;
+		})
+		.catch((error) => {
+			console.error("Error following the user:", error);
 		});
-		// this.fetchPosts();
-	},
-	methods: {
-		follow(userId) {
-			console.log("HEHE :::", userId);
-			this.client
-				.post(`api/follow/${userId}/follow/`)
-				.then((response) => {
-					// Handle success response
-					console.log(response.data);
-					// Update the is_followed property of the user object
-					// const userIndex = this.users.findIndex(
-					// 	(user) => user.user === userId
-					// );
-					this.user.is_followed = response.data.is_followed;
-					this.user.follow_count = response.data.follow_count;
-					// Optionally, update your UI based on the successful follow
-				})
-				.catch((error) => {
-					// Handle error
-					console.error("Error following the user:", error);
-				});
-		},
-		goToViewItinerary(itinerarydata) {
-			this.$router.push({
-				name: "view-itinerary",
-				params: { itinerarydata },
-			});
-		},
-		timesince(date) {
-			return moment(date).fromNow();
-		},
-		likePost(post_id) {
-			this.client
-				.post(`api/like-posts/${post_id}/like_post/`)
-				.then((response) => {
-					// Handle success response
-					console.log(response.data);
-					this.fetchPosts(this.user_id);
-					// Optionally, update your UI based on the successful like
-				})
-				.catch((error) => {
-					// Handle error
-					console.error("Error liking the post:", error);
-				});
-		},
-		selectPost(post) {
-			this.showModal = true;
+};
 
-			this.selectedPost = [post];
-			console.log("GET POST", this.selectedPost);
-			this.post_id = this.selectedPost[0]._id;
+const goToViewItinerary = (itinerarydata) => {
+	this.$router.push({
+		name: "view-itinerary",
+		params: { itinerarydata },
+	});
+};
 
-			this.replied_to = this.selectedPost[0].author;
-			this.comments_in_post =
-				this.posts.find((p) => p._id === this.post_id)?.comments || [];
-			console.log("the id : ", this.comments_in_post);
-		},
-		submitReply() {
-			this.client
-				.post("/api/commenting", {
-					post_id: this.post_id,
-					replied_to: this.replied_to,
-					body: this.reply,
-				})
-				.then((response) => {
-					console.log(response.data);
-					this.reply = "";
-					// this.fetchComments();
-					this.fetchPosts(this.user_id);
+const timesince = (date) => {
+	return moment(date).fromNow();
+};
 
-					// setInterval(this.fetchComments, 5000);
+const likePost = (postId) => {
+	client
+		.post(`api/like-posts/${postId}/like_post/`)
+		.then((response) => {
+			console.log(response.data);
+			fetchPosts(userId.value);
+		})
+		.catch((error) => {
+			console.error("Error liking the post:", error);
+		});
+};
 
-					// Handle successful response here
-				})
-				.catch((error) => {
-					console.error(error);
-					// Handle error here
-				});
-		},
-		fetchPosts(uses_id) {
-			// console.log("this.user_id : ", uses_id);
-			this.client
-				.get(`/api/public-profile-posts/`, {
-					params: {
-						user_id: uses_id,
-					},
-				})
-				.then((response) => {
-					this.posts = response.data.reverse();
-					if (this.posts.length > 0) {
-						// Set selectedPost to the first post
-						// console.log("GET POST fetch", this.selectedPost);
-						// this.post_id = this.selectedPost[0]._id;
-						this.itineraries_frompost =
-							this.posts[0].itinerary_in_post;
-						// this.replied_to = this.selectedPost[0].author;
-						this.comments_in_post =
-							this.posts.find((p) => p._id === this.post_id)
-								?.comments || [];
-						console.log("the id : ", this.comments_in_post);
-					}
-					// this.users = this.posts[0].followers_data
-					// this.comments_in_post = this.posts[0].comments;
-					console.log("updateed :", this.posts);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		},
-	},
+const selectPost = (post) => {
+	showModal.value = true;
+	selectedPost.value = [post];
+	console.log("GET POST", selectedPost.value);
+	postId.value = selectedPost.value[0]._id;
+	repliedTo.value = selectedPost.value[0].author;
+	commentsInPost.value =
+		posts.value.find((p) => p._id === postId.value)?.comments || [];
+	console.log("the id : ", commentsInPost.value);
+};
+
+const submitReply = () => {
+	client
+		.post("/api/commenting", {
+			post_id: postId.value,
+			replied_to: repliedTo.value,
+			body: reply.value,
+		})
+		.then((response) => {
+			console.log(response.data);
+			reply.value = "";
+
+			fetchPosts(userId.value);
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const fetchPosts = async (userId) => {
+	try {
+		const response = await client.get("/api/public-profile-posts/", {
+			params: { user_id: userId },
+		});
+		posts.value = response.data.reverse();
+	} catch (error) {
+		console.error("Error fetching posts:", error);
+	}
 };
 </script>

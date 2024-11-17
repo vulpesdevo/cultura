@@ -3,9 +3,18 @@
 		class="profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 sm:px-8 py-5 overflow-auto overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-5 sm:pt-7"
 	>
 		<div
-			class="profile-1 w-screen sm:w-full sm:mt-0 px-3 sm:pt-6 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+			class="relative profile-card flex sm:flex-row flex-col justify-center sm:justify-normal w-screen sm:w-full sm:mt-0 px-3 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 			v-show="profile"
 		>
+			<!-- Settings Button -->
+			<router-link
+				:to="{ name: 'settings' }"
+				class="absolute top-4 right-4 p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200"
+				aria-label="Settings"
+			>
+				<CogIcon class="w-6 h-6 text-gray-300" />
+			</router-link>
+			<!-- Left Column - Profile Image -->
 			<div
 				class="profile-img flex flex-col pt-9 items-center align-middle mb-2 sm:mb-5"
 			>
@@ -65,120 +74,149 @@
 					class="hidden"
 					@change="handleFileSelection"
 				/>
-				<div
-					v-if="!profile.fullname"
-					class="animate-pulse bg-gray-400 bg-opacity-40 h-[2.5rem] sm:h-[4.5rem] w-1/2 rounded-lg"
-				></div>
-				<h1
-					class="font-bebas-neue profile-name text-4xl sm:text-7xl text-prime dark:text-dark-second"
-				>
-					{{ profile.fullname }}
-				</h1>
 			</div>
+
+			<!-- Right Column - User Details -->
+			<div class="flex flex-col justify-center items-center sm:pl-6">
+				<!-- Name Section -->
+				<div class="mb-4">
+					<div
+						v-if="!profile.fullname"
+						class="animate-pulse bg-gray-400 bg-opacity-40 h-[2.5rem] sm:h-[4.5rem] w-48 rounded-lg"
+					></div>
+					<h1
+						class="font-bebas-neue profile-name text-3xl sm:text-6xl text-prime dark:text-dark-second text-nowrap"
+					>
+						{{ profile.fullname }}
+					</h1>
+				</div>
+
+				<!-- User Details Grid -->
+				<div
+					class="profile-details flex justify-center w-full align-middle mb-4 text-prime space-x-1"
+				>
+					<div
+						class="profile-desc text-xm sm:text-base flex items-end justify-center sm:items-start flex-col sm:justify-between w-full sm:w-1/3"
+					>
+						<small
+							class="font-montserrat text-prime dark:text-gray-400"
+							>Username:</small
+						>
+						<small
+							class="font-montserrat text-prime dark:text-gray-400"
+							>Email:</small
+						>
+						<small
+							class="font-montserrat text-prime dark:text-gray-400"
+							>Country:</small
+						>
+					</div>
+
+					<div
+						class="profile-info text-xm sm:text-base flex items-start justify-center sm:items-start flex-col sm:justify-between w-full sm:w-1/2"
+					>
+						<div
+							v-if="!profile.username"
+							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
+						></div>
+						<small
+							class="font-montserrat text-prime dark:text-dark-second h-4"
+						>
+							@{{ profile.username }}
+						</small>
+
+						<div
+							v-if="!profile.email"
+							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
+						></div>
+						<small
+							class="font-montserrat text-prime dark:text-dark-second h-4"
+						>
+							{{ profile.email }}
+						</small>
+
+						<div
+							v-if="!profile.country"
+							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
+						></div>
+						<small
+							class="font-montserrat text-prime dark:text-dark-second mb"
+						>
+							{{ profile.country }}
+						</small>
+					</div>
+				</div>
+			</div>
+			<!-- Stats Section -->
 			<div
-				class="profile-details flex justify-center w-full align-middle mb-4 sm:mb-10 text-prime"
+				class="flex justify-center items-center space-x-5 sm:items-end sm:justify-end w-full sm:m-5 pb-4 sm:pb-0 font-montserrat"
 			>
-				<div
-					class="profile-desc text-xm sm:text-xl flex items-end flex-col justify-between sm:mr-3 w-1/2"
-				>
-					<small
-						class="font-montserrat text-prime dark:text-dark-prime mb-2"
+				<div class="text-center">
+					<div
+						class="text-base font-semibold text-prime dark:text-dark-second"
 					>
-						Username:
-					</small>
-					<small
-						class="font-montserrat text-prime dark:text-dark-prime mb-2"
-					>
-						Email:
-					</small>
-
-					<small
-						class="font-montserrat text-prime dark:text-dark-prime mb-2"
-					>
-						Country:
-					</small>
+						{{ posts.length }}
+					</div>
+					<div class="text-sm text-gray-600 dark:text-gray-400">
+						Posts
+					</div>
 				</div>
-
-				<div
-					class="profile-info text-xm sm:text-xl ml-3 flex flex-col justify-between w-1/2"
-				>
+				<div class="text-center">
 					<div
-						v-if="!profile.username"
-						class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-					></div>
-					<small
-						class="font-montserrat text-prime dark:text-dark-second mb-2 h-4"
+						class="text-base font-semibold text-prime dark:text-dark-second"
 					>
-						{{ profile.username }}
-					</small>
-					<div
-						v-if="!profile.email"
-						class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-					></div>
-					<small
-						class="font-montserrat text-prime dark:text-dark-second mb-2 h-4"
-					>
-						{{ profile.email }}
-					</small>
-					<div
-						v-if="!profile.country"
-						class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-					></div>
-
-					<small
-						class="font-montserrat text-prime dark:text-dark-second mb-2"
-					>
-						{{ profile.country }}
-					</small>
+						{{ followers.length }}
+					</div>
+					<div class="text-sm text-gray-600 dark:text-gray-400">
+						Followers
+					</div>
 				</div>
 			</div>
 		</div>
-		<div class="profile-tabs flex justify-center w-full my-5 sm:px-2">
-			<button
-				class="font-montserrat text-prime h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
-				@click="activeTab = 'posts'"
-				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second dark:text-white ':
-						activeTab === 'posts',
-					'bg-none text-second': activeTab !== 'posts',
-				}"
-			>
-				Posts
-			</button>
-			<button
-				class="font-montserrat text-prime h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
-				@click="activeTab = 'achievements'"
-				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second dark:text-white':
-						activeTab === 'achievements',
-					'bg-none text-second': activeTab !== 'achievements',
-				}"
-			>
-				Achievements
-			</button>
-			<button
-				class="font-montserrat text-prime h-10 sm:h-12 w-1/3 sm:w-64 text-sm sm:text-2xl mx-2 sm:mx-0 pb-3 sm:pb-0"
-				@click="activeTab = 'follower_tab'"
-				:class="{
-					'rounded-none border-b-4 border-second sm:border-none sm:rounded-full sm:bg-second dark:text-white':
-						activeTab === 'follower_tab',
-					'bg-none text-second': activeTab !== 'follower_tab',
-				}"
-			>
-				Followers ({{ users.length }})
-			</button>
+		<div class="profile-tabs w-full my-5 px-4 sm:px-6 md:px-8">
+			<div class="max-w-3xl mx-auto">
+				<nav
+					class="flex flex-wrap justify-center space-x-2 sm:space-x-4"
+					aria-label="Profile tabs"
+				>
+					<button
+						v-for="tab in tabs"
+						:key="tab.id"
+						@click="setActiveTab(tab.id)"
+						:class="[
+							'px-4 py-2 text-sm sm:text-base font-medium rounded-full transition-all duration-200  ',
+							activeTab === tab.id
+								? 'bg-second text-white shadow-lg'
+								: 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white',
+						]"
+						:aria-current="
+							activeTab === tab.id ? 'page' : undefined
+						"
+					>
+						<span class="flex items-center space-x-2">
+							<component
+								:is="tab.icon"
+								class="w-4 h-4 sm:w-5 sm:h-5"
+							/>
+							<span>{{ tab.name }}</span>
+						</span>
+					</button>
+				</nav>
+			</div>
 		</div>
-		<div class="w-full px-2" v-if="activeTab === 'follower_tab'">
+		<div class="w-full p-4" v-if="activeTab === 'follower_tab'">
 			<div class="w-full">
 				<div class="w-full grid sm:grid-cols-2 gap-4">
 					<router-link
 						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
-						v-for="user in users"
+						v-for="user in followers"
 						:key="user.id"
 						:to="{
 							name: 'user-profile',
 							params: {
 								username: user.user_data[0].username,
+							},
+							query: {
 								user: JSON.stringify(user.user_data[0]),
 							},
 						}"
@@ -270,21 +308,45 @@
 				</div>
 			</div>
 			<div
-				class="post-contents w-screen sm:w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+				class="relative post-contents w-full p-6 mt-4 rounded-xl shadow-lg bg-white dark:bg-dark-field transition-all duration-200 hover:shadow-xl font-montserrat"
 				v-for="post in posts"
 				:key="post._id"
 			>
-				<div class="post-title flex justify-start items-center">
-					<div class="flex w-[90%] items-center">
-						<h1
-							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
+				<!-- Header Section -->
+				<div class="flex items-start justify-between mb-4">
+					<div class="flex items-center space-x-3">
+						<div
+							class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-700"
 						>
-							{{ post.title }}
-						</h1>
-						<small class="text-second ml-5">{{
-							timesince(post.date_posted)
-						}}</small>
+							<img
+								:src="post.author_user_photo"
+								alt="Profile"
+								class="w-full h-full object-cover"
+							/>
+						</div>
+						<div class="flex flex-col space-y-1">
+							<div class="flex items-center space-x-2">
+								<span
+									class="font-medium text-xs text-gray-900 dark:text-white"
+									>@{{ post.author }}</span
+								>
+								<span
+									class="text-xs text-gray-500 dark:text-gray-400"
+									>•</span
+								>
+								<span
+									class="text-xs text-gray-500 dark:text-gray-400"
+									>{{ timesince(post.date_posted) }}</span
+								>
+							</div>
+							<div
+								class="text-xs text-gray-500 dark:text-gray-400"
+							>
+								{{ post.category }} | {{ post.country }}
+							</div>
+						</div>
 					</div>
+
 					<div class="flex w-[10%] justify-end relative">
 						<button @click="toggleMenu(post._id)" class="">
 							<span
@@ -324,112 +386,118 @@
 						</div>
 					</div>
 				</div>
-				<div class="post-content flex w-full mt-4">
-					<div class="w-14 h-14 mr-4">
+
+				<!-- Title Section -->
+				<h1
+					class="text-xl font-medi text-gray-900 dark:text-second mb-3"
+				>
+					{{ post.title }}
+				</h1>
+
+				<!-- Content Section -->
+				<div class="space-y-4">
+					<p
+						class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed"
+					>
+						{{ post.content }}
+					</p>
+
+					<!-- Image Section -->
+					<div
+						v-if="post.image"
+						class="relative rounded-xl overflow-hidden cursor-pointer"
+						@click="openImageModal(post.image)"
+					>
 						<img
-							:src="post.author_user_photo"
-							alt="Profile"
-							class="rounded-full cursor-pointer object-cover"
+							:src="post.image"
+							alt=""
+							class="w-full h-auto max-h-[20rem] object-cover"
 						/>
-					</div>
-					<div class="w-full">
-						<div class="flex border-b-2 dark:border-gray-400">
-							<small
-								class="font-montserrat text-prime dark:text-dark-prime pr-5"
-							>
-								@{{ post.author }}
-							</small>
-							<small
-								class="about-post font-montserrat dark:text-gray-400"
-							>
-								{{ post.category }} | {{ post.country }}
-							</small>
-						</div>
-						<p
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify dark:text-dark-prime"
+						<div
+							class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
 						>
-							{{ post.content }}
-						</p>
-						<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
-							<img
-								:src="post.image"
-								alt=""
-								class="h-full object-contain rounded-lg"
-							/>
-						</div>
-						<div class="h-auto pb-2 sm:p-4" v-else>
-							<div
-								class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-								:key="post.itinerary_in_post.id"
-								v-if="post.itinerary_in_post"
-								@click="
-									goToViewItinerary(post.itinerary_in_post.id)
-								"
+							<span
+								class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
 							>
-								<div
-									class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
-								>
-									<img
-										class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
-										:src="post.itinerary_in_post.main_image"
-										alt=""
-									/>
-									<div class="w-full h-auto py-2">
-										<h1
-											class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
-										>
-											{{
-												post.itinerary_in_post
-													.main_title
-											}}
-										</h1>
-										<p
-											class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
-										>
-											{{
-												post.itinerary_in_post
-													.main_description
-											}}
-										</p>
-									</div>
-								</div>
-							</div>
+								<i class="fas fa-search-plus text-4xl"></i>
+							</span>
+						</div>
+					</div>
+
+					<!-- Itinerary Section -->
+					<div
+						v-if="post.itinerary_in_post"
+						class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+						@click="goToViewItinerary(post.itinerary_in_post.id)"
+					>
+						<img
+							:src="post.itinerary_in_post.main_image"
+							alt=""
+							class="w-full h-48 object-cover"
+						/>
+						<div class="p-4 bg-gray-50 dark:bg-gray-800">
+							<h3
+								class="text-xl font-bold text-gray-900 dark:text-white mb-2"
+							>
+								{{ post.itinerary_in_post.main_title }}
+							</h3>
+							<p
+								class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+							>
+								{{ post.itinerary_in_post.main_description }}
+							</p>
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center justify-end">
-					<i
-						class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
+
+				<!-- Actions Section -->
+				<div
+					class="flex items-center justify-end space-x-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700"
+				>
+					<button
 						@click.prevent="selectPost(post)"
-					></i>
-					<div
-						@click="likePost(post._id)"
-						class="flex items-center justify-start w-14"
+						class="flex items-center space-x-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
 					>
-						<span
-							v-if="post.is_liked"
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
-						>
-							favorite
+						<i class="fa-regular fa-comment text-xl"></i>
+						<span class="text-sm">{{
+							post.comments?.length || 0
+						}}</span>
+					</button>
+
+					<button
+						@click="likePost(post._id)"
+						class="flex items-center space-x-2 text-gray-500 hover:text-second dark:text-gray-400 dark:hover:text-second transition-colors duration-200"
+					>
+						<span class="material-icons-outlined text-xl">
+							{{ post.is_liked ? "favorite" : "favorite_border" }}
 						</span>
-						<span
-							v-else
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
-							>favorite_border</span
-						>
-						<small class="text-prime dark:text-dark-prime pl-1">
+						<span class="text-sm">
 							{{
 								post.like_count >= 1000
 									? (post.like_count / 1000).toFixed(1) + "k"
 									: post.like_count
 							}}
-						</small>
-					</div>
+						</span>
+					</button>
+				</div>
+			</div>
+			<!-- Image Modal -->
+			<div
+				v-if="showImageModal"
+				class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+				@click="closeImageModal"
+			>
+				<div class="max-w-4xl w-full max-h-screen p-4">
+					<img
+						:src="modalImage"
+						alt="Full size image"
+						class="w-full h-auto max-h-full object-contain"
+					/>
 				</div>
 			</div>
 		</div>
 		<div
-			class="flex justify-center items-center achievements w-full pt-3 px-3 sm:pt-6 sm:px-9"
+			class="flex justify-center items-center achievements w-full p-4 sm:px-9"
 			v-if="activeTab === 'achievements'"
 		>
 			<div class="flex justify-center items-center w-screen sm:w-full">
@@ -534,143 +602,141 @@
 		</div>
 
 		<div
-			class="fixed z-50 inset-0 overflow-y-auto"
+			class="comments-modal fixed z-50 inset-0 overflow-y-auto"
 			aria-labelledby="modal-title"
 			role="dialog"
 			aria-modal="true"
 			v-if="showModal"
 		>
-			<div
-				class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
-			>
+			<div class="flex min-h-screen items-center justify-center p-4">
 				<div
-					class="fixed inset-0 bg-black bg-opacity-70 transition-opacity"
+					class="fixed inset-0 bg-black/90 transition-opacity"
 					aria-hidden="true"
 				></div>
-				<span
-					class="hidden sm:inline-block sm:align-middle sm:h-screen"
-					aria-hidden="true"
-					>&#8203;</span
-				>
-				<div
-					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:w-1/2"
-				>
-					<button
-						class="absolute top-0 right-0 m-2 mr-3 text-prime dark:text-interface text-2xl"
-						@click="showModal = false"
-					>
-						&times;
-					</button>
-					<div
-						class="post-contents bg-interface dark:bg-dark-interface w-full pt-3 px-6 sm:pt-6 sm:px-9 rounded-lg shadow-lg"
-						v-for="(data, index) in selectedPost"
-						:key="index"
-					>
-						<div
-							class="post-title flex justify-between items-center"
-						>
-							<h1
-								class="font-bebas-neue text-lg text-prime dark:text-second sm:text-2xl"
-							>
-								{{ data.title }}
-							</h1>
-						</div>
 
-						<div class="post-content flex w-full mt-4">
-							<div class="w-14 h-14 mr-4">
-								<img
-									:src="data.author_user_photo"
-									alt="Profile"
-									class="rounded-full cursor-pointer"
-								/>
-							</div>
-							<div class="w-full">
-								<div
-									class="flex border-b-2 dark:border-gray-700"
-								>
-									<p
-										class="font-montserrat text-prime dark:text-interface pr-5"
-									>
-										{{ data.author }}
-									</p>
-									<small
-										class="about-post font-montserrat dark:text-gray-400"
-									>
-										{{ data.category }} |
-										{{ data.country }}
-									</small>
+				<div
+					class="relative w-full max-w-2xl bg-[#1c1c1f] rounded-xl shadow-xl overflow-hidden"
+				>
+					<!-- Header -->
+					<div
+						class="flex items-center justify-between p-6 border-b border-gray-800"
+					>
+						<h2 class="text-2xl font-semibold text-white">
+							Comments
+						</h2>
+						<button
+							@click="showModal = false"
+							class="text-gray-400 hover:text-white transition-colors"
+						>
+							<XIcon class="h-6 w-6" />
+						</button>
+					</div>
+
+					<!-- Post Content -->
+					<div
+						v-for="data in selectedPost"
+						:key="data._id"
+						class="p-6 border-b border-gray-800"
+					>
+						<div class="flex space-x-4">
+							<img
+								:src="data.author_user_photo"
+								alt="Profile"
+								class="h-10 w-10 rounded-full object-cover"
+							/>
+							<div class="flex-1 min-w-0">
+								<div class="flex items-center justify-between">
+									<div class="flex items-center space-x-2">
+										<span class="text-white font-medium">{{
+											data.author
+										}}</span>
+										<span class="text-gray-500 text-sm"
+											>{{ data.category }} |
+											{{ data.country }}</span
+										>
+									</div>
 								</div>
-								<p
-									class="font-montserrat w-full rounded-lg resize-none p-4 text-xs text-justify dark:text-interface"
-								>
+								<p class="mt-1 text-gray-300 text-sm">
 									{{ data.content }}
 								</p>
 							</div>
 						</div>
-						<div class="p-2 overflow-auto max-h-60">
-							<div
-								class="flex items-start bg-gray-200 dark:bg-transparent dark:border-gray-400 dark:border-b ml-3 mt-2 sm:ml-10 p-3 rounded-lg dark:rounded-none"
-								v-for="comment in comments_in_post"
-								:key="comment._id"
-							>
-								<div class="w-10 h-10 mr-4">
-									<img
-										:src="comment.author_user_photo"
-										alt="Profile"
-										class="rounded-full cursor-pointer"
-									/>
-								</div>
-								<div class="font-montserrat w-full">
-									<div
-										class="flex justify-between border-b-[.5px] border-gray-300 dark:border-gray-700 pb-2 w-full text-xs"
-									>
-										<small
-											class="text-prime dark:text-interface pr-5"
-										>
-											{{ comment.author }} to
-											<span class="text-second">{{
-												comment.replied_to
-											}}</span>
-										</small>
-										<small class="text-second">{{
-											timesince(comment.date_posted)
-										}}</small>
-									</div>
-									<p
-										class="w-full rounded-lg resize-none p-4 text-xs text-justify whitespace-normal dark:text-interface"
-									>
-										{{ comment.body }}
-									</p>
-								</div>
-							</div>
-						</div>
-						<div class="reply-post flex w-full mt-4">
-							<div class="w-14 h-14 mr-4">
+					</div>
+
+					<!-- Comments List -->
+					<div class="overflow-y-auto max-h-[400px] p-6 space-y-6">
+						<div
+							v-for="comment in comments_in_post"
+							:key="comment._id"
+							class="flex space-x-4 relative"
+						>
+							<div class="flex-shrink-0">
 								<img
-									:src="data.author_user_photo"
+									:src="comment.author_user_photo"
 									alt="Profile"
-									class="rounded-full cursor-pointer"
+									class="h-10 w-10 rounded-full object-cover"
 								/>
 							</div>
-							<textarea
-								class="w-full rounded-lg resize-none p-4 outline-none dark:border dark:bg-dark-interface dark:text-interface"
-								name=""
-								id=""
-								v-model="reply"
-								cols="30"
-								rows=""
-								:placeholder="'Replying to ' + data.author"
-							></textarea>
+							<div class="flex-1 min-w-0">
+								<div class="flex items-center space-x-2">
+									<span class="text-white font-medium">{{
+										comment.author
+									}}</span>
+									<span class="text-gray-500">to</span>
+									<span class="text-blue-400">{{
+										comment.replied_to
+									}}</span>
+									<span class="text-gray-500 text-sm">{{
+										timesince(comment.date_posted)
+									}}</span>
+								</div>
+								<p class="mt-1 text-gray-300 text-sm">
+									{{ comment.body }}
+								</p>
+								<!-- <div
+										class="flex items-center space-x-4 mt-2"
+									>
+										<button
+											class="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
+										>
+											<ThumbsUpIcon class="h-4 w-4" />
+										</button>
+										<button
+											class="text-gray-400 hover:text-white transition-colors text-sm"
+										>
+											Reply
+										</button>
+									</div> -->
+							</div>
 						</div>
-						<div
-							class="flex py-3 items-center justify-end border-t-2 dark:border-t-0 mt-2"
-						>
-							<input
-								type="submit"
-								value="Reply"
-								@click.prevent="submitReply"
-								class="font-montserrat text-xl bg-second text-interface rounded-full w-28 h-10 hover:bg-second-light cursor-pointer"
+					</div>
+
+					<!-- Reply Input -->
+					<div class="p-6 border-t border-gray-800">
+						<div class="flex space-x-4">
+							<img
+								:src="profile.user_photo"
+								alt="Profile"
+								class="h-10 w-10 rounded-full object-cover"
 							/>
+							<div class="flex-1">
+								<textarea
+									v-model="reply"
+									rows="3"
+									class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+									:placeholder="
+										'Replying to ' + selectedPost[0]?.author
+									"
+								></textarea>
+								<div class="flex justify-end mt-3 space-x-3">
+									<button
+										@click.prevent="submitReply"
+										class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+									>
+										Reply
+									</button>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -720,340 +786,305 @@
 	</div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive, onMounted } from "vue";
+import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
+import {
+	CogIcon,
+	CameraIcon,
+	EnvelopeIcon,
+	GlobeAltIcon,
+	UserIcon,
+	PhotoIcon,
+	TrophyIcon,
+} from "@heroicons/vue/24/outline";
+
 import axios from "axios";
 import moment from "moment";
-export default {
-	data() {
-		return {
-			hasContentCreator: false,
-			hasGuideGuru: false,
-			hasLikeLeader: false,
-			hasShareStar: false,
-			hasCommentConnoisseur: false,
-			hasExplorerExtraordinaire: false,
-			hasKnowledgeSeeker: false,
-			hasTrendsetter: false,
-			hasCulturaContributor: false,
+import { useRouter } from "vue-router";
 
-			showModal: false,
-			profile: {
-				username: "",
-				user_photo: "",
-				fullname: "",
-				email: "",
-				password: "",
-				country: "",
-			},
-			showModal: false,
-			posts: [],
-			users: [],
+const router = useRouter();
 
-			activeTab: "posts", // Default active tab
+const hasContentCreator = ref(false);
+const hasGuideGuru = ref(false);
+const hasLikeLeader = ref(false);
+const hasShareStar = ref(false);
+const hasCommentConnoisseur = ref(false);
+const hasExplorerExtraordinaire = ref(false);
+const hasKnowledgeSeeker = ref(false);
+const hasTrendsetter = ref(false);
+const hasCulturaContributor = ref(false);
 
-			selectedPost: [],
-			reply: "",
-			replied_to: "",
-			post_id: "",
+const showModal = ref(false);
+const profile = reactive({
+	username: "",
+	user_photo: "",
+	fullname: "",
+	email: "",
+	password: "",
+	country: "",
+});
 
-			comments: [],
-			comments_in_post: [],
+const posts = ref([]);
+const followers = ref([]);
 
-			modalDeleteActive: false,
-			isMenuOpen: false,
-			openedPost_id: null,
+const activeTab = ref("posts");
+const tabs = [
+	{ id: "posts", name: "Posts", icon: PhotoIcon },
+	{ id: "follower_tab", name: "Followers", icon: UserIcon },
+	{ id: "achievements", name: "Achievements", icon: TrophyIcon },
+];
 
-			// forprofile
-			selectedImageUrl: "/default_profile.png",
+const setActiveTab = (tabId) => {
+	activeTab.value = tabId;
+};
 
-			changingPhoto: false,
-			picture: null,
-			checkedAfterDelay: false,
-		};
+const selectedPost = ref([]);
+const reply = ref("");
+const replied_to = ref("");
+const post_id = ref("");
+
+const comments = ref([]);
+const comments_in_post = ref([]);
+
+const modalDeleteActive = ref(false);
+const isMenuOpen = ref(false);
+const openedPost_id = ref(null);
+
+const selectedImageUrl = ref("/default_profile.png");
+
+const changingPhoto = ref(false);
+const picture = ref(null);
+const checkedAfterDelay = ref(false);
+
+const token = sessionStorage.getItem("TOKEN");
+
+const client = axios.create({
+	baseURL: "http://127.0.0.1:8000",
+	withCredentials: true,
+	timeout: 5000,
+	xsrfCookieName: "csrftoken",
+	xsrfHeaderName: "X-Csrftoken",
+	headers: {
+		Authorization: `Token ${token}`,
+		"Content-Type": "application/json",
 	},
-	mounted() {
-		setTimeout(() => {
-			this.checkedAfterDelay = true;
-		}, 5000);
-		// this.fetchPosts();
-		// setInterval(this.fetchPosts, 5000); // Fetch posts every 5 seconds -->> polling
-		// this.fetchComments();
-		// setInterval(this.fetchComments, 5000);
-		// Check if the user has met the criteria for each achievement
-		// and update the corresponding data property
-	},
-	created() {
-		this.token = sessionStorage.getItem("TOKEN");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
-			},
+});
+
+const showImageModal = ref(false);
+const modalImage = ref("");
+// functions for image modal
+const openImageModal = (imageUrl) => {
+	modalImage.value = imageUrl;
+	showImageModal.value = true;
+};
+
+const closeImageModal = () => {
+	showImageModal.value = false;
+};
+
+onMounted(() => {
+	fetchUser();
+	fetchPosts();
+	setTimeout(() => {
+		checkedAfterDelay.value = true;
+	}, 5000);
+});
+
+const follow = (userId) => {
+	console.log("The user", userId);
+	client
+		.post(`api/follow/${userId}/follow/`)
+		.then((response) => {
+			console.log(response.data);
+			fetchPosts();
+		})
+		.catch((error) => {
+			console.error("Error following the user:", error);
 		});
-		this.fetchUser();
-		this.fetchPosts();
-	},
-	methods: {
-		follow(userId) {
-			console.log("The user", userId);
-			this.client
-				.post(`api/follow/${userId}/follow/`)
-				.then((response) => {
-					// Handle success response
-					console.log(response.data);
-					// Update the is_followed property of the user object
-					this.fetchPosts();
-					// const userIndex = this.users.findIndex(
-					// 	(user) => user.user === userId
-					// );
+};
 
-					// this.users = this.users.map(user => {
-					// 	if (user.user === userId) {
-					// 		user.is_followed = response.data.is_followed;
-					// 	}
-					// 	if (userIndex !== -1) {
-					// 	this.users[userIndex].is_followed =
-					// 		response.data.is_followed;
-					// }
-					// 	return user;
-					// });
+const fetchUser = () => {
+	client
+		.get("api/user")
+		.then((res) => {
+			profile.username = res.data.user.username;
+			profile.fullname = res.data.profile[0].fullname;
+			profile.country = res.data.profile[0].country;
+			profile.user_photo = res.data.profile[0].user_photo;
+			profile.email = res.data.profile[0].email;
+			changingPhoto.value = false;
 
-					// Optionally, update your UI based on the successful follow
-				})
-				.catch((error) => {
-					// Handle error
-					console.error("Error following the user:", error);
-				});
+			hasContentCreator.value = res.data.profile[0].content_creator >= 5;
+			hasGuideGuru.value = res.data.profile[0].guide_guru >= 1;
+			hasLikeLeader.value = res.data.profile[0].like_leader >= 10;
+			hasShareStar.value = res.data.profile[0].share_star >= 10;
+			hasCommentConnoisseur.value =
+				res.data.profile[0].comment_connoisseur >= 5;
+			hasExplorerExtraordinaire.value =
+				res.data.profile[0].explorer_extraordinaire >= 10;
+			hasKnowledgeSeeker.value =
+				res.data.profile[0].knowledge_seeker >= 15;
+			hasTrendsetter.value = res.data.profile[0].trend_setter >= 50;
+			hasCulturaContributor.value =
+				res.data.profile[0].content_creator >= 20 &&
+				res.data.profile[0].guide_guru >= 10;
+		})
+		.catch((error) => {
+			console.log("ERROR", error);
+		});
+};
+
+const handleFileSelection = (event) => {
+	console.log("Image : TRIGERRED");
+	const file = event.target.files[0];
+
+	if (file) {
+		selectedImageUrl.value = URL.createObjectURL(file);
+		picture.value = file;
+		changingPhoto.value = true;
+		console.log("Image :", picture.value);
+	}
+};
+
+const cancelProfile = () => {
+	changingPhoto.value = false;
+	document.getElementById("imgSelect").value = "";
+};
+
+const changeProfile = () => {
+	let formData = new FormData();
+
+	if (picture.value && picture.value instanceof File) {
+		formData.append("image", picture.value, picture.value.name);
+	}
+	console.log("FORM :", formData);
+	client
+		.post("/api/change-profile", formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		})
+		.then((response) => {
+			console.log("CHANGE PROFILE !!");
+			fetchUser();
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const likePost = (post_id) => {
+	client
+		.post(`api/like-posts/${post_id}/like_post/`)
+		.then((response) => {
+			console.log(response.data);
+			fetchPosts();
+		})
+		.catch((error) => {
+			console.error("Error liking the post:", error);
+		});
+};
+
+const toggleMenu = (postId) => {
+	isMenuOpen.value = isMenuOpen.value === postId ? null : postId;
+	openedPost_id.value = postId;
+};
+
+const editItem = () => {
+	alert("Edit action triggered");
+	isMenuOpen.value = false;
+};
+
+const deleteItem = () => {
+	modalDeleteActive.value = !modalDeleteActive.value;
+	isMenuOpen.value = null;
+	console.log("the opened : ", openedPost_id.value);
+};
+
+const deletePost = () => {
+	client
+		.post("/api/delete-post", {
+			post_id: openedPost_id.value,
+		})
+		.then((response) => {
+			console.log(response.data);
+			fetchPosts();
+			modalDeleteActive.value = false;
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const submitReply = () => {
+	client
+		.post("/api/commenting", {
+			post_id: post_id.value,
+			replied_to: replied_to.value,
+			body: reply.value,
+		})
+		.then((response) => {
+			console.log(response.data);
+			reply.value = "";
+			fetchPosts();
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const timesince = (date) => {
+	return moment(date).fromNow();
+};
+
+const selectPost = (post) => {
+	showModal.value = true;
+	selectedPost.value = [post];
+	console.log("GET POST", selectedPost.value);
+	post_id.value = selectedPost.value[0]._id;
+	replied_to.value = selectedPost.value[0].author;
+	comments_in_post.value =
+		posts.value.find((p) => p._id === post_id.value)?.comments || [];
+	console.log("the id : ", comments_in_post.value);
+};
+
+const edit_post = (post_data) => {
+	router.push({
+		name: "editpost",
+		params: {
+			user: JSON.stringify(post_data),
 		},
-		fetchUser() {
-			this.client
-				.get("api/user")
-				.then((res) => {
-					this.profile.username = res.data.user.username;
-					this.profile.fullname = res.data.profile[0].fullname;
-					this.profile.country = res.data.profile[0].country;
-					// if (!res.data.profile.user_photo) {
-					// 	this.profile.user_photo = res.data.profile.user_photo;
-					// }
-					this.profile.user_photo = res.data.profile[0].user_photo;
-					this.profile.email = res.data.profile[0].email;
-					this.changingPhoto = false;
+	});
+};
 
-					if (res.data.profile[0].content_creator >= 5) {
-						this.hasContentCreator = true;
-					}
-					if (res.data.profile[0].guide_guru >= 1) {
-						this.hasGuideGuru = true;
-					}
-					if (res.data.profile[0].like_leader >= 10) {
-						this.hasLikeLeader = true;
-					}
-					if (res.data.profile[0].share_star >= 10) {
-						this.hasShareStar = true;
-					}
-					if (res.data.profile[0].comment_connoisseur >= 5) {
-						this.hasCommentConnoisseur = true;
-					}
-					if (res.data.profile[0].explorer_extraordinaire >= 10) {
-						this.hasExplorerExtraordinaire = true;
-					}
-					if (res.data.profile[0].knowledge_seeker >= 15) {
-						this.hasKnowledgeSeeker = true;
-					}
-					if (res.data.profile[0].trend_setter >= 50) {
-						this.hasTrendsetter = true;
-					}
-					if (
-						res.data.profile[0].content_creator >= 20 &&
-						res.data.profile[0].guide_guru >= 10
-					) {
-						this.hasCulturaContributor = true;
-					}
-				})
-				.catch((error) => {
-					console.log("ERROR", error);
-				});
+const view_user = (user_data) => {
+	router.push({
+		name: "user-profile",
+		params: {
+			username: user_data[0].username,
+			user: JSON.stringify(user_data[0]),
 		},
-		handleFileSelection(event) {
-			console.log("Image : TRIGERRED");
-			const file = event.target.files[0];
+	});
+};
 
-			if (file) {
-				this.selectedImageUrl = URL.createObjectURL(file);
-				this.picture = file;
-				this.changingPhoto = true;
-				console.log("Image :", this.picture);
+const fetchPosts = () => {
+	client
+		.get(`/api/profile-posts`)
+		.then((response) => {
+			posts.value = response.data.posts.reverse();
+
+			if (posts.value.length > 0) {
+				const itineraries_frompost = posts.value[0].itinerary_in_post;
+				comments_in_post.value =
+					posts.value.find((p) => p._id === post_id.value)
+						?.comments || [];
 			}
-		},
-		cancelProfile() {
-			this.changingPhoto = false;
-
-			document.getElementById("imgSelect").value = "";
-		},
-		changeProfile() {
-			let formData = new FormData();
-
-			if (this.picture && this.picture instanceof File) {
-				formData.append("image", this.picture, this.picture.name);
-			}
-			console.log("FORM :", formData);
-			this.client
-				.post("/api/change-profile", formData, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
-				})
-				.then((response) => {
-					console.log("CHANGE PROFILE !!");
-					this.fetchUser();
-				})
-				.catch((error) => {
-					console.error(error);
-				});
-		},
-		likePost(post_id) {
-			this.client
-				.post(`api/like-posts/${post_id}/like_post/`)
-				.then((response) => {
-					// Handle success response
-					console.log(response.data);
-					this.fetchPosts();
-					// Optionally, update your UI based on the successful like
-				})
-				.catch((error) => {
-					// Handle error
-					console.error("Error liking the post:", error);
-				});
-		},
-		toggleMenu(postId) {
-			this.isMenuOpen = this.isMenuOpen === postId ? null : postId;
-			this.openedPost_id = postId;
-		},
-
-		editItem() {
-			alert("Edit action triggered");
-			this.isMenuOpen = false;
-		},
-		deleteItem() {
-			this.modalDeleteActive = !this.modalDeleteActive;
-			this.isMenuOpen = null;
-			console.log("the opened : ", this.openedPost_id);
-		},
-		deletePost() {
-			this.client
-				.post("/api/delete-post", {
-					post_id: this.openedPost_id,
-				})
-				.then((response) => {
-					console.log(response.data);
-
-					this.fetchPosts();
-					this.modalDeleteActive = false;
-					// setInterval(this.fetchComments, 5000);
-
-					// Handle successful response here
-				})
-				.catch((error) => {
-					console.error(error);
-					// Handle error here
-				});
-		},
-		submitReply() {
-			this.client
-				.post("/api/commenting", {
-					post_id: this.post_id,
-					replied_to: this.replied_to,
-					body: this.reply,
-				})
-				.then((response) => {
-					console.log(response.data);
-					this.reply = "";
-					// this.fetchComments();
-					this.fetchPosts();
-					// setInterval(this.fetchComments, 5000);
-
-					// Handle successful response here
-				})
-				.catch((error) => {
-					console.error(error);
-					// Handle error here
-				});
-		},
-		timesince(date) {
-			return moment(date).fromNow();
-		},
-		selectPost(post) {
-			this.showModal = true;
-
-			this.selectedPost = [post];
-			console.log("GET POST", this.selectedPost);
-			this.post_id = this.selectedPost[0]._id;
-
-			this.replied_to = this.selectedPost[0].author;
-			this.comments_in_post =
-				this.posts.find((p) => p._id === this.post_id)?.comments || [];
-			console.log("the id : ", this.comments_in_post);
-		},
-		// fetchComments() {
-		// 	axios
-		// 		.get("/api/comments")
-		// 		.then((response) => {
-		// 			this.comments = response.data;
-		// 			console.log("comments:", this.comments);
-		// 		})
-		// 		.catch((error) => {
-		// 			console.log(error);
-		// 		});
-		// },
-		edit_post(post_data) {
-			// console.log("FGFGF", user_data[0].username);
-			this.$router.push({
-				name: "editpost",
-				params: {
-					user: JSON.stringify(data),
-				},
-			});
-		},
-		view_user(user_data) {
-			// console.log("FGFGF", user_data[0].username);
-			this.$router.push({
-				name: "user-profile",
-				params: {
-					username: user_data[0].username,
-					user: JSON.stringify(user_data[0]),
-				},
-			});
-		},
-		fetchPosts() {
-			this.client
-				.get(`/api/profile-posts`)
-				.then((response) => {
-					this.posts = response.data.posts.reverse();
-					if (this.posts.length > 0) {
-						// Set selectedPost to the first post
-						console.log("GET POST fetch", this.selectedPost);
-						// this.post_id = this.selectedPost[0]._id;
-						this.itineraries_frompost =
-							this.posts[0].itinerary_in_post;
-						// this.replied_to = this.selectedPost[0].author;
-						this.comments_in_post =
-							this.posts.find((p) => p._id === this.post_id)
-								?.comments || [];
-						console.log("the id : ", this.comments_in_post);
-					}
-					this.users = response.data.followers;
-					console.log("updateed asdasd:", response.data.followers);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		},
-	},
+			followers.value = response.data.followers;
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 };
 </script>
 

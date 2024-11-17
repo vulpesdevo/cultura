@@ -1,268 +1,296 @@
 <template>
-	<div
-		class="profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 sm:px-8 py-5 sm:ml-64 overflow-auto overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-5 sm:pt-7"
-	>
-		<div
-			class="w-screen sm:w-full p-3 mt-16 sm:mt-3 px-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
-		>
-			<form @submit.prevent="handleSubmit">
-				<div class="post-title flex justify-start items-center">
-					<div class="flex w-full items-center">
-						<input
-							v-model="post.title"
-							type="text"
-							class="font-bebas-neue text-lg bg-[#12182c41] m-2 p-5 rounded-lg text-prime dark:text-dark-prime sm:text-2xl focus:border-second focus:outline-none w-4/5 sm:w-full"
-							placeholder="Enter post title"
-						/>
-						<!-- <small
-							class="text-second flex w-3/4 sm:w-[10%] justify-end relative"
-							>{{ timesince(post.date_posted) }}</small
-						> -->
-					</div>
-					<!-- <div class="flex w-[10%] justify-end relative">
-						<button type="button" @click="toggleMenu" class="">
-							<span
-								class="material-icons-outlined dark:text-dark-prime"
-							>
-								more_horiz
-							</span>
-						</button>
-						<div
-							v-if="isMenuOpen"
-							class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
-						>
-							<a
-								href="#"
-								@click.prevent="handleSubmit"
-								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-								>Save</a
-							>
-							<a
-								href="#"
-								@click.prevent="cancelEdit"
-								class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-								>Cancel</a
-							>
-						</div>
-					</div> -->
-				</div>
-				<div class="post-content flex w-full h-auto mt-4">
-					<div class="w-14 h-14 mr-4">
+	<div class="h-screen bg-gray-900 text-white px-4 overflow-auto">
+		<div class="max-w-5xl mx-auto">
+			<!-- Header -->
+			<h1 class="text-3xl font-bold mb-8 pt-4">Edit Post</h1>
+
+			<div class="bg-gray-800 rounded-xl p-6 shadow-xl">
+				<form @submit.prevent="handleSubmit" class="space-y-6">
+					<!-- Author Info -->
+					<div class="flex items-center space-x-4">
 						<img
 							:src="post.author_user_photo"
 							alt="Profile"
-							class="rounded-full cursor-pointer object-cover"
+							class="w-12 h-12 rounded-full object-cover ring-2 ring-blue-500"
 						/>
-					</div>
-					<div class="w-full h-full">
-						<div class="flex border-b-2 dark:border-gray-400">
-							<small
-								class="font-montserrat text-prime dark:text-dark-prime pr-5"
-							>
-								@{{ post.author }}
-							</small>
-							<small
-								class="about-post font-montserrat dark:text-gray-400"
-							>
-								{{ post.category }} | {{ post.country }}
-							</small>
+						<div>
+							<div class="flex items-center space-x-2">
+								<span class="font-medium"
+									>@{{ post.author }}</span
+								>
+								<span class="text-gray-400">•</span>
+								<span class="text-gray-400"
+									>{{ post.category }} |
+									{{ post.country }}</span
+								>
+							</div>
 						</div>
+					</div>
+
+					<!-- Title Input -->
+					<div>
+						<input
+							v-model="post.title"
+							type="text"
+							class="w-full bg-gray-700 border-0 rounded-lg p-4 text-xl font-semibold focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+							placeholder="Enter post title"
+							:class="{
+								'border-red-500': validationErrors.title,
+							}"
+						/>
+						<p
+							v-if="validationErrors.title"
+							class="mt-1 text-red-500 text-sm"
+						>
+							{{ validationErrors.title }}
+						</p>
+					</div>
+
+					<!-- Content Input -->
+					<div>
 						<textarea
 							v-model="post.content"
-							class="font-montserrat w-full mt-3 p-5 rounded-lg resize-none text-sm text-justify bg-[#12182c41] dark:text-dark-prime border-none focus:outline-none"
-							placeholder="Enter post content"
+							rows="4"
+							class="w-full bg-gray-700 border-0 rounded-lg p-4 resize-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+							placeholder="What's on your mind?"
+							:class="{
+								'border-red-500': validationErrors.content,
+							}"
 						></textarea>
-
-						<div
-							class="flex items-center justify-center w-screen h-full sm:w-1/3 bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
+						<p
+							v-if="validationErrors.content"
+							class="mt-1 text-red-500 text-sm"
 						>
-							<label
-								for="imgSelect"
-								class="w-screen sm:w-full h-full flex items-center justify-center bg-field dark:bg-gray-400 cursor-pointer rounded-xl"
+							{{ validationErrors.content }}
+						</p>
+					</div>
+
+					<!-- Image Upload -->
+					<div class="relative">
+						<div
+							class="relative rounded-lg overflow-hidden"
+							:class="{ 'h-64': selectedImageUrl || post.image }"
+						>
+							<img
+								v-if="selectedImageUrl || post.image"
+								:src="selectedImageUrl || post.image"
+								alt="Post image"
+								class="w-full h-full object-cover"
+							/>
+							<div
+								v-else
+								class="h-48 bg-gray-700 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors duration-200"
+								@click="triggerFileInput"
 							>
-								<img
-									:class="{ hidden: !selectedImageUrl }"
-									:src="selectedImageUrl"
-									class="size-full object-cover rounded-xl z-0"
-									alt="Selected image"
-								/>
-								<div
-									:class="{ hidden: selectedImageUrl }"
-									class="flex items-center justify-center font-montserrat size-36 text-prime dark:text-dark-prime text-xl z-0"
-								>
-									<span>+ Add Image</span>
+								<div class="text-center">
+									<i
+										class="fas fa-image text-3xl mb-2 text-gray-400"
+									></i>
+									<p class="text-gray-400">
+										Click to add an image
+									</p>
 								</div>
-							</label>
+							</div>
+
+							<!-- Image Controls -->
+							<div
+								v-if="selectedImageUrl || post.image"
+								class="absolute top-2 right-2 flex space-x-2"
+							>
+								<button
+									type="button"
+									@click="triggerFileInput"
+									class="p-2 bg-gray-900 bg-opacity-75 rounded-full hover:bg-opacity-100 transition-all duration-200"
+									title="Change image"
+								>
+									<i class="fas fa-camera text-white"></i>
+								</button>
+								<button
+									type="button"
+									@click="removeImage"
+									class="p-2 bg-gray-900 bg-opacity-75 rounded-full hover:bg-opacity-100 transition-all duration-200"
+									title="Remove image"
+								>
+									<i class="fas fa-times text-white"></i>
+								</button>
+							</div>
 						</div>
 						<input
+							ref="fileInput"
 							type="file"
-							id="imgSelect"
 							class="hidden"
+							accept="image/*"
 							@change="handleFileSelection"
 						/>
 					</div>
-				</div>
-				<div class="flex my-3 items-center justify-end">
-					<input
-						@click.prevent="updatePost"
-						type="submit"
-						value="Save"
-						class="font-montserrat text-xl bg-second text-interface p-2 rounded-full w-36 h-10 sm:h-12 hover:bg-second-light cursor-pointer"
-					/>
-				</div>
-			</form>
+
+					<!-- Action Buttons -->
+					<div class="flex justify-end space-x-4 pt-4">
+						<button
+							type="button"
+							@click="cancelEdit"
+							class="px-6 py-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							:disabled="isSubmitting"
+							class="px-6 py-2 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+						>
+							<span v-if="isSubmitting" class="animate-spin">
+								<i class="fas fa-spinner"></i>
+							</span>
+							<span>{{
+								isSubmitting ? "Saving..." : "Save Changes"
+							}}</span>
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
-import moment from "moment";
-import { useRoute } from "vue-router";
-export default {
-	name: "EditPost",
-	data() {
-		return {
-			post: {
-				_id: "",
-				title: "",
-				author: "",
-				author_user_photo: "",
-				category: "",
-				country: "",
-				content: "",
-				image: null,
-				date_posted: new Date(),
-				is_liked: false,
-				like_count: 0,
-			},
-			picture: null,
-			isMenuOpen: false,
-			selectedImageUrl: null,
-		};
+
+const route = useRoute();
+const router = useRouter();
+const fileInput = ref(null);
+const selectedImageUrl = ref(null);
+const isSubmitting = ref(false);
+
+const validationErrors = reactive({
+	title: "",
+	content: "",
+});
+
+const post = reactive({
+	_id: "",
+	title: "",
+	author: "",
+	author_user_photo: "",
+	category: "",
+	country: "",
+	content: "",
+	image: null,
+	date_posted: new Date(),
+	is_liked: false,
+	like_count: 0,
+});
+
+// Initialize axios client
+const token = sessionStorage.getItem("TOKEN");
+const client = axios.create({
+	baseURL: "http://127.0.0.1:8000",
+	withCredentials: true,
+	timeout: 5000,
+	xsrfCookieName: "csrftoken",
+	xsrfHeaderName: "X-Csrftoken",
+	headers: {
+		Authorization: `Token ${token}`,
+		"Content-Type": "application/json",
 	},
-	created() {
-		const route = useRoute();
-		const postParam = route.params.post;
-		if (postParam) {
-			this.post = JSON.parse(postParam);
+});
+
+onMounted(() => {
+	const postParam = route.params.post;
+	if (postParam) {
+		const parsedPost = JSON.parse(postParam);
+		Object.assign(post, parsedPost);
+	}
+});
+
+const validateForm = () => {
+	let isValid = true;
+	validationErrors.title = "";
+	validationErrors.content = "";
+
+	if (!post.title.trim()) {
+		validationErrors.title = "Title is required";
+		isValid = false;
+	}
+
+	if (!post.content.trim()) {
+		validationErrors.content = "Content is required";
+		isValid = false;
+	}
+
+	return isValid;
+};
+
+const triggerFileInput = () => {
+	fileInput.value.click();
+};
+
+const handleFileSelection = (event) => {
+	const file = event.target.files[0];
+	if (file) {
+		if (file.size > 5 * 1024 * 1024) {
+			alert("Image size should be less than 5MB");
+			return;
 		}
-		this.token = sessionStorage.getItem("TOKEN");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
+		selectedImageUrl.value = URL.createObjectURL(file);
+		post.image = file;
+	}
+};
+
+const removeImage = () => {
+	selectedImageUrl.value = null;
+	post.image = null;
+	if (fileInput.value) {
+		fileInput.value.value = "";
+	}
+};
+
+const handleSubmit = async () => {
+	if (!validateForm()) {
+		return;
+	}
+
+	isSubmitting.value = true;
+
+	try {
+		const formData = new FormData();
+		formData.append("title", post.title);
+		formData.append("body", post.content);
+
+		if (post.image instanceof File) {
+			formData.append("image", post.image);
+		}
+
+		await client.put(`/api/posting/${post._id}/`, formData, {
 			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
+				"Content-Type": "multipart/form-data",
 			},
 		});
-	},
-	methods: {
-		handleFileSelection(event) {
-			const file = event.target.files[0];
-			if (file) {
-				this.selectedImageUrl = URL.createObjectURL(file);
-				this.picture = file;
-				console.log("Image :", this.picture);
-			}
-		},
-		updatePost() {
-			if (!this.post.content.trim() || this.post.title === "POST TITLE") {
-				alert("Please fill all fields correctly."); // Inform the user (consider using a more user-friendly notification system)
-				return; // Exit the method
-			} else {
-				let formData = new FormData();
-				formData.append("title", this.post.title);
-				formData.append("body", this.post.content);
 
-				if (this.picture && this.picture instanceof File) {
-					formData.append("image", this.picture, this.picture.name);
-				}
-				this.client
-					.put(`/api/posting/${this.post._id}/`, formData, {
-						headers: {
-							"Content-Type": "multipart/form-data",
-						},
-					})
-					.then((response) => {
-						console.log(response.data);
-						this.$router.push({ name: "profile" }); // Redirect to the post list or another appropriate page
-					})
-					.catch((error) => {
-						console.log(
-							"An error occurred while updating the post."
-						);
-					});
-			}
-		},
-		timesince(date) {
-			return moment(date).fromNow();
-		},
-		toggleMenu() {
-			this.isMenuOpen = !this.isMenuOpen;
-		},
-		handleImageUpload(event) {
-			const file = event.target.files[0];
-			if (file) {
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					this.post.image = e.target.result;
-				};
-				reader.readAsDataURL(file);
-			}
-		},
-		handleSubmit() {
-			// Log the params object with the stringified post
-			const params = {
-				post: JSON.stringify(this.post),
-			};
-			console.log("Params:", params);
+		router.push({ name: "profile" });
+	} catch (error) {
+		console.error("Error updating post:", error);
+		alert("Failed to update post. Please try again.");
+	} finally {
+		isSubmitting.value = false;
+	}
+};
 
-			// Here you would typically send the updated post data to your backend
-			console.log("Submitting updated post:", this.post);
-			// You can add your API call or state management logic here
-		},
-		cancelEdit() {
-			// Here you would typically reset the form or navigate away
-			console.log("Cancelling edit");
-		},
-	},
+const cancelEdit = () => {
+	router.push({ name: "profile" });
 };
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
-
-.font-bebas-neue {
-	font-family: "Bebas Neue", sans-serif;
+/* Ensure smooth transitions */
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.3s ease;
 }
 
-.font-montserrat {
-	font-family: "Montserrat", sans-serif;
-}
-
-/* Add these custom color classes to match your theme */
-.text-prime {
-	@apply text-gray-900;
-}
-
-.dark .text-dark-prime {
-	@apply text-white;
-}
-
-.text-second {
-	@apply text-blue-500;
-}
-
-.bg-interface {
-	@apply bg-white;
-}
-
-.dark .bg-dark-interface {
-	@apply bg-gray-800;
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
 }
 </style>

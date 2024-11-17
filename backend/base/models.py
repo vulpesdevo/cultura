@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 ## models.py
 from djongo.storage import GridFSStorage
 from django.conf import settings
+from django.db.models import JSONField
 
 # from profanity.validators import validate_is_profane
 
@@ -46,6 +47,7 @@ class CulturaUser(models.Model):
     content_creator = models.IntegerField(default=0, null=True, blank=True)
     comment_connoisseur = models.IntegerField(default=0, null=True, blank=True)
 
+
 class Report(models.Model):
     _id = ObjectIdField()
     post_id = models.CharField(max_length=255)
@@ -53,8 +55,6 @@ class Report(models.Model):
     category = models.CharField(max_length=255)
     details = models.CharField(max_length=2550)
 
-
-from django.db.models import JSONField
 
 class SaveItinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
@@ -77,7 +77,6 @@ class SaveItinerary(models.Model):
     date_posted = models.DateTimeField(auto_now_add=True)
     rating = JSONField(default=list)
     status = models.BooleanField(default=False)
-
 
 
 class Itinerary(models.Model):
@@ -144,6 +143,7 @@ class LikeNotification(models.Model):
 
 
 class FollowingNotification(models.Model):
+    _id = ObjectIdField()
     followed_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="followed"
     )

@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+	<div class="min-h-screen bg-gray-50 dark:bg-notif">
 		<!-- Header -->
 		<div class="sticky top-0 bg-white dark:bg-gray-800 shadow-sm z-10">
 			<div class="max-w-3xl mx-auto px-4 py-4">
@@ -52,7 +52,7 @@
 				v-for="notification in filteredNotifications"
 				:key="notification.id || notification._id"
 				@click="handleNotificationClick(notification)"
-				class="flex items-center space-x-4 p-4 rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition"
+				class="flex items-center space-x-4 p-4 rounded-lg bg-white dark:bg-dark-field shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition"
 				:class="{
 					'bg-blue-50 dark:bg-blue-900/20': !notification.is_read,
 				}"
@@ -194,7 +194,15 @@ const fetchFollownotification = async () => {
 	}
 };
 
-const handleNotificationClick = (notification) => {
+const handleNotificationClick = async (notification) => {
+	console.log("NOTIF ", notification);
+
+	await store.dispatch("updateNotificationReadStatus", {
+		notificationType:
+			notification.notif_type === "follow" ? "follow" : "like",
+		notificationId: notification._id,
+		isRead: true,
+	});
 	if (notification.notif_type === "follow") {
 		view_user(notification.user_data);
 	} else {
@@ -214,6 +222,8 @@ const view_user = (user_data) => {
 		name: "user-profile",
 		params: {
 			username: user_data[0].username,
+		},
+		query: {
 			user: JSON.stringify(user_data[0]),
 		},
 	});

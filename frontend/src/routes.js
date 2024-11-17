@@ -79,7 +79,7 @@ const routes = [
 			{ path: "/profile", component: Profile, name: "profile" },
 			{ path: "/test", component: Test, name: "test" },
 			{
-				path: "/user-profile/:username/:user",
+				path: "/user-profile/:username",
 				component: PublicViewProfile,
 				name: "user-profile",
 			},

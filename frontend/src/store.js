@@ -15,6 +15,8 @@ const store = createStore({
 		posts: [],
 		itineraries: [],
 		itineraryDetails: {},
+		likeNotifications: [],
+		followNotifications: [],
 	},
 	getters: {
 		isAuthenticated: (state) => !!state.user.token,
@@ -40,11 +42,16 @@ const store = createStore({
 		getSearchResults(state) {
 			return state.searchResults;
 		},
-		getLikeNotifications(state) {
-			return state.likeNotifications;
-		},
-		getFollowNotifications(state) {
-			return state.followNotifications;
+		getLikeNotifications: (state) => state.likeNotifications,
+		getFollowNotifications: (state) => state.followNotifications,
+		getTotalUnreadNotificationsCount(state) {
+			const likeUnreadCount = state.likeNotifications.filter(
+				(n) => !n.is_read
+			).length;
+			const followUnreadCount = state.followNotifications.filter(
+				(n) => !n.is_read
+			).length;
+			return likeUnreadCount + followUnreadCount;
 		},
 	},
 	mutations: {
@@ -84,18 +91,40 @@ const store = createStore({
 		setFollowNotifications(state, notifications) {
 			state.followNotifications = notifications;
 		},
+		SET_LIKE_NOTIFICATIONS(state, notifications) {
+			state.likeNotifications = notifications;
+		},
+		SET_FOLLOW_NOTIFICATIONS(state, notifications) {
+			state.followNotifications = notifications;
+		},
+		UPDATE_NOTIFICATION_READ_STATUS(
+			state,
+			{ notificationType, notificationId, isRead }
+		) {
+			const notifications =
+				notificationType === "like"
+					? state.likeNotifications
+					: state.followNotifications;
+			const notification = notifications.find(
+				(n) => n.id === notificationId || n._id === notificationId
+			);
+			if (notification) {
+				notification.is_read = isRead;
+			}
+		},
 	},
 	actions: {
 		// Notifications
-		//
+
 		async fetchLikeNotifications({ commit }) {
 			try {
 				const response = await axiosClient.get(
 					"/like-notification-list"
 				);
-				commit("setLikeNotifications", response.data);
+				commit("SET_LIKE_NOTIFICATIONS", response.data);
 			} catch (error) {
 				console.error("Error fetching like notifications:", error);
+				throw error;
 			}
 		},
 		async fetchFollowNotifications({ commit }) {
@@ -103,16 +132,71 @@ const store = createStore({
 				const response = await axiosClient.get(
 					"/follow-notification-list"
 				);
-				commit("setFollowNotifications", response.data);
+				commit("SET_FOLLOW_NOTIFICATIONS", response.data);
 			} catch (error) {
 				console.error("Error fetching follow notifications:", error);
+				throw error;
 			}
 		},
+		async updateNotificationReadStatus(
+			{ commit },
+			{ notificationType, notificationId, isRead }
+		) {
+			try {
+				// Assuming your API endpoint is something like this:
+				await axiosClient.post("/update-notification-status", {
+					notification_type: notificationType,
+					notification_id: notificationId,
+					is_read: isRead,
+				});
+				commit("UPDATE_NOTIFICATION_READ_STATUS", {
+					notificationType,
+					notificationId,
+					isRead,
+				});
+			} catch (error) {
+				console.error("Error updating notification status:", error);
+				throw error;
+			}
+		},
+		async markAllNotificationsAsRead({ dispatch, state }) {
+			try {
+				// Assuming your API has an endpoint to mark all as read
+				await axiosClient.post("/mark-all-notifications-read");
+
+				// Update local state
+				const updatePromises = [
+					...state.likeNotifications.map((n) =>
+						dispatch("updateNotificationReadStatus", {
+							notificationType: "like",
+							notificationId: n.id || n._id,
+							isRead: true,
+						})
+					),
+					...state.followNotifications.map((n) =>
+						dispatch("updateNotificationReadStatus", {
+							notificationType: "follow",
+							notificationId: n.id || n._id,
+							isRead: true,
+						})
+					),
+				];
+				await Promise.all(updatePromises);
+			} catch (error) {
+				console.error(
+					"Error marking all notifications as read:",
+					error
+				);
+				throw error;
+			}
+		},
+		//
+
 		// dashboards actions
 		//
 		async fetchPosts({ commit, state }) {
 			try {
-				const response = await axiosClient.get("/posts-list", {});
+				const response = await axiosClient.get("/posts-list");
 				const cleanedPosts = response.data.reverse().map((post) => {
 					return {
 						...post,
@@ -203,19 +287,6 @@ const store = createStore({
 			} catch (error) {
 				console.error("Error submitting post:", error);
 			}
-		},
-
-		async fetchLikenotification({ commit, state }) {
-			return axiosClient
-				.get("like-notification-list", {})
-				.then((response) => {
-					commit("SET_UNREAD_COUNT", response.data.unreadCount);
-					return response.data;
-				})
-				.catch((error) => {
-					console.error("Error fetching notifications:", error);
-					throw error;
-				});
 		},
 
 		async sendForgotPasswordOTP({ commit }, email) {
@@ -341,6 +412,10 @@ const store = createStore({
 				.get("search", {
 					params: {
 						title: query,
+					},
+					headers: {
+						Authorization:
+							"Bearer " + sessionStorage.getItem("TOKEN"),
 					},
 				})
 				.then((response) => {

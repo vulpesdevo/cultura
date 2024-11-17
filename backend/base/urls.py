@@ -26,6 +26,7 @@ urlpatterns = [
     path("fp-otp", views.ForgotPassword.as_view(), name="fp-otp"),
     path("fp-change", views.ChangeForgotPassword.as_view(), name="fp-change"),
     path("posts-list/", views.PostListView.as_view(), name="post-list"),
+    # notifications view
     path(
         "like-notification-list",
         views.LikesNotificationList.as_view(),
@@ -35,6 +36,16 @@ urlpatterns = [
         "follow-notification-list",
         views.FollowedNotification.as_view(),
         name="follow-notif-list",
+    ),
+    path(
+        "update-notification-status",
+        views.NotificationStatusView.as_view(),
+        name="update-notification-status",
+    ),
+    path(
+        "mark-all-notifications-read",
+        views.MarkAllNotificationsReadView.as_view(),
+        name="mark-all-notifications-read",
     ),
     path(
         "search",

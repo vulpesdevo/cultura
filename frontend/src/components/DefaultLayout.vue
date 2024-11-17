@@ -94,6 +94,12 @@
 						class="text-xs sm:text-sm font-medium text-center sm:flex hidden"
 						>{{ link.name }}</span
 					>
+					<span
+						v-if="link.name === 'Notifications' && unreadCount > 0"
+						class="absolute right-2 top-1 text-xs bg-red-500 text-white rounded-full px-2 py-[.20rem]"
+					>
+						{{ unreadCount }}
+					</span>
 				</router-link>
 			</nav>
 			<div class="hidden sm:flex items-center px-4 mt-auto mb-4">
@@ -261,11 +267,14 @@ watch(searchQuery, (newQuery) => {
 			console.error(error);
 		});
 });
-
-const fetchLikenotification = async () => {
+const lastFetchTime = ref(Date.now());
+const fetchNotification = async () => {
 	try {
-		await store.dispatch("fetchLikenotification");
-		unreadCount.value = store.getters.getUnreadCount; // Assuming you have a getter for unread count
+		await store.dispatch("fetchLikeNotifications");
+		await store.dispatch("fetchFollowNotifications");
+
+		unreadCount.value = store.getters.getTotalUnreadNotificationsCount; // Assuming you have a getter for unread count
+		console.log("unreadCount", unreadCount.value);
 	} catch (error) {
 		console.error("Error fetching notifications:", error);
 	}
@@ -279,8 +288,15 @@ const submitLogout = async () => {
 		console.error("Error during logout:", error);
 	}
 };
+// Watch the lastFetchTime property
+watch(lastFetchTime, () => {
+	fetchNotification(); // Call fetchNotification whenever lastFetchTime changes
+});
 
-fetchLikenotification();
+// Example of updating lastFetchTime periodically
+setInterval(() => {
+	lastFetchTime.value = Date.now(); // Update the timestamp to trigger the watcher
+}, 6000); // Fetch notifications every minute
 </script>
 
 <style scoped>
