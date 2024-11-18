@@ -231,7 +231,7 @@ const view_user = (user_data) => {
 
 const markAllAsRead = async () => {
 	try {
-		await store.dispatch("markAllNotificationsAsRead");
+		// await store.dispatch("markAllNotificationsAsRead");
 		await fetchLikenotification();
 		await fetchFollownotification();
 	} catch (error) {

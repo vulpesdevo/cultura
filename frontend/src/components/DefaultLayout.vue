@@ -258,9 +258,7 @@ watch(searchQuery, (newQuery) => {
 					params: { result: JSON.stringify(response) },
 				});
 			} else {
-				router.push({
-					name: "dashboard",
-				});
+				router.go(-1);
 			}
 		})
 		.catch((error) => {

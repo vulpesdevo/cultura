@@ -1,105 +1,89 @@
 <template>
 	<div
-		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-28 sm:pt-3 h-screen"
+		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-12 sm:pt-10 h-screen"
 	>
-		<div
-			class="flex justify-end items-center text-end w-full sm:w-11/12 h-10"
-		>
+		<div class="flex justify-end items-center text-end w-full h-10">
 			<router-link
 				to="create-itinerary"
-				class="flex items-center justify-center rounded-full font-montserrat h-full w-32 text-xl text-center bg-second text-white"
-				>+ Create</router-link
+				class="flex items-center justify-center rounded-full font-montserrat px-6 py-2 text-lg font-semibold text-white text-center bg-gradient-to-r from-purple-500 to-indigo-600 transform transition-all duration-300 ease-in-out shadow-md hover:scale-105 hover:from-purple-600 hover:to-indigo-700 hover:shadow-lg"
 			>
+				+ Create
+			</router-link>
 		</div>
 
-		<div
-			class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-			v-for="(itinerary, index) in itineraries"
-			:key="itinerary.id"
-		>
-			<div class="mt-2 sm:px-5 sm:pt-5 mb-10 w-full">
-				<img
-					class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
-					:src="itinerary.main_image"
-					alt=""
-				/>
-				<div class="w-full h-auto py-2">
-					<!-- <div class="flex flex-row justify-start items-center"> -->
-					<div class="flex justify-between items-center mt-5">
-						<h1
-							class="font-bebas-neue text-prime dark:text-interface text-3xl sm:text-4xl"
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-7">
+			<div
+				v-for="(itinerary, index) in itineraries"
+				:key="itinerary.id"
+				@click="goToViewItinerary(itinerary.id)"
+				class="bg-dark-field rounded-xl overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+			>
+				<!-- Image Container -->
+				<div class="aspect-[16/9] overflow-hidden rounded-t-xl">
+					<img
+						:src="itinerary.main_image"
+						:alt="itinerary.main_title"
+						class="w-full h-full object-cover"
+					/>
+				</div>
+
+				<!-- Content Container -->
+				<div class="p-6">
+					<div class="flex justify-between items-start mb-3">
+						<h2
+							class="text-3xl font-bold text-white tracking-wide font-['Bebas_Neue']"
 						>
 							{{ itinerary.main_title }}
-						</h1>
-						<!-- | RATING CONTAINER-->
+						</h2>
 						<div class="flex items-center">
-							<i
-								class="fa-solid fa-star sm:text-2xl text-xl text-second"
-							></i>
-							<div
-								class="sm:text-lg ml-2 font-montserrat text-sm text-prime dark:text-white"
+							<StarIcon class="w-6 h-6 text-blue-400" />
+							<span class="ml-2 text-white"
+								>{{ avgRating.toFixed(1) }} / 5</span
 							>
-								{{ avgRating.toFixed(1) }} / 5
-							</div>
 						</div>
 					</div>
-					<p
-						class="font-montserrat text-sm text-justify h-auto dark:text-interface"
-					>
+
+					<p class="text-gray-300 text-xs mb-4">
 						{{
 							isFullTextShown[index]
 								? itinerary.main_description
-								: itinerary.main_description.length > 100
-								? itinerary.main_description.substring(0, 100) + "..."
-								: itinerary.main_description
+								: truncateText(itinerary.main_description, 100)
 						}}
-						<!-- Toggle link -->
-						<a
-							href="#"
-							@click="goToViewItinerary(itinerary.id)"
-							class="text-blue-500"
+						<button
+							@click="toggleText(index)"
+							class="text-blue-400 hover:text-blue-300 ml-2 focus:outline-none"
 						>
 							{{
 								isFullTextShown[index] ? "see less" : "see more"
 							}}
-						</a>
+						</button>
 					</p>
-				</div>
-				<div class="flex justify-between">
-					<div class="flex items-center mt-5">
+
+					<!-- User Info -->
+					<div class="flex items-center gap-3">
 						<img
-							class="rounded-full size-12 object-cover shadow-2xl drop-shadow-xl sm:w-[80px]sm:mb-8"
 							:src="itinerary.user_photo"
-							alt=""
+							:alt="itinerary.creator_name"
+							class="w-12 h-12 rounded-full object-cover"
 						/>
-						<h1
-							class="font-montserrat font-semibold text-prime dark:text-interface ml-2 pr-2 border border-l-0 border-y-0 border-r-prime dark:border-r-interface hover:underline cursor-pointer sm:font-normal sm:text-sm sm:ml-5 sm:pr-5"
-						>
-							@{{ itinerary.creator_name }}
-						</h1>
-						<h1
-							class="font-montserrat text-xs text-second ml-2 sm:text-sm sm:ml-5"
-						>
-							{{
-								new Date(
-									itinerary.date_posted
-								).toLocaleDateString("en-US", {
-									month: "long",
-									day: "numeric",
-									year: "numeric",
-								})
-							}}
-						</h1>
+						<div class="flex items-center gap-2">
+							<span class="text-gray-300 text-xs border-r-2 pr-2"
+								>@{{ itinerary.creator_name }}</span
+							>
+
+							<span class="text-second text-xs">
+								{{ formatDate(itinerary.date_posted) }}
+							</span>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-
-		<div class="mt-10"></div>
 	</div>
 </template>
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import ViewItinerary from "./ViewItinerary.vue";
@@ -128,7 +112,7 @@ const fetchItineraries = async () => {
 const goToViewItinerary = (itinerarydata) => {
 	router.push({
 		name: "view-itinerary",
-		params: { itinerarydata },
+		query: { itinerarydata },
 	});
 };
 
@@ -142,7 +126,17 @@ watch(itineraries, (newVal) => {
 		return acc;
 	}, {});
 });
-
+const truncateText = (text, length) => {
+	if (text.length <= length) return text;
+	return text.slice(0, length) + "...";
+};
+const formatDate = (dateString) => {
+	return new Date(dateString).toLocaleDateString("en-US", {
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	});
+};
 onMounted(() => {
 	fetchItineraries();
 });

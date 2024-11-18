@@ -227,7 +227,7 @@
 
 					<!-- Title Section -->
 					<h1
-						class="font-montserrat text-2xl font-bold text-second mb-3"
+						class="font-bebas-neue text-2xl font-bold text-second mb-3 leading-4 tracking-wider"
 					>
 						{{ post.title }}
 					</h1>
