@@ -1,4 +1,5 @@
 <template>
+	<!-- Viewing  of  Itinerary -->
 	<div
 		class="flex flex-col lg:flex-row h-screen bg-gray-100 dark:bg-gray-900"
 	>
@@ -227,7 +228,7 @@
 					<div
 						v-for="place in suggested_places"
 						:key="place.place_id"
-						@click="locateSuggestedPlace(place.geometry)"
+						@click="locateSuggestedPlace(place)"
 						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
 						:class="{ 'h-28': !hasPhoto(place) }"
 					>
@@ -579,26 +580,24 @@ onMounted(() => {
 	// checkArrival(destination);
 });
 const initializeMaps = async () => {
-	const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+	nextTick(() => {
+		if (desktopMapRef.value && mobileMapRef.value) {
+			desktopMap.value = new google.maps.Map(desktopMapRef.value, {
+				center: { lat: 0, lng: 0 },
+				zoom: 2,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				mapId: "2c9b57c42de97202",
+			});
 
-	if (desktopMapRef.value && mobileMapRef.value) {
-		desktopMap.value = new google.maps.Map(desktopMapRef.value, {
-			center: { lat: 0, lng: 0 },
-			zoom: 2,
-			mapTypeId: google.maps.MapTypeId.ROADMAP,
-			mapId: "2c9b57c42de97202",
-		});
-
-		mobileMap.value = new google.maps.Map(mobileMapRef.value, {
-			center: { lat: 0, lng: 0 },
-			zoom: 2,
-			mapTypeId: google.maps.MapTypeId.ROADMAP,
-			mapId: "2c9b57c42de97202",
-		});
-
-		// Call showLocationOnMap after initializing both maps
+			mobileMap.value = new google.maps.Map(mobileMapRef.value, {
+				center: { lat: 0, lng: 0 },
+				zoom: 2,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				mapId: "2c9b57c42de97202",
+			});
+		}
 		showLocationOntheMap();
-	}
+	});
 };
 
 const toDropDown = ref(null);
@@ -778,11 +777,11 @@ const sortItinerariesByProximity = async () => {
 };
 
 const initializeMap = (latitude, longitude) => {
-	const map = new google.maps.Map(document.getElementById("the-map"), {
-		center: { lat: latitude, lng: longitude },
-		zoom: 8,
-		mapTypeId: google.maps.MapTypeId.ROADMAP,
-	});
+	// const map = new google.maps.Map(document.getElementById("the-map"), {
+	// 	center: { lat: latitude, lng: longitude },
+	// 	zoom: 8,
+	// 	mapTypeId: google.maps.MapTypeId.ROADMAP,
+	// });
 
 	// Add a marker at the user's location
 	new google.maps.Marker({
@@ -962,40 +961,40 @@ const findNearestTouristAttractions = async () => {
 						} else {
 							console.log(`Place: ${place}`);
 						}
-						const latlngStr = String(place.geometry.location);
+						// const latlngStr = String(place.geometry.location);
 
-						// Extract lat and lng from the string format "(lat, lng)"
-						const match = latlngStr.match(/\(([^,]+),\s*([^)]+)\)/);
-						if (match) {
-							const lat = parseFloat(match[1]);
-							const lng = parseFloat(match[2]);
+						// // Extract lat and lng from the string format "(lat, lng)"
+						// const match = latlngStr.match(/\(([^,]+),\s*([^)]+)\)/);
+						// if (match) {
+						// 	const lat = parseFloat(match[1]);
+						// 	const lng = parseFloat(match[2]);
 
-							console.log("latlong::::::", lat, lng);
+						// 	console.log("latlong::::::", lat, lng);
 
-							// Check if lat and lng are valid numbers
-							if (!isNaN(lat) && !isNaN(lng)) {
-								// Initialize map
-								const map = new google.maps.Map(
-									document.getElementById("the-map"),
-									{
-										center: { lat: lat, lng: lng },
-										zoom: 15,
-									}
-								);
-								// Add a marker to the new center using AdvancedMarkerElement
-								new google.maps.marker.AdvancedMarkerElement({
-									position: { lat: lat, lng: lng },
-									map: map,
-									title: "Suggested Place Marker",
-								});
-							} else {
-								console.error(
-									"Invalid latitude or longitude values"
-								);
-							}
-						} else {
-							console.error("Invalid latlng format");
-						}
+						// 	// Check if lat and lng are valid numbers
+						// 	if (!isNaN(lat) && !isNaN(lng)) {
+						// 		// Initialize map
+						// 		const map = new google.maps.Map(
+						// 			document.getElementById("the-map"),
+						// 			{
+						// 				center: { lat: lat, lng: lng },
+						// 				zoom: 15,
+						// 			}
+						// 		);
+						// 		// Add a marker to the new center using AdvancedMarkerElement
+						// 		new google.maps.marker.AdvancedMarkerElement({
+						// 			position: { lat: lat, lng: lng },
+						// 			map: map,
+						// 			title: "Suggested Place Marker",
+						// 		});
+						// 	} else {
+						// 		console.error(
+						// 			"Invalid latitude or longitude values"
+						// 		);
+						// 	}
+						// } else {
+						// 	console.error("Invalid latlng format");
+						// }
 					});
 				} else {
 					console.error("Error finding tourist attractions:", status);
@@ -1127,40 +1126,211 @@ const showItinerary = (view) => {
 const hasPhoto = (place) => {
 	return place.photos && place.photos.length > 0;
 };
-const locateSuggestedPlace = (latlng) => {
-	const latlngStr = String(geometry.location);
-	const match = latlngStr.match(/$$([^,]+),\s*([^)]+)$$/);
+const currentInfoWindow = ref(null); // Define currentInfoWindow as a ref
 
-	if (match) {
-		const lat = parseFloat(match[1]);
-		const lng = parseFloat(match[2]);
+const locateSuggestedPlace = (place) => {
+	console.log("Locating suggested place  with its descriptions:", place);
+
+	try {
+		const lat = place.geometry.location.lat();
+		const lng = place.geometry.location.lng();
+
+		// console.log("Locating suggested place:", latlngArray);
 
 		if (!isNaN(lat) && !isNaN(lng)) {
 			const center = { lat, lng };
-			desktopMap.value.setCenter(center);
-			desktopMap.value.setZoom(15);
-			mobileMap.value.setCenter(center);
-			mobileMap.value.setZoom(15);
 
-			new google.maps.marker.AdvancedMarkerElement({
-				position: center,
-				map: desktopMap.value,
-				title: "Suggested Place",
-			});
-			new google.maps.marker.AdvancedMarkerElement({
-				position: center,
-				map: mobileMap.value,
-				title: "Suggested Place",
-			});
+			nextTick(() => {
+				if (desktopMap.value && mobileMap.value) {
+					desktopMap.value.setCenter(center);
+					desktopMap.value.setZoom(15);
+					mobileMap.value.setCenter(center);
+					mobileMap.value.setZoom(15);
 
-			if (!showMap.value) {
-				toggleMap();
-			}
+					const createInfoWindowContent = () => {
+						const photoUrl =
+							place.photos && place.photos.length > 0
+								? place.photos[0].getUrl({
+										maxWidth: 320,
+										maxHeight: 200,
+								  })
+								: "/placeholder.svg?height=200&width=320";
+
+						return `
+              <div id="content" style="
+                width: 300px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                font-family: system-ui, -apple-system, sans-serif;
+                overflow: hidden;
+              ">
+                <div id="siteNotice" style="
+                  width: 100%;
+                  height: 160px;
+                  overflow: hidden;
+                  position: relative;
+                ">
+                  <img 
+                    src="${photoUrl}" 
+                    alt="${place.name}"
+                    style="
+                      width: 100%;
+                      height: 100%;
+                      object-fit: cover;
+                    "
+                  >
+                </div>
+                
+                <div id="bodyContent" style="padding: 16px;">
+                  <h1 id="firstHeading" style="
+                    margin: 0 0 8px 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #333;
+                  ">${place.name}</h1>
+                  
+                  <p style="
+                    margin: 0 0 12px 0;
+                    font-size: 14px;
+                    color: #666;
+                  ">${place.vicinity}</p>
+
+                  <div style="
+                    display: flex;
+                    gap: 16px;
+                    margin-bottom: 12px;
+                    color: #666;
+                    font-size: 13px;
+                  ">
+                    ${
+						place.rating
+							? `
+                      <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="color: #fbbf24;">★</span>
+                        <span>${place.rating.toFixed(1)}</span>
+                      </div>
+                    `
+							: ""
+					}
+                    ${
+						place.user_ratings_total
+							? `
+                      <div>${place.user_ratings_total} reviews</div>
+                    `
+							: ""
+					}
+                  </div>
+
+                  <div style="
+                    display: flex;
+                    gap: 12px;
+                    padding-top: 12px;
+                    border-top: 1px solid #eee;
+                  ">
+                    ${
+						place.types
+							? place.types
+									.slice(0, 2)
+									.map(
+										(type) => `
+                      <span style="
+                        background: #f5f5f5;
+                        padding: 4px 12px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        color: #666;
+                      ">${type.replace(/_/g, " ")}</span>
+                    `
+									)
+									.join("")
+							: ""
+					}
+                  </div>
+                </div>
+              </div>
+            `;
+					};
+
+					const infoWindow = new google.maps.InfoWindow({
+						content: createInfoWindowContent(),
+						maxWidth: 300,
+						pixelOffset: new google.maps.Size(0, -5),
+					});
+
+					// Close any existing info window
+					if (currentInfoWindow.value) {
+						currentInfoWindow.value.close();
+					}
+
+					const createCustomMarkerIcon = () => ({
+						path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+						fillColor: "#4f46e5",
+						fillOpacity: 1,
+						strokeColor: "#ffffff",
+						strokeWeight: 2,
+						scale: 10,
+						labelOrigin: new google.maps.Point(0, -4),
+					});
+					console.log(google.maps.SymbolPath);
+
+					const createMarker = (map) => {
+						return new google.maps.Marker({
+							position: center,
+							map: map,
+							title: place.name,
+							icon: createCustomMarkerIcon(),
+							animation: google.maps.Animation.DROP,
+							label: {
+								text: "📍",
+								fontSize: "32px",
+								color: "#ffffff",
+							},
+						});
+					};
+
+					const desktopMarker = createMarker(desktopMap.value);
+					const mobileMarker = createMarker(mobileMap.value);
+
+					const handleMarkerClick = (map, marker) => {
+						if (currentInfoWindow.value) {
+							currentInfoWindow.value.close();
+						}
+						infoWindow.open(map, marker);
+						currentInfoWindow.value = infoWindow;
+					};
+
+					desktopMarker.addListener("click", () => {
+						handleMarkerClick(desktopMap.value, desktopMarker);
+					});
+
+					mobileMarker.addListener("click", () => {
+						handleMarkerClick(mobileMap.value, mobileMarker);
+					});
+
+					if (!showMap.value) {
+						toggleMap();
+					}
+
+					// Add click listener to map to close info window when clicking elsewhere
+					desktopMap.value.addListener("click", () => {
+						if (currentInfoWindow.value) {
+							currentInfoWindow.value.close();
+						}
+					});
+
+					mobileMap.value.addListener("click", () => {
+						if (currentInfoWindow.value) {
+							currentInfoWindow.value.close();
+						}
+					});
+				}
+			});
 		} else {
 			console.error("Invalid latitude or longitude values");
 		}
-	} else {
-		console.error("Invalid latlng format");
+	} catch (error) {
+		console.error("Error locating suggested place:", error);
 	}
 };
 </script>

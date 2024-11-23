@@ -1038,3 +1038,95 @@ const fetchPosts = () => {
 };
 </script>
 <style scoped></style>
+
+
+
+
+
+
+
+
+
+Django urls:
+ path(
+        "like-notification-list",
+        views.LikesNotificationList.as_view(),
+        name="like-notif-list",
+    ),
+    path(
+        "follow-notification-list",
+        views.FollowedNotification.as_view(),
+        name="follow-notif-list",
+    ),
+
+
+
+viewsapi:
+
+
+class FollowedNotification(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        following_data = (
+            FollowingNotification.objects.filter(following=request.user.id)
+            .exclude(followed_by=request.user)
+            .order_by("-created_at")
+        )
+
+        # print('Followed: ',follow_serializer.data)
+
+        follow_serializer = FollowSerializer(following_data, many=True)
+        for follow_data in follow_serializer.data:
+            who_followed = follow_data.get("followed_by")
+            username_ = User.objects.get(id=follow_data["followed_by"]).username
+            follow_data["followed_by"] = username_
+            user_follow = CulturaUser.objects.filter(user=who_followed)
+            # print(user_follow)
+            user_serializer = CulturaUserSerializer(user_follow, many=True)
+            for user_data in user_serializer.data:
+                image = user_data.get("user_photo", None)
+                if image:
+                    # Build the absolute URI for the image
+                    abs_image_url = request.build_absolute_uri(image)
+                    # Update the post data with the absolute URI
+                    user_data["user_photo"] = abs_image_url
+                username = User.objects.get(id=user_data["user"]).username
+                user_data["username"] = username
+                follow_data["user_data"] = user_serializer.data
+        return Response(follow_serializer.data, status=status.HTTP_200_OK)
+
+
+class LikesNotificationList(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        data = (
+            LikeNotification.objects.filter(post_author=request.user)
+            .exclude(audience=request.user)
+            .order_by("-created_at")
+        )
+
+        # following_data = FollowingNotification.objects.filter(following=request.user.id)
+
+        serializer = LikeSerializer(data, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
