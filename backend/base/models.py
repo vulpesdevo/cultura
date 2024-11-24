@@ -51,9 +51,11 @@ class CulturaUser(models.Model):
 class Report(models.Model):
     _id = ObjectIdField()
     post_id = models.CharField(max_length=255)
-    user_id = models.IntegerField()
+    user_id = models.ForeignKey("CulturaUser", on_delete=models.CASCADE)
+
     category = models.CharField(max_length=255)
     details = models.CharField(max_length=2550)
+    date_posted = models.DateTimeField(auto_now_add=True)
 
 
 class SaveItinerary(models.Model):

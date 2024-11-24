@@ -45,6 +45,95 @@ from bson import ObjectId
 # from profanity.validators import validate_is_profane
 
 
+# ADMIN
+class CulturaUserAdminView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+
+    def get(self, request, pk=None):
+        if pk:
+            cultura_user = get_object_or_404(CulturaUser, pk=pk)
+            serializer = CulturaUserSerializer(
+                cultura_user, context={"request": request}
+            )
+        else:
+            cultura_users = CulturaUser.objects.all()
+            serializer = CulturaUserSerializer(
+                cultura_users, many=True, context={"request": request}
+            )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+        serializer = CulturaUserSerializer(data=data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        cultura_user = get_object_or_404(CulturaUser, pk=pk)
+        serializer = CulturaUserSerializer(
+            cultura_user, data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        cultura_user = get_object_or_404(CulturaUser, pk=pk)
+        cultura_user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# REPORT MANAGEMENT
+class ReportListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        reports = Report.objects.all()
+        serializer = ReportSerializer(reports, many=True, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data.copy()  # Make a mutable copy of the request data
+        cultura_user = get_object_or_404(CulturaUser, user=request.user)
+        data["user_id"] = cultura_user.id  # Set the user_id field to the CulturaUser id
+        data["post_id"] = str(data["post_id"])  # Ensure post_id is a string
+        serializer = ReportSerializer(data=data, context={"request": request})
+        print(" SERIALIZER:", serializer)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReportDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        report = get_object_or_404(Report, pk=pk)
+        serializer = ReportSerializer(report)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        report = get_object_or_404(Report, pk=pk)
+        serializer = ReportSerializer(report, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        report = get_object_or_404(Report, pk=pk)
+        report.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ADMIN
+
+
 class UserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (
@@ -1098,39 +1187,6 @@ from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
-
-class ReportListCreateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    # def get(self, request):
-    #     reports = Report.objects.all()
-    #     serializer = ReportSerializer(reports, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-
-        data = request.data
-        post_id = data.get("post_id")
-        user_id = data.get("user_id")
-        category = data.get("category")
-        details = data.get("details")
-
-        # Fetch the User instance
-        user = User.objects.get(id=user_id)
-
-        # Create and save the Report instance
-        report = Report.objects.create(
-            post_id=post_id,
-            user_id=user.id,  # Use user.id directly
-            category=category,
-            details=details,
-        )
-        report.save()
-
-        # Serialize the saved report
-        serializer = ReportSerializer(report)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ItineraryListView(APIView):

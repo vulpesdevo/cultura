@@ -138,216 +138,148 @@
 	</div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive, computed, watch, onMounted } from "vue";
 import axios from "axios";
-import router from "../routes";
+import { useRouter } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
+import { useStore } from "vuex";
 
-export default {
-	name: "Sidebar",
-	data() {
-		return {
-			showPopup: false,
-			isHovered: false,
+const router = useRouter();
+const store = useStore();
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
 
-			searchQuery: "",
-			searchResults: [],
-			client: null,
-			unreadCount: null,
-			user: {
-				isAuthenticated: false,
-				profile: null,
-				username: null,
-				fullname: null,
-			},
-			links: [
-				{
-					name: "Home",
-					path: "/dashboard",
-					// showIcon: true,
-					label: "home",
-				},
-				{
-					name: "Notification",
-					path: "/notifications",
-					// showIcon: true,
-					label: "notifications",
-				},
-				{
-					name: "Itinerary",
-					path: "/itinerary",
-					// showIcon: true,
-					label: "explore",
-				},
-				{
-					name: "Trivia",
-					path: "/trivia",
-					// showIcon: true,
-					label: "tips_and_updates",
-				},
-			],
-		};
+const showPopup = ref(false);
+const isHovered = ref(false);
+const searchQuery = ref("");
+const searchResults = ref([]);
+const unreadCount = ref(null);
+const user = reactive({
+	isAuthenticated: false,
+	profile: null,
+	username: null,
+	fullname: null,
+});
+const links = [
+	{ name: "Home", path: "/dashboard", label: "home" },
+	{ name: "Notification", path: "/notifications", label: "notifications" },
+	{ name: "Itinerary", path: "/itinerary", label: "explore" },
+	{ name: "Trivia", path: "/trivia", label: "tips_and_updates" },
+];
+
+const client = axios.create({
+	baseURL: "http://127.0.0.1:8000",
+	withCredentials: true,
+	timeout: 5000,
+	xsrfCookieName: "csrftoken",
+	xsrfHeaderName: "X-Csrftoken",
+	headers: {
+		"Content-Type": "application/json",
 	},
-	setup() {
-		const isDark = useDark();
-		const toggleDark = useToggle(isDark);
-		const client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
+});
 
-		const submitLogout1 = () => {
-			client.post("/api/logout").then((res) => {
-				console.log("Logged out user:", res.data);
-			});
-		};
-
-		// Watch for changes in currentUser
-		// const updateFormBtn = () => {
-		// 	registrationToggle.value = !registrationToggle.value;
-		// };
-		// const closeModal = () => {
-		// 	showLoginModal.value = false;
-		// 	showRegisterModal.value = false;
-		// };
-
-		return {
-			//login
-
-			submitLogout1,
-			isDark,
-			toggleDark,
-		};
-	},
-	watch: {
-		searchQuery(newQuery) {
-			console.log(newQuery);
-			this.client
-				.get("api/search/", {
-					params: {
-						title: newQuery,
-					},
-				})
-				.then((response) => {
-					this.searchResults = response.data;
-					let result = response.data;
-					console.log("SEARCH RESULT :: ", result);
-
-					if (this.searchQuery) {
-						this.$router.replace({
-							name: "search-result",
-							params: { result: JSON.stringify(result) },
-						});
-					} else {
-						this.$router.push({
-							name: "dashboard",
-						});
-					}
-				})
-				.catch((error) => {
-					console.error(error);
-				});
-		},
-	},
-	mounted() {
-		this.fetchLikenotification();
-		setInterval(this.fetchLikenotification, 5000);
-	},
-	methods: {
-		saveSearchQuery(event) {
-			this.searchQuery = event.target.value;
-		},
-		async fetchLikenotification() {
-			try {
-				const response = await this.client.get(
-					"/api/like-notification-list"
-				);
-				// this.like_notification = response.data;
-				this.unreadCount = response.data.filter(
-					(data) => !data.is_read
-				).length;
-			} catch (error) {
-				console.log(error);
-			}
-		},
-		togglePopup() {
-			this.showPopup = !this.showPopup;
-		},
-		submitLogout() {
-			const token = sessionStorage.getItem("TOKEN");
-			const headers = {
-				Authorization: `Token ${token}`,
-				"Content-Type": "application/json",
-			};
-			this.client
-				.post("http://127.0.0.1:8000/api/logout")
-				.then((res) => {
-					// this.user.isAuthenticated = false;
-					if (
-						res.data.message ===
-						"You have not completed the survey yet."
-					) {
-						router.push({ name: "tamsurvey" }).then(() => {
-							window.location.reload();
-						});
-					} else {
-						localStorage.removeItem("token");
-						localStorage.removeItem("username");
-						window.scrollTo(0, 0);
-						router.push({ name: "login" }).then(() => {
-							window.location.reload();
-						});
-						console.log("User logged out", res);
-					}
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		},
-		// Method to reload the page
-		reloadPage() {
-			setTimeout(() => {
-				this.$router.go(0);
-			}, 500);
-		},
-	},
-	created() {
-		this.token = sessionStorage.getItem("TOKEN");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
-			},
-		});
-
-		this.client
-			.get("api/user", {})
-			.then((res) => {
-				this.user.username = res.data.user.username;
-				this.user.fullname = res.data.profile[0].fullname;
-				this.user.profile = res.data.profile[0].user_photo;
-				// console.log(res.data.userfullname)
-				this.user.isAuthenticated = true;
-			})
-			.catch((error) => {
-				console.log("ERROR", error);
-				this.user.isAuthenticated = false;
-			});
-	},
+const submitLogout1 = () => {
+	client.post("/api/logout").then((res) => {
+		console.log("Logged out user:", res.data);
+	});
 };
-</script>
 
+const fetchLikenotification = async () => {
+	try {
+		const response = await client.get("/api/like-notification-list");
+		unreadCount.value = response.data.filter(
+			(data) => !data.is_read
+		).length;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+const togglePopup = () => {
+	showPopup.value = !showPopup.value;
+};
+
+const submitLogout = () => {
+	const token = sessionStorage.getItem("TOKEN");
+	const headers = {
+		Authorization: `Token ${token}`,
+		"Content-Type": "application/json",
+	};
+	client
+		.post("http://127.0.0.1:8000/api/logout")
+		.then((res) => {
+			if (res.data.message === "You have not completed the survey yet.") {
+				router.push({ name: "tamsurvey" }).then(() => {
+					window.location.reload();
+				});
+			} else {
+				localStorage.removeItem("token");
+				localStorage.removeItem("username");
+				window.scrollTo(0, 0);
+				router.push({ name: "login" }).then(() => {
+					window.location.reload();
+				});
+				console.log("User logged out", res);
+			}
+		})
+		.catch((error) => {
+			console.log(error);
+		});
+};
+
+const reloadPage = () => {
+	setTimeout(() => {
+		router.go(0);
+	}, 500);
+};
+const saveSearchQuery = (event) => {
+	searchQuery.value = event.target.value;
+};
+watch(searchQuery, (newQuery) => {
+	console.log(newQuery);
+	store
+		.dispatch("search", newQuery)
+		.then((result) => {
+			console.log("SEARCH RESULT :: ", result);
+
+			if (searchQuery.value) {
+				router.replace({
+					name: "search-result",
+					query: { q: searchQuery.value },
+				});
+			} else {
+				router.push({
+					name: "dashboard",
+				});
+			}
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+});
+
+onMounted(() => {
+	fetchLikenotification();
+	setInterval(fetchLikenotification, 5000);
+
+	const token = sessionStorage.getItem("TOKEN");
+	client.defaults.headers.Authorization = `Token ${token}`;
+
+	client
+		.get("api/user", {})
+		.then((res) => {
+			user.username = res.data.user.username;
+			user.fullname = res.data.profile[0].fullname;
+			user.profile = res.data.profile[0].user_photo;
+			user.isAuthenticated = true;
+		})
+		.catch((error) => {
+			console.log("ERROR", error);
+			user.isAuthenticated = false;
+		});
+});
+</script>
 <style scoped>
 .has-input::-webkit-search-cancel-button {
 	-webkit-appearance: none;

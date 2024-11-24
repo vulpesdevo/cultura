@@ -255,7 +255,7 @@ watch(searchQuery, (newQuery) => {
 			if (searchQuery.value) {
 				router.replace({
 					name: "search-result",
-					params: { result: JSON.stringify(response) },
+					query: { q: JSON.stringify(response) },
 				});
 			} else {
 				router.go(-1);

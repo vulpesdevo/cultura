@@ -389,10 +389,10 @@ const client = axios.create({
 });
 
 onMounted(() => {
-	if (!route.params.result) {
+	if (!route.query.q) {
 		router.push({ name: "dashboard" });
 	} else {
-		result.value = JSON.parse(route.params.result);
+		result.value = JSON.parse(route.query.q);
 		console.log("valid object", result.value);
 		posts.value = result.value.posts;
 		users.value = result.value.users;

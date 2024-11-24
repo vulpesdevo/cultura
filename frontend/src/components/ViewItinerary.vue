@@ -476,6 +476,7 @@ const currency_list = ref([
 	["ZMW", "Zambian Kwacha", "ZK"],
 	["ZWL", "Zimbabwean Dollar (2009)", "$"],
 ]);
+
 const selectedCurrency = ref("");
 const selectedSymbol = ref("");
 const currency_save = ref("");
@@ -504,7 +505,7 @@ const mobileMap = ref(null);
 const desktopMapRef = ref(null);
 const mobileMapRef = ref(null);
 
-const itinerary_id = ref(route.query.itinerarydata);
+const itinerary_id = ref(route.query.id);
 const itineraries = ref([]);
 const itineraryDetails = reactive({
 	creator_name: null,

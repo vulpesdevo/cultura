@@ -17,6 +17,14 @@ const store = createStore({
 		itineraryDetails: {},
 		likeNotifications: [],
 		followNotifications: [],
+
+		admin: {
+			reports: [],
+			report: null,
+
+			culturaUsers: [],
+			culturaUser: null,
+		},
 	},
 	getters: {
 		isAuthenticated: (state) => !!state.user.token,
@@ -55,6 +63,19 @@ const store = createStore({
 		},
 	},
 	mutations: {
+		setReports(state, reports) {
+			state.admin.reports = reports;
+		},
+		setReport(state, report) {
+			state.admin.report = report;
+		},
+		setCulturaUsers(state, users) {
+			state.admin.culturaUsers = users;
+		},
+		setCulturaUser(state, user) {
+			state.admin.culturaUser = user;
+		},
+
 		setUser(state, userData) {
 			state.user.data = userData.user;
 			state.user.token = userData.token;
@@ -69,6 +90,9 @@ const store = createStore({
 		},
 		setItineraryDetails(state, itineraryDetails) {
 			state.itineraryDetails = itineraryDetails;
+		},
+		setSearchResults(state, results) {
+			state.searchResults = results;
 		},
 
 		setOtpData(state, otpData) {
@@ -114,6 +138,149 @@ const store = createStore({
 		},
 	},
 	actions: {
+		// ADMIN  USER    MANAGEMENT
+		async fetchCulturaUsers({ commit, state }) {
+			return axiosClient
+				.get("culturausers/", {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setCulturaUsers", response.data);
+					return response;
+				})
+				.catch((error) => {
+					console.error("Error fetching CulturaUsers:", error);
+				});
+		},
+		async fetchCulturaUser({ commit, state }, id) {
+			return axiosClient
+				.get(`culturausers/${id}/`, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setCulturaUser", response.data);
+				})
+				.catch((error) => {
+					console.error("Error fetching CulturaUser:", error);
+				});
+		},
+		async createCulturaUser({ commit, state }, userData) {
+			return axiosClient
+				.post("culturausers/", userData, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setCulturaUser", response.data);
+					return response.data;
+				})
+				.catch((error) => {
+					console.error("Error creating CulturaUser:", error);
+					throw error;
+				});
+		},
+		async updateCulturaUser({ commit, state }, { id, userData }) {
+			return axiosClient
+				.put(`culturausers/${id}/`, userData, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setCulturaUser", response.data);
+					return response.data;
+				})
+				.catch((error) => {
+					console.error("Error updating CulturaUser:", error);
+					throw error;
+				});
+		},
+		async deleteCulturaUser({ commit, state }, id) {
+			return axiosClient
+				.delete(`culturausers/${id}/`, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then(() => {
+					commit("setCulturaUser", null);
+				})
+				.catch((error) => {
+					console.error("Error deleting CulturaUser:", error);
+					throw error;
+				});
+		},
+		// Reports
+		async fetchReports({ commit, state }) {
+			return axiosClient
+				.get("reports/", {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setReports", response.data);
+					return response.data;
+				})
+				.catch((error) => {
+					console.error(error);
+					throw error;
+				});
+		},
+
+		async fetchReport({ commit, state }, id) {
+			return axiosClient
+				.get(`/reports/${id}/`, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setReport", response.data);
+					return response.data;
+				})
+				.catch((error) => {
+					console.error(error);
+					throw error;
+				});
+		},
+
+		async createReport({ commit, state }, reportData) {
+			return axiosClient
+				.post("reports/", reportData, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setReport", response.data);
+					return response.data;
+				})
+				.catch((error) => {
+					console.error(error);
+					throw error;
+				});
+		},
+
+		async updateReport({ commit, state }, { id, reportData }) {
+			return axiosClient
+				.put(`/reports/${id}/`, reportData, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setReport", response.data);
+					return response.data;
+				})
+				.catch((error) => {
+					console.error(error);
+					throw error;
+				});
+		},
+
+		async deleteReport({ commit, state }, id) {
+			return axiosClient
+				.delete(`/reports/${id}/`, {
+					headers: { Authorization: `Token ${state.user.token}` },
+				})
+				.then((response) => {
+					commit("setReport", null);
+					return response.data;
+				})
+				.catch((error) => {
+					console.error(error);
+					throw error;
+				});
+		},
+
 		// Notifications
 
 		async fetchLikeNotifications({ commit }) {

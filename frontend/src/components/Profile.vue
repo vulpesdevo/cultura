@@ -890,6 +890,9 @@ onMounted(() => {
 		checkedAfterDelay.value = true;
 	}, 5000);
 });
+const goToViewItinerary = (itineraryId) => {
+	router.push({ name: "view-itinerary", query: { id: itineraryId } });
+};
 
 const follow = (userId) => {
 	console.log("The user", userId);

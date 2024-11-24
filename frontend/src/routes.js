@@ -20,6 +20,8 @@ import EditPost from "./components/EditPost.vue";
 // Import store for auth check
 import store from "./store";
 import DefaultLayout from "./components/DefaultLayout.vue";
+import ReportsView from "./components/admin/ReportsView.vue";
+import CulturaUserAdminView from "./components/admin/CulturaUserAdminView.vue";
 
 const routes = [
 	{
@@ -87,6 +89,16 @@ const routes = [
 				path: "/settings",
 				component: Settings,
 				name: "settings",
+			},
+			{
+				path: "/rp",
+				component: ReportsView,
+				name: "rp",
+			},
+			{
+				path: "/cu",
+				component: CulturaUserAdminView,
+				name: "cu",
 			},
 		],
 	},

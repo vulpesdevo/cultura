@@ -14,6 +14,8 @@ from .models import (
     UserSetting,
     Report,
 )
+from bson import ObjectId
+
 from djongo import models
 
 UserModel = get_user_model()
@@ -66,6 +68,7 @@ class CulturaUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CulturaUser
         fields = [
+            "id",
             "user",
             "user_photo",
             "fullname",
@@ -187,9 +190,33 @@ class SettingSerializer(serializers.ModelSerializer):
 
 
 class ReportSerializer(serializers.ModelSerializer):
+    user = CulturaUserSerializer(source="user_id", read_only=True)
+    post = serializers.SerializerMethodField()
+
     class Meta:
         model = Report
         fields = "__all__"
+
+    def get_post(self, obj):
+        try:
+            post_id = ObjectId(obj.post_id)  # Ensure post_id is an ObjectId
+            post = Post.objects.get(_id=post_id)
+            post_data = PostSerializer(post, context=self.context).data
+            author_id = post_data.get("author", {})
+            if author_id:
+                cultura_user = CulturaUser.objects.get(user_id=author_id)
+                post_data["author_data"] = CulturaUserSerializer(
+                    cultura_user, context=self.context
+                ).data
+            return post_data
+        except Post.DoesNotExist:
+            return None
+
+    def create(self, validated_data):
+        validated_data["post_id"] = str(
+            validated_data["post_id"]
+        )  # Convert ObjectId to string
+        return super().create(validated_data)
 
 
 class ItinerarySerializer(serializers.ModelSerializer):

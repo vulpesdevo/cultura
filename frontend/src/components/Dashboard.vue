@@ -675,6 +675,7 @@ const fetchPosts = async () => {
 		await store.dispatch("fetchPosts");
 
 		posts.value = store.getters.getPosts;
+		console.log("POSTS:  ", posts.value);
 	} catch (error) {
 		console.error("Error fetching posts:", error);
 	}
@@ -812,7 +813,7 @@ const selectItinerary = (itinerary) => {
 };
 
 const goToViewItinerary = (itineraryId) => {
-	router.push({ name: "view-itinerary", params: { id: itineraryId } });
+	router.push({ name: "view-itinerary", query: { id: itineraryId } });
 };
 
 const toggleEdit = (post) => {

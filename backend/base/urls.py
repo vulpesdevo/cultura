@@ -97,6 +97,21 @@ urlpatterns = [
         views.ViewItinerary.as_view(),
         name="check-itinerary",
     ),
-    path("reports/", views.ReportListCreateView.as_view(), name="report-list-create"),
+    # ADMIN
+    path(
+        "culturausers/",
+        views.CulturaUserAdminView.as_view(),
+        name="culturauser-list-create",
+    ),
+    path(
+        "culturausers/<int:pk>/",
+        views.CulturaUserAdminView.as_view(),
+        name="culturauser-detail",
+    ),
+    # reporting  views router
+    path("reports/", views.ReportListView.as_view(), name="report-list-create"),
+    path("reports/<int:pk>/", views.ReportDetailView.as_view(), name="report-detail"),
+    # ADMIN
+    # USER MANAGEMTN  ADMIN
     # path("viewing-itinerary", views.ViewingSaveItineraryListView.as_view(), name="viewing-itinerary"),
 ]

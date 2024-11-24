@@ -112,7 +112,7 @@ const fetchItineraries = async () => {
 const goToViewItinerary = (itinerarydata) => {
 	router.push({
 		name: "view-itinerary",
-		query: { itinerarydata },
+		query: { id: itinerarydata },
 	});
 };
 
