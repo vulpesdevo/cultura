@@ -126,8 +126,8 @@ class ReportDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        report = get_object_or_404(Report, pk=pk)
-        report.delete()
+        post = get_object_or_404(Post, _id=ObjectId(pk))
+        post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -1155,10 +1155,7 @@ class ItineraryCreate(APIView):
 
         longitude = data.get("longitude", 0.0)
         latitude = data.get("latitude", 0.0)
-        title = data.get("title", "").strip()
-        place_name = data.get("place_name", "").strip()
 
-        description = data.get("description", "").strip()
         budget = data.get("budget", 0.0)
         code = data.get("code", "").strip()
         image = request.FILES.get("image", None)
@@ -1166,12 +1163,9 @@ class ItineraryCreate(APIView):
             owner=request.user,
             place_image=image,
             creator_name=request.user.username,
-            title=title,
             longitude=longitude,
             latitude=latitude,
-            place_name=place_name,
             code=code,
-            description=description,
             budget=budget,
         )
         # itinerary.save()

@@ -251,13 +251,12 @@ const store = createStore({
 				});
 		},
 
-		async updateReport({ commit, state }, { id, reportData }) {
+		async updateReport({ commit, state }, { id }) {
 			return axiosClient
-				.put(`/reports/${id}/`, reportData, {
+				.delete(`/reports/${id}/`, {
 					headers: { Authorization: `Token ${state.user.token}` },
 				})
 				.then((response) => {
-					commit("setReport", response.data);
 					return response.data;
 				})
 				.catch((error) => {

@@ -73,11 +73,8 @@ class ItineraryAdmin(admin.ModelAdmin):
         "owner",
         "creator_name",
         "place_image",
-        "title",
         "longitude",
         "latitude",
-        "place_name",
-        "description",
         "code",
         "budget",
         "status",
@@ -88,7 +85,6 @@ class SaveItineraryAdmin(admin.ModelAdmin):
     list_display = (
         "owner",
         "creator_name",
-    
         "main_image",
         "main_title",
         "main_description",
@@ -133,6 +129,8 @@ class FollowingNotificationAdmin(admin.ModelAdmin):
         "created_at",
         "is_read",
     )
+
+
 class ReportAdmin(admin.ModelAdmin):
     list_display = (
         "post_id",
@@ -140,6 +138,7 @@ class ReportAdmin(admin.ModelAdmin):
         "category",
         "details",
     )
+
 
 class SurveyAdmin(admin.ModelAdmin):
     list_display = ("user", "q1", "q2", "q3", "q4", "q5", "q6")

@@ -63,13 +63,15 @@
 							>
 								<!-- Original Post Content -->
 								<div
+									if
+									v-if="report.post"
 									class="p-4 border-b border-gray-200 dark:border-gray-700"
 								>
 									<div class="flex items-start space-x-3">
 										<div class="flex-shrink-0">
 											<img
 												:src="
-													report.post.author_data
+													report.post?.author_data
 														.user_photo ||
 													`/placeholder.svg?height=40&width=40`
 												"
@@ -82,7 +84,7 @@
 												class="text-sm font-medium text-gray-900 dark:text-white"
 											>
 												{{
-													report.post.author_data
+													report.post?.author_data
 														.fullname
 												}}
 											</p>
@@ -91,7 +93,7 @@
 											>
 												{{
 													new Date(
-														report.post.date_posted
+														report.post?.date_posted
 													).toLocaleString()
 												}}
 											</p>
@@ -100,16 +102,16 @@
 									<h3
 										class="mt-2 text-lg font-semibold text-gray-900 dark:text-white"
 									>
-										{{ report.post.title }}
+										{{ report.post?.title }}
 									</h3>
 									<p
 										class="mt-1 text-sm text-gray-700 dark:text-gray-300"
 									>
-										{{ report.post.content }}
+										{{ report.post?.content }}
 									</p>
-									<div v-if="report.post.image" class="mt-2">
+									<div v-if="report.post?.image" class="mt-2">
 										<img
-											:src="report.post.image"
+											:src="report.post?.image"
 											alt="Post image"
 											class="w-auto h-56 rounded-lg object-scale-down"
 										/>
@@ -118,19 +120,19 @@
 										class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400"
 									>
 										<MapPinIcon class="mr-1 h-4 w-4" />
-										{{ report.post.country }}
+										{{ report.post?.country }}
 									</div>
 									<div
 										class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400"
 									>
 										<TagIcon class="mr-1 h-4 w-4" />
-										{{ report.post.category }}
+										{{ report.post?.category }}
 									</div>
 									<div
 										class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400"
 									>
 										<HeartIcon class="mr-1 h-4 w-4" />
-										{{ report.post.like_count }} likes
+										{{ report.post?.like_count }} likes
 									</div>
 								</div>
 
@@ -161,10 +163,15 @@
 												}}
 											</p>
 										</div>
-										<div class="flex space-x-2">
+										<div
+											v-if="report.post"
+											class="flex space-x-2"
+										>
 											<button
 												@click="
-													handleApprove(report._id)
+													handleApprove(
+														report.post._id
+													)
 												"
 												class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-900"
 											>
@@ -283,7 +290,6 @@ const handleApprove = async (id) => {
 	try {
 		await store.dispatch("updateReport", {
 			id,
-			reportData: { status: "approved" },
 		});
 		await fetchReports();
 	} catch (error) {

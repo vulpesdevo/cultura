@@ -91,7 +91,7 @@ import ViewItinerary from "./ViewItinerary.vue";
 const store = useStore();
 const router = useRouter();
 
-const itineraries = computed(() => store.getters.getItineraries);
+const itineraries = computed(() => store.getters.getItineraries.reverse());
 const isFullTextShown = ref({});
 const allRatings = ref([4, 3.5, 5, 4.2]); // Simulated ratings from different users
 

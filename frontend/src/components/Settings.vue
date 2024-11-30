@@ -759,335 +759,177 @@
 	</div>
 </template>
 
-<script>
-import axios from "axios";
+<script setup>
+import { ref, computed, onMounted, reactive } from "vue";
 import { useDark, useToggle } from "@vueuse/core";
-import { ref, onMounted } from "vue";
-export default {
-	setup() {
-		const isDark = useDark();
-		const toggleDark = useToggle(isDark);
-		const accordionOpen = ref(false);
-		const changePassOpen = ref(false);
-		onMounted(() => {
-			accordionOpen.value = false;
-			changePassOpen.value = false;
+import axios from "axios";
+
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
+
+const accordionOpen = ref(false);
+const changePassOpen = ref(false);
+
+const setemail = ref("");
+const setcountry = ref("");
+const setpassword = ref("");
+const old_password = ref("");
+const new_password = ref("");
+const confirm_password = ref("");
+const showOldPassword = ref(false);
+const showsetPass = ref(false);
+const showNewPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const setautocompletecountry = ref(null);
+
+const editing = ref(false);
+const passediting = ref(false);
+const oldPasswordInvalid = ref(false);
+const error = ref(null);
+
+const passwordStrength = reactive({
+	hasCapitalLetter: false,
+	hasSymbol: false,
+	hasNumber: false,
+	hasMinLength: false,
+});
+
+const isGmailEmail = computed(() => {
+	const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/;
+	return emailRegex.test(setemail.value);
+});
+
+const isValidNewPassword = computed(() => {
+	const password = new_password.value;
+	passwordStrength.hasCapitalLetter = /[A-Z]/.test(password);
+	passwordStrength.hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+	passwordStrength.hasNumber = /\d/.test(password);
+	passwordStrength.hasMinLength = password.length >= 8;
+	return (
+		passwordStrength.hasCapitalLetter &&
+		passwordStrength.hasSymbol &&
+		passwordStrength.hasNumber &&
+		passwordStrength.hasMinLength
+	);
+});
+
+const isValidConfirmPassword = computed(() => {
+	return confirm_password.value === new_password.value;
+});
+
+const client = axios.create({
+	baseURL: "http://127.0.0.1:8000",
+	withCredentials: true,
+	timeout: 5000,
+	xsrfCookieName: "csrftoken",
+	xsrfHeaderName: "X-Csrftoken",
+});
+
+const changeInformation = async () => {
+	try {
+		const response = await client.post("/api/update-information", {
+			password: setpassword.value,
+			email: setemail.value,
+			country: setcountry.value,
 		});
-		return { isDark, toggleDark, accordionOpen, changePassOpen };
-	},
-	data() {
-		return {
-			profile: {
-				email: "",
-
-				country: "",
-			},
-
-			profileIsOpen: false,
-			chgPassIsOpen: false,
-			isCheckedInApp: false,
-			isCheckedBanner: false,
-			isCheckedVibration: false,
-			isCheckedSound: false,
-			isCheckedTheme: false,
-			settings: [],
-
-			new_password: "",
-			old_password: "",
-			confirm_password: "",
-			showOldPassword: false,
-			showsetPass: false,
-			showNewPassword: false,
-			showConfirmPassword: false,
-
-			hasCapitalLetter: false,
-			hasSymbol: false,
-			hasNumber: false,
-			hasMinLength: false,
-
-			oldPasswordInvalid: false,
-			error: null,
-			timer: null,
-
-			editing: false,
-			passediting: false,
-			setpassword: "",
-			setemail: "",
-			setcountry: "",
-			inputElement: null,
-			// Initial state of the accordion
-		};
-	},
-	computed: {
-		isFormValid() {
-			const isEmailValid =
-				this.setemail.trim() !== "" || this.isGmailEmail;
-			const isCountryValid = this.setcountry.trim() !== "";
-			return isEmailValid && isCountryValid;
-		},
-		isGmailEmail() {
-			const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/;
-			return emailRegex.test(this.setemail);
-		},
-		isValidNewPassword() {
-			const password = this.new_password;
-			this.hasCapitalLetter = /[A-Z]/.test(password);
-			this.hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-			this.hasNumber = /\d/.test(password);
-			this.hasMinLength = password.length >= 8;
-			return (
-				this.hasCapitalLetter &&
-				this.hasSymbol &&
-				this.hasNumber &&
-				this.hasMinLength
-			);
-		},
-		isValidConfirmPassword() {
-			return this.confirm_password === this.new_password;
-		},
-	},
-	created() {
-		this.token = sessionStorage.getItem("TOKEN");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
-			},
-		});
-		this.fetchUser();
-		this.getClientSettings();
-		this.initializeAutocompleteCountry();
-	},
-	mounted() {
-		this.initializeAutocompleteCountry();
-	},
-	methods: {
-		createToast(message, type) {
-			const toast = document.createElement("div");
-			toast.id = "toast-simple";
-			toast.className = `
-	flex items-center justify-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse
-	${type === "error" ? "text-red-700" : "text-green-700"}
-	bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow
-	dark:divide-gray-700 dark:bg-gray-800
-  `;
-			toast.setAttribute("role", "alert");
-
-			const messageElement = document.createElement("div");
-			messageElement.className = "text-sm text-center font-normal";
-			messageElement.textContent = message;
-
-			toast.appendChild(messageElement);
-
-			const toastContainer = document.createElement("div");
-			toastContainer.className = `
-    fixed bottom-16 right-4 sm:bottom-4 sm:right-2 sm:transform sm:-translate-x-1/2
-    ${
-		window.innerWidth <= 641
-			? "bottom-16 left-1/2 transform -translate-x-1/2"
-			: ""
+		console.log("Changed:", response.data);
+		createToast("Information updated successfully.", "success");
+		editing.value = false;
+		setpassword.value = "";
+	} catch (error) {
+		console.error("Error updating information:", error);
+		createToast(
+			error.response?.data?.error || "An error occurred",
+			"error"
+		);
 	}
-  `;
-
-			toastContainer.appendChild(toast);
-			document.body.appendChild(toastContainer);
-
-			setTimeout(() => {
-				toastContainer.remove();
-			}, 5000);
-		},
-		changeInformation() {
-			if (this.isFormValid == false) {
-				this.createToast("Invalid input.", "error");
-			}
-			this.client
-				.post("/api/update-information", {
-					password: this.setpassword,
-					email: this.setemail,
-					country: this.setcountry,
-				})
-				.then((res) => {
-					console.log("Changed:", res.data);
-					this.createToast(
-						"Change information successfully.",
-						"success"
-					);
-					this.editing = false;
-					this.setpassword = "";
-				})
-				.catch((error) => {
-					console.log("ERROR", error);
-					console.log("Error message:", error.message);
-					console.log("Error code:", error.code);
-					console.log("Response data:", error.response.data.error);
-					this.createToast(`${error.response.data.error}`, "error");
-					this.editing = true;
-					// console.log("ERROR", error);
-					// console.log("Error message:", error.message);
-					// console.log("Error code:", error.code);
-					// console.log("Response data:", error.response.data.error);
-					// this.oldPasswordInvalid = true;
-					// this.error = error.response.data.error;
-					// this.timer = setTimeout(() => {
-					// 	this.oldPasswordInvalid = false;
-					// }, 5000); // 5 seconds
-				});
-		},
-		fetchUser() {
-			this.client
-				.get("api/user")
-				.then((res) => {
-					this.setcountry = res.data.profile[0].country;
-
-					this.setemail = res.data.profile[0].email;
-				})
-				.catch((error) => {
-					console.log("ERROR", error);
-				});
-		},
-		changePassword() {
-			this.client
-				.post("/api/change-password", {
-					password: this.old_password,
-					new_password: this.new_password,
-				})
-				.then((res) => {
-					console.log("Changed:", res.data);
-					const toast = document.createElement("div");
-					toast.id = "toast-simple";
-					toast.className =
-						"flex items-center justify-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-green-700 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-green-700 dark:divide-gray-700 dark:bg-gray-800";
-					toast.setAttribute("role", "alert");
-
-					const message = document.createElement("div");
-					message.className = "text-sm text-center font-normal";
-					message.textContent = "Change password successfully.";
-
-					toast.appendChild(message);
-
-					const toastContainer = document.createElement("div");
-					toastContainer.className =
-						"fixed bottom-10 right-4 sm:bottom-4 sm:right-2 sm:transform sm:-translate-x-1/2";
-
-					if (window.innerWidth <= 641) {
-						toastContainer.className =
-							"fixed bottom-16 left-1/2 transform -translate-x-1/2";
-					}
-
-					toastContainer.appendChild(toast);
-					document.body.appendChild(toastContainer);
-					this.passediting = false;
-					setTimeout(() => {
-						toastContainer.remove();
-					}, 5000);
-				})
-				.catch((error) => {
-					console.log("ERROR", error);
-					console.log("Error message:", error.message);
-					console.log("Error code:", error.code);
-					console.log("Response data:", error.response.data.error);
-					this.oldPasswordInvalid = true;
-					this.error = error.response.data.error;
-					this.timer = setTimeout(() => {
-						this.oldPasswordInvalid = false;
-					}, 5000); // 5 seconds
-				});
-		},
-		initializeAutocompleteCountry() {
-			// Ensures the DOM is updated
-			// this.inputElement = this.$refs.setautocompletecountry;
-			// console.log("the element :", this.inputElement);
-			this.inputElement = this.$refs.setautocompletecountry;
-			console.log("the elemento :", this.inputElement);
-			const autocomplete = new google.maps.places.Autocomplete(
-				this.inputElement,
-				{
-					types: ["(regions)"],
-				}
-			);
-
-			// getting the value of
-			autocomplete.addListener("place_changed", () => {
-				const country = autocomplete.getPlace();
-				this.setcountry = country.formatted_address;
-			});
-		},
-		handleCheckboxChangeInApp() {
-			this.isCheckedInApp = !this.isCheckedInApp;
-			this.getSettings();
-		},
-		handleCheckboxChangeBanner() {
-			this.isCheckedBanner = !this.isCheckedBanner;
-			this.getSettings();
-		},
-		handleCheckboxChangeVibration() {
-			this.isCheckedVibration = !this.isCheckedVibration;
-			this.getSettings();
-		},
-		handleCheckboxChangeSound() {
-			this.isCheckedSound = !this.isCheckedSound;
-			this.getSettings();
-		},
-		handleCheckboxChangeTheme() {
-			this.isCheckedTheme = !this.isCheckedTheme;
-			this.getSettings();
-		},
-		getSettings() {
-			this.client
-				.post("/api/user-settings", {
-					in_app_notif: this.isCheckedInApp,
-					banner_notif: this.isCheckedBanner,
-					vibration: this.isCheckedVibration,
-					sound: this.isCheckedSound,
-					theme: this.isCheckedTheme,
-				})
-				.then((res) => {
-					console.log("Changed:", res.data);
-				})
-				.catch((error) => {
-					console.log("ERROR", error);
-				});
-		},
-		async getClientSettings() {
-			try {
-				const response = await this.client.get("/api/user-settings");
-				this.settings = response.data.set;
-				this.isCheckedInApp = this.settings[0].in_app_notification;
-				this.isCheckedBanner = this.settings[0].banner_notification;
-				this.isCheckedVibration = this.settings[0].vibration;
-				this.isCheckedSound = this.settings[0].sound;
-				this.isCheckedTheme = this.settings[0].theme;
-				console.log(response.data.user_information);
-			} catch (error) {
-				console.error(error);
-			}
-		},
-		toggleAccordion(accordion) {
-			if (accordion === "profile") {
-				this.profileIsOpen = !this.profileIsOpen;
-			} else {
-				this.chgPassIsOpen = !this.chgPassIsOpen;
-			}
-		},
-		beforeEnter(el) {
-			el.style.height = "0";
-		},
-		enter(el) {
-			el.style.height = el.scrollHeight + "px";
-		},
-		beforeLeave(el) {
-			el.style.height = el.scrollHeight + "px";
-		},
-		leave(el) {
-			el.style.height = "0";
-		},
-	},
 };
+
+const changePassword = async () => {
+	try {
+		const response = await client.post("/api/change-password", {
+			password: old_password.value,
+			new_password: new_password.value,
+		});
+		console.log("Changed:", response.data);
+		createToast("Password changed successfully.", "success");
+		passediting.value = false;
+		resetPasswordFields();
+	} catch (error) {
+		console.error("Error changing password:", error);
+		oldPasswordInvalid.value = true;
+		error.value = error.response?.data?.error || "An error occurred";
+		setTimeout(() => {
+			oldPasswordInvalid.value = false;
+		}, 5000);
+	}
+};
+
+const resetPasswordFields = () => {
+	old_password.value = "";
+	new_password.value = "";
+	confirm_password.value = "";
+};
+
+const createToast = (message, type) => {
+	const toast = document.createElement("div");
+	toast.className = `fixed bottom-4 right-4 p-4 rounded-md text-white ${
+		type === "success" ? "bg-green-500" : "bg-red-500"
+	} transition-opacity duration-300 opacity-0`;
+	toast.textContent = message;
+
+	document.body.appendChild(toast);
+
+	// Fade in
+	setTimeout(() => {
+		toast.classList.remove("opacity-0");
+	}, 10);
+
+	// Fade out and remove
+	setTimeout(() => {
+		toast.classList.add("opacity-0");
+		setTimeout(() => {
+			document.body.removeChild(toast);
+		}, 300);
+	}, 3000);
+};
+
+const initializeAutocompleteCountry = () => {
+	const input = setautocompletecountry.value;
+	if (!input) {
+		console.error("Country input element not found");
+		return;
+	}
+
+	const autocomplete = new google.maps.places.Autocomplete(input, {
+		types: ["(regions)"],
+	});
+
+	autocomplete.addListener("place_changed", () => {
+		const place = autocomplete.getPlace();
+		if (!place.address_components) {
+			console.error("No address components found");
+			return;
+		}
+
+		const countryComponent = place.address_components.find((component) =>
+			component.types.includes("country")
+		);
+
+		if (countryComponent) {
+			setcountry.value = countryComponent.long_name;
+		} else {
+			console.error("Country not found in place data");
+		}
+	});
+};
+
+onMounted(() => {
+	accordionOpen.value = false;
+	changePassOpen.value = false;
+	initializeAutocompleteCountry();
+});
 </script>
 
 <style></style>

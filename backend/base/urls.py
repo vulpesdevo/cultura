@@ -110,7 +110,7 @@ urlpatterns = [
     ),
     # reporting  views router
     path("reports/", views.ReportListView.as_view(), name="report-list-create"),
-    path("reports/<int:pk>/", views.ReportDetailView.as_view(), name="report-detail"),
+    path("reports/<str:pk>/", views.ReportDetailView.as_view(), name="report-detail"),
     # ADMIN
     # USER MANAGEMTN  ADMIN
     # path("viewing-itinerary", views.ViewingSaveItineraryListView.as_view(), name="viewing-itinerary"),

@@ -97,6 +97,12 @@ class CulturaUserSerializer(serializers.ModelSerializer):
         print("USER : ", user)
         return True if user in obj.followers.all() else False
 
+    def get_user_photo(self, obj):
+        request = self.context.get("request")
+        if obj.user_photo and request:
+            return request.build_absolute_uri(obj.user_photo.url)
+        return None
+
 
 class CommentSerializer(serializers.ModelSerializer):
 

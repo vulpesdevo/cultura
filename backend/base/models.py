@@ -52,7 +52,6 @@ class Report(models.Model):
     _id = ObjectIdField()
     post_id = models.CharField(max_length=255)
     user_id = models.ForeignKey("CulturaUser", on_delete=models.CASCADE)
-
     category = models.CharField(max_length=255)
     details = models.CharField(max_length=2550)
     date_posted = models.DateTimeField(auto_now_add=True)
@@ -85,13 +84,9 @@ class Itinerary(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     creator_name = models.CharField(max_length=50)
     place_image = models.ImageField(upload_to="place_images", null=True, blank=True)
-    title = models.CharField(
-        max_length=255,
-    )
+
     longitude = models.FloatField()
     latitude = models.FloatField()
-    place_name = models.CharField(max_length=255)
-    description = models.TextField()
     code = models.CharField(blank=True, null=True, max_length=50)
     budget = models.FloatField(null=True, blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)

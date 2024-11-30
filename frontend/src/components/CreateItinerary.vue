@@ -1,1279 +1,674 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full px-5 sm:px-7 py-5 sm:ml-64 overflow-auto h-screen bg-field dark:bg-notif pt-14 sm:pt-3"
+		class="flex flex-col lg:flex-row h-screen bg-gray-100 dark:bg-gray-900"
 	>
-		<div
-			class="field-editable flex flex-col justify-start items-center w-full bg-field sm:bg-white dark:bg-notif rounded-2xl p-1"
-		>
+		<!-- Main Content -->
+		<div class="w-full lg:w-2/3 overflow-y-auto px-4 lg:px-8 py-6">
+			<!-- Hero Image and Title -->
 			<div
-				class="fixed sm:relative flex flex-col justify-between title-image h-[20rem] sm:h-96 w-screen sm:w-full rounded-2xl bg-field dark:bg-notif sm:bg-transparent z-10"
+				class="relative w-full h-[300px] rounded-lg overflow-hidden mb-6"
 			>
-				<div
-					class="flex items-center justify-center w-screen h-[70%] sm:w-full sm:h-[87%] bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
+				<label
+					for="imgSelect"
+					class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 cursor-pointer"
 				>
-					<label
-						for="imgSelect"
-						class="w-screen sm:w-full h-full flex items-center justify-center bg-field dark:bg-gray-400 cursor-pointer rounded-xl"
+					<img
+						v-if="selectedImageUrl"
+						:src="selectedImageUrl"
+						class="w-full h-full object-cover"
+						alt="Selected image"
+					/>
+					<div
+						v-else
+						class="text-gray-500 dark:text-gray-400 text-xl"
 					>
-						<img
-							:class="{ hidden: !selectedImageUrl }"
-							:src="selectedImageUrl"
-							class="w-full h-full object-cover rounded-xl z-0"
-							alt="Selected image"
-						/>
-						<div
-							:class="{ hidden: selectedImageUrl }"
-							class="flex items-center justify-center font-montserrat w-full h-full text-prime dark:text-dark-prime text-xl z-0"
-						>
-							<span>+ Add Image</span>
-						</div>
-					</label>
-				</div>
+						+ Add Image
+					</div>
+				</label>
 				<input
 					type="file"
 					id="imgSelect"
 					class="hidden"
 					@change="handleFileSelection"
 				/>
-				<div
-					class="flex absolute left-[3.2rem] bottom-[4rem] sm:bottom-0 sm:left-[7.7rem] bg-prime w-3/4 h-16 sm:h-24 z-30 rounded-md text-center items-center justify-center cursor-pointer"
+				<div class="absolute bottom-0 left-0 p-6 w-full">
+					<input
+						v-model="main_title"
+						@blur="handleTitleChange"
+						@keyup.enter="handleTitleChange"
+						class="text-5xl font-bold text-white bg-transparent w-full font-bebas-neue tracking-wide"
+						placeholder="Enter title"
+						maxlength="30"
+					/>
+				</div>
+			</div>
+
+			<!-- Author Profile and Description -->
+			<div
+				class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-6"
+			>
+				<img
+					:src="user_photo"
+					alt="Author profile"
+					class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+				/>
+				<div class="flex-1">
+					<div class="flex items-center text-sm space-x-2 mb-1">
+						<h2 class="text-gray-900 dark:text-white">
+							@{{ username }}
+						</h2>
+					</div>
+					<textarea
+						v-model="setAboutMe"
+						@blur="isEditingAboutMe = false"
+						class="w-full text-gray-900 dark:text-white leading-relaxed bg-transparent resize-none outline-none"
+						placeholder="Tell us about yourself"
+						rows="3"
+					></textarea>
+				</div>
+			</div>
+
+			<!-- General Tips Section -->
+			<div
+				class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6"
+			>
+				<h2
+					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white w-full border-b border-gray-300 dark:border-gray-700 pb-2"
 				>
-					<div class="w-full mx-5 z-30">
-						<!-- Text Field for Editing -->
-						<div v-if="isEditing" class="w-full">
-							<input
-								v-model="main_title"
-								@blur="handleTitleChange"
-								@keyup.enter="handleTitleChange"
-								class="font-bebas-neue text-lg text-interface text-center bg-prime sm:text-5xl rounded-md w-full px-2 z-20"
-								autofocus
-								maxlength="30"
-							/>
-							<!-- Example using FontAwesome -->
+					General Tips
+				</h2>
+				<div class="w-full sm:w-[83%] mx-auto">
+					<textarea
+						v-model="setTips"
+						@blur="isEditingTips = false"
+						class="w-full text-gray-600 dark:text-gray-300 text-sm bg-transparent resize-none outline-none"
+						placeholder="What do you want to share?"
+						rows="4"
+					></textarea>
+				</div>
+			</div>
+
+			<!-- Budget Section -->
+			<div
+				class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6"
+			>
+				<h2
+					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+				>
+					Budgeting
+				</h2>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
+						<div class="text-sm text-gray-500 dark:text-gray-400">
+							Total Budget
 						</div>
-						<!-- Text Display -->
-						<h1
-							v-else
-							@click="isEditing = true"
-							autofocus
-							class="font-bebas-neue text-lg text-interface sm:text-5xl z-20"
+						<div
+							class="text-2xl font-bold text-gray-200 dark:text-white"
 						>
-							{{ main_title }}
-						</h1>
+							{{ selectedSymbol }}
+							<input
+								v-model="total_budget"
+								type="number"
+								class="bg-transparent w-24 focus:outline-none"
+							/>
+						</div>
+					</div>
+					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
+						<div class="text-sm text-gray-500 dark:text-gray-400">
+							Currency
+						</div>
+						<select
+							v-model="selectedCurrency"
+							@change="checkCode"
+							class="w-full bg-transparent border-0 text-gray-200 dark:text-white focus:ring-0 text-sm sm:text-base"
+						>
+							<option
+								v-for="[code, name] in currency_list"
+								:key="code"
+								:value="code"
+								class="text-gray-900 dark:text-white focus:ring-0 dark:bg-gray-800 text-xs sm:text-sm"
+							>
+								{{ code }} - {{ name }}
+							</option>
+						</select>
 					</div>
 				</div>
 			</div>
 
-			<section
-				class="mt-80 itinerary-1 flex flex-col items-center sm:mt-10 px-16 w-full dark:bg-notif"
-				id="overview-section"
-			>
-				<div class="post-content flex w-screen sm:w-full" id="overview">
+			<!-- Itinerary List -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-6">
+				<h2
+					class="text-xl font-semibold p-6 text-gray-900 dark:text-white"
+				>
+					Itinerary Stops
+				</h2>
+				<div class="p-6 flex gap-3">
+					<button
+						@click="showModal = true"
+						class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-colors"
+					>
+						Add New Stop
+					</button>
+					<button
+						@click="saveMainItinerary"
+						class="w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-colors"
+					>
+						Save Itinerary
+					</button>
+				</div>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6">
 					<div
-						class="hidden w-[9.2%] sm:flex items-start justify-center"
+						v-for="(itinerary, index) in list_itineraries"
+						:key="itinerary.id"
+						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02]"
 					>
 						<img
-							:src="user_photo"
-							alt="Profile"
-							class="w-12 h-12 rounded-full cursor-pointer"
+							:src="itinerary.place_image"
+							:alt="itinerary.title"
+							class="w-full h-48 object-cover"
 						/>
-					</div>
-					<div class="w-full mx-3 mt-3 sm:m-0">
-						<div class="flex">
-							<small
-								class="hidden sm:flex items-center justify-center font-montserrat text-prime dark:text-interface text-base pb-3"
-							>
-								@{{ username }}
-							</small>
-							<p
-								class="font-montserrat sm:hidden pb-1 text-lg text-prime dark:text-interface"
-							>
-								Description
-							</p>
-						</div>
-						<div>
-							<!-- Editable Textarea -->
-							<!-- For setAboutMe -->
-							<textarea
-								v-if="!setAboutMe || isEditingAboutMe"
-								class="w-full sm:w-[90.5%] rounded-lg resize-none p-4 outline-none text-black bg-gray-200 dark:text-interface dark:bg-dark-interface dark:ring-notif ring-1"
-								v-model="setAboutMe"
-								@blur="isEditingAboutMe = false"
-								@keyup.tab="isEditingAboutMe = false"
-								placeholder="Tell us about yourself"
-								autofocus
-							>
-							</textarea>
-							<p
-								v-else
-								@click="isEditingAboutMe = true"
-								class="w-full sm:w-[90.5%] p-4 text-black dark:text-interface"
-								v-html="formatText(setAboutMe)"
-							></p>
-						</div>
-					</div>
-				</div>
-				<div
-					class="flex flex-col items-center justify-center w-screen sm:mx-0 sm:mt-4 sm:w-full"
-				>
-					<p
-						class="font-montserrat text-prime dark:text-interface w-full px-3 mb-2 text-lg sm:text-xl sm:font-semibold"
-					>
-						General Tips
-					</p>
-					<div
-						class="flex flex-col items-start justify-center w-full px-3 sm:px-0 sm:w-[83%]"
-					>
-						<textarea
-							v-if="!setTips || isEditingTips"
-							class="w-full rounded-lg resize-none p-4 outline-none bg-gray-200 dark:text-interface dark:bg-dark-interface dark:ring-notif ring-1"
-							v-model="setTips"
-							@blur="isEditingTips = false"
-							@keyup.enter="
-								setTips.split(/\n+/);
-								isEditingTips = false;
-							"
-							placeholder="What do you want to share?"
-							autofocus
-						>
-						</textarea>
-						<p
-							v-else
-							@click="isEditingTips = true"
-							class="w-full sm:w-[90.5%] p-4 text-prime dark:text-interface"
-							v-html="formatText(setTips)"
-						></p>
-					</div>
-				</div>
-
-				<div
-					class="font-montserrat flex flex-col justify-center items-center w-screen sm:w-full py-3"
-				>
-					<p
-						class="text-prime dark:text-interface text-lg sm:text-xl sm:font-semibold m-3 pl-3 sm:px-2 w-full text-left"
-					>
-						Budgeting
-					</p>
-
-					<div
-						class="flex sm:justify-between w-full px-3 sm:p-0 sm:w-[83%] h-20 text-interface"
-					>
-						<div
-							class="flex flex-col justify-center items-center bg-prime dark:bg-second w-1/2 mr-2 rounded-lg"
-						>
-							<p class="">Suggested Budget</p>
-							<p class="text-2xl">
-								<span class="font-bold">{{
-									selectedSymbol
-								}}</span
-								>{{ total_budget }}
-							</p>
-						</div>
-						<div
-							class="flex flex-col justify-center bg-prime dark:bg-second w-3/4 rounded-lg p-3"
-						>
-							<p class="">Currency</p>
-							<!-- <select
-								ref="toDropDown"
-								@change="checkCode"
-								class="w-ful text-white pb-1 text-xl bg-transparent outline-none"
-							>
-								
-							</select> -->
-							<select
-								v-model="selectedCurrency"
-								ref="toDropDown"
-								@change="checkCode"
-								class="w-full text-white pb-1 text-xl bg-transparent outline-none"
-							>
-								<option
-									v-for="(currency, index) in currency_list"
-									:key="index"
-									:value="currency[0]"
-									class="bg-interface dark:bg-dark-interface text-prime dark:text-interface text-nowrap w-10 text-sm hover:bg-second"
+						<div class="p-4">
+							<div class="flex items-center space-x-2 mb-2">
+								<div
+									class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold"
 								>
-									{{ currency[0] }} - {{ currency[1] }}
-								</option>
-							</select>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section
-				class="itinerary-2 pt-10 sm:pt-0 flex flex-col h-[45rem] w-screen sm:w-full my-5"
-				id="itinerary-section"
-			>
-				<h1
-					class="hidden sm:flex items-center justify-center text-center text-prime dark:text-interface text-xl mb-4"
-				>
-					Main Itinerary
-				</h1>
-				<div
-					id="the-itineraries"
-					class="flex justify-center w-full h-auto sm:h-[700px] px-3 pb-5 sm:px-16"
-				>
-					<div
-						class="flex flex-col justify-center-center overflow-hidden h-auto w-full sm:w-1/2 m-0 sm:mr-5 pb-5 sm:pb-0"
-					>
-						<div class="flex w-full h-10 sm:h-[7%] mb-2">
-							<button
-								class="flex justify-center items-center font-montserrat text-interface w-full h-full bg-second rounded-lg mr-2"
-								@click.prevent="showModal = true"
-								@click="initializeAutocomplete"
-							>
-								<span class="material-icons-outlined">
-									place
+									{{ String.fromCharCode(66 + index) }}
+								</div>
+								<h3
+									class="text-lg font-semibold text-gray-900 dark:text-white"
+								>
+									{{ itinerary.title }}
+								</h3>
+							</div>
+							<p class="text-gray-600 dark:text-gray-300 mb-4">
+								{{ itinerary.description }}
+							</p>
+							<div class="flex justify-between items-center">
+								<span
+									class="text-sm text-gray-500 dark:text-gray-400"
+									>Budget:</span
+								>
+								<span
+									class="font-semibold text-gray-900 dark:text-white"
+								>
+									{{ getSymbol(itinerary.code)
+									}}{{ itinerary.budget.toFixed(2) }}
 								</span>
-								Add place
-							</button>
-							<button
-								class="font-montserrat text-interface w-full h-full bg-second rounded-lg"
-								@click="saveMainItinerary"
-							>
-								Save
-							</button>
-						</div>
-						<div
-							class="sm:overflow-auto overflow-hidden h-auto sm:h-screen rounded-lg p-3"
-							style="scrollbar-width: none"
-						>
+							</div>
 							<div
-								class="flex-col justify-center items-center w-full h-[15rem] sm:h-[17rem] font-montserrat text-prime bg-white sm:bg-interface dark:bg-dark-interface drop-shadow-md mb-3 rounded-lg"
-								v-for="(itinerary, index) in list_itineraries"
-								:key="index"
+								class="mt-2 text-sm text-gray-500 dark:text-gray-400"
 							>
-								<div
-									class="absolute w-full marker-container flex items-start justify-between p-4"
-								>
-									<svg
-										width="64px"
-										height="64px"
-										viewBox="-4 0 36 36"
-										version="1.1"
-										xmlns="http://www.w3.org/2000/svg"
-										xmlns:xlink="http://www.w3.org/1999/xlink"
-										fill="#000000"
-									>
-										<defs>
-											<filter
-												id="icon-shadow"
-												x="-50%"
-												y="-50%"
-												width="200%"
-												height="200%"
-											>
-												<feDropShadow
-													dx="0"
-													dy="2"
-													stdDeviation="3"
-													flood-color="rgba(0,0,0,0.5)"
-												/>
-											</filter>
-										</defs>
-										<g filter="url(#icon-shadow)">
-											<g
-												id="SVGRepo_bgCarrier"
-												stroke-width="0"
-											></g>
-											<g
-												id="SVGRepo_tracerCarrier"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											></g>
-											<g id="SVGRepo_iconCarrier">
-												<title>
-													{{ itinerary.title }}
-												</title>
-												<desc>
-													Created with Sketch.
-												</desc>
-												<g
-													id="Vivid.JS"
-													stroke="none"
-													stroke-width="1"
-													fill="none"
-													fill-rule="evenodd"
-												>
-													<g
-														id="Vivid-Icons"
-														transform="translate(-125.000000, -643.000000)"
-													>
-														<g
-															id="Icons"
-															transform="translate(37.000000, 169.000000)"
-														>
-															<g
-																id="map-marker"
-																transform="translate(78.000000, 468.000000)"
-															>
-																<g
-																	transform="translate(10.000000, 6.000000)"
-																>
-																	<path
-																		d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"
-																		id="Shape"
-																		fill="#6A7FDB"
-																	></path>
-																	<circle
-																		id="Oval"
-																		fill="#6A7FDB"
-																		fill-rule="nonzero"
-																		cx="14"
-																		cy="14"
-																		r="7"
-																	></circle>
-																	<!-- Adding the letter A -->
-																	<text
-																		x="11"
-																		y="20"
-																		font-family="Arial"
-																		font-size="10"
-																		fill="#FFFFFF"
-																	>
-																		{{
-																			itinerary.order
-																		}}
-																	</text>
-																</g>
-															</g>
-														</g>
-													</g>
-												</g>
-											</g>
-										</g>
-									</svg>
-									<span
-										class="flex items-center justify-center material-icons-outlined text-interface bg-rose-500 h-10 w-10 rounded-full cursor-pointer"
-										@click="deleteItinerary(itinerary.id)"
-									>
-										delete
-									</span>
-								</div>
-								<img
-									class="w-full object-cover h-2/5 rounded-lg"
-									:src="itinerary.place_image"
-									alt=""
-								/>
-
-								<div
-									class="px-4 flex flex-col justify-normal sm:justify-evenly items-center"
-								>
-									<h1
-										class="text-2xl px-4 dark:text-interface py-3 text-center"
-									>
-										{{ itinerary.title }}
-									</h1>
-									<p
-										class="text-justify text-sm px-4 overflow-hidden whitespace-nowrap sm:whitespace-normal text-ellipsis w-full h-10 sm:h-16 dark:text-interface"
-									>
-										{{ itinerary.description }}
-									</p>
-									<div
-										class="flex w-full h-8 text-center items-center justify-end sm:justify-center"
-									>
-										<p
-											class="flex justify-start items-center font-montserrat font-semibold h-full text-sm text-interface bg-second w-28 rounded-full"
-										>
-											<span class="pr-2 mr-2 ml-3">{{
-												getSymbol(itinerary.code)
-											}}</span>
-											{{ itinerary.budget.toFixed(2) }}
-										</p>
-									</div>
-									<!-- <p class="rounded-full bg-second text-center inline-block py-1 px-2"
-										:style="{ width: `${text.length * 10}px` }"
-									>{{ text }}</p> -->
-								</div>
+								Arrival: {{ checkArrival(itinerary) }}
 							</div>
 						</div>
 					</div>
-					<div
-						:class="{
-							'translate-y-0': showMap,
-							'translate-y-full ': !showMap,
-
-							'duration-500': true,
-							'ease-in-out': true,
-						}"
-						class="absolute sm:static sm:flex h-full items-center w-screen sm:w-1/2 rounded-lg bottom-0 left-0 transform sm:transform-none z-20 bg-interface overflow-hidden sm:overflow-visible"
-					>
-						<div
-							id="the-map"
-							class="the-map h-full w-full rounded-lg"
-						></div>
-					</div>
 				</div>
-			</section>
+			</div>
 		</div>
 
+		<!-- Desktop Map Section -->
+		<div class="hidden lg:block w-1/2 h-screen relative">
+			<div class="absolute inset-0 bg-white dark:bg-gray-800">
+				<div ref="desktopMapRef" class="w-full h-full"></div>
+			</div>
+		</div>
+
+		<!-- Mobile Map Section -->
 		<div
-			class="fixed z-50 inset-0 overflow-y-auto"
-			aria-labelledby="modal-title"
-			role="dialog"
-			aria-modal="true"
+			:class="{
+				'translate-y-0': showMap,
+				'translate-y-full': !showMap,
+			}"
+			class="lg:hidden fixed inset-0 bg-white dark:bg-gray-800 transition-transform duration-300 ease-in-out z-50"
+		>
+			<div ref="mobileMapRef" class="w-full h-full"></div>
+		</div>
+
+		<!-- Mobile Map Toggle Button -->
+		<button
+			@click="toggleMap"
+			class="lg:hidden fixed bottom-24 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg z-50"
+		>
+			<MapIcon v-if="!showMap" class="w-6 h-6" />
+			<XIcon v-else class="w-6 h-6" />
+		</button>
+
+		<!-- Add New Stop Modal -->
+		<div
 			v-if="showModal"
+			class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
 		>
 			<div
-				class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 w-screen"
+				class="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl transform transition-all duration-300 ease-in-out"
 			>
-				<div
-					class="fixed inset-0 bg-black bg-opacity-70 transition-opacity w-screen"
-					aria-hidden="true"
-				></div>
-				<span
-					class="hidden sm:inline-block sm:align-middle sm:h-screen"
-					aria-hidden="true"
-					>&#8203;</span
+				<h3
+					class="text-3xl sm:text-4xl font-bold mb-6 text-gray-900 dark:text-white text-center"
 				>
-				<div
-					class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle w-screen sm:w-[35%]"
-				>
-					<div
-						class="bg-interface dark:bg-dark-interface px-4 pt-5 pb-4 sm:p-6 sm:pb-4 text-center"
-					>
-						<div
-							class="flex items-center justify-center h-[70%] w-full sm:h-[10rem] bg-field dark:bg-notif hover:bg-gray-300 sm:rounded-2xl cursor-pointer z-10"
+					Add New Stop
+				</h3>
+				<form @submit.prevent="submitItinerary" class="space-y-6">
+					<!-- Image Upload -->
+					<div class="group relative">
+						<label
+							for="imgSelectIn"
+							class="block w-full h-48 sm:h-64 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ease-in-out"
+							:class="{
+								'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600':
+									!selectedImageUrlIn,
+							}"
 						>
-							<label
-								for="imgSelectIn"
-								class="w-full h-44 flex items-center justify-center bg-field dark:bg-gray-900 cursor-pointer rounded-xl"
+							<img
+								v-if="selectedImageUrlIn"
+								:src="selectedImageUrlIn"
+								class="w-full h-full object-cover transition-all duration-300 ease-in-out group-hover:scale-105"
+								alt="Selected image"
+							/>
+							<div
+								v-else
+								class="flex flex-col items-center justify-center h-full"
 							>
-								<img
-									:class="{ hidden: !selectedImageUrlIn }"
-									:src="selectedImageUrlIn"
-									class="w-full h-full object-cover rounded-xl z-0"
-									alt="Selected image"
+								<PhotoIcon
+									class="h-16 w-16 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400 transition-colors duration-300 ease-in-out"
 								/>
-								<div
-									:class="{ hidden: selectedImageUrlIn }"
-									class="flex items-center justify-center font-montserrat w-full h-full text-prime dark:text-dark-prime text-xl z-0"
+								<span
+									class="mt-2 text-sm text-gray-500 dark:text-gray-400"
+									>Click to upload image</span
 								>
-									<span>+ Add Image</span>
-								</div>
-							</label>
-						</div>
+							</div>
+						</label>
 						<input
 							type="file"
 							id="imgSelectIn"
 							class="hidden"
 							@change="handleFileSelectionIn"
+							accept="image/*"
 						/>
-						<h3
-							class="font-bebas-neue text-2xl pt-5 sm:text-3xl leading-6 font-medium text-prime dark:text-interface"
-							id="modal-title"
-						>
-							add place
-						</h3>
-
-						<form class="mt-2" @submit.prevent="submitItinerary">
-							<div class="flex">
-								<div
-									class="w-full px-3 text-start text-sm font-montserrat dark:text-interface"
-								>
-									<div class="">
-										<label for="it-title">Title</label>
-										<input
-											type="text"
-											placeholder="Title"
-											name="it-title"
-											id="it-title"
-											v-model="title"
-											class="mt-2 pl-5 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
-											required
-										/>
-									</div>
-									<div class="mt-2">
-										<label for="it-location"
-											>Set Location's Pin</label
-										>
-										<div
-											class="flex relative justify-center items-center"
-										>
-											<input
-												type="text"
-												placeholder="Location"
-												name="auto-complete"
-												ref="autocomplete"
-												id="autocomplete"
-												v-model="location"
-												class="mt-2 pl-5 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
-												required
-											/>
-											<span
-												class="flex justify-center items-center material-icons-outlined absolute right-0 bottom-0 text-prime text-center bg-gray-500 hover:bg-gray-400 dark:text-interface w-12 h-12 rounded-full cursor-pointer"
-												@click="locatorBtn"
-											>
-												location_searching
-											</span>
-										</div>
-									</div>
-									<div class="mt-2">
-										<label for="it-budget"
-											>Set a Budget</label
-										>
-										<div class="relative">
-											<span
-												class="absolute bottom-[.72rem] text-lg font-semibold left-4"
-												>{{ selectedSymbol }}</span
-											>
-											<input
-												type="text"
-												placeholder="Budget"
-												name="it-budget"
-												id="it-budget"
-												v-model="budget"
-												class="mt-2 pl-12 w-full rounded-full h-12 bg-field dark:bg-dark-second-dark outline-none"
-												required
-											/>
-										</div>
-									</div>
-									<div class="flex flex-col mt-2">
-										<label for="it-description "
-											>Add description</label
-										>
-										<textarea
-											class="rounded-lg resize-none mt-2 p-4 outline-none bg-field dark:bg-dark-second-dark"
-											required
-											name=""
-											id="it-description"
-											v-model="description"
-											cols="30"
-											rows="4"
-											pattern="^[A-Z][a-zA-Z\s]*[.]$"
-											placeholder="Add notes, links, descriptions or whatever you want your fellow travelers to know about this place!"
-										></textarea>
-									</div>
-									<div class="hidden">
-										<input type="text" v-model="latitude" />
-										<input
-											type="text"
-											v-model="longitude"
-										/>
-									</div>
-								</div>
-							</div>
-
-							<div
-								class="flex flex-col items-center align-middle text-center mt-5"
-							>
-								<div class="flex font-montserrat">
-									<button
-										class="text-interface text-lg bg-gray-500 p-2 rounded-3xl w-32 h-14 mb-3 hover:bg-gray-400 mr-5"
-										@click="showModal = false"
-									>
-										Cancel
-									</button>
-									<input
-										type="submit"
-										value="Save"
-										class="text-interface text-lg bg-second p-2 rounded-3xl w-32 h-14 mb-3 hover:bg-second-light"
-									/>
-								</div>
-							</div>
-						</form>
 					</div>
-				</div>
+
+					<!-- Location -->
+					<div>
+						<label
+							for="autocomplete"
+							class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+						>
+							Set Location's Pin
+						</label>
+						<div class="relative">
+							<MapPinIcon
+								class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+							/>
+							<input
+								type="text"
+								placeholder="Enter location"
+								name="auto-complete"
+								ref="autocompleteRef"
+								id="autocomplete"
+								v-model="location"
+								@focus="initializeAutocomplete"
+								class="w-full pl-10 pr-12 py-3 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none transition-all duration-300 ease-in-out"
+								required
+							/>
+							<button
+								type="button"
+								@click="locatorBtn"
+								class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+								aria-label="Use current location"
+							>
+								<GlobeAltIcon class="h-5 w-5" />
+							</button>
+						</div>
+					</div>
+
+					<!-- Budget -->
+					<div>
+						<label
+							for="it-budget"
+							class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+						>
+							Budget
+						</label>
+						<div class="relative rounded-full shadow-sm">
+							<div
+								class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+							>
+								<span class="text-gray-500 sm:text-sm">{{
+									selectedSymbol
+								}}</span>
+							</div>
+							<input
+								type="number"
+								id="it-budget"
+								v-model="budget"
+								class="block w-full pl-10 pr-12 py-3 rounded-full border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 ease-in-out appearance-none"
+								placeholder="Enter budget"
+								required
+							/>
+							<div
+								class="absolute inset-y-0 right-0 flex items-center"
+							>
+								<label for="currency" class="sr-only"
+									>Currency</label
+								>
+								<select
+									id="currency"
+									v-model="selectedSymbol"
+									class="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md focus:ring-blue-500 focus:border-blue-500"
+								>
+									<option>$</option>
+									<option>€</option>
+									<option>£</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div
+						class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-8"
+					>
+						<button
+							type="button"
+							@click="showModal = false"
+							class="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							class="w-full sm:w-auto px-4 py-2 border border-transparent rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+						>
+							Save
+						</button>
+					</div>
+				</form>
 			</div>
 		</div>
-		<!-- Floating Action Button -->
-		<button
-			class="flex sm:hidden items-center justify-center fixed bottom-20 right-5 bg-second active:bg-prime text-white font-bold rounded-full h-16 w-16 z-40"
-			@click="toggleMap"
-		>
-			<span class="material-icons-outlined"> map </span>
-			<!-- Icon or text for your button -->
-		</button>
 	</div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, onBeforeMount, nextTick } from "vue";
+import { Loader } from "@googlemaps/js-api-loader";
+
 import axios from "axios";
-import { ref } from "vue";
-// import { Loader } from "@googlemaps/js-api-loader";
 import * as Dropdown from "primevue/dropdown";
 import router from "../routes";
-export default {
-	components: {
-		Dropdown,
-	},
-	data() {
-		return {
-			isEditingTips: true,
-			isEditingTitle: true,
-			isEditingAboutMe: true,
-			main_title: "ITINERARY TITLE",
-			selectedImageUrl: null,
-			picture: null,
+import { PhotoIcon, MapPinIcon, GlobeAltIcon } from "@heroicons/vue/24/outline";
 
-			selectedImageUrlIn: null,
-			pictureIn: null,
+// Reactive variables
+const isEditingTips = ref(true);
+const isEditingTitle = ref(true);
+const isEditingAboutMe = ref(true);
+const main_title = ref("ITINERARY TITLE");
+const selectedImageUrl = ref(null);
+const picture = ref(null);
+const selectedImageUrlIn = ref(null);
+const pictureIn = ref(null);
+const setTips = ref("");
+const setAboutMe = ref("");
+const total_budget = ref(0);
+const convertedBudget = ref("");
+const api =
+	"https://v6.exchangerate-api.com/v6/eab4e81875a8acd578c8d5c1/latest/USD";
+const currency_list = ref([
+	["AED", "United Arab Emirates Dirhams", "د.إ"],
+	["AFN", "Afghan Afghani", "؋"],
+	["ALL", "Albanian Lek", "L"],
+	["AMD", "Armenian Dram", "֏"],
+	["ANG", "Netherlands Antillean Guilder", "ƒ"],
+	["AOA", "Angolan Kwanza", "Kz"],
+	["ARS", "Argentine Peso", "$"],
+	["AUD", "Australian Dollar", "$"],
+	["AWG", "Aruban Florin", "ƒ"],
+	["AZN", "Azerbaijani Manat", "₼"],
+	["BAM", "Bosnia Herzegovina Convertible Mark", "KM"],
+	["BBD", "Barbadian Dollar", "$"],
+	["BGN", "Bulgarian Lev", "лв"],
+	["BHD", "Bahraini Dinar", ".د.ب"],
+	["BIF", "Burundian Franc", "FBu"],
+	["BMD", "Bermudan Dollar", "$"],
+	["BOB", "Bolivian Boliviano", "Bs."],
+	["BRL", "Brazilian Real", "R$"],
+	["BSD", "Bahamian Dollar", "$"],
+	["BWP", "Botswanan Pula", "P"],
+	["BYN", "Belarusian Ruble", "Br"],
+	["BZD", "Belize Dollar", "$"],
+	["CDF", "Congolese Franc", "FC"],
+	["CHF", "Swiss Franc", "CHF"],
+	["CLP", "Chilean Peso", "$"],
+	["CNY", "Chinese Yuan", "¥"],
+	["COP", "Colombian Peso", "$"],
+	["CRC", "Costa Rican Colón", "₡"],
+	["CUP", "Cuban Peso", "$"],
+	["CZK", "Czech Koruna", "Kč"],
+	["DJF", "Djiboutian Franc", "Fdj"],
+	["DKK", "Danish Krone", "kr"],
+	["DOP", "Dominican Peso", "$"],
+	["DZD", "Algerian Dinar", "دج"],
+	["EGP", "Egyptian Pound", "£"],
+	["ERN", "Eritrean Nakfa", "Nfk"],
+	["EUR", "Euro", "€"],
+	["FJD", "Fijian Dollar", "$"],
+	["FKP", "Falkland Islands Pound", "£"],
+	["GBP", "British Pound", "£"],
+	["GEL", "Georgian Lari", "₾"],
+	["GHS", "Ghanaian Cedi", "₵"],
+	["GIP", "Gibraltar Pound", "£"],
+	["GMD", "Gambian Dalasi", "D"],
+	["GNF", "Guinean Franc", "FG"],
+	["GTQ", "Guatemalan Quetzal", "Q"],
+	["GYD", "Guyanaese Dollar", "$"],
+	["HKD", "Hong Kong Dollar", "$"],
+	["HNL", "Honduran Lempira", "L"],
+	["HRK", "Croatian Kuna", "kn"],
+	["HTG", "Haitian Gourde", "G"],
+	["HUF", "Hungarian Forint", "Ft"],
+	["IDR", "Indonesian Rupiah", "Rp"],
+	["ILS", "Israeli New Shekel", "₪"],
+	["INR", "Indian Rupee", "₹"],
+	["IQD", "Iraqi Dinar", "ع.د"],
+	["IRR", "Iranian Rial", "﷼"],
+	["ISK", "Icelandic Króna", "kr"],
+	["JMD", "Jamaican Dollar", "$"],
+	["JOD", "Jordanian Dinar", "د.ا"],
+	["JPY", "Japanese Yen", "¥"],
+	["KES", "Kenyan Shilling", "Sh"],
+	["KGS", "Kyrgystani Som", "с"],
+	["KHR", "Cambodian Riel", "៛"],
+	["KMF", "Comorian Franc", "CF"],
+	["KRW", "South Korean Won", "₩"],
+	["KWD", "Kuwaiti Dinar", "د.ك"],
+	["KYD", "Cayman Islands Dollar", "$"],
+	["KZT", "Kazakhstani Tenge", "₸"],
+	["LAK", "Laotian Kip", "₭"],
+	["LBP", "Lebanese Pound", "ل.ل"],
+	["LKR", "Sri Lankan Rupee", "Rs"],
+	["LRD", "Liberian Dollar", "$"],
+	["LSL", "Lesotho Loti", "M"],
+	["LYD", "Libyan Dinar", "ل.د"],
+	["MAD", "Moroccan Dirham", "د.م."],
+	["MDL", "Moldovan Leu", "L"],
+	["MGA", "Malagasy Ariary", "Ar"],
+	["MKD", "Macedonian Denar", "ден"],
+	["MMK", "Myanmar Kyat", "K"],
+	["MNT", "Mongolian Tugrik", "₮"],
+	["MOP", "Macanese Pataca", "MOP$"],
+	["MRU", "Mauritanian Ouguiya", "UM"],
+	["MUR", "Mauritian Rupee", "₨"],
+	["MVR", "Maldivian Rufiyaa", "ރ."],
+	["MWK", "Malawian Kwacha", "MK"],
+	["MXN", "Mexican Peso", "$"],
+	["MYR", "Malaysian Ringgit", "RM"],
+	["MZN", "Mozambican Metical", "MT"],
+	["NAD", "Namibian Dollar", "$"],
+	["NGN", "Nigerian Naira", "₦"],
+	["NIO", "Nicaraguan Córdoba", "C$"],
+	["NOK", "Norwegian Krone", "kr"],
+	["NPR", "Nepalese Rupee", "रु"],
+	["NZD", "New Zealand Dollar", "$"],
+	["OMR", "Omani Rial", "ر.ع."],
+	["PAB", "Panamanian Balboa", "B/"],
+	["PGK", "Papua New Guinean Kina", "K"],
+	["PHP", "Philippine Peso", "₱"],
+	["PKR", "Pakistani Rupee", "₨"],
+	["PLN", "Polish Zloty", "zł"],
+	["PYG", "Paraguayan Guarani", "₲"],
+	["QAR", "Qatari Riyal", "ر.ق"],
+	["RON", "Romanian Leu", "lei"],
+	["RSD", "Serbian Dinar", "дин"],
+	["RUB", "Russian Ruble", "₽"],
+	["RWF", "Rwandan Franc", "FRw"],
+	["SAR", "Saudi Riyal", "ر.س"],
+	["SBD", "Solomon Islands Dollar", "$"],
+	["SCR", "Seychellois Rupee", "₨"],
+	["SDG", "Sudanese Pound", "ج.س."],
+	["SEK", "Swedish Krona", "kr"],
+	["SGD", "Singapore Dollar", "$"],
+	["SHP", "St. Helena Pound", "£"],
+	["SLL", "Sierra Leonean Leone (1964—2022)", "Le"],
+	["SOS", "Somali Shilling", "Sh"],
+	["SRD", "Surinamese Dollar", "$"],
+	["SSP", "South Sudanese Pound", "£"],
+	["STN", "São Tomé Príncipe Dobra", "Db"],
+	["SYP", "Syrian Pound", "£"],
+	["SZL", "Swazi Lilangeni", "E"],
+	["THB", "Thai Baht", "฿"],
+	["TJS", "Tajikistani Somoni", "SM"],
+	["TMT", "Turkmenistani Manat", "T"],
+	["TND", "Tunisian Dinar", "د.ت"],
+	["TOP", "Tongan Paanga", "T$"],
+	["TRY", "Turkish Lira", "₺"],
+	["TTD", "Trinidad Tobago Dollar", "$"],
+	["TWD", "New Taiwan Dollar", "$"],
+	["TZS", "Tanzanian Shilling", "Sh"],
+	["UAH", "Ukrainian Hryvnia", "₴"],
+	["UGX", "Ugandan Shilling", "Sh"],
+	["USD", "US Dollar", "$"],
+	["UYU", "Uruguayan Peso", "$"],
+	["UZS", "Uzbekistani Som", "soʻm"],
+	["VES", "Venezuelan Bolívar", "Bs.S."],
+	["VND", "Vietnamese Dong", "₫"],
+	["VUV", "Vanuatu Vatu", "VT"],
+	["WST", "Samoan Tala", "T"],
+	["XAF", "Central African CFA Franc", "FCFA"],
+	["XCD", "East Caribbean Dollar", "$"],
+	["XOF", "West African CFA Franc", "CFA"],
+	["XPF", "CFP Franc", "F"],
+	["YER", "Yemeni Rial", "﷼"],
+	["ZAR", "South African Rand", "R"],
+	["ZMW", "Zambian Kwacha", "ZK"],
+	["ZWL", "Zimbabwean Dollar (2009)", "$"],
+]);
 
-			setTips: "",
-			setAboutMe: "",
-			total_budget: 0,
-			convertedBudget: "",
-			api: "https://v6.exchangerate-api.com/v6/eab4e81875a8acd578c8d5c1/latest/USD",
-			currency_list: [
-				["AED", "United Arab Emirates Dirhams", "د.إ"],
-				["AFN", "Afghan Afghani", "؋"],
-				["ALL", "Albanian Lek", "L"],
-				["AMD", "Armenian Dram", "֏"],
-				["ANG", "Netherlands Antillean Guilder", "ƒ"],
-				["AOA", "Angolan Kwanza", "Kz"],
-				["ARS", "Argentine Peso", "$"],
-				["AUD", "Australian Dollar", "$"],
-				["AWG", "Aruban Florin", "ƒ"],
-				["AZN", "Azerbaijani Manat", "₼"],
-				["BAM", "Bosnia Herzegovina Convertible Mark", "KM"],
-				["BBD", "Barbadian Dollar", "$"],
-				["BGN", "Bulgarian Lev", "лв"],
-				["BHD", "Bahraini Dinar", ".د.ب"],
-				["BIF", "Burundian Franc", "FBu"],
-				["BMD", "Bermudan Dollar", "$"],
-				["BOB", "Bolivian Boliviano", "Bs."],
-				["BRL", "Brazilian Real", "R$"],
-				["BSD", "Bahamian Dollar", "$"],
-				["BWP", "Botswanan Pula", "P"],
-				["BYN", "Belarusian Ruble", "Br"],
-				["BZD", "Belize Dollar", "$"],
-				["CDF", "Congolese Franc", "FC"],
-				["CHF", "Swiss Franc", "CHF"],
-				["CLP", "Chilean Peso", "$"],
-				["CNY", "Chinese Yuan", "¥"],
-				["COP", "Colombian Peso", "$"],
-				["CRC", "Costa Rican Colón", "₡"],
-				["CUP", "Cuban Peso", "$"],
-				["CZK", "Czech Koruna", "Kč"],
-				["DJF", "Djiboutian Franc", "Fdj"],
-				["DKK", "Danish Krone", "kr"],
-				["DOP", "Dominican Peso", "$"],
-				["DZD", "Algerian Dinar", "دج"],
-				["EGP", "Egyptian Pound", "£"],
-				["ERN", "Eritrean Nakfa", "Nfk"],
-				["EUR", "Euro", "€"],
-				["FJD", "Fijian Dollar", "$"],
-				["FKP", "Falkland Islands Pound", "£"],
-				["GBP", "British Pound", "£"],
-				["GEL", "Georgian Lari", "₾"],
-				["GHS", "Ghanaian Cedi", "₵"],
-				["GIP", "Gibraltar Pound", "£"],
-				["GMD", "Gambian Dalasi", "D"],
-				["GNF", "Guinean Franc", "FG"],
-				["GTQ", "Guatemalan Quetzal", "Q"],
-				["GYD", "Guyanaese Dollar", "$"],
-				["HKD", "Hong Kong Dollar", "$"],
-				["HNL", "Honduran Lempira", "L"],
-				["HRK", "Croatian Kuna", "kn"],
-				["HTG", "Haitian Gourde", "G"],
-				["HUF", "Hungarian Forint", "Ft"],
-				["IDR", "Indonesian Rupiah", "Rp"],
-				["ILS", "Israeli New Shekel", "₪"],
-				["INR", "Indian Rupee", "₹"],
-				["IQD", "Iraqi Dinar", "ع.د"],
-				["IRR", "Iranian Rial", "﷼"],
-				["ISK", "Icelandic Króna", "kr"],
-				["JMD", "Jamaican Dollar", "$"],
-				["JOD", "Jordanian Dinar", "د.ا"],
-				["JPY", "Japanese Yen", "¥"],
-				["KES", "Kenyan Shilling", "Sh"],
-				["KGS", "Kyrgystani Som", "с"],
-				["KHR", "Cambodian Riel", "៛"],
-				["KMF", "Comorian Franc", "CF"],
-				["KRW", "South Korean Won", "₩"],
-				["KWD", "Kuwaiti Dinar", "د.ك"],
-				["KYD", "Cayman Islands Dollar", "$"],
-				["KZT", "Kazakhstani Tenge", "₸"],
-				["LAK", "Laotian Kip", "₭"],
-				["LBP", "Lebanese Pound", "ل.ل"],
-				["LKR", "Sri Lankan Rupee", "Rs"],
-				["LRD", "Liberian Dollar", "$"],
-				["LSL", "Lesotho Loti", "M"],
-				["LYD", "Libyan Dinar", "ل.د"],
-				["MAD", "Moroccan Dirham", "د.م."],
-				["MDL", "Moldovan Leu", "L"],
-				["MGA", "Malagasy Ariary", "Ar"],
-				["MKD", "Macedonian Denar", "ден"],
-				["MMK", "Myanmar Kyat", "K"],
-				["MNT", "Mongolian Tugrik", "₮"],
-				["MOP", "Macanese Pataca", "MOP$"],
-				["MRU", "Mauritanian Ouguiya", "UM"],
-				["MUR", "Mauritian Rupee", "₨"],
-				["MVR", "Maldivian Rufiyaa", "ރ."],
-				["MWK", "Malawian Kwacha", "MK"],
-				["MXN", "Mexican Peso", "$"],
-				["MYR", "Malaysian Ringgit", "RM"],
-				["MZN", "Mozambican Metical", "MT"],
-				["NAD", "Namibian Dollar", "$"],
-				["NGN", "Nigerian Naira", "₦"],
-				["NIO", "Nicaraguan Córdoba", "C$"],
-				["NOK", "Norwegian Krone", "kr"],
-				["NPR", "Nepalese Rupee", "रु"],
-				["NZD", "New Zealand Dollar", "$"],
-				["OMR", "Omani Rial", "ر.ع."],
-				["PAB", "Panamanian Balboa", "B/"],
-				["PGK", "Papua New Guinean Kina", "K"],
-				["PHP", "Philippine Peso", "₱"],
-				["PKR", "Pakistani Rupee", "₨"],
-				["PLN", "Polish Zloty", "zł"],
-				["PYG", "Paraguayan Guarani", "₲"],
-				["QAR", "Qatari Riyal", "ر.ق"],
-				["RON", "Romanian Leu", "lei"],
-				["RSD", "Serbian Dinar", "дин"],
-				["RUB", "Russian Ruble", "₽"],
-				["RWF", "Rwandan Franc", "FRw"],
-				["SAR", "Saudi Riyal", "ر.س"],
-				["SBD", "Solomon Islands Dollar", "$"],
-				["SCR", "Seychellois Rupee", "₨"],
-				["SDG", "Sudanese Pound", "ج.س."],
-				["SEK", "Swedish Krona", "kr"],
-				["SGD", "Singapore Dollar", "$"],
-				["SHP", "St. Helena Pound", "£"],
-				["SLL", "Sierra Leonean Leone (1964—2022)", "Le"],
-				["SOS", "Somali Shilling", "Sh"],
-				["SRD", "Surinamese Dollar", "$"],
-				["SSP", "South Sudanese Pound", "£"],
-				["STN", "São Tomé Príncipe Dobra", "Db"],
-				["SYP", "Syrian Pound", "£"],
-				["SZL", "Swazi Lilangeni", "E"],
-				["THB", "Thai Baht", "฿"],
-				["TJS", "Tajikistani Somoni", "SM"],
-				["TMT", "Turkmenistani Manat", "T"],
-				["TND", "Tunisian Dinar", "د.ت"],
-				["TOP", "Tongan Paanga", "T$"],
-				["TRY", "Turkish Lira", "₺"],
-				["TTD", "Trinidad Tobago Dollar", "$"],
-				["TWD", "New Taiwan Dollar", "$"],
-				["TZS", "Tanzanian Shilling", "Sh"],
-				["UAH", "Ukrainian Hryvnia", "₴"],
-				["UGX", "Ugandan Shilling", "Sh"],
-				["USD", "US Dollar", "$"],
-				["UYU", "Uruguayan Peso", "$"],
-				["UZS", "Uzbekistani Som", "soʻm"],
-				["VES", "Venezuelan Bolívar", "Bs.S."],
-				["VND", "Vietnamese Dong", "₫"],
-				["VUV", "Vanuatu Vatu", "VT"],
-				["WST", "Samoan Tala", "T"],
-				["XAF", "Central African CFA Franc", "FCFA"],
-				["XCD", "East Caribbean Dollar", "$"],
-				["XOF", "West African CFA Franc", "CFA"],
-				["XPF", "CFP Franc", "F"],
-				["YER", "Yemeni Rial", "﷼"],
-				["ZAR", "South African Rand", "R"],
-				["ZMW", "Zambian Kwacha", "ZK"],
-				["ZWL", "Zimbabwean Dollar (2009)", "$"],
-			],
+const selectedPera = ref(null);
+const list_budget = ref([]);
+const selectedCurrency = ref("PHP");
+const selectedSymbol = ref("");
+const currency_save = ref("");
+const converted = ref(0);
+const paragraphs = ref([]);
+const username = ref("");
+const user_photo = ref(null);
+const location = ref("");
+const title = ref("");
+const budget = ref("");
+const description = ref("");
+const latitude = ref("");
+const longitude = ref("");
+const showModal = ref(false);
+const client = ref(null);
+const list_itineraries = ref([]);
+const itineraryIds = ref([]);
+const currentView = ref("itinerary");
 
-			selectedPera: null,
-			list_budget: [],
+const showMap = ref(false);
+const desktopMap = ref(null);
+const mobileMap = ref(null);
+const desktopMapRef = ref(null);
+const mobileMapRef = ref(null);
 
-			selectedCurrency: "PHP",
-			selectedSymbol: "",
-			currency_save: "",
-			converted: 0,
-			paragraphs: [],
-
-			username: "",
-			user_photo: null,
-
-			location: "",
-			title: "",
-			budget: "",
-			description: "",
-			latitude: "",
-			longitude: "",
-			showModal: false,
-			client: null, // Initialize axios client later
-
-			showModal: false,
-			latitude: 0,
-			longitude: 0,
-			location: null,
-			list_itineraries: [],
-			itineraryIds: [],
-
-			// This property controls which view is currently visible
-			currentView: "itinerary", // 'overview' or 'itinerary'
-			showMap: false,
-		};
-	},
-
-	computed: {
-		// Define isMobile as a computed property
-		isMobile() {
-			// This example uses 768px as the threshold for mobile devices
-			return window.innerWidth < 768;
-		},
-	},
-	// watch: {
-	// 	total_budget(newVal, oldVal) {
-	// 		if (newVal !== oldVal) {
-	// 			this.convertCurrency();
-	// 		}
-	// 	},
-	// 	selectedCurrency(newVal, oldVal) {
-	// 		if (newVal !== oldVal) {
-	// 			this.convertCurrency();
-	// 		}
-	// 	},
-	// },
-	created() {
-		const token = localStorage.getItem("token");
-		const headers = {
-			Authorization: `Token ${token}`,
-			"Content-Type": "application/json",
-		};
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: headers,
-		});
-		this.client
-			.get("api/user")
-			.then((res) => {
-				this.username = res.data.user.username;
-				this.user_photo = res.data.profile[0].user_photo;
-				console.log("HALAAA", this.user_photo);
-			})
-			.catch((error) => {
-				console.log("ERROR", error.message);
-			});
-		this.isEditing = true;
-		this.fetchItineraries();
-	},
-	mounted() {
-		// this.populateDropdown();
-		this.initializeAutocomplete();
-	},
-	methods: {
-		deleteItinerary(itineraryId) {
-			this.client
-				.post("/api/delete-itinerary", {
-					itinerary_id: itineraryId,
-				})
-				.then((response) => {
-					this.fetchItineraries();
-					this.checkCode();
-				})
-				.catch((error) => {
-					console.error(error);
-				});
-		},
-		scrollToElement() {
-			const targetElement = document.getElementById("target-element");
-			targetElement.scrollIntoView({
-				behavior: "smooth",
-				block: "center",
-			});
-		},
-		handleFileSelection(event) {
-			const file = event.target.files[0];
-			if (file) {
-				this.selectedImageUrl = URL.createObjectURL(file);
-				this.picture = file;
-				console.log("Image :", this.picture);
-				this.isEditing = true;
-			}
-		},
-		handleFileSelectionIn(event) {
-			const file = event.target.files[0];
-			if (file) {
-				this.selectedImageUrlIn = URL.createObjectURL(file);
-				this.pictureIn = file;
-				console.log("Image IN:", this.pictureIn);
-				this.isEditing = true;
-			}
-		},
-		processTips() {
-			this.paragraphs = this.setTips.split(/\n+/);
-		},
-		formatText(text) {
-			let paragraphs = text.split(/\n+/);
-			return paragraphs
-				.map((paragraph) => {
-					return paragraph.replace(
-						/\*\*(.*?)\*\*/g,
-						"<strong>$1</strong>"
-					);
-				})
-				.join("<br><br>");
-		},
-		// populateDropdown() {
-		// 	const toDropDown = this.$refs.toDropDown;
-		// 	this.currency_list.forEach((currency) => {
-		// 		const [code, countryName] = currency;
-		// 		const option = document.createElement("option");
-		// 		option.value = code; // Assuming 'sysmbol' was a typo and should be 'code'
-		// 		option.textContent = `${code} - ${countryName}`;
-		// 		option.classList.add(
-		// 			"text-prime",
-		// 			"bg-interface",
-		// 			"appearance-none","w-5"
-		// 		);
-
-		getSymbol(code) {
-			for (let i = 0; i < this.currency_list.length; i++) {
-				if (this.currency_list[i][0] === code) {
-					return this.currency_list[i][2];
-				}
-			}
-			return null; // or some default value if code is not found
-		},
-		checkCode() {
-			const toCurrency = this.$refs.toDropDown.value;
-			this.selectedCurrency = toCurrency;
-			this.currency_save = toCurrency;
-			console.log("Selected currency code:", toCurrency);
-			this.selectedSymbol = this.currency_list.find(
-				(currency) => currency[0] === toCurrency
-			)[2];
-			let newvalue = 0;
-			this.list_itineraries.forEach((itinerary) => {
-				// Your code here
-				console.log("the code ", itinerary);
-				if (itinerary.code != toCurrency) {
-					//convert to selected currency
-					// this.indivConvert(this.selectedCurrency, itinerary.code);
-					if (itinerary.budget.length !== 0) {
-						console.log(
-							"convert the value to what selected currency"
-						);
-						fetch(this.api) // Assuming 'this.api' is your API URL
-							.then((resp) => resp.json())
-							.then((data) => {
-								let fromExchangeRate =
-									data.conversion_rates[itinerary.code];
-								let toExchangeRate =
-									data.conversion_rates[toCurrency];
-								const convertedAmount =
-									(itinerary.budget / fromExchangeRate) *
-									toExchangeRate;
-
-								// Find the symbol for the target currency
-
-								// const finalAmount = `${symbol} ${convertedAmount.toFixed(
-								// 	2
-								// )}`;
-								// this.total_budget = convertedAmount.toFixed(2);
-
-								newvalue += parseFloat(
-									convertedAmount.toFixed(2)
-								);
-								console.log(
-									"in check code if",
-									newvalue.toFixed(2)
-								);
-								this.total_budget = newvalue.toFixed(2);
-								console.log(
-									"total_budget == ",
-									this.total_budget
-								);
-								// this.convertedBudget = finalAmount;
-								// this.indivConvert(toExchangeRate, fromExchangeRate);
-								// Assuming 'result' is a reference to an element for displaying the result
-								// this.$refs.result.innerHTML = `${this.total_budget} ${fromCurrency} = ${convertedAmount.toFixed(
-								// 	2
-								// )} ${toCurrency}`;
-							});
-					}
-				} else {
-					//add to total budget
-
-					console.log(
-						"do not convert the value to what selected currency"
-					);
-					newvalue += itinerary.budget;
-					this.total_budget = newvalue;
-					console.log("in check code else", newvalue);
-				}
-			});
-		},
-		handleTitleChange() {
-			if (this.main_title.trim() === "") {
-				this.main_title = "ITINERARY TITLE";
-			}
-			this.isEditing = false;
-		},
-		toggleMap() {
-			this.showMap = !this.showMap;
-		},
-		showItinerary(view) {
-			this.currentView = view;
-
-			this.$nextTick(() => {
-				const navHeight = document.querySelector("#navs")
-					? document.querySelector("#navs").offsetHeight
-					: 0;
-				let targetSection;
-
-				if (view === "itinerary") {
-					targetSection =
-						document.getElementById("itinerary-section");
-				} else {
-					// Default to overview-section or handle other cases
-					targetSection = document.getElementById("overview-section");
-				}
-
-				if (targetSection) {
-					const offsetTop = targetSection.offsetTop - navHeight;
-
-					window.scrollTo({
-						top: offsetTop,
-						behavior: "smooth",
-					});
-				}
-			});
-		},
-		saveMainItinerary() {
-			// this.client
-			// 	.post("/api/save-itinerary", {
-			// 		main_image: null,
-			// 		main_title: this.main_title,
-			// 		main_description: this.setAboutMe,
-			// 		gen_tips: this.setTips,
-			// 		total_budget: this.total_budget,
-			// 		currency: this.currency_save,
-			// 		itineraries: this.itineraryIds,
-			// 	})
-			// 	.then((response) => {})
-			// 	.catch((error) => {
-			// 		console.error(error);
-			// 	});
-
-			if (
-				!this.main_title.trim() ||
-				!this.setAboutMe.trim() ||
-				!this.setTips.trim() ||
-				this.main_title === "ITINERARY TITLE"
-			) {
-				alert("Please fill all fields correctly."); // Inform the user (consider using a more user-friendly notification system)
-				return; // Exit the method
-			} else {
-				let formData = new FormData();
-				formData.append("main_image", null);
-				formData.append("main_title", this.main_title);
-				formData.append("main_description", this.setAboutMe);
-				formData.append("gen_tips", this.setTips);
-				formData.append("total_budget", this.total_budget);
-				formData.append("currency", this.currency_save);
-				formData.append("itineraries", this.itineraryIds);
-				if (this.picture && this.picture instanceof File) {
-					formData.append("image", this.picture, this.picture.name);
-				}
-				this.client
-					.post("/api/save-itinerary", formData, {
-						headers: {
-							"Content-Type": "multipart/form-data",
-						},
-					})
-					.then((response) => {
-						console.log(response.data);
-						this.main_title = "ITINERARY TITLE";
-						this.setAboutMe = "";
-						this.setTips = "";
-
-						this.selectedImageUrl = null;
-						this.selectedImageUrlIn = null;
-						window.scrollTo(0, 0);
-						router.push({ name: "itinerary" }).then(() => {
-							window.location.reload();
-						});
-					})
-					.catch((error) => {
-						// Handle error
-					});
-			}
-		},
-		submitItinerary() {
-			this.client;
-			const formData = new FormData();
-			formData.append("title", this.title);
-			formData.append("place_name", this.location);
-			formData.append("longitude", this.longitude);
-			formData.append("latitude", this.latitude);
-			formData.append("budget", this.budget);
-			formData.append("code", this.selectedCurrency);
-			formData.append("description", this.description);
-			if (this.pictureIn && this.pictureIn instanceof File) {
-				formData.append("image", this.pictureIn, this.pictureIn.name);
-			}
-			// console.log("THIS PICTURE :", formData.getAll);
-
-			this.client
-				.post("/api/create-itinerary", formData, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
-				})
-				.then((response) => {
-					console.log(response.data);
-					this.showModal = false;
-					this.fetchItineraries();
-					this.checkCode();
-				})
-				.catch((error) => {
-					console.error(error);
-				});
-		},
-		getCurrentLocation() {
-			return new Promise((resolve, reject) => {
-				if (navigator.geolocation) {
-					navigator.geolocation.getCurrentPosition(
-						(position) => {
-							resolve({
-								latitude: position.coords.latitude,
-								longitude: position.coords.longitude,
-							});
-						},
-						(error) => {
-							reject(error);
-						}
-					);
-				} else {
-					reject(
-						new Error(
-							"Geolocation is not supported by this browser."
-						)
-					);
-				}
-			});
-		},
-
-		// Step 2 & 3: Calculate Distances and Sort Itineraries
-		async sortItinerariesByProximity() {
-			try {
-				const currentLocation = await this.getCurrentLocation();
-				this.list_itineraries.forEach((itinerary) => {
-					itinerary.distance = this.calculateDistance(
-						currentLocation.latitude,
-						currentLocation.longitude,
-						itinerary.latitude,
-						itinerary.longitude
-					);
-				});
-
-				this.list_itineraries.sort((a, b) => a.distance - b.distance);
-				this.list_itineraries.forEach((itinerary, index) => {
-					itinerary.order = String.fromCharCode(65 + index);
-				});
-				console.log("ORDER", this.list_itineraries);
-				// After sorting, you can now update the map
-				this.showLocationOntheMap();
-			} catch (error) {
-				console.error(error);
-			}
-		},
-
-		// Helper Method: Calculate Distance Between Two Coordinates
-		calculateDistance(lat1, lon1, lat2, lon2) {
-			const R = 6371; // Radius of the earth in km
-			const dLat = this.deg2rad(lat2 - lat1);
-			const dLon = this.deg2rad(lon2 - lon1);
-			const a =
-				Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-				Math.cos(this.deg2rad(lat1)) *
-					Math.cos(this.deg2rad(lat2)) *
-					Math.sin(dLon / 2) *
-					Math.sin(dLon / 2);
-			const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-			const distance = R * c; // Distance in km
-			return distance;
-		},
-
-		// Helper Method: Convert Degrees to Radians
-		deg2rad(deg) {
-			return deg * (Math.PI / 180);
-		},
-		async fetchItineraries() {
-			const token = localStorage.getItem("token");
-			const headers = {
-				Authorization: `Token ${token}`,
-				"Content-Type": "application/json",
-			};
-			const client = axios.create({
-				baseURL: "http://127.0.0.1:8000",
-				withCredentials: true,
-				timeout: 5000,
-				xsrfCookieName: "csrftoken",
-				xsrfHeaderName: "X-Csrftoken",
-				headers: headers,
-			});
-			try {
-				const response = await client.get("/api/itinerary");
-				this.list_itineraries = response.data;
-				console.log("list_itineraries:", this.list_itineraries);
-				this.itineraryIds = this.list_itineraries.map(
-					(itinerary) => itinerary.id
-				);
-				this.checkCode();
-				console.log("itineraryIds:", this.itineraryIds);
-
-				// this.total_budget = this.list_itineraries.reduce(
-				// 	(sum, itinerary) => sum + itinerary.budget,
-				// 	0
-				// );
-				// console.log("Total Budget:", this.total_budget);
-				// let symbol = this.currency_list.find(
-				// 	(currency) => currency[0] === this.currency_save
-				// )[2];
-				// this.convertedBudget = `${symbol}${this.total_budget}`;
-				// Sort the itineraries by proximity before showing them on the map
-
-				await this.sortItinerariesByProximity();
-				this.showLocationOntheMap();
-			} catch (error) {
-				console.log(error);
-			}
-		},
-		initializeMap(latitude, longitude) {
-			new google.maps.Map(document.getElementById("the-map"), {
-				center: { lat: latitude, lng: longitude },
-				zoom: 8,
+const initializeMaps = async () => {
+	nextTick(() => {
+		if (desktopMapRef.value && mobileMapRef.value) {
+			desktopMap.value = new google.maps.Map(desktopMapRef.value, {
+				center: { lat: 0, lng: 0 },
+				zoom: 2,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				mapId: "2c9b57c42de97202",
 			});
-			// Optionally, add a marker at the location
-		},
-		showLocationOntheMap() {
-			// const lat = 37.7749;
-			// const lng = -122.4194;
-			if (this.list_itineraries.length === 0) {
-				// If list_itineraries is empty, use the user's current location or a default location
-				navigator.geolocation.getCurrentPosition(
-					(position) => {
-						const { latitude, longitude } = position.coords;
-						this.initializeMap(latitude, longitude);
-					},
-					() => {
-						// Fallback to a default location if unable to get the user's location
-						const defaultLat = 37.7749; // Example default latitude
-						const defaultLng = -122.4194; // Example default longitude
-						this.initializeMap(defaultLat, defaultLng);
-					}
-				);
-			} else {
-				const map = new google.maps.Map(
-					document.getElementById("the-map"),
-					{
-						mapTypeId: google.maps.MapTypeId.ROADMAP,
-						mapId: "2c9b57c42de97202",
-					}
-				);
 
-				let bounds = new google.maps.LatLngBounds();
+			mobileMap.value = new google.maps.Map(mobileMapRef.value, {
+				center: { lat: 0, lng: 0 },
+				zoom: 2,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				mapId: "2c9b57c42de97202",
+			});
+		}
+		showLocationOntheMap();
+	});
+};
+const updateMaps = async (center) => {
+	const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+	if (desktopMap.value && mobileMap.value) {
+		desktopMap.value.setCenter(center);
+		mobileMap.value.setCenter(center);
+
+		new AdvancedMarkerElement({
+			position: center,
+			map: desktopMap.value,
+			title: "Your Location",
+		});
+
+		new AdvancedMarkerElement({
+			position: center,
+			map: mobileMap.value,
+			title: "Your Location",
+		});
+	}
+};
+
+const showLocationOntheMap = () => {
+	if (list_itineraries.value.length === 0) {
+		// If list_itineraries is empty, use the user's current location or a default location
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const { latitude, longitude } = position.coords;
+				updateMaps({ lat: latitude, lng: longitude });
+			},
+			() => {
+				// Fallback to a default location if unable to get the user's location
+				const defaultLat = 37.7749; // Example default latitude
+				const defaultLng = -122.4194; // Example default longitude
+				updateMaps({ lat: defaultLat, lng: defaultLng });
+			}
+		);
+	} else {
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const { latitude, longitude } = position.coords;
+				const bounds = new google.maps.LatLngBounds();
 				const directionsService = new google.maps.DirectionsService();
-				const directionsRenderer = new google.maps.DirectionsRenderer({
-					map: map,
-				});
+				const directionsRendererDesktop =
+					new google.maps.DirectionsRenderer({
+						map: desktopMap.value,
+					});
+				const directionsRendererMobile =
+					new google.maps.DirectionsRenderer({
+						map: mobileMap.value,
+					});
 
-				// Assuming the first item is the start, the last is the end, and the rest are waypoints
-				const start = this.list_itineraries[0];
-				const end =
-					this.list_itineraries[this.list_itineraries.length - 1];
-				const waypoints = this.list_itineraries
-					.slice(1, -1)
+				const start = new google.maps.LatLng(latitude, longitude);
+				const end = new google.maps.LatLng(
+					list_itineraries.value[
+						list_itineraries.value.length - 1
+					].latitude,
+					list_itineraries.value[
+						list_itineraries.value.length - 1
+					].longitude
+				);
+
+				const waypoints = list_itineraries.value
+					.slice(0, -1)
 					.map((itinerary) => ({
 						location: new google.maps.LatLng(
 							itinerary.latitude,
@@ -1283,22 +678,17 @@ export default {
 					}));
 
 				const request = {
-					origin: new google.maps.LatLng(
-						start.latitude,
-						start.longitude
-					),
-					destination: new google.maps.LatLng(
-						end.latitude,
-						end.longitude
-					),
+					origin: start,
+					destination: end,
 					waypoints: waypoints,
 					travelMode: google.maps.TravelMode.DRIVING,
-					optimizeWaypoints: false, // Set to true if you want Google to reorder the waypoints for the shortest route
+					optimizeWaypoints: false,
 				};
 
 				directionsService.route(request, (result, status) => {
-					if (status == google.maps.DirectionsStatus.OK) {
-						directionsRenderer.setDirections(result);
+					if (status === google.maps.DirectionsStatus.OK) {
+						directionsRendererDesktop.setDirections(result);
+						directionsRendererMobile.setDirections(result);
 					} else {
 						console.error(
 							"Directions request failed due to " + status
@@ -1306,79 +696,474 @@ export default {
 					}
 				});
 
-				// Extend bounds to include start and end
-				bounds.extend(
-					new google.maps.LatLng(start.latitude, start.longitude)
+				bounds.extend(start);
+				bounds.extend(end);
+				desktopMap.value.fitBounds(bounds);
+				mobileMap.value.fitBounds(bounds);
+
+				// Check arrival at destination
+				checkArrival(
+					list_itineraries.value[list_itineraries.value.length - 1]
 				);
-				bounds.extend(
-					new google.maps.LatLng(end.latitude, end.longitude)
-				);
-				map.fitBounds(bounds);
+			},
+			() => {
+				console.error("Unable to retrieve current location");
 			}
-			// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
-			// This is a workaround because fitBounds does not let you specify max zoom level
-		},
-		initializeAutocomplete() {
-			this.$nextTick(() => {
-				// Ensures the DOM is updated
-				const inputElement = this.$refs.autocomplete;
-
-				// Define the bounds for the Cavite area
-
-				const autocomplete = new google.maps.places.Autocomplete(
-					inputElement
-				);
-
-				autocomplete.addListener("place_changed", () => {
-					// Get the place object from the autocomplete widget
-					const place = autocomplete.getPlace();
-
-					// Check if the place has a geometry property
-					if (place.geometry) {
-						// Extract the latitude and longitude from the place's geometry
-						this.latitude = place.geometry.location.lat();
-						this.longitude = place.geometry.location.lng();
-						this.location = place.formatted_address;
-						// Now you can use the latitude and longitude for whatever you need
-					} else {
-						console.log("Selected place does not have a geometry");
-					}
-				});
-			});
-		},
-		locatorBtn() {
-			if (navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(
-					(position) => {
-						const { latitude, longitude } = position.coords;
-						this.getAddressFrom(latitude, longitude);
-					},
-					(error) => {
-						console.log(error.message);
-					}
-				);
-			}
-		},
-		getAddressFrom(lat, long) {
-			axios
-				.get(
-					`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAlo4jqabMxIygmvXtD-K0tm1HJEecnrEA`
-				)
-				.then((response) => {
-					const address = response.data.error_message
-						? response.data.error_message
-						: response.data.results[0].formatted_address;
-
-					console.log(address);
-					const inputElement = this.$refs.autocomplete;
-					inputElement.value = address;
-				})
-				.catch((error) => {
-					console.log(error.message);
-				});
-		},
-	},
+		);
+	}
+	// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
+	// This is a workaround because fitBounds does not let you specify max zoom level
 };
-</script>
+const checkArrival = (itinerary) => {
+	const now = new Date();
+	const arrivalDate = new Date(itinerary.arrival_date);
+	const timeDiff = arrivalDate.getTime() - now.getTime();
+	const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
+	if (daysDiff < 0) {
+		return "Past";
+	} else if (daysDiff === 0) {
+		return "Today";
+	} else if (daysDiff === 1) {
+		return "Tomorrow";
+	} else {
+		return `In ${daysDiff} days`;
+	}
+};
+
+// Methods
+const deleteItinerary = (itineraryId) => {
+	client.value
+		.post("/api/delete-itinerary", {
+			itinerary_id: itineraryId,
+		})
+		.then(() => {
+			fetchItineraries();
+			checkCode();
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const scrollToElement = () => {
+	const targetElement = document.getElementById("target-element");
+	targetElement.scrollIntoView({
+		behavior: "smooth",
+		block: "center",
+	});
+};
+
+const handleFileSelection = (event) => {
+	const file = event.target.files[0];
+	if (file) {
+		selectedImageUrl.value = URL.createObjectURL(file);
+		picture.value = file;
+		console.log("Image :", picture.value);
+		isEditingTitle.value = true;
+	}
+};
+
+const handleFileSelectionIn = (event) => {
+	const file = event.target.files[0];
+	if (file) {
+		selectedImageUrlIn.value = URL.createObjectURL(file);
+		pictureIn.value = file;
+		console.log("Image IN:", pictureIn.value);
+		isEditingTitle.value = true;
+	}
+};
+
+const processTips = () => {
+	paragraphs.value = setTips.value.split(/\n+/);
+};
+
+const formatText = (text) => {
+	let paragraphs = text.split(/\n+/);
+	return paragraphs
+		.map((paragraph) => {
+			return paragraph.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+		})
+		.join("<br><br>");
+};
+
+const getSymbol = (code) => {
+	for (let i = 0; i < currency_list.value.length; i++) {
+		if (currency_list.value[i][0] === code) {
+			return currency_list.value[i][2];
+		}
+	}
+	return null;
+};
+
+const checkCode = () => {
+	const toCurrency = selectedCurrency.value;
+	currency_save.value = toCurrency;
+	console.log("Selected currency code:", toCurrency);
+	selectedSymbol.value = currency_list.value.find(
+		(currency) => currency[0] === toCurrency
+	)[2];
+	let newvalue = 0;
+	list_itineraries.value.forEach((itinerary) => {
+		if (itinerary.code != toCurrency) {
+			if (itinerary.budget.length !== 0) {
+				fetch(api.value)
+					.then((resp) => resp.json())
+					.then((data) => {
+						let fromExchangeRate =
+							data.conversion_rates[itinerary.code];
+						let toExchangeRate = data.conversion_rates[toCurrency];
+						const convertedAmount =
+							(itinerary.budget / fromExchangeRate) *
+							toExchangeRate;
+						newvalue += parseFloat(convertedAmount.toFixed(2));
+						total_budget.value = newvalue.toFixed(2);
+					});
+			}
+		} else {
+			newvalue += itinerary.budget;
+			total_budget.value = newvalue;
+		}
+	});
+};
+
+const handleTitleChange = () => {
+	if (main_title.value.trim() === "") {
+		main_title.value = "ITINERARY TITLE";
+	}
+	isEditingTitle.value = false;
+};
+
+const toggleMap = () => {
+	showMap.value = !showMap.value;
+};
+
+const showItinerary = (view) => {
+	currentView.value = view;
+
+	nextTick(() => {
+		const navHeight = document.querySelector("#navs")
+			? document.querySelector("#navs").offsetHeight
+			: 0;
+		let targetSection;
+
+		if (view === "itinerary") {
+			targetSection = document.getElementById("itinerary-section");
+		} else {
+			targetSection = document.getElementById("overview-section");
+		}
+
+		if (targetSection) {
+			const offsetTop = targetSection.offsetTop - navHeight;
+			window.scrollTo({
+				top: offsetTop,
+				behavior: "smooth",
+			});
+		}
+	});
+};
+
+const saveMainItinerary = () => {
+	if (
+		!main_title.value.trim() ||
+		!setAboutMe.value.trim() ||
+		!setTips.value.trim() ||
+		main_title.value === "ITINERARY TITLE"
+	) {
+		alert("Please fill all fields correctly.");
+		return;
+	} else {
+		let formData = new FormData();
+		formData.append("main_image", null);
+		formData.append("main_title", main_title.value);
+		formData.append("main_description", setAboutMe.value);
+		formData.append("gen_tips", setTips.value);
+		formData.append("total_budget", total_budget.value);
+		formData.append("currency", currency_save.value);
+		formData.append("itineraries", itineraryIds.value);
+		if (picture.value && picture.value instanceof File) {
+			formData.append("image", picture.value, picture.value.name);
+		}
+		client.value
+			.post("/api/save-itinerary", formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			})
+			.then((response) => {
+				console.log(response.data);
+				main_title.value = "ITINERARY TITLE";
+				setAboutMe.value = "";
+				setTips.value = "";
+				selectedImageUrl.value = null;
+				selectedImageUrlIn.value = null;
+				window.scrollTo(0, 0);
+				router.push({ name: "itinerary" }).then(() => {
+					window.location.reload();
+				});
+			})
+			.catch((error) => {
+				// Handle error
+				console.error("Error saving itinerary:", error);
+			});
+	}
+};
+
+const submitItinerary = () => {
+	const formData = new FormData();
+
+	formData.append("longitude", longitude.value);
+	formData.append("latitude", latitude.value);
+	formData.append("budget", budget.value);
+	formData.append("code", selectedCurrency.value);
+
+	if (pictureIn.value && pictureIn.value instanceof File) {
+		formData.append("image", pictureIn.value, pictureIn.value.name);
+	}
+
+	client.value
+		.post("/api/create-itinerary", formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		})
+		.then((response) => {
+			console.log(response.data);
+			showModal.value = false;
+			location.value = "";
+			budget.value = "";
+			fetchItineraries();
+			checkCode();
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const getCurrentLocation = () => {
+	return new Promise((resolve, reject) => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					resolve({
+						latitude: position.coords.latitude,
+						longitude: position.coords.longitude,
+					});
+				},
+				(error) => {
+					reject(error);
+				}
+			);
+		} else {
+			reject(new Error("Geolocation is not supported by this browser."));
+		}
+	});
+};
+
+const sortItinerariesByProximity = async () => {
+	try {
+		const currentLocation = await getCurrentLocation();
+		list_itineraries.value.forEach((itinerary) => {
+			itinerary.distance = calculateDistance(
+				currentLocation.latitude,
+				currentLocation.longitude,
+				itinerary.latitude,
+				itinerary.longitude
+			);
+		});
+
+		list_itineraries.value.sort((a, b) => a.distance - b.distance);
+		list_itineraries.value.forEach((itinerary, index) => {
+			itinerary.order = String.fromCharCode(65 + index);
+		});
+		console.log("ORDER", list_itineraries.value);
+		showLocationOntheMap();
+	} catch (error) {
+		console.error(error);
+	}
+};
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+	const R = 6371;
+	const dLat = deg2rad(lat2 - lat1);
+	const dLon = deg2rad(lon2 - lon1);
+	const a =
+		Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+		Math.cos(deg2rad(lat1)) *
+			Math.cos(deg2rad(lat2)) *
+			Math.sin(dLon / 2) *
+			Math.sin(dLon / 2);
+	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+	const distance = R * c;
+	return distance;
+};
+
+const deg2rad = (deg) => {
+	return deg * (Math.PI / 180);
+};
+
+const fetchItineraries = async () => {
+	const token = sessionStorage.getItem("TOKEN");
+	const headers = {
+		Authorization: `Token ${token}`,
+		"Content-Type": "application/json",
+	};
+	const client = axios.create({
+		baseURL: "http://127.0.0.1:8000",
+		withCredentials: true,
+		timeout: 5000,
+		xsrfCookieName: "csrftoken",
+		xsrfHeaderName: "X-Csrftoken",
+		headers: headers,
+	});
+	try {
+		const response = await client.get("/api/itinerary");
+		list_itineraries.value = response.data;
+		console.log("list_itineraries:", list_itineraries.value);
+		itineraryIds.value = list_itineraries.value.map(
+			(itinerary) => itinerary.id
+		);
+		checkCode();
+		console.log("itineraryIds:", itineraryIds.value);
+
+		await sortItinerariesByProximity();
+		showLocationOntheMap();
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+const initializeMap = (latitude, longitude) => {
+	new google.maps.Map(document.getElementById("the-map"), {
+		center: { lat: latitude, lng: longitude },
+		zoom: 8,
+		mapTypeId: google.maps.MapTypeId.ROADMAP,
+	});
+};
+
+const autocompleteRef = ref(null);
+
+const initializeAutocomplete = () => {
+	nextTick(async () => {
+		const loader = new Loader({
+			apiKey: "AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s",
+			version: "weekly",
+		});
+
+		const Places = await loader.importLibrary("places");
+		const input = document.getElementById("autocomplete");
+
+		const autocomplete = new Places.Autocomplete(input);
+		autocomplete.addListener("place_changed", () => {
+			const place = autocomplete.getPlace();
+			if (place.geometry) {
+				latitude.value = place.geometry.location.lat();
+				longitude.value = place.geometry.location.lng();
+				location.value = place.formatted_address;
+			} else {
+				console.log("Selected place does not have a geometry");
+			}
+		});
+		// autocomplete.addListener("place_changed", () => {
+		// 	const place = autocomplete.getPlace();
+		// 	console.log("Selected place:", place);
+		// });
+		// const inputElement = autocompleteRef.value;
+		// if (
+		// 	inputElement &&
+		// 	window.google &&
+		// 	window.google.maps &&
+		// 	window.google.maps.places
+		// ) {
+		// 	const autocomplete = new google.maps.places.Autocomplete(
+		// 		inputElement
+		// 	);
+
+		// 	});
+		// } else {
+		// 	console.error(
+		// 		"Autocomplete input element not found or Google Maps API not loaded"
+		// 	);
+		// }
+	});
+};
+const locatorBtn = () => {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				latitude.value = position.coords.latitude;
+				longitude.value = position.coords.longitude;
+				console.log("Current position:", position.coords);
+				getAddressFrom(latitude.value, longitude.value);
+			},
+			(error) => {
+				console.error("Geolocation error:", error.message);
+				locationError.value = `Error: ${error.message}`;
+			},
+			{
+				enableHighAccuracy: true,
+				timeout: 5000,
+				maximumAge: 0,
+			}
+		);
+	} else {
+		console.error("Geolocation is not supported by this browser.");
+		locationError.value = "Geolocation is not supported by this browser.";
+	}
+};
+
+const getAddressFrom = async (lat, long) => {
+	try {
+		const response = await axios.get(
+			`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s
+`
+		);
+
+		if (response.data.results && response.data.results.length > 0) {
+			const address = response.data.results[0].formatted_address;
+			console.log("Reverse geocoded address:", address);
+			location.value = address;
+			// You can update a ref here to display the address in your component
+		} else {
+			console.error("No results found");
+		}
+	} catch (error) {
+		console.error("Error in reverse geocoding:", error);
+	}
+};
+
+// Lifecycle hooks
+onBeforeMount(() => {
+	const token = sessionStorage.getItem("TOKEN");
+	const headers = {
+		Authorization: `Token ${token}`,
+		"Content-Type": "application/json",
+	};
+	client.value = axios.create({
+		baseURL: "http://127.0.0.1:8000",
+		withCredentials: true,
+		timeout: 5000,
+		xsrfCookieName: "csrftoken",
+		xsrfHeaderName: "X-Csrftoken",
+		headers: headers,
+	});
+	client.value
+		.get("api/user")
+		.then((res) => {
+			username.value = res.data.user.username;
+			user_photo.value = res.data.profile[0].user_photo;
+			console.log("HALAAA", user_photo.value);
+		})
+		.catch((error) => {
+			console.log("ERROR", error.message);
+		});
+	isEditingTitle.value = true;
+	fetchItineraries();
+});
+
+onMounted(() => {
+	initializeAutocomplete();
+	initializeMaps();
+});
+</script>
 <style scoped></style>

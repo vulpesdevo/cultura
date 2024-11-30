@@ -4,10 +4,10 @@
 		class="flex flex-col lg:flex-row h-screen bg-gray-100 dark:bg-gray-900"
 	>
 		<!-- Main Content -->
-		<div class="w-full lg:w-2/3 overflow-y-auto px-4 lg:px-8 py-6">
+		<div class="w-full lg:w-7/12 overflow-y-auto px-4 lg:px-8 py-6">
 			<!-- Hero Image and Title -->
 			<div
-				class="relative w-full h-[300px] rounded-lg overflow-hidden mb-6"
+				class="relative w-full h-[250px] rounded-lg overflow-hidden mb-6"
 			>
 				<img
 					:src="itineraryDetails.main_image"
@@ -19,7 +19,7 @@
 				>
 					<div class="absolute bottom-0 left-0 p-6">
 						<h1
-							class="text-5xl font-bold text-white font-['BebasNeue'] tracking-wide"
+							class="text-3xl font-bold text-white font-bebas-neue tracking-wide"
 						>
 							{{ itineraryDetails.main_title }}
 						</h1>
@@ -29,7 +29,7 @@
 									class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 mr-1"
 								/>
 								<span
-									class="text-white font-semibold text-sm sm:text-base"
+									class="text-white font-semibold text-xs sm:text-base"
 									>{{ avgRating.toFixed(1) }} / 5</span
 								>
 							</div>
@@ -43,7 +43,7 @@
 				class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-6"
 			>
 				<div class="flex justify-end items-center space-x-2">
-					<span class="text-sm text-gray-600 dark:text-gray-300">
+					<span class="text-xs text-gray-600 dark:text-gray-300">
 						{{
 							hasSubmitted
 								? "Rating Submitted"
@@ -67,7 +67,7 @@
 									'text-gray-300':
 										star > (tempRating || rating),
 								}"
-								class="w-6 h-6 transition-colors"
+								class="size-4 transition-colors"
 							/>
 						</button>
 					</div>
@@ -78,10 +78,10 @@
 				<img
 					:src="itineraryDetails.user_photo"
 					alt="Author profile"
-					class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+					class="size-9 rounded-full object-cover flex-shrink-0"
 				/>
 				<div class="flex-1">
-					<div class="flex items-center text-sm space-x-2 mb-1">
+					<div class="flex items-center text-xs space-x-2 mb-1">
 						<h2 class="text-gray-900 dark:text-white">
 							@{{ itineraryDetails.creator_name }}
 						</h2>
@@ -95,16 +95,18 @@
 							})
 						}}</span>
 					</div>
-					<p class="text-gray-900 dark:text-white leading-relaxed">
+					<p
+						class="text-gray-900 text-xs pt-2 dark:text-gray-300 leading-relaxed"
+					>
 						{{ itineraryDetails.main_description }}
 					</p>
 				</div>
 			</div>
 
 			<!-- General Tips Section -->
-			<div class="p-6 rounded-lg shadow-sm mb-6">
+			<div class="p-6 rounded-lg shadow-sm">
 				<h2
-					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white w-full border-b border-gray-300 dark:border-gray-700 pb-2"
+					class="text-base font-semibold mb-4 text-gray-900 dark:text-white w-full border-b border-gray-300 dark:border-gray-700 pb-2"
 				>
 					General Tips
 				</h2>
@@ -112,43 +114,42 @@
 					<p
 						v-for="(paragraph, index) in paragraphs"
 						:key="index"
-						class="text-gray-600 dark:text-gray-300 text-sm mb-4"
+						class="text-gray-600 dark:text-gray-300 text-xs mb-4"
 						v-html="formatText(paragraph)"
 					></p>
 				</div>
 			</div>
 			<!-- Budget Section -->
-			<div class="p-6 rounded-lg shadow-sm mb-6">
+			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6">
 				<h2
-					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+					class="text-base font-semibold mb-4 text-gray-900 dark:text-white"
 				>
 					Budgeting
 				</h2>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
-						<div class="text-sm text-gray-500 dark:text-gray-400">
+						<div class="text-xs text-gray-500 dark:text-gray-400">
 							Total Budget
 						</div>
 						<div
-							class="text-2xl font-bold text-gray-200 dark:text-white"
+							class="text-lg font-bold text-gray-200 dark:text-white"
 						>
 							{{ selectedSymbol }}{{ total_budget }}
 						</div>
 					</div>
 					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
-						<div class="text-sm text-gray-500 dark:text-gray-400">
+						<div class="text-xs text-gray-500 dark:text-gray-400">
 							Currency
 						</div>
 						<select
-							ref="toDropDown"
 							v-model="selectedCurrency"
-							@change="checkCode"
-							class="w-full bg-transparent border-0 text-gray-200 dark:text-white focus:ring-0 text-sm sm:text-base"
+							@change="updateCurrency"
+							class="w-full bg-transparent border-0 text-gray-200 dark:text-white focus:ring-0 text-xs sm:text-sm"
 						>
 							<option
-								v-for="[code, name] in currency_list"
+								v-for="[code, name, symbol] in currency_list"
 								:key="code"
-								:value="code"
+								:value="{ code, symbol }"
 								class="text-gray-900 dark:text-white focus:ring-0 dark:bg-gray-800 text-xs sm:text-sm"
 							>
 								{{ code }} - {{ name }}
@@ -161,7 +162,7 @@
 			<!-- Itinerary List -->
 			<div class="rounded-lg shadow-sm mb-6">
 				<h2
-					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+					class="text-lg font-semibold font-sans mb-4 text-gray-900 dark:text-white"
 				>
 					Itinerary Stops
 				</h2>
@@ -169,11 +170,18 @@
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
-						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02]"
+						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto"
 					>
 						<img
+							v-if="itinerary.photos"
+							:src="itinerary.photos[0].getUrl()"
+							:alt="itinerary.name"
+							class="w-full h-48 object-cover"
+						/>
+						<img
+							v-else
 							:src="itinerary.place_image"
-							:alt="itinerary.title"
+							:alt="itinerary.place_name"
 							class="w-full h-48 object-cover"
 						/>
 						<div class="p-4">
@@ -181,28 +189,61 @@
 								<div
 									class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold"
 								>
-									{{ String.fromCharCode(65 + index) }}
+									{{ String.fromCharCode(66 + index) }}
 								</div>
 								<h3
-									class="text-lg font-semibold text-gray-900 dark:text-white"
+									class="text-base font-semibold text-gray-900 dark:text-white"
 								>
-									{{ itinerary.title }}
+									{{ itinerary.name }}
 								</h3>
 							</div>
-							<p class="text-gray-600 dark:text-gray-300 mb-4">
+							<p class="text-gray-600 text-xs dark:text-gray-300">
 								{{ itinerary.description }}
 							</p>
+
+							<div class="py-3">
+								<div class="flex flex-wrap gap-1">
+									<span
+										v-for="type in itinerary.types
+											? itinerary.types.slice(0, 3)
+											: []"
+										:key="type"
+										class="px-2 py-1 text-xs rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
+									>
+										{{ type.replace("_", " ") }}
+									</span>
+								</div>
+							</div>
 							<div class="flex justify-between items-center">
-								<span
-									class="text-sm text-gray-500 dark:text-gray-400"
-									>Budget:</span
-								>
-								<span
-									class="font-semibold text-gray-900 dark:text-white"
-								>
-									{{ getSymbol(itinerary.code)
-									}}{{ itinerary.budget.toFixed(2) }}
-								</span>
+								<div class="flex justify-between items-center">
+									<div class="flex items-center">
+										<StarIcon
+											class="size-4 text-yellow-400 mr-1"
+										/>
+										<span
+											class="text-xs text-gray-600 dark:text-gray-300"
+										>
+											{{ itinerary.rating || 0 }}
+										</span>
+									</div>
+								</div>
+								<div>
+									<span
+										class="text-xs text-gray-500 dark:text-gray-400"
+										>Budget:</span
+									>
+									<span
+										class="ml-3 font-semibold text-gray-900 dark:text-white text-sm"
+									>
+										{{ selectedSymbol
+										}}{{
+											convertCurrency(
+												itinerary.budget,
+												itinerary.code
+											)
+										}}
+									</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -210,15 +251,13 @@
 			</div>
 
 			<!-- Suggested Places -->
-			<div
-				class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6"
-			>
+			<div class="bg-white dark:bg-transparent rounded-lg shadow-sm mb-6">
 				<h2
 					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
 				>
 					Suggested Places
 				</h2>
-				<p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+				<p class="text-sm text-gray-600 dark:text-gray-300 mb-5">
 					The following are CulturaLink's suggested stops along your
 					itinerary, offering travelers more opportunities to explore
 					the cultural, historical, and traditional insights of the
@@ -241,20 +280,10 @@
 						<div class="p-4">
 							<div class="flex justify-between items-center mb-2">
 								<h3
-									class="text-lg font-semibold text-gray-900 dark:text-white"
+									class="text-base font-semibold text-gray-900 dark:text-white"
 								>
 									{{ place.name }}
 								</h3>
-								<div class="flex items-center">
-									<StarIcon
-										class="w-5 h-5 text-yellow-400 mr-1"
-									/>
-									<span
-										class="text-sm text-gray-600 dark:text-gray-300"
-									>
-										{{ place.rating }}
-									</span>
-								</div>
 							</div>
 							<div class="flex flex-wrap gap-2">
 								<span
@@ -265,6 +294,14 @@
 									{{ type.replace("_", " ") }}
 								</span>
 							</div>
+							<div class="flex items-center mt-2">
+								<StarIcon class="size-4 text-yellow-400 mr-1" />
+								<span
+									class="text-xs text-gray-600 dark:text-gray-300"
+								>
+									{{ place.rating }}
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -272,7 +309,7 @@
 		</div>
 
 		<!-- Desktop Map Section -->
-		<div class="hidden lg:block w-1/2 h-screen relative top-0">
+		<div class="hidden lg:block w-5/12 h-screen relative top-0">
 			<div class="absolute inset-0 bg-white dark:bg-gray-800">
 				<div ref="desktopMapRef" class="w-full h-full"></div>
 			</div>
@@ -303,7 +340,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick, computed, onMounted } from "vue";
+import { ref, reactive, nextTick, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { StarIcon, MapIcon, XIcon } from "lucide-vue-next";
 import axios from "axios";
@@ -326,7 +363,7 @@ const main_title = ref("ITINERARY TITLE");
 const total_budget = ref(0);
 const convertedBudget = ref("");
 const api =
-	"https://v6.exchangerate-api.com/v6/eab4e81875a8acd578c8d5c1/latest/USD";
+	"https://v6.exchangerate-api.com/v6/0f48e662346f4da5a2defaf1/latest/USD";
 const currency_list = ref([
 	["AED", "United Arab Emirates Dirhams", "د.إ"],
 	["AFN", "Afghan Afghani", "؋"],
@@ -478,7 +515,7 @@ const currency_list = ref([
 ]);
 
 const selectedCurrency = ref("");
-const selectedSymbol = ref("");
+
 const currency_save = ref("");
 const converted = ref(0);
 
@@ -573,7 +610,7 @@ onMounted(() => {
 	fetchSavedItineraries();
 	fetchUser();
 
-	populateDropdown();
+	// populateDropdown();
 	initializeAutocomplete();
 	// trackUserLocation();
 	findNearestTouristAttractions();
@@ -618,24 +655,113 @@ const populateDropdown = () => {
 	}
 };
 
+const getPlaceDetails = async (lat, lng) => {
+	if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+		console.error("Invalid latitude or longitude values");
+		return null;
+	}
+
+	try {
+		const response = await axios.get(
+			"https://maps.googleapis.com/maps/api/geocode/json",
+			{
+				params: {
+					latlng: `${lat},${lng}`,
+					key: "AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s",
+				},
+			}
+		);
+		if (response.data.status === "OK") {
+			const placeDetails = response.data.results[0];
+
+			return placeDetails;
+		} else {
+			console.error("Geocoding API error:", response.data.status);
+			return null;
+		}
+	} catch (error) {
+		console.error("Error fetching place details:", error);
+		return null;
+	}
+};
+const googleMapsApiKey = "AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s"; // Replace with your actual API key
+const getPlacePhoto = (photoReference) => {
+	if (!photoReference) return null;
+	return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${googleMapsApiKey}`;
+};
+
+const getMorePlaceDetails = async (placeId) => {
+	try {
+		const { PlacesService } = await google.maps.importLibrary("places");
+		const service = new PlacesService(document.createElement("div"));
+
+		return new Promise((resolve, reject) => {
+			service.getDetails(
+				{
+					placeId: placeId,
+				},
+				(place, status) => {
+					if (status === google.maps.places.PlacesServiceStatus.OK) {
+						console.log("More place details:", place);
+						resolve(place);
+					} else {
+						console.error("Places API error:", status);
+						reject(new Error(`Places API error: ${status}`));
+					}
+				}
+			);
+		});
+	} catch (error) {
+		console.error("Error fetching more place details:", error);
+		throw error;
+	}
+};
+
+// Modify the letDetails function to use the new getMorePlaceDetails
+const letDetails = async () => {
+	for (const itinerary of list_itineraries.value) {
+		const placeDetails = await getPlaceDetails(
+			itinerary.latitude,
+			itinerary.longitude
+		);
+		if (placeDetails) {
+			console.log("Place details:", placeDetails);
+			itinerary.description =
+				placeDetails.formatted_address || placeDetails.name;
+
+			// Get more details using the place ID
+			try {
+				const morePlaceDetails = await getMorePlaceDetails(
+					placeDetails.place_id
+				);
+				if (morePlaceDetails) {
+					Object.assign(itinerary, morePlaceDetails);
+				}
+			} catch (error) {
+				console.error("Error getting more place details:", error);
+			}
+		}
+	}
+	console.log("List of itineraries with details:", list_itineraries.value);
+};
 const fetchItineraries = async () => {
 	try {
 		itineraryIds.value = list_itineraries.value.map(
 			(itinerary) => itinerary.id
 		);
 		console.log("itineraryIds:", itineraryIds.value);
-		checkCode();
-		console.log("Total Budget:", budget.value);
+
 		let symbol = currency_list.value.find(
 			(currency) => currency[0] === currency_save.value
 		)[2];
 		selectedSymbol.value = symbol;
 		// this.convertedBudget = `${symbol}${total_budget.value}`;
 		// // Sort the itineraries by proximity before showing them on the map
-		console.log("enter :::", symbol);
-		toDropDown.value.value = currency_save.value;
+		toDropDown.value = currency_save.value;
 		await sortItinerariesByProximity();
 		showLocationOntheMap();
+		letDetails();
+		// checkCode();
 	} catch (error) {
 		console.log(error);
 	}
@@ -650,7 +776,7 @@ const fetchSavedItineraries = async () => {
 				`/api/viewing-itinerary/${itinerary_id.value}`
 			);
 			itineraries.value = response.data;
-			console.log("ITINERARIES", itineraries.value);
+			// console.log("ITINERARIES", itineraries.value);
 			itineraries.value.forEach((itinerary) => {
 				itineraryDetails.creator_name = itinerary.creator_name;
 				itineraryDetails.user_photo = itinerary.user_photo;
@@ -669,7 +795,8 @@ const fetchSavedItineraries = async () => {
 			});
 			fetchItineraries();
 			paragraphs.value = itineraryDetails.gen_tips.split(/\n+/);
-			console.log("this is the paragraph", list_itineraries.value);
+			// console.log("this is the paragraph", list_itineraries.value);
+			// Fetch place details for each itinerary and update main_description
 		}
 	} catch (error) {
 		console.error(error);
@@ -680,11 +807,12 @@ const checkCode = () => {
 	selectedCurrency.value = toCurrency;
 	console.log("Selected currency code:", toCurrency);
 	selectedSymbol.value = currency_list.value.find(
-		(currency) => currency[0] === toCurrency
+		(currency) => currency[0] === selectedCurrency.value
 	)[2];
+	console.log("Selected symbol:", selectedSymbol.value);
 	let newvalue = 0;
 	list_itineraries.value.forEach((itinerary) => {
-		console.log("the code ", itinerary);
+		// console.log("the code ", itinerary);
 		if (itinerary.code != toCurrency) {
 			if (itinerary.budget.length !== 0) {
 				console.log("convert the value to what selected currency");
@@ -699,16 +827,14 @@ const checkCode = () => {
 							toExchangeRate;
 
 						newvalue += parseFloat(convertedAmount.toFixed(2));
-						console.log("in check code if", newvalue.toFixed(2));
+
 						total_budget.value = newvalue.toFixed(2);
-						console.log("total_budget == ", total_budget.value);
 					});
 			}
 		} else {
 			console.log("do not convert the value to what selected currency");
 			newvalue += itinerary.budget;
 			total_budget.value = newvalue;
-			console.log("in check code else", newvalue);
 		}
 	});
 };
@@ -1151,10 +1277,7 @@ const locateSuggestedPlace = (place) => {
 					const createInfoWindowContent = () => {
 						const photoUrl =
 							place.photos && place.photos.length > 0
-								? place.photos[0].getUrl({
-										maxWidth: 320,
-										maxHeight: 200,
-								  })
+								? place.photos[0].getUrl({})
 								: "/placeholder.svg?height=200&width=320";
 
 						return `
@@ -1172,8 +1295,8 @@ const locateSuggestedPlace = (place) => {
                   overflow: hidden;
                   position: relative;
                 ">
-                  <img 
-                    src="${photoUrl}" 
+                  <img
+                    src="${photoUrl}"
                     alt="${place.name}"
                     style="
                       width: 100%;
@@ -1182,7 +1305,7 @@ const locateSuggestedPlace = (place) => {
                     "
                   >
                 </div>
-                
+
                 <div id="bodyContent" style="padding: 16px;">
                   <h1 id="firstHeading" style="
                     margin: 0 0 8px 0;
@@ -1190,7 +1313,7 @@ const locateSuggestedPlace = (place) => {
                     font-weight: 600;
                     color: #333;
                   ">${place.name}</h1>
-                  
+
                   <p style="
                     margin: 0 0 12px 0;
                     font-size: 14px;
@@ -1334,6 +1457,79 @@ const locateSuggestedPlace = (place) => {
 		console.error("Error locating suggested place:", error);
 	}
 };
+
+const exchangeRates = ref({});
+
+const selectedSymbol = computed(() => selectedCurrency.value.symbol);
+
+const fetchExchangeRates = async () => {
+	try {
+		const response = await fetch(api);
+		const data = await response.json();
+		exchangeRates.value = data.conversion_rates;
+	} catch (error) {
+		console.error("Error fetching exchange rates:", error);
+	}
+};
+
+const convertCurrency = (amount, fromCurrency) => {
+	if (!amount || isNaN(amount)) return 0;
+
+	const toCurrency = selectedCurrency.value.code;
+
+	if (
+		!exchangeRates.value[fromCurrency] ||
+		!exchangeRates.value[toCurrency]
+	) {
+		console.warn(
+			`Exchange rate not available for ${fromCurrency} or ${toCurrency}`
+		);
+		return amount;
+	}
+
+	const amountInBaseCurrency = amount / exchangeRates.value[fromCurrency];
+	const convertedAmount =
+		amountInBaseCurrency * exchangeRates.value[toCurrency];
+	console.log(
+		`Converting ${amount} ${fromCurrency} to ${convertedAmount} ${toCurrency}`
+	);
+	return parseFloat(convertedAmount.toFixed(2));
+};
+
+const calculateTotalBudget = () => {
+	total_budget.value = list_itineraries.value.reduce((total, itinerary) => {
+		const budget = parseFloat(itinerary.budget) || 0;
+		const code = itinerary.code || "PHP";
+		const convertedBudget = convertCurrency(budget, code);
+
+		return total + convertedBudget;
+	}, 0);
+	console.log(`Total budget: ${total_budget.value}`);
+};
+
+const updateCurrency = () => {
+	calculateTotalBudget();
+};
+
+onMounted(async () => {
+	await fetchExchangeRates();
+
+	// Set initial currency based on the saved currency
+	const savedCurrency = currency_list.value.find(
+		([code]) => code === currency_save.value
+	);
+	if (savedCurrency) {
+		selectedCurrency.value = {
+			code: savedCurrency[0],
+			symbol: savedCurrency[2],
+		};
+	}
+
+	calculateTotalBudget();
+});
+
+watch(list_itineraries, calculateTotalBudget, { deep: true });
+watch(selectedCurrency, calculateTotalBudget);
 </script>
 
 <style scoped>
