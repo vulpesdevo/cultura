@@ -32,7 +32,7 @@
 						@click.prevent="accordionOpen = !accordionOpen"
 						:aria-expanded="accordionOpen"
 					>
-						<span class="text-sm sm:text-lg"
+						<span class="text-sm sm:text-lg font-bold"
 							>Profile Information</span
 						>
 						<svg
@@ -75,12 +75,12 @@
 							<div class="relative text-left">
 								<label
 									for=""
-									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime font-montserrat"
 									>Email</label
 								>
 
 								<div
-									class="absolute inset-y-0 start-0 flex sm:mt-6 items-center ps-3.5 pointer-events-none"
+									class="absolute inset-y-0 start-0 flex sm:mt-6 items-center ps-3.5 pointer-events-none font-montserrat"
 								>
 									<svg
 										class="w-4 h-4 text-gray-500 dark:text-gray-400"
@@ -116,7 +116,7 @@
 							<div class="mb-6 mt-7 sm:mt-2">
 								<label
 									for="country"
-									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime font-montserrat"
 									>Country</label
 								>
 								<input
@@ -190,9 +190,70 @@
 								</button>
 							</div>
 						</form>
+
+						<!-- PRIVACY/ PUBLIC -->
+						
+					</div>
+
+					<h1 class="text-sm sm:text-lg font-bold font-montserrat text-prime"
+							>Privacy</h1>
+						<h1
+							class="text-[#887D7D] dark:text-dark-second-dark font-montserrat text-sm mb-3 sm:text-lg sm:mb-6"
+						>
+							With a private account, only followers you also follow can view your posts.
+						</h1>
+						<div class="flex sm:mb-4">
+							<label
+								class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
+							>
+								<div class="flex w-full justify-between">
+									<span
+										class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-base font-bold mb-1"
+										>Protect your posts</span
+									>
+									<div class="relative">
+										<input
+											type="checkbox"
+											class="sr-only"
+											@change="onToggleChange()"
+											v-model="isPrivate"
+										/>
+										<div
+											:class="{ '!bg-second  ': isPrivate  }"
+											class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
+										></div>
+										<div
+											:class="{
+												'translate-x-full !bg-primary dark:!bg-white !bg-white':
+												isPrivate ,
+											}"
+											class="absolute flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 transition bg-second rounded-full dot left-1 top-1 dark:bg-dark-5"
+										></div>
+									</div>
+								</div>
+							</label>
+						</div>
+				</div>
+
+				<div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+					<div class="bg-interface p-10 rounded-xl shadow-lg text-center space-y-4 w-[550px] h-[300px] sm:ml-32 flex flex-col justify-center">
+						<h3 class="text-2xl mb-2 font-montserrat text-prime font-bold">{{ modalTitle }}</h3>
+						<p class="font-montserrat text-lg">{{ modalMessage }}</p>
+						<div class="flex space-x-4 pt-9 justify-center ">
+							
+						
+						<button @click="confirmPrivacy(false)" class="bg-gray-500 text-white px-7 py-4 rounded-full text-base font-montserrat font-bold">
+							Cancel
+						</button>
+						<button @click="confirmPrivacy(true)" class="bg-second text-white px-7 py-4 rounded-full text-base font-montserrat font-bold">
+							Continue
+						</button>
+						</div>
 					</div>
 				</div>
 			</div>
+
+
 			<div class="py-2">
 				<h2>
 					<button
@@ -200,7 +261,7 @@
 						@click.prevent="changePassOpen = !changePassOpen"
 						:aria-expanded="changePassOpen"
 					>
-						<span class="text-sm sm:text-lg">Change Password</span>
+						<span class="text-sm sm:text-lg font-bold">Change Password</span>
 						<svg
 							class="fill-indigo-500 shrink-0 ml-8"
 							width="16"
@@ -277,7 +338,7 @@
 							>
 								<label
 									for="old-password"
-									class="hidden sm:block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									class="hidden sm:block mb-2 text-sm font-medium text-prime dark:text-dark-prime font-montserrat"
 									>Old Password</label
 								>
 
@@ -324,7 +385,7 @@
 							>
 								<label
 									for="new-password"
-									class="hidden sm:block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									class="hidden sm:block mb-2 text-sm font-medium text-prime dark:text-dark-prime font-montserrat"
 									>New Password</label
 								>
 								<div class="relative w-full sm:w-3/4 px-1">
@@ -432,7 +493,7 @@
 							<div class="mb-6 flex justify-between items-center">
 								<label
 									for="confirm-password"
-									class="hidden sm:block mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									class="hidden sm:block mb-2 text-sm font-medium text-prime dark:text-dark-prime font-montserrat"
 									>Confirm Password</label
 								>
 								<div class="relative w-full sm:w-3/4 px-1">
@@ -665,7 +726,7 @@
 				</h1>
 			</div>
 			<h1
-				class="text-[#887D7D] dark:text-dark-second-dark font-montserrat text-sm mb-3 sm:text-xl sm:ms-14 sm:mb-10"
+				class="text-[#887D7D] dark:text-dark-second-dark font-montserrat text-sm mb-3 sm:text-xl sm:mb-10"
 			>
 				Customize how you want CulturaLink to look like on your device
 			</h1>
@@ -675,7 +736,7 @@
 				>
 					<div class="flex w-full justify-between">
 						<span
-							class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-xl sm:ms-[3.5rem] mb-1"
+							class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-xl mb-1"
 							>Theme</span
 						>
 						<div class="relative">
@@ -814,6 +875,13 @@ export default {
 			setcountry: "",
 			inputElement: null,
 			// Initial state of the accordion
+
+
+			isPrivate: false, // Toggle state
+			showModal: false, // Modal visibility state
+			initialToggle: true, // Track first toggle attempt
+			modalTitle: "", // Modal title text
+			modalMessage: "", // Modal message text
 		};
 	},
 	computed: {
@@ -1083,6 +1151,28 @@ export default {
 		},
 		leave(el) {
 			el.style.height = "0";
+		},
+		onToggleChange() {
+			if (this.isPrivate) {
+				// If turning on privacy, confirm protecting posts
+				this.modalTitle = "Protect Your Posts";
+				this.modalMessage = "Are you sure you want to protect your posts?";
+			} else {
+				// If turning off privacy, confirm making posts public
+				this.modalTitle = "Make Your Posts Public";
+				this.modalMessage = "Are you sure you want to make your posts visible to everyone?";
+			}
+			this.showModal = true; // Show modal on any toggle change
+		},
+		confirmPrivacy(confirmed) {
+			if (confirmed) {
+				// Keep the toggle state as-is if confirmed
+				this.isPrivate = this.isPrivate;
+			} else {
+				// Revert the toggle state if declined
+				this.isPrivate = !this.isPrivate;
+			}
+			this.showModal = false; // Hide the modal
 		},
 	},
 };
