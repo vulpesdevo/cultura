@@ -36,7 +36,8 @@ class CulturaUser(models.Model):
     followers = models.ManyToManyField(User, blank=True, related_name="follower")
 
     is_active = models.BooleanField(default=True)
-
+    is_private = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
     trend_setter = models.IntegerField(default=0, null=True, blank=True)
     share_star = models.IntegerField(default=0, null=True, blank=True)
     like_leader = models.IntegerField(default=0, null=True, blank=True)

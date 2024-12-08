@@ -36,8 +36,8 @@
 							{{ itinerary.main_title }}
 						</h2>
 						<div class="flex items-center">
-							<StarIcon class="w-6 h-6 text-blue-400" />
-							<span class="ml-2 text-white"
+							<StarIcon class="size-4 text-blue-400" />
+							<span class="ml-2 text-white text-xs"
 								>{{ avgRating.toFixed(1) }} / 5</span
 							>
 						</div>
@@ -87,7 +87,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import ViewItinerary from "./ViewItinerary.vue";
-
+import { StarIcon } from "@heroicons/vue/24/outline";
 const store = useStore();
 const router = useRouter();
 

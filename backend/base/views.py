@@ -1,6 +1,6 @@
 from gc import get_objects
 import json
-from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth import get_user_model, login, logout, authenticate
 from django.forms import ValidationError
 from django.http import Http404, HttpResponseServerError
 from django.shortcuts import get_object_or_404
@@ -41,6 +41,7 @@ from .models import (
     UserSetting,
 )
 from bson import ObjectId
+from .permissions import IsAdminUser  # Import the custom permission class
 
 # from profanity.validators import validate_is_profane
 
@@ -132,6 +133,21 @@ class ReportDetailView(APIView):
 
 
 # ADMIN
+class UpdatePrivacyView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request):
+        cultura_user = get_object_or_404(CulturaUser, user=request.user)
+
+        is_private = request.data.get("is_private")
+        if is_private is not None:
+            cultura_user.is_private = is_private
+            cultura_user.save()
+            serializer = CulturaUserSerializer(
+                cultura_user, context={"request": request}
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserView(APIView):
@@ -143,34 +159,44 @@ class UserView(APIView):
 
     ##
     def get(self, request):
-        authorization_header = request.headers.get("Authorization")
-        # Print the Authorization header value
-        # print("Header Auth: ", authorization_header)
-        from django.core import serializers
+        user = request.user
+        serializer = UserSerializer(user)
 
-        UserView.token_auth = str(authorization_header).replace("Token", "").strip()
-        serializer = UserSerializer(request.user)
-        # cultura_user = CulturaUser.objects.get(user=request.user)
-        # cultura_users = CulturaUser.objects.filter(user=request.user)
-        cult_user_name = "cultura_users.fullname"
-        cultura_user = CulturaUser.objects.filter(user=request.user.id)
-        profile = CulturaUserSerializer(cultura_user, many=True)
+        # Get the CulturaUser profile associated with the authenticated user
+        cultura_user = get_object_or_404(CulturaUser, user=user)
+        profile_serializer = CulturaUserSerializer(
+            cultura_user, context={"request": request}
+        )
 
-        for post_data in profile.data:
-            if image := post_data.get("user_photo", None):
-                # Build the absolute URI for the image
-                abs_image_url = request.build_absolute_uri(image)
-                # Update the post data with the absolute URI
-                post_data["user_photo"] = abs_image_url
+        # Update the user photo URL to be an absolute URI
+        profile_data = profile_serializer.data
+        if user_photo := profile_data.get("user_photo"):
+            abs_image_url = request.build_absolute_uri(user_photo)
+            profile_data["user_photo"] = abs_image_url
+        else:
+            profile_data["user_photo"] = None
+        token, created = Token.objects.get_or_create(user=user)
 
         return Response(
             {
                 "user": serializer.data,
-                "userfullname": cult_user_name,
-                "profile": profile.data,
+                "userfullname": cultura_user.fullname,
+                "profile": profile_data,
+                "token": token.key,
             },
             status=status.HTTP_200_OK,
         )
+
+
+class UserDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        cultura_user = get_object_or_404(CulturaUser, pk=pk)
+        serializer = CulturaUserSerializer(
+            cultura_user, context={"request": request, "user": request.user}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ChangePassword(APIView):
@@ -317,16 +343,20 @@ class UserLogin(APIView):
 
         serializer = UserLoginSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
-            # username = serializer.validated_data["username"]
-            # password = serializer.validated_data["password"]
-            user = serializer.check_user(data)
-            # User is already authenticated, return appropriate response
-            login(request, user)
-            token, create = Token.objects.get_or_create(user=user)
-            # return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(
-                {"token": token.key, "user": serializer.data}, status=status.HTTP_200_OK
-            )
+            username = serializer.validated_data["username"]
+            password = request.data["password"]
+            user = authenticate(username=username, password=password)
+            if user:
+                token, create = Token.objects.get_or_create(user=user)
+                login(request, user)
+                user_data = {
+                    "username": user.username,
+                    "is_admin": user.is_staff,
+                }
+                return Response(
+                    {"token": token.key, "user": user_data}, status=status.HTTP_200_OK
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 UserModel = get_user_model()
@@ -624,39 +654,42 @@ class Following(viewsets.ModelViewSet):
     serializer_class = CulturaUserSerializer
 
     @action(detail=True, methods=["post"])
-    def follow(self, request, pk):
-        # print(pk)
+    def follow(self, request, pk=None):
         user = request.user
 
-        user_to_follow = CulturaUser.objects.get(user=pk)
+        # Ensure pk is an integer
+        try:
+            user_to_follow = get_object_or_404(CulturaUser, user=pk)
+        except ValueError:
+            return Response(
+                {"error": "Invalid user ID"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = CulturaUserSerializer(
-            user_to_follow, context={"user": self.request.user}
+            user_to_follow, context={"request": request}
         )  # pass the request to the serializer
 
-        # print("user that followed: ", user_to_follow.id)
         if user in user_to_follow.followers.all():
             user_to_follow.followers.remove(user)
             FollowingNotification.objects.filter(
-                followed_by=user, following=pk
+                followed_by=user, following=user_to_follow
             ).delete()
             user_to_follow.save()
-
             message = "User unfollowed"
         else:
             user_to_follow.followers.add(user)
-
             user_to_follow.save()
             following_notif = FollowingNotification(
                 followed_by=user,
-                following=pk,
+                following=user_to_follow,
                 notif_type="follow",
             )
             following_notif.save()
             message = "User followed"
 
         return Response(
-            serializer.data, status=status.HTTP_200_OK
-        )  # return the serialized data
+            {"message": message, "user": serializer.data}, status=status.HTTP_200_OK
+        )  # r
 
 
 class FollowedNotification(APIView):
@@ -674,10 +707,14 @@ class FollowedNotification(APIView):
         follow_serializer = FollowSerializer(following_data, many=True)
         for follow_data in follow_serializer.data:
             who_followed = follow_data.get("followed_by")
-            username_ = User.objects.get(id=follow_data["followed_by"]).username
+            if isinstance(who_followed, dict):
+                user_id = who_followed.get("id")
+            else:
+                user_id = who_followed
+
+            username_ = User.objects.get(id=user_id).username
             follow_data["followed_by"] = username_
-            user_follow = CulturaUser.objects.filter(user=who_followed)
-            # print(user_follow)
+            user_follow = CulturaUser.objects.filter(user=user_id)
             user_serializer = CulturaUserSerializer(user_follow, many=True)
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
@@ -686,7 +723,11 @@ class FollowedNotification(APIView):
                     abs_image_url = request.build_absolute_uri(image)
                     # Update the post data with the absolute URI
                     user_data["user_photo"] = abs_image_url
-                username = User.objects.get(id=user_data["user"]).username
+                if isinstance(user_data["user"], dict):
+                    user_id = user_data["user"]["id"]
+                else:
+                    user_id = user_data["user"]
+                username = User.objects.get(id=user_id).username
                 user_data["username"] = username
                 follow_data["user_data"] = user_serializer.data
         return Response(follow_serializer.data, status=status.HTTP_200_OK)
@@ -1001,13 +1042,15 @@ class ProfilePostListView(APIView):
         # print("USER  NOW", request.user)
         for follow_data in follow_serializer.data:
             who_followed = follow_data.get("followed_by")
-            username_ = User.objects.get(id=follow_data["followed_by"]).username
+            if isinstance(who_followed, dict):
+                user_id = who_followed.get("id")
+            else:
+                user_id = who_followed
+
+            username_ = User.objects.get(id=user_id).username
             follow_data["followed_by"] = username_
-            user_follow = CulturaUser.objects.filter(user=who_followed)
-            # print(user_follow)
-            user_serializer = CulturaUserSerializer(
-                user_follow, many=True, context={"user": request.user}
-            )
+            user_follow = CulturaUser.objects.filter(user=user_id)
+            user_serializer = CulturaUserSerializer(user_follow, many=True)
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
                 if image:
@@ -1015,11 +1058,14 @@ class ProfilePostListView(APIView):
                     abs_image_url = request.build_absolute_uri(image)
                     # Update the post data with the absolute URI
                     user_data["user_photo"] = abs_image_url
-                username = User.objects.get(id=user_data["user"]).username
+                if isinstance(user_data["user"], dict):
+                    user_id = user_data["user"]["id"]
+                else:
+                    user_id = user_data["user"]
+                username = User.objects.get(id=user_id).username
                 user_data["username"] = username
                 follow_data["user_data"] = user_serializer.data
 
-        # Return the modified serialized data in the response
         return Response(
             {"followers": follow_serializer.data, "posts": serializer.data},
             status=status.HTTP_200_OK,
@@ -1591,15 +1637,15 @@ class SearchView(APIView):
                 abs_image_url = request.build_absolute_uri(image)
                 # Update the post data with the absolute URI
                 user_data["user_photo"] = abs_image_url
-            username = User.objects.get(id=user_data["user"]).username
-            user_data["username"] = username
-            # user_id = User.objects.get(id=user_data["user"])
-            # post_ = Post.objects.get(author=user_data["user"])._id
-            # posts = Post.objects.filter(author=user_data['user'])
-            # print(posts)
-            # user_data["post_id"] = [post['_id'] for post in posts]
 
-        save_itinerary_serializer = SaveItinerarySerializer(save_itineraries, many=True)
+            # Extract the user ID from the OrderedDict
+            user_id = user_data["user"]["id"]
+            username = User.objects.get(id=user_id).username
+            user_data["username"] = username
+
+            save_itinerary_serializer = SaveItinerarySerializer(
+                save_itineraries, many=True
+            )
         # itinerary_serializer = ItinerarySerializer(itineraries, many=True)
         # comment_serializer = CommentSerializer(comments, many=True)
 

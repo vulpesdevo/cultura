@@ -1226,7 +1226,6 @@ const toggleMap = () => {
 
 const showItinerary = (view) => {
 	currentView.value = view;
-
 	nextTick(() => {
 		const navHeight = document.querySelector("#navs")
 			? document.querySelector("#navs").offsetHeight
@@ -1281,19 +1280,23 @@ const locateSuggestedPlace = (place) => {
 								: "/placeholder.svg?height=200&width=320";
 
 						return `
-              <div id="content" style="
+              <div style="
                 width: 300px;
-                background: white;
+               
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                font-family: system-ui, -apple-system, sans-serif;
+                
+                font-family: Arial, sans-serif;
+                color: #FFFFFF;
                 overflow: hidden;
+				
+				margin-right: 10px;
+				margin-bottom: 10px;
+				
               ">
-                <div id="siteNotice" style="
-                  width: 100%;
-                  height: 160px;
+                <div style="
+                  height: 150px;
                   overflow: hidden;
-                  position: relative;
+				  
                 ">
                   <img
                     src="${photoUrl}"
@@ -1306,25 +1309,24 @@ const locateSuggestedPlace = (place) => {
                   >
                 </div>
 
-                <div id="bodyContent" style="padding: 16px;">
-                  <h1 id="firstHeading" style="
+                <div style="margin-block: 1rem; margin-bottom:2rem;">
+                  <h1 style="
                     margin: 0 0 8px 0;
-                    font-size: 18px;
+                    font-size: 15px;
                     font-weight: 600;
-                    color: #333;
                   ">${place.name}</h1>
 
                   <p style="
                     margin: 0 0 12px 0;
-                    font-size: 14px;
-                    color: #666;
+                    font-size: 12px;
+                    color: #B0B0B0;
                   ">${place.vicinity}</p>
 
                   <div style="
                     display: flex;
                     gap: 16px;
                     margin-bottom: 12px;
-                    color: #666;
+                    color: #B0B0B0;
                     font-size: 13px;
                   ">
                     ${
@@ -1348,9 +1350,8 @@ const locateSuggestedPlace = (place) => {
 
                   <div style="
                     display: flex;
-                    gap: 12px;
-                    padding-top: 12px;
-                    border-top: 1px solid #eee;
+                    gap: 8px;
+                    flex-wrap: wrap;
                   ">
                     ${
 						place.types
@@ -1359,11 +1360,11 @@ const locateSuggestedPlace = (place) => {
 									.map(
 										(type) => `
                       <span style="
-                        background: #f5f5f5;
-                        padding: 4px 12px;
+                        background: #444857;
+                        padding: 4px 8px;
                         border-radius: 4px;
                         font-size: 12px;
-                        color: #666;
+                        color: #FFFFFF;
                       ">${type.replace(/_/g, " ")}</span>
                     `
 									)
@@ -1378,7 +1379,8 @@ const locateSuggestedPlace = (place) => {
 
 					const infoWindow = new google.maps.InfoWindow({
 						content: createInfoWindowContent(),
-						maxWidth: 300,
+						maxWidth: 400,
+
 						pixelOffset: new google.maps.Size(0, -5),
 					});
 

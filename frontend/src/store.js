@@ -17,7 +17,7 @@ const store = createStore({
 		itineraryDetails: {},
 		likeNotifications: [],
 		followNotifications: [],
-
+		viewed_user: null,
 		admin: {
 			reports: [],
 			report: null,
@@ -27,6 +27,8 @@ const store = createStore({
 		},
 	},
 	getters: {
+		singleCulturaUser: (state) => state.viewed_user,
+
 		isAuthenticated: (state) => !!state.user.token,
 		currentUser: (state) => state.user.data,
 		getUser(state) {
@@ -63,6 +65,9 @@ const store = createStore({
 		},
 	},
 	mutations: {
+		SET_CULTURAUSER(state, culturauser) {
+			state.viewed_user = culturauser;
+		},
 		setReports(state, reports) {
 			state.admin.reports = reports;
 		},
@@ -77,7 +82,7 @@ const store = createStore({
 		},
 
 		setUser(state, userData) {
-			state.user.data = userData.user;
+			state.user.data = userData.profile;
 			state.user.token = userData.token;
 			sessionStorage.setItem("TOKEN", userData.token);
 		},
@@ -158,11 +163,57 @@ const store = createStore({
 					headers: { Authorization: `Token ${state.user.token}` },
 				})
 				.then((response) => {
-					commit("setCulturaUser", response.data);
+					// commit("setCulturaUser", response.data);
+					console.log("CulturaUser", response.data);
+
+					return response.data;
 				})
 				.catch((error) => {
 					console.error("Error fetching CulturaUser:", error);
 				});
+		},
+		async viewCulturaUser({ commit }, id) {
+			try {
+				const response = await axiosClient.get(`/view_user/${id}/`);
+				console.log("CulturaUser", response.data);
+
+				commit("SET_CULTURAUSER", response.data);
+				return response.data;
+			} catch (error) {
+				console.error("Error fetching culturauser:", error);
+			}
+		},
+		async updatePrivacy({ commit }, is_private) {
+			try {
+				const response = await axiosClient.put(
+					"/user/update-privacy/",
+					{ is_private }
+				);
+				console.log("Privacy updated", response.data);
+
+				return response.data;
+			} catch (error) {
+				console.error("Error updating privacy:", error);
+			}
+		},
+		async fetchPublicProfilePosts({ commit }, userID) {
+			console.log("USERID::", userID);
+
+			try {
+				const response = await axiosClient.get(
+					"/public-profile-posts/",
+					{
+						params: {
+							user_id: userID,
+						},
+					}
+				);
+				// console.log("POSTS::", response.data);
+				return response.data;
+				// commit("SET_POSTS", response.data.reverse());
+			} catch (error) {
+				console.error("Error fetching posts:", error);
+			}
 		},
 		async createCulturaUser({ commit, state }, userData) {
 			return axiosClient
@@ -549,8 +600,14 @@ const store = createStore({
 		async fetchUserData({ commit, state }) {
 			if (state.user.token) {
 				return axiosClient
-					.get("/user", {})
+					.get("/user", {
+						headers: {
+							Authorization: `Token ${state.user.token}`,
+						},
+					})
 					.then((response) => {
+						commit("setUser", response.data);
+						console.log("setUser", response.data);
 						return response.data;
 					})
 					.catch((error) => {

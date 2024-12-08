@@ -217,7 +217,7 @@
 								username: user.user_data[0].username,
 							},
 							query: {
-								user: JSON.stringify(user.user_data[0]),
+								id: user.user_data[0].id,
 							},
 						}"
 					>
@@ -503,104 +503,63 @@
 			<div class="flex justify-center items-center w-screen sm:w-full">
 				<div class="grid grid-cols-5 gap-1 sm:gap-0 sm:w-3/4">
 					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+						v-for="(achievement, index) in achievements"
+						:key="index"
+						class="relative"
 					>
-						<img
-							src="`/achievements/welcome-wanderer.png`"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/content-creator.png`"
-							:class="{ 'brightness-[10%]': !hasContentCreator }"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/guide-guru.png`"
-							:class="{ 'brightness-[10%]': !hasGuideGuru }"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/like-leader.png`"
-							:class="{ 'brightness-[10%]': !hasLikeLeader }"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/share-star.png`"
-							:class="{ 'brightness-[10%]': !hasShareStar }"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/comment-connoisseur.png`"
-							:class="{
-								'brightness-[10%]': !hasCommentConnoisseur,
-							}"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/explorer-extraordinaire.png`"
-							:class="{
-								'brightness-[10%]': !hasExplorerExtraordinaire,
-							}"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/knowledge-seeker.png`"
-							:class="{ 'brightness-[10%]': !hasKnowledgeSeeker }"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/trend-setter.png`"
-							:class="{ 'brightness-[10%]': !hasTrendsetter }"
-							alt=""
-						/>
-					</div>
-					<div
-						class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
-					>
-						<img
-							:src="`/achievements/cultura-contributor.png`"
-							:class="{
-								'brightness-[10%]': !hasCulturaContributor,
-							}"
-							alt=""
-						/>
+						<div
+							class="flex justify-center items-center h-[5rem] w-[5rem] sm:h-[10rem] sm:w-[10rem]"
+						>
+							<img
+								:src="achievement.image"
+								:alt="achievement.name"
+								:class="{
+									'brightness-[10%]': !achievement.achieved,
+								}"
+								class="cursor-help"
+								@mouseenter="showTooltip(index)"
+								@mouseleave="hideTooltip"
+							/>
+						</div>
+						<div
+							v-if="activeTooltip === index"
+							class="absolute sm:bottom-[80%] right-0 transform translate-x-1/2 mb-2 p-3 bg-dark-interface text-white text-sm rounded-lg w-64 transition-all duration-200 z-10"
+						>
+							<div class="flex items-start gap-1">
+								<img
+									v-if="achievement.achieved"
+									:src="achievement.image"
+									:alt="achievement.name"
+									class="size-16 object-contain"
+								/>
+								<div class="flex-1 min-w-0">
+									<strong class="block mb-1">{{
+										achievement.name
+									}}</strong>
+									<p class="text-xs mb-1 break-words">
+										{{ achievement.description }}
+									</p>
+									<p
+										class="text-xs"
+										:class="
+											achievement.achieved
+												? 'text-green-400'
+												: 'text-gray-400'
+										"
+									>
+										{{
+											achievement.achieved
+												? "Achieved!"
+												: achievement.encouragement
+										}}
+									</p>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-
 		<div
 			class="comments-modal fixed z-50 inset-0 overflow-y-auto"
 			aria-labelledby="modal-title"
@@ -801,8 +760,11 @@ import {
 
 import axios from "axios";
 import moment from "moment";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
 
+const route = useRoute();
+const store = useStore();
 const router = useRouter();
 
 const hasContentCreator = ref(false);
@@ -910,28 +872,31 @@ const follow = (userId) => {
 const fetchUser = () => {
 	client
 		.get("api/user")
-		.then((res) => {
-			profile.username = res.data.user.username;
-			profile.fullname = res.data.profile[0].fullname;
-			profile.country = res.data.profile[0].country;
-			profile.user_photo = res.data.profile[0].user_photo;
-			profile.email = res.data.profile[0].email;
+		.then(({ data }) => {
+			const { user, profile: userProfile } = data;
+			Object.assign(profile, {
+				username: user.username,
+				fullname: userProfile.fullname,
+				country: userProfile.country,
+				user_photo: userProfile.user_photo,
+				email: userProfile.email,
+			});
 			changingPhoto.value = false;
 
-			hasContentCreator.value = res.data.profile[0].content_creator >= 5;
-			hasGuideGuru.value = res.data.profile[0].guide_guru >= 1;
-			hasLikeLeader.value = res.data.profile[0].like_leader >= 10;
-			hasShareStar.value = res.data.profile[0].share_star >= 10;
-			hasCommentConnoisseur.value =
-				res.data.profile[0].comment_connoisseur >= 5;
+			hasContentCreator.value = userProfile.content_creator >= 5;
+			hasGuideGuru.value = userProfile.guide_guru >= 1;
+			hasLikeLeader.value = userProfile.like_leader >= 10;
+			hasShareStar.value = userProfile.share_star >= 10;
+			hasCommentConnoisseur.value = userProfile.comment_connoisseur >= 5;
 			hasExplorerExtraordinaire.value =
-				res.data.profile[0].explorer_extraordinaire >= 10;
-			hasKnowledgeSeeker.value =
-				res.data.profile[0].knowledge_seeker >= 15;
-			hasTrendsetter.value = res.data.profile[0].trend_setter >= 50;
+				userProfile.explorer_extraordinaire >= 10;
+			hasKnowledgeSeeker.value = userProfile.knowledge_seeker >= 15;
+			hasTrendsetter.value = userProfile.trend_setter >= 50;
 			hasCulturaContributor.value =
-				res.data.profile[0].content_creator >= 20 &&
-				res.data.profile[0].guide_guru >= 10;
+				userProfile.content_creator >= 20 &&
+				userProfile.guide_guru >= 10;
+
+			console.log("USER", userProfile);
 		})
 		.catch((error) => {
 			console.log("ERROR", error);
@@ -1084,10 +1049,94 @@ const fetchPosts = () => {
 						?.comments || [];
 			}
 			followers.value = response.data.followers;
+			console.log("Followers", followers.value);
 		})
 		.catch((error) => {
 			console.log(error);
 		});
+};
+
+const activeTooltip = ref(null);
+
+const achievements = [
+	{
+		name: "Welcome Wanderer",
+		image: "/achievements/welcome-wanderer.png",
+		description: "First steps into CulturaLink",
+		achieved: true,
+		encouragement: "Join CulturaLink!",
+	},
+	{
+		name: "Content Creator",
+		image: "/achievements/content-creator.png",
+		description: "Create 5+ engaging posts",
+		achieved: false,
+		encouragement: "Keep creating!",
+	},
+	{
+		name: "Guide Guru",
+		image: "/achievements/guide-guru.png",
+		description: "Create your first travel guide",
+		achieved: true,
+		encouragement: "Start guiding!",
+	},
+	{
+		name: "Like Leader",
+		image: "/achievements/like-leader.png",
+		description: "Receive 10+ likes on your content",
+		achieved: false,
+		encouragement: "Keep sharing quality content!",
+	},
+	{
+		name: "Share Star",
+		image: "/achievements/share-star.png",
+		description: "Share content 10+ times",
+		achieved: true,
+		encouragement: "Start sharing!",
+	},
+	{
+		name: "Comment Connoisseur",
+		image: "/achievements/comment-connoisseur.png",
+		description: "Make 5+ thoughtful comments",
+		achieved: false,
+		encouragement: "Join the conversation!",
+	},
+	{
+		name: "Explorer Extraordinaire",
+		image: "/achievements/explorer-extraordinaire.png",
+		description: "Explore 10+ different locations",
+		achieved: true,
+		encouragement: "Keep exploring!",
+	},
+	{
+		name: "Knowledge Seeker",
+		image: "/achievements/knowledge-seeker.png",
+		description: "Complete 15+ learning activities",
+		achieved: false,
+		encouragement: "Keep learning!",
+	},
+	{
+		name: "Trend Setter",
+		image: "/achievements/trend-setter.png",
+		description: "Get 50+ trending posts",
+		achieved: false,
+		encouragement: "Create trending content!",
+	},
+	{
+		name: "Cultura Contributor",
+		image: "/achievements/cultura-contributor.png",
+		description: "Elite status: 20+ content & 10+ guides",
+		achieved: false,
+		encouragement: "Become an elite contributor!",
+	},
+];
+
+const showTooltip = (index) => {
+	activeTooltip.value = index;
+};
+
+const hideTooltip = () => {
+	activeTooltip.value = null;
 };
 </script>
 

@@ -17,7 +17,7 @@
 								username: user.username,
 							},
 							query: {
-								user: JSON.stringify(user),
+								id: user.id,
 							},
 						}"
 						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
@@ -65,7 +65,7 @@
 				<div
 					class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 					v-for="post in posts"
-					:key="post._id"
+					:key="post?._id"
 				>
 					<div class="post-title flex justify-center items-center">
 						<div
@@ -77,7 +77,7 @@
 								{{ post.title }}
 							</h1>
 							<small class="text-second ml-5">{{
-								timesince(post.date_posted)
+								timesince(post?.date_posted)
 							}}</small>
 						</div>
 					</div>
@@ -86,7 +86,7 @@
 					>
 						<div class="w-14 h-14 mr-4">
 							<img
-								:src="post.author_user_photo"
+								:src="post?.author_user_photo"
 								alt="Profile"
 								class="rounded-full cursor-pointer object-cover"
 							/>
@@ -96,33 +96,36 @@
 								<small
 									class="font-montserrat text-prime dark:text-dark-prime pr-5"
 								>
-									@{{ post.author }}
+									@{{ post?.author }}
 								</small>
 								<small
 									class="about-post font-montserrat dark:text-gray-400"
 								>
-									{{ post.category }} | {{ post.country }}
+									{{ post?.category }} | {{ post?.country }}
 								</small>
 							</div>
 							<p
 								class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal"
 							>
-								{{ post.content }}
+								{{ post?.content }}
 							</p>
 							<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
 								<img
-									:src="post.image"
+									:src="post?.image"
 									alt=""
 									class="h-full object-contain rounded-lg"
 								/>
 							</div>
-							<div class="h-auto pb-2 sm:p-4" v-else>
+							<div
+								class="h-auto pb-2 sm:p-4"
+								v-else-if="post.itinerary_in_post"
+							>
 								<div
 									class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-									:key="post.itinerary_in_post.id"
+									:key="post.itinerary_in_post?.id"
 									@click="
 										goToViewItinerary(
-											post.itinerary_in_post.id
+											post.itinerary_in_post?.id
 										)
 									"
 								>
@@ -133,7 +136,7 @@
 											class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
 											:src="
 												post.itinerary_in_post
-													.main_image
+													?.main_image
 											"
 											alt=""
 										/>
@@ -143,7 +146,7 @@
 											>
 												{{
 													post.itinerary_in_post
-														.main_title
+														?.main_title
 												}}
 											</h1>
 											<p
@@ -151,7 +154,7 @@
 											>
 												{{
 													post.itinerary_in_post
-														.main_description
+														?.main_description
 												}}
 											</p>
 										</div>
@@ -396,6 +399,7 @@ onMounted(() => {
 		console.log("valid object", result.value);
 		posts.value = result.value.posts;
 		users.value = result.value.users;
+		console.log("user", result.value.users);
 	}
 });
 

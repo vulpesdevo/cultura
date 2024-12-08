@@ -21,7 +21,38 @@
 			defer
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s&loading=async&libraries=places,marker,maps"
 		></script>
+		<style>
+			.gm-style .gm-style-iw-d::-webkit-scrollbar-track,
+			.gm-style .gm-style-iw-d::-webkit-scrollbar-track-piece,
+			.gm-style .gm-style-iw-c,
+			.gm-style .gm-style-iw-t::after {
+				background: #2d313d;
+			}
+			.gm-style .gm-style-iw-c button.gm-ui-hover-effect {
+				background-color: #2d313d; /* Change this to your desired color */
+				border: none;
+				width: 24px;
+				height: 24px;
+				opacity: 1;
+			}
 
+			.gm-style .gm-style-iw-c button.gm-ui-hover-effect span {
+				background-color: #ffffff; /* Change this to your desired color */
+				width: 12px;
+				height: 2px;
+				display: block;
+			}
+
+			.gm-style .gm-style-iw-c button.gm-ui-hover-effect span::before {
+				content: "";
+				background-color: #ffffff; /* Change this to your desired color */
+				width: 12px;
+				height: 2px;
+				display: block;
+
+				transform: rotate(-90deg);
+			}
+		</style>
 		<script>
 			tailwind.config = {
 				darkMode: ["class"],

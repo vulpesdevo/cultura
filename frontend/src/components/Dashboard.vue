@@ -91,10 +91,14 @@
 			<div
 				class="about-country font-montserrat flex my-3 items-center justify-between border-b-2 dark:border-dark-field p-1"
 			>
-				<p class="hidden sm:flex text-prime dark:text-dark-prime">
+				<p
+					class="hidden sm:flex text-sm text-prime dark:text-dark-prime"
+				>
 					What country is your post about?
 				</p>
-				<p class="flex sm:hidden text-prime dark:text-dark-prime">
+				<p
+					class="flex sm:hidden text-sm text-prime dark:text-dark-prime"
+				>
 					Country
 				</p>
 				<input
@@ -103,7 +107,7 @@
 					type="text"
 					ref="autocompletecountry"
 					placeholder="Country"
-					class="bg-field dark:bg-dark-second-dark dark:text-dark-prime rounded-full pl-4 ml-2 h-9 w-1/2 outline-none"
+					class="bg-field dark:bg-dark-second-dark dark:text-dark-prime text-xs rounded-full pl-4 ml-2 h-9 w-1/2 outline-none"
 				/>
 
 				<div class="hidden sm:flex sm:w-1/5"></div>
@@ -663,7 +667,7 @@ const fetchUser = async () => {
 		const res = await store.dispatch("fetchUserData");
 		console.log(res);
 
-		post_profile_display.value = res.profile[0].user_photo;
+		post_profile_display.value = res.profile?.user_photo;
 		auth_user.value = res.user.id;
 	} catch (error) {
 		console.error("Error fetching user:", error);

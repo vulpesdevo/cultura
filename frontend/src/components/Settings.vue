@@ -13,12 +13,9 @@
 			<div
 				class="flex items-center w-full font-montserrat text-prime dark:text-dark-prime mt-4 sm:mt-7 mb-3"
 			>
-				<span
-					class="material-icons-outlined text-2xl sm:text-3xl text-second"
-					>account_circle</span
-				>
+				<UserCircleIcon class="size-7 text-second" />
 				<h1
-					class="text-xl sm:text-2xl ms-2 sm:ms-4"
+					class="text-sm sm:text-lg font-montserrat ml-2 dark:text-white"
 					:class="isDark ? 'font-normal' : 'font-bold'"
 				>
 					Profile
@@ -32,7 +29,7 @@
 						@click.prevent="accordionOpen = !accordionOpen"
 						:aria-expanded="accordionOpen"
 					>
-						<span class="text-sm sm:text-lg"
+						<span class="text-xs sm:text-sm"
 							>Profile Information</span
 						>
 						<svg
@@ -202,7 +199,7 @@
 						@click.prevent="changePassOpen = !changePassOpen"
 						:aria-expanded="changePassOpen"
 					>
-						<span class="text-sm sm:text-lg">Change Password</span>
+						<span class="text-xs sm:text-sm">Change Password</span>
 						<svg
 							class="fill-indigo-500 shrink-0 ml-8"
 							width="16"
@@ -372,7 +369,9 @@
 										<div class="h-3">
 											<span
 												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasCapitalLetter"
+												v-if="
+													passwordStrength.hasCapitalLetter
+												"
 											>
 												check_circle
 											</span>
@@ -380,7 +379,9 @@
 										<div class="h-3">
 											<span
 												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasSymbol"
+												v-if="
+													passwordStrength.hasSymbol
+												"
 											>
 												check_circle
 											</span>
@@ -388,7 +389,9 @@
 										<div class="h-3">
 											<span
 												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasNumber"
+												v-if="
+													passwordStrength.hasNumber
+												"
 											>
 												check_circle
 											</span>
@@ -396,7 +399,9 @@
 										<div class="h-3">
 											<span
 												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasMinLength"
+												v-if="
+													passwordStrength.hasMinLength
+												"
 											>
 												check_circle
 											</span>
@@ -508,176 +513,91 @@
 				</div>
 			</div>
 
-			<!-- <div
-				class="flex items-center w-full font-montserrat text-prime mt-7 mb-3 sm:mb-5"
-			>
-				<span
-					class="material-icons-outlined text-2xl sm:text-3xl text-second"
-					>notifications</span
+			<div class="flex sm:mb-4">
+				<label
+					class="flex w-full justify-end items-center cursor-pointer select-none text-dark dark:text-white"
 				>
-				<h1
-					class="text-xl sm:text-2xl ms-2 sm:ms-4 dark:text-dark-prime"
-					:class="isDark ? 'font-normal' : 'font-bold'"
-				>
-					Notifications
-				</h1>
+					<div class="flex w-full justify-between">
+						<span
+							class="text-prime dark:text-dark-prime font-montserrat text-xs sm:text-sm mb-1"
+							>Protect your posts</span
+						>
+						<div class="relative">
+							<input
+								type="checkbox"
+								class="sr-only"
+								@change="onToggleChange"
+								v-model="isPrivate"
+							/>
+							<div
+								:class="{ '!bg-second': isPrivate }"
+								class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
+							></div>
+							<div
+								:class="{
+									'translate-x-full !bg-primary dark:!bg-white !bg-white':
+										isPrivate,
+								}"
+								class="absolute flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 transition bg-second rounded-full dot left-1 top-1 dark:bg-dark-5"
+							></div>
+						</div>
+					</div>
+				</label>
 			</div>
-			<h1
-				class="text-[#887D7D] dark:text-dark-second-dark font-montserrat text-sm mb-3 sm:text-xl sm:ms-14 sm:mb-6"
-			>
-				Customize where you want your notifications to show up.
-			</h1>
-			<div class="flex-col w-full">
-				
-				<div class="flex mb-2 sm:mb-4">
-					<label
-						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
-					>
-						<div class="flex w-full justify-between">
-							<span
-								class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-xl sm:ms-[3.5rem] mb-1"
-								>In-App Notifications</span
-							>
-							<div class="relative">
-								<input
-									type="checkbox"
-									class="sr-only"
-									@change="handleCheckboxChangeInApp"
-								/>
-								<div
-									:class="{ '!bg-second': isCheckedInApp }"
-									class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
-								></div>
-								<div
-									:class="{
-										'translate-x-full !bg-primary dark:!bg-white !bg-white':
-											isCheckedInApp,
-									}"
-									class="absolute flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 transition bg-second rounded-full dot left-1 top-1 dark:bg-dark-5"
-								></div>
-							</div>
-						</div>
-					</label>
-				</div>
-				<div class="flex mb-2 sm:mb-4">
-					<label
-						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
-					>
-						<div class="flex w-full justify-between">
-							<span
-								class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-xl sm:ms-[3.5rem] mb-1"
-								>Banner Notifications</span
-							>
-							<div class="relative">
-								<input
-									type="checkbox"
-									class="sr-only"
-									@change="handleCheckboxChangeBanner"
-								/>
-								<div
-									:class="{ '!bg-second': isCheckedBanner }"
-									class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
-								></div>
-								<div
-									:class="{
-										'translate-x-full !bg-primary dark:!bg-white !bg-white':
-											isCheckedBanner,
-									}"
-									class="absolute flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 transition bg-second rounded-full dot left-1 top-1 dark:bg-dark-5"
-								></div>
-							</div>
-						</div>
-					</label>
-				</div>
-				<div class="flex mb-2 sm:mb-4">
-					<label
-						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
-					>
-						<div class="flex w-full justify-between">
-							<span
-								class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-xl sm:ms-[3.5rem] mb-1"
-								>Vibration</span
-							>
-							<div class="relative">
-								<input
-									type="checkbox"
-									class="sr-only"
-									@change="handleCheckboxChangeVibration"
-								/>
-								<div
-									:class="{
-										'!bg-second': isCheckedVibration,
-									}"
-									class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
-								></div>
-								<div
-									:class="{
-										'translate-x-full !bg-primary dark:!bg-white !bg-white':
-											isCheckedVibration,
-									}"
-									class="absolute flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 transition bg-second rounded-full dot left-1 top-1 dark:bg-dark-5"
-								></div>
-							</div>
-						</div>
-					</label>
-				</div>
-				<div class="flex mb-2 sm:mb-4">
-					<label
-						class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
-					>
-						<div class="flex w-full justify-between">
-							<span
-								class="text-prime dark:text-dark-prime font-montserrat text-sm mb-3 sm:text-xl sm:ms-[3.5rem] sm:mb-7"
-								>Sound</span
-							>
-							<div class="relative">
-								<input
-									type="checkbox"
-									class="sr-only"
-									@change="handleCheckboxChangeSound"
-								/>
-								<div
-									:class="{ '!bg-second': isCheckedSound }"
-									class="block h-6 sm:h-7 rounded-full box bg-field dark:bg-dark-second-dark w-10 sm:w-12"
-								></div>
-								<div
-									:class="{
-										'translate-x-full !bg-primary dark:!bg-white !bg-white':
-											isCheckedSound,
-									}"
-									class="absolute flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 transition bg-second rounded-full dot left-1 top-1 dark:bg-dark-5"
-								></div>
-							</div>
-						</div>
-					</label>
-				</div>
-			</div> -->
 			<div
-				class="flex items-center w-full font-montserrat text-prime mt-4 sm:mt-7 mb-3 sm:mb-5"
+				v-if="showModal"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
 			>
-				<span
-					class="material-icons-outlined text-2xl sm:text-3xl text-second"
-					>contrast</span
+				<div
+					class="bg-interface dark:bg-dark-field p-8 rounded-xl shadow-lg text-center space-y-4 w-[550px] h-[300px] sm:ml-32 flex flex-col justify-center"
 				>
+					<h3
+						class="text-xl mb-2 font-montserrat text-prime dark:text-white font-bold"
+					>
+						{{ modalTitle }}
+					</h3>
+					<p class="font-montserrat text-sm dark:text-white">
+						{{ modalMessage }}
+					</p>
+					<div class="flex space-x-4 pt-9 justify-center">
+						<button
+							@click="confirmPrivacy(false)"
+							class="bg-gray-500 text-white px-5 py-2 rounded-full text-base font-montserrat font-bold"
+						>
+							Cancel
+						</button>
+						<button
+							@click="confirmPrivacy(true)"
+							class="bg-second text-white px-5 py-2 rounded-full text-base font-montserrat font-bold"
+						>
+							Continue
+						</button>
+					</div>
+				</div>
+			</div>
+			<div
+				class="flex items-center w-full font-montserrat text-prime mt-4 sm:mt-7"
+			>
+				<SunIcon class="size-7 text-second" />
 				<h1
-					class="text-xl sm:text-2xl ms-2 sm:ms-4 dark:text-dark-prime"
+					class="text-sm sm:text-lg font-montserrat ml-2 dark:text-white"
 					:class="isDark ? 'font-normal' : 'font-bold'"
 				>
 					Theme
 				</h1>
 			</div>
 			<h1
-				class="text-[#887D7D] dark:text-dark-second-dark font-montserrat text-sm mb-3 sm:text-xl sm:ms-14 sm:mb-10"
+				class="text-[#887D7D] dark:text-dark-second-dark font-montserrat text-xs sm:text-sm sm:my-3"
 			>
 				Customize how you want CulturaLink to look like on your device
 			</h1>
-			<div class="flex sm:mb-4">
+			<div class="flex">
 				<label
-					class="flex w-full sm:w-4/5 justify-end items-center cursor-pointer select-none text-dark dark:text-white"
+					class="flex w-full justify-end items-center cursor-pointer select-none text-dark dark:text-white"
 				>
 					<div class="flex w-full justify-between">
 						<span
-							class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-xl sm:ms-[3.5rem] mb-1"
+							class="text-prime dark:text-dark-prime font-montserrat text-sm sm:text-sm mb-1"
 							>Theme</span
 						>
 						<div class="relative">
@@ -732,18 +652,15 @@
 					</div>
 
 					<div class="flex items-center justify-center w-full">
-						<span
-							class="material-icons-outlined sm:ml-3 text-second text-3xl sm:text-7xl"
-							>account_circle</span
-						>
-						<span
-							class="material-icons-outlined sm:ml-5 text-second text-3xl sm:text-7xl"
-							>email</span
-						>
-						<span
-							class="material-icons-outlined sm:ml-5 text-second text-3xl sm:text-7xl"
-							>call</span
-						>
+						<UserCircleIcon
+							class="h-8 w-8 sm:size-10 text-second sm:ml-3"
+						/>
+						<EnvelopeIcon
+							class="h-8 w-8 sm:size-10 text-second sm:ml-5"
+						/>
+						<PhoneIcon
+							class="h-8 w-8 sm:size-10 text-second sm:ml-5"
+						/>
 					</div>
 				</div>
 				<div class="flex bg-second h-7 justify-center items-center">
@@ -762,6 +679,19 @@
 <script setup>
 import { ref, computed, onMounted, reactive } from "vue";
 import { useDark, useToggle } from "@vueuse/core";
+import {
+	LockClosedIcon,
+	UserCircleIcon,
+	SunIcon,
+	EnvelopeIcon,
+	PhoneIcon,
+} from "@heroicons/vue/24/outline";
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
+
+const route = useRoute();
+const store = useStore();
+const router = useRouter();
 import axios from "axios";
 
 const isDark = useDark();
@@ -783,12 +713,55 @@ const showConfirmPassword = ref(false);
 
 const setautocompletecountry = ref(null);
 
+// PRIVACY Settings
+const isPrivate = ref(false);
+const showModal = ref(false);
+const modalTitle = ref("");
+const modalMessage = ref("");
+
+const onToggleChange = () => {
+	showModal.value = true;
+	modalTitle.value = isPrivate.value
+		? "Make Account Public?"
+		: "Make Account Private?";
+	modalMessage.value = isPrivate.value
+		? "Are you sure you want to make your account public? Anyone will be able to see your posts."
+		: "Are you sure you want to make your account private? Only your followers will be able to see your posts.";
+};
+
+const confirmPrivacy = async (confirm) => {
+	if (confirm) {
+		try {
+			await store.dispatch("updatePrivacy", isPrivate.value);
+			console.log("Privacy updated successfully");
+			createToast(
+				`Your account is now ${
+					isPrivate.value ? "private" : "public"
+				}.`,
+				"success"
+			);
+		} catch (error) {
+			console.error("Error updating privacy:", error);
+			createToast(
+				"Failed to update privacy settings. Please try again.",
+				"error"
+			);
+			// Revert the toggle if the API call fails
+			isPrivate.value = !isPrivate.value;
+		}
+	} else {
+		// If the user cancels, revert the toggle
+		isPrivate.value = !isPrivate.value;
+	}
+	showModal.value = false;
+};
+
 const editing = ref(false);
 const passediting = ref(false);
 const oldPasswordInvalid = ref(false);
 const error = ref(null);
 
-const passwordStrength = reactive({
+const passwordStrength = ref({
 	hasCapitalLetter: false,
 	hasSymbol: false,
 	hasNumber: false,
@@ -802,15 +775,15 @@ const isGmailEmail = computed(() => {
 
 const isValidNewPassword = computed(() => {
 	const password = new_password.value;
-	passwordStrength.hasCapitalLetter = /[A-Z]/.test(password);
-	passwordStrength.hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-	passwordStrength.hasNumber = /\d/.test(password);
-	passwordStrength.hasMinLength = password.length >= 8;
+	passwordStrength.value.hasCapitalLetter = /[A-Z]/.test(password);
+	passwordStrength.value.hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+	passwordStrength.value.hasNumber = /\d/.test(password);
+	passwordStrength.value.hasMinLength = password.length >= 8;
 	return (
-		passwordStrength.hasCapitalLetter &&
-		passwordStrength.hasSymbol &&
-		passwordStrength.hasNumber &&
-		passwordStrength.hasMinLength
+		passwordStrength.value.hasCapitalLetter &&
+		passwordStrength.value.hasSymbol &&
+		passwordStrength.value.hasNumber &&
+		passwordStrength.value.hasMinLength
 	);
 });
 

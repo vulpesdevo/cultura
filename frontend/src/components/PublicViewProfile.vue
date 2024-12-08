@@ -1,4 +1,4 @@
-<template>
+<template lang="">
 	<div
 		class="flex flex-col items-center align-middle w-full sm:px-8 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-7 pt-5 bg-field dark:bg-dark-notif px-2"
 	>
@@ -58,13 +58,13 @@
 						class="profile-info text-xm sm:text-base flex items-start justify-center sm:items-start flex-col sm:justify-between w-full sm:w-1/2"
 					>
 						<div
-							v-if="!user.username"
+							v-if="!user.user?.username"
 							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
 						></div>
 						<small
 							class="font-montserrat text-prime dark:text-dark-second h-4"
 						>
-							@{{ user.username }}
+							@{{ user.user?.username }}
 						</small>
 
 						<div
@@ -112,7 +112,7 @@
 					<!-- Enhanced Follow/Unfollow Button -->
 					<button
 						v-if="user.is_followed"
-						@click.prevent="follow(user.user)"
+						@click.prevent="follow(user.user.id)"
 						class="flex items-center justify-center w-32 h-7 py-4 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
 					>
 						<UserMinusIcon class="w-4 h-4" />
@@ -120,8 +120,8 @@
 					</button>
 
 					<button
-						v-if="!user.is_followed"
-						@click.prevent="follow(user.user)"
+						v-else
+						@click.prevent="follow(user.user.id)"
 						class="flex items-center justify-center w-32 h-7 py-4 rounded-full bg-second text-white text-sm font-medium transition-all duration-200 hover:bg-opacity-90 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-second focus:ring-offset-2 dark:focus:ring-offset-gray-800"
 					>
 						<UserPlusIcon class="w-4 h-4 mr-1" />
@@ -226,6 +226,7 @@
 				</div>
 			</div>
 			<div
+				v-if="!user.is_private || user.is_followed"
 				class="post-contents w-screen sm:w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 				v-for="post in posts"
 				:key="post._id"
@@ -333,6 +334,19 @@
 						</small>
 					</div>
 				</div>
+			</div>
+			<div
+				v-else
+				class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center"
+			>
+				<h2
+					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+				>
+					Private Account
+				</h2>
+				<p class="text-gray-600 dark:text-gray-300">
+					This account is private. Follow to see their posts.
+				</p>
 			</div>
 		</div>
 		<div
@@ -609,8 +623,12 @@ import {
 	UserPlusIcon,
 	UserMinusIcon,
 } from "@heroicons/vue/24/outline";
-import { useRoute } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
+
 const route = useRoute();
+const store = useStore();
+const router = useRouter();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
@@ -667,21 +685,24 @@ const itinerariesFromPost = ref([]);
 const selectedItinerary = ref(null);
 const idOfSelected = ref("");
 const isFullTextShown = ref({});
-
+const userID = ref(route.query.id);
 const checkedAfterDelay = ref(false);
 let client;
+const id_get_post = ref(null);
+const fetchUser = async () => {
+	const res = await store.dispatch("viewCulturaUser", userID.value);
 
+	user.value = res;
+	id_get_post.value = user.value.user.id;
+	fetchPosts(id_get_post.value);
+};
 onMounted(() => {
 	setTimeout(() => {
 		checkedAfterDelay.value = true;
 	}, 5000);
 
-	const userData = JSON.parse(route.query.user);
-	user.value = userData;
-	userId.value = user.value.user;
-
-	console.log("USER ID::", userId.value);
-	fetchPosts(userId.value);
+	// console.log("USER ID::", userId.value);
+	fetchUser();
 });
 
 const token = sessionStorage.getItem("TOKEN");
@@ -697,14 +718,14 @@ client = axios.create({
 	},
 });
 
-const follow = (userId) => {
-	console.log("HEHE :::", userId);
+const follow = (id) => {
 	client
-		.post(`api/follow/${userId}/follow/`)
+		.post(`api/follow/${id}/follow/`)
 		.then((response) => {
-			console.log(response.data);
-			user.value.is_followed = response.data.is_followed;
-			user.value.follow_count = response.data.follow_count;
+			console.log("following::", response.data);
+			// user.value.is_followed = response.data.is_followed;
+			// user.value.follow_count = response.data.follow_count;
+			fetchUser();
 		})
 		.catch((error) => {
 			console.error("Error following the user:", error);
@@ -726,8 +747,8 @@ const likePost = (postId) => {
 	client
 		.post(`api/like-posts/${postId}/like_post/`)
 		.then((response) => {
-			console.log(response.data);
-			fetchPosts(userId.value);
+			// console.log(response.data);
+			fetchPosts(id_get_post.value);
 		})
 		.catch((error) => {
 			console.error("Error liking the post:", error);
@@ -737,12 +758,12 @@ const likePost = (postId) => {
 const selectPost = (post) => {
 	showModal.value = true;
 	selectedPost.value = [post];
-	console.log("GET POST", selectedPost.value);
+
 	postId.value = selectedPost.value[0]._id;
 	repliedTo.value = selectedPost.value[0].author;
 	commentsInPost.value =
 		posts.value.find((p) => p._id === postId.value)?.comments || [];
-	console.log("the id : ", commentsInPost.value);
+	// console.log("the id : ", commentsInPost.value);
 };
 
 const submitReply = () => {
@@ -753,22 +774,22 @@ const submitReply = () => {
 			body: reply.value,
 		})
 		.then((response) => {
-			console.log(response.data);
+			// console.log(response.data);
 			reply.value = "";
 
-			fetchPosts(userId.value);
+			fetchPosts(id_get_post.value);
 		})
 		.catch((error) => {
 			console.error(error);
 		});
 };
 
-const fetchPosts = async (userId) => {
+const fetchPosts = async (id) => {
 	try {
-		const response = await client.get("/api/public-profile-posts/", {
-			params: { user_id: userId },
-		});
-		posts.value = response.data.reverse();
+		const response = await store.dispatch("fetchPublicProfilePosts", id);
+		// console.log("POSTS::", response);
+
+		posts.value = response.reverse();
 	} catch (error) {
 		console.error("Error fetching posts:", error);
 	}

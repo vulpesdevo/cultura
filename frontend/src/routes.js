@@ -94,11 +94,13 @@ const routes = [
 				path: "/rp",
 				component: ReportsView,
 				name: "rp",
+				meta: { requiresAdmin: true }, // Only admin can access
 			},
 			{
 				path: "/cu",
 				component: CulturaUserAdminView,
 				name: "cu",
+				meta: { requiresAdmin: true }, // Only admin can access
 			},
 		],
 	},
@@ -122,7 +124,20 @@ const router = createRouter({
 	routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+	if (!store.state.user.token || !store.getters.getUser) {
+		await store.dispatch("fetchUserData");
+	}
+	const user = store.getters.getUser;
+	const isLoggedIn = !!store.state.user.token;
+	const isAdmin = user.data ? user.data.is_admin : false;
+
+	console.log("User logged in:", isLoggedIn);
+	console.log("Is admin:", isAdmin);
+
+	// const isAdmin = user.data ? user.data.is_admin : false;
+	// Get the user's admin status
+
 	if (to.meta.requiresAuth && !store.state.user.token) {
 		next({ name: "login" });
 	} else if (store.state.user.token && to.meta.isGuest) {
@@ -133,6 +148,11 @@ router.beforeEach((to, from, next) => {
 
 	if (to.name === "login" || to.name === "otp") {
 		window.scrollTo(0, 0);
+	}
+
+	if (requiresAdmin && !isAdmin) {
+		next({ name: "NotFound" });
+		return;
 	}
 });
 

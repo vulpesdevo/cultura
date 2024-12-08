@@ -104,7 +104,7 @@
 			</nav>
 			<div class="hidden sm:flex items-center px-4 mt-auto mb-4">
 				<img
-					:src="user.profile.user_photo"
+					:src="user.profile?.user_photo"
 					alt="Profile"
 					class="w-10 h-10 rounded-full mr-3"
 				/>
@@ -225,8 +225,8 @@ onMounted(async () => {
 	try {
 		const userData = await store.dispatch("fetchUserData");
 		user.value = userData.user;
-		user.value.profile = userData.profile[0];
-		console.log("data", userData.profile[0]);
+		user.value.profile = userData.profile;
+		console.log("data", userData.profile);
 	} catch (error) {
 		console.error("Error fetching user data:", error);
 	}

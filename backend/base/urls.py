@@ -108,6 +108,10 @@ urlpatterns = [
         views.CulturaUserAdminView.as_view(),
         name="culturauser-detail",
     ),
+    path("view_user/<int:pk>/", views.UserDetailView.as_view(), name="user-detail"),
+    path(
+        "user/update-privacy/", views.UpdatePrivacyView.as_view(), name="update-privacy"
+    ),
     # reporting  views router
     path("reports/", views.ReportListView.as_view(), name="report-list-create"),
     path("reports/<str:pk>/", views.ReportDetailView.as_view(), name="report-detail"),

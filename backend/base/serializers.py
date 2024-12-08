@@ -43,51 +43,41 @@ class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
-    ##
-    def check_user(self, clean_data):
-        user = authenticate(
-            username=clean_data["username"], password=clean_data["password"]
-        )
-        print(user)
-        if not user:
-            raise ValidationError("user not found")
-        return user
+    is_admin = serializers.SerializerMethodField()
+
+    def get_is_admin(self, obj):
+        user = CulturaUser.objects.get(username=obj["username"])
+        return user.is_staff
+
+    def validate(self, data):
+        username = data.get("username")
+        password = data.get("password")
+        user = authenticate(username=username, password=password)
+
+        if user and user.is_active:
+            return {
+                "username": user.username,
+                "is_admin": user.is_staff,
+            }
+        raise serializers.ValidationError("Invalid credentials")
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = "__all__"
+        fields = ["id", "username", "email"]
 
 
 class CulturaUserSerializer(serializers.ModelSerializer):
     followers = UserSerializer(many=True, read_only=True)
     follow_count = serializers.SerializerMethodField()
     is_followed = serializers.SerializerMethodField()
+    user = UserSerializer()
+    posts = serializers.SerializerMethodField()
 
     class Meta:
         model = CulturaUser
-        fields = [
-            "id",
-            "user",
-            "user_photo",
-            "fullname",
-            "country",
-            "email",
-            "followers",
-            "is_followed",
-            "follow_count",
-            "is_active",
-            "trend_setter",
-            "share_star",
-            "like_leader",
-            "knowledge_seeker",
-            "guide_guru",
-            "explorer_extraordinaire",
-            "cultura_contributor",
-            "content_creator",
-            "comment_connoisseur",
-        ]
+        fields = "__all__"
 
     def get_follow_count(self, obj):
         return len(obj.followers.all())
@@ -99,9 +89,14 @@ class CulturaUserSerializer(serializers.ModelSerializer):
 
     def get_user_photo(self, obj):
         request = self.context.get("request")
+
         if obj.user_photo and request:
             return request.build_absolute_uri(obj.user_photo.url)
         return None
+
+    def get_posts(self, obj):
+        posts = Post.objects.filter(author=obj.user)
+        return PostSerializer(posts, many=True, context=self.context).data
 
 
 class CommentSerializer(serializers.ModelSerializer):
