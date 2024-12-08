@@ -746,7 +746,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
 import {
 	CogIcon,
@@ -1058,78 +1058,78 @@ const fetchPosts = () => {
 
 const activeTooltip = ref(null);
 
-const achievements = [
+const achievements = computed(() => [
 	{
 		name: "Welcome Wanderer",
 		image: "/achievements/welcome-wanderer.png",
 		description: "First steps into CulturaLink",
-		achieved: true,
+		achieved: true, // Always achieved as they're using the app
 		encouragement: "Join CulturaLink!",
 	},
 	{
 		name: "Content Creator",
 		image: "/achievements/content-creator.png",
 		description: "Create 5+ engaging posts",
-		achieved: false,
+		achieved: hasContentCreator.value,
 		encouragement: "Keep creating!",
 	},
 	{
 		name: "Guide Guru",
 		image: "/achievements/guide-guru.png",
 		description: "Create your first travel guide",
-		achieved: true,
+		achieved: hasGuideGuru.value,
 		encouragement: "Start guiding!",
 	},
 	{
 		name: "Like Leader",
 		image: "/achievements/like-leader.png",
 		description: "Receive 10+ likes on your content",
-		achieved: false,
+		achieved: hasLikeLeader.value,
 		encouragement: "Keep sharing quality content!",
 	},
 	{
 		name: "Share Star",
 		image: "/achievements/share-star.png",
 		description: "Share content 10+ times",
-		achieved: true,
+		achieved: hasShareStar.value,
 		encouragement: "Start sharing!",
 	},
 	{
 		name: "Comment Connoisseur",
 		image: "/achievements/comment-connoisseur.png",
 		description: "Make 5+ thoughtful comments",
-		achieved: false,
+		achieved: hasCommentConnoisseur.value,
 		encouragement: "Join the conversation!",
 	},
 	{
 		name: "Explorer Extraordinaire",
 		image: "/achievements/explorer-extraordinaire.png",
 		description: "Explore 10+ different locations",
-		achieved: true,
+		achieved: hasExplorerExtraordinaire.value,
 		encouragement: "Keep exploring!",
 	},
 	{
 		name: "Knowledge Seeker",
 		image: "/achievements/knowledge-seeker.png",
 		description: "Complete 15+ learning activities",
-		achieved: false,
+		achieved: hasKnowledgeSeeker.value,
 		encouragement: "Keep learning!",
 	},
 	{
 		name: "Trend Setter",
 		image: "/achievements/trend-setter.png",
 		description: "Get 50+ trending posts",
-		achieved: false,
+		achieved: hasTrendsetter.value,
 		encouragement: "Create trending content!",
 	},
 	{
 		name: "Cultura Contributor",
 		image: "/achievements/cultura-contributor.png",
 		description: "Elite status: 20+ content & 10+ guides",
-		achieved: false,
+		achieved: hasCulturaContributor.value,
 		encouragement: "Become an elite contributor!",
 	},
-];
+]);
 
 const showTooltip = (index) => {
 	activeTooltip.value = index;

@@ -218,13 +218,15 @@ const view_post = (post_id_notif, notif_id) => {
 };
 
 const view_user = (user_data) => {
+	console.log("USER DATA ", user_data);
+
 	router.push({
 		name: "user-profile",
 		params: {
 			username: user_data[0].username,
 		},
 		query: {
-			user: JSON.stringify(user_data[0]),
+			id: user_data[0].id,
 		},
 	});
 };
