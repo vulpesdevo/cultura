@@ -183,7 +183,7 @@
 								class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-700"
 							>
 								<img
-									:src="post.author_user_photo"
+									:src="post.cultura_user.user_photo"
 									alt="Profile"
 									class="w-full h-full object-cover"
 								/>
@@ -191,7 +191,8 @@
 							<div class="flex flex-col space-y-1">
 								<div class="flex items-center space-x-2">
 									<span
-										class="font-medium text-xs text-gray-900 dark:text-white"
+										@click="gotoUser(post.cultura_user)"
+										class="font-medium text-xs text-gray-900 dark:text-white cursor-pointer hover:underline"
 										>@{{ post.author }}</span
 									>
 									<span
@@ -295,14 +296,14 @@
 
 						<!-- Itinerary Section -->
 						<div
-							v-if="post.itinerary_in_post"
+							v-if="!post?.itinerary_in_post === []"
 							class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
 							@click="
-								goToViewItinerary(post.itinerary_in_post.id)
+								goToViewItinerary(post?.itinerary_in_post?.id)
 							"
 						>
 							<img
-								:src="post.itinerary_in_post.main_image"
+								:src="post?.itinerary_in_post?.main_image"
 								alt=""
 								class="w-full h-48 object-cover"
 							/>
@@ -310,13 +311,14 @@
 								<h3
 									class="text-xl font-bold text-gray-900 dark:text-white mb-2"
 								>
-									{{ post.itinerary_in_post.main_title }}
+									{{ post?.itinerary_in_post?.main_title }}
 								</h3>
 								<p
 									class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
 								>
 									{{
-										post.itinerary_in_post.main_description
+										post?.itinerary_in_post
+											?.main_description
 									}}
 								</p>
 							</div>
@@ -331,32 +333,57 @@
 							@click.prevent="selectPost(post)"
 							class="flex items-center space-x-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
 						>
-							<i class="fa-regular fa-comment text-xl"></i>
+							<ChatBubbleLeftIcon class="size-4" />
 							<span class="text-sm">{{
 								post.comments?.length || 0
 							}}</span>
 						</button>
 
-						<button
-							@click="likePost(post._id)"
-							class="flex items-center space-x-2 text-gray-500 hover:text-second dark:text-gray-400 dark:hover:text-second transition-colors duration-200"
-						>
-							<span class="material-icons-outlined text-xl">
-								{{
+						<div class="relative group">
+							<button
+								@click="likePost(post._id)"
+								class="flex items-center space-x-1"
+								:class="
 									post.is_liked
-										? "favorite"
-										: "favorite_border"
-								}}
-							</span>
-							<span class="text-sm">
-								{{
-									post.like_count >= 1000
-										? (post.like_count / 1000).toFixed(1) +
-										  "k"
-										: post.like_count
-								}}
-							</span>
-						</button>
+										? 'text-second'
+										: 'text-gray-500 hover:text-second'
+								"
+							>
+								<HeartIcon
+									v-if="post.is_liked"
+									class="size-4"
+								/>
+								<HeartIcon v-else class="size-4" />
+								<span>{{
+									formatLikeCount(post.like_count)
+								}}</span>
+							</button>
+							<div
+								v-if="post.likers.length > 0"
+								class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out"
+							>
+								<div
+									class="p-2 max-h-40 overflow-y-auto space-y-2"
+								>
+									<div
+										v-for="like in post.likers"
+										:key="like.id"
+										@click="gotoUser(like)"
+										class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+									>
+										<img
+											:src="like.user_photo"
+											alt="User"
+											class="size-5 rounded-full object-cover"
+										/>
+										<span
+											class="text-xs text-gray-700 dark:text-gray-300"
+											>{{ like.user.username }}</span
+										>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -608,6 +635,17 @@ import axios from "axios";
 import moment from "moment";
 import { clean } from "profanity-cleaner";
 import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
+import {
+	ChatBubbleLeftIcon,
+	HeartIcon,
+	PencilSquareIcon,
+	XMarkIcon,
+	CheckIcon,
+	PhotoIcon,
+	FaceSmileIcon,
+	PaperAirplaneIcon,
+	ArrowLeftIcon,
+} from "@heroicons/vue/24/solid";
 
 import filipinoBadWords from "../custom-badwords";
 
@@ -684,7 +722,9 @@ const fetchPosts = async () => {
 		console.error("Error fetching posts:", error);
 	}
 };
-
+const formatLikeCount = (count) => {
+	return count >= 1000 ? (count / 1000).toFixed(1) + "k" : count;
+};
 const handleFileSelection = (event) => {
 	const file = event.target.files[0];
 	if (file) {
@@ -735,13 +775,28 @@ const likePost = async (postId) => {
 };
 
 const selectPost = (post) => {
-	showModal.value = true;
-	selectedPost.value = [post];
-	post_id.value = post._id;
-	replied_to.value = post.author;
-	comments_in_post.value = post.comments || [];
+	// showModal.value = true;
+	// selectedPost.value = [post];
+	// post_id.value = post._id;
+	// replied_to.value = post.author;
+	// comments_in_post.value = post.comments || [];
+	router.push({
+		name: "view-post",
+		params: { post: post._id },
+		query: { n: "" },
+	});
 };
-
+const gotoUser = async (user) => {
+	router.push({
+		name: "user-profile",
+		params: {
+			username: user.user.username,
+		},
+		query: {
+			id: user.id,
+		},
+	});
+};
 const submitPost = async () => {
 	if (
 		!categoryOption.value.trim() ||

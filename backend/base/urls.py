@@ -58,6 +58,11 @@ urlpatterns = [
         name="public-profile-posts",
     ),
     path(
+        "liked-post-view/<str:post_id>/",
+        views.LikedPostView.as_view(),
+        name="liked-post-view",
+    ),
+    path(
         "liked-post-view/<str:post_id>/<str:notif>",
         views.LikedPostView.as_view(),
         name="liked-post-view",
@@ -73,6 +78,11 @@ urlpatterns = [
     # creating and calling comments
     path("commenting", views.CommentCreate.as_view(), name="comment-create"),
     path("comments", views.CommentListView.as_view(), name="comment-list"),
+    path(
+        "comments/<str:comment_id>",
+        views.CommentCreate.as_view(),
+        name="comment-update",
+    ),
     # creating and calling itineraries
     path("create-itinerary", views.ItineraryCreate.as_view(), name="create-itinerary"),
     path("itinerary", views.ItineraryListView.as_view(), name="itineraries"),

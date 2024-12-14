@@ -63,9 +63,14 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = UserModel
-        fields = ["id", "username", "email"]
+        fields = [
+            "id",
+            "username",
+            "email",
+        ]
 
 
 class CulturaUserSerializer(serializers.ModelSerializer):
@@ -100,6 +105,7 @@ class CulturaUserSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    # author = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -132,6 +138,7 @@ class LikeSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+
     likes = UserSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
     author = serializers.SerializerMethodField()

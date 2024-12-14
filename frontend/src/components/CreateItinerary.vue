@@ -408,7 +408,7 @@ const setAboutMe = ref("");
 const total_budget = ref(0);
 const convertedBudget = ref("");
 const api =
-	"https://v6.exchangerate-api.com/v6/eab4e81875a8acd578c8d5c1/latest/USD";
+	"https://v6.exchangerate-api.com/v6/14L4SCh7Me4KaDH1xLnMmw==wik53BlNsvI2cN3k/latest/USD";
 const currency_list = ref([
 	["AED", "United Arab Emirates Dirhams", "د.إ"],
 	["AFN", "Afghan Afghani", "؋"],
@@ -1151,8 +1151,8 @@ onBeforeMount(() => {
 		.get("api/user")
 		.then((res) => {
 			username.value = res.data.user.username;
-			user_photo.value = res.data.profile[0].user_photo;
-			console.log("HALAAA", user_photo.value);
+			user_photo.value = res.data.profile.user_photo;
+			// console.log("HALAAA", user_photo.value);
 		})
 		.catch((error) => {
 			console.log("ERROR", error.message);

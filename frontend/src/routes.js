@@ -69,7 +69,7 @@ const routes = [
 				name: "view-itinerary",
 			},
 			{
-				path: "/view-post",
+				path: "/view-post/:post",
 				component: PostViewing,
 				name: "view-post",
 			},

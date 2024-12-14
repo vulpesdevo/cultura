@@ -179,11 +179,19 @@
 							class="w-full h-48 object-cover"
 						/>
 						<img
-							v-else
+							v-else-if="itinerary.place_image"
 							:src="itinerary.place_image"
 							:alt="itinerary.place_name"
 							class="w-full h-48 object-cover"
 						/>
+						<div
+							v-else
+							class="w-full h-48 flex items-center justify-center bg-gray-200"
+						>
+							<span class="text-gray-500"
+								>No image available</span
+							>
+						</div>
 						<div class="p-4">
 							<div class="flex items-center space-x-2 mb-2">
 								<div
@@ -204,7 +212,7 @@
 							<div class="py-3">
 								<div class="flex flex-wrap gap-1">
 									<span
-										v-for="type in itinerary.types
+										v-for="type in itinerary?.types
 											? itinerary.types.slice(0, 3)
 											: []"
 										:key="type"
@@ -287,7 +295,7 @@
 							</div>
 							<div class="flex flex-wrap gap-2">
 								<span
-									v-for="type in place.types.slice(0, 3)"
+									v-for="type in place?.types.slice(0, 3)"
 									:key="type"
 									class="px-2 py-1 text-xs rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
 								>
@@ -363,7 +371,7 @@ const main_title = ref("ITINERARY TITLE");
 const total_budget = ref(0);
 const convertedBudget = ref("");
 const api =
-	"https://v6.exchangerate-api.com/v6/0f48e662346f4da5a2defaf1/latest/USD";
+	"https://v6.exchangerate-api.com/v6/eab4e81875a8acd578c8d5c1/latest/USD";
 const currency_list = ref([
 	["AED", "United Arab Emirates Dirhams", "د.إ"],
 	["AFN", "Afghan Afghani", "؋"],
@@ -516,7 +524,7 @@ const currency_list = ref([
 
 const selectedCurrency = ref("");
 
-const currency_save = ref("");
+const currency_save = ref("PHP");
 const converted = ref(0);
 
 const username = ref("");
@@ -605,13 +613,13 @@ onMounted(() => {
 			console.log("ERROR", error.message);
 		});
 
-	console.log("FROM OTHER", route.params.itinerarydata);
+	// console.log("FROM OTHER", route.params.itinerarydata);
 
 	fetchSavedItineraries();
 	fetchUser();
 
 	// populateDropdown();
-	initializeAutocomplete();
+	// initializeAutocomplete();
 	// trackUserLocation();
 	findNearestTouristAttractions();
 	initializeMaps();
@@ -702,7 +710,7 @@ const getMorePlaceDetails = async (placeId) => {
 				},
 				(place, status) => {
 					if (status === google.maps.places.PlacesServiceStatus.OK) {
-						console.log("More place details:", place);
+						// console.log("More place details:", place);
 						resolve(place);
 					} else {
 						console.error("Places API error:", status);
@@ -725,7 +733,7 @@ const letDetails = async () => {
 			itinerary.longitude
 		);
 		if (placeDetails) {
-			console.log("Place details:", placeDetails);
+			// console.log("Place details:", placeDetails);
 			itinerary.description =
 				placeDetails.formatted_address || placeDetails.name;
 
@@ -742,19 +750,19 @@ const letDetails = async () => {
 			}
 		}
 	}
-	console.log("List of itineraries with details:", list_itineraries.value);
+	// console.log("List of itineraries with details:", list_itineraries.value);
 };
 const fetchItineraries = async () => {
 	try {
 		itineraryIds.value = list_itineraries.value.map(
 			(itinerary) => itinerary.id
 		);
-		console.log("itineraryIds:", itineraryIds.value);
+		// console.log("itineraryIds:", itineraryIds.value);
 
 		let symbol = currency_list.value.find(
 			(currency) => currency[0] === currency_save.value
 		)[2];
-		selectedSymbol.value = symbol;
+		// selectedSymbol.value = symbol;
 		// this.convertedBudget = `${symbol}${total_budget.value}`;
 		// // Sort the itineraries by proximity before showing them on the map
 		toDropDown.value = currency_save.value;
@@ -766,6 +774,9 @@ const fetchItineraries = async () => {
 		console.log(error);
 	}
 };
+function selectSymbol(symbol) {
+	selectedSymbol.value = symbol;
+}
 
 const fetchSavedItineraries = async () => {
 	try {
@@ -805,17 +816,17 @@ const fetchSavedItineraries = async () => {
 const checkCode = () => {
 	const toCurrency = toDropDown.value.value;
 	selectedCurrency.value = toCurrency;
-	console.log("Selected currency code:", toCurrency);
+	// console.log("Selected currency code:", toCurrency);
 	selectedSymbol.value = currency_list.value.find(
 		(currency) => currency[0] === selectedCurrency.value
 	)[2];
-	console.log("Selected symbol:", selectedSymbol.value);
+	// console.log("Selected symbol:", selectedSymbol.value);
 	let newvalue = 0;
 	list_itineraries.value.forEach((itinerary) => {
 		// console.log("the code ", itinerary);
 		if (itinerary.code != toCurrency) {
 			if (itinerary.budget.length !== 0) {
-				console.log("convert the value to what selected currency");
+				// console.log("convert the value to what selected currency");
 				fetch(api) // Assuming 'api' is your API URL
 					.then((resp) => resp.json())
 					.then((data) => {
@@ -832,7 +843,7 @@ const checkCode = () => {
 					});
 			}
 		} else {
-			console.log("do not convert the value to what selected currency");
+			// console.log("do not convert the value to what selected currency");
 			newvalue += itinerary.budget;
 			total_budget.value = newvalue;
 		}
@@ -1048,7 +1059,7 @@ const initializeAutocomplete = () => {
 				location.value = place.formatted_address;
 				// Now you can use the latitude and longitude for whatever you need
 			} else {
-				console.log("Selected place does not have a geometry");
+				// console.log("Selected place does not have a geometry");
 			}
 		});
 	});
@@ -1057,9 +1068,8 @@ const initializeAutocomplete = () => {
 const findNearestTouristAttractions = async () => {
 	const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 	try {
-		const location = await getCurrentLocation();
-
 		if (mobileMap.value) {
+			const location = await getCurrentLocation();
 			const service = new google.maps.places.PlacesService(
 				mobileMap.value
 			);
@@ -1085,48 +1095,16 @@ const findNearestTouristAttractions = async () => {
 							photoUrl = place.photos[0].getUrl({
 								maxWidth: 400,
 							});
-						} else {
-							console.log(`Place: ${place}`);
 						}
-						// const latlngStr = String(place.geometry.location);
-
-						// // Extract lat and lng from the string format "(lat, lng)"
-						// const match = latlngStr.match(/\(([^,]+),\s*([^)]+)\)/);
-						// if (match) {
-						// 	const lat = parseFloat(match[1]);
-						// 	const lng = parseFloat(match[2]);
-
-						// 	console.log("latlong::::::", lat, lng);
-
-						// 	// Check if lat and lng are valid numbers
-						// 	if (!isNaN(lat) && !isNaN(lng)) {
-						// 		// Initialize map
-						// 		const map = new google.maps.Map(
-						// 			document.getElementById("the-map"),
-						// 			{
-						// 				center: { lat: lat, lng: lng },
-						// 				zoom: 15,
-						// 			}
-						// 		);
-						// 		// Add a marker to the new center using AdvancedMarkerElement
-						// 		new google.maps.marker.AdvancedMarkerElement({
-						// 			position: { lat: lat, lng: lng },
-						// 			map: map,
-						// 			title: "Suggested Place Marker",
-						// 		});
-						// 	} else {
-						// 		console.error(
-						// 			"Invalid latitude or longitude values"
-						// 		);
-						// 	}
-						// } else {
-						// 	console.error("Invalid latlng format");
-						// }
+						console.log(
+							`Name: ${name}, Description: ${description}, Photo URL: ${photoUrl}`
+						);
 					});
 				} else {
-					console.error("Error finding tourist attractions:", status);
+					console.error("Directions request failed due to", status);
 				}
 			});
+		} else {
 		}
 	} catch (error) {
 		console.error("Error finding nearest tourist attractions:", error);
@@ -1183,7 +1161,7 @@ const resetRating = () => {
 // Set and submit the rating
 const setRating = (star) => {
 	rating.value = star;
-	console.log(`User selected rating: ${star}`); // Log the user input rating
+	// console.log(`User selected rating: ${star}`); // Log the user input rating
 	allRatings.value.push(star); // Add the rating to the array
 	submitRating(); // Call method to send data to the backend
 };
@@ -1200,12 +1178,12 @@ const submitRating = async () => {
 		rating: rating.value,
 	};
 
-	console.log("Submit rating to backend:", data);
+	// console.log("Submit rating to backend:", data);
 	hasSubmitted.value = true;
 	// ADD SUBMIT RATING TO BACKEND HERE
 	try {
 		const response = await client.value.put("api/ratings/", data);
-		console.log("Rating submitted successfully:", response.data);
+		// console.log("Rating submitted successfully:", response.data);
 	} catch (error) {
 		console.error("Error submitting rating:", error);
 		// Handle error response (e.g., show an error message)
@@ -1255,7 +1233,7 @@ const hasPhoto = (place) => {
 const currentInfoWindow = ref(null); // Define currentInfoWindow as a ref
 
 const locateSuggestedPlace = (place) => {
-	console.log("Locating suggested place  with its descriptions:", place);
+	// console.log("Locating suggested place  with its descriptions:", place);
 
 	try {
 		const lat = place.geometry.location.lat();
@@ -1398,7 +1376,7 @@ const locateSuggestedPlace = (place) => {
 						scale: 10,
 						labelOrigin: new google.maps.Point(0, -4),
 					});
-					console.log(google.maps.SymbolPath);
+					// console.log(google.maps.SymbolPath);
 
 					const createMarker = (map) => {
 						return new google.maps.Marker({
@@ -1492,9 +1470,9 @@ const convertCurrency = (amount, fromCurrency) => {
 	const amountInBaseCurrency = amount / exchangeRates.value[fromCurrency];
 	const convertedAmount =
 		amountInBaseCurrency * exchangeRates.value[toCurrency];
-	console.log(
-		`Converting ${amount} ${fromCurrency} to ${convertedAmount} ${toCurrency}`
-	);
+	// console.log(
+	// 	`Converting ${amount} ${fromCurrency} to ${convertedAmount} ${toCurrency}`
+	// );
 	return parseFloat(convertedAmount.toFixed(2));
 };
 
@@ -1506,7 +1484,7 @@ const calculateTotalBudget = () => {
 
 		return total + convertedBudget;
 	}, 0);
-	console.log(`Total budget: ${total_budget.value}`);
+	// console.log(`Total budget: ${total_budget.value}`);
 };
 
 const updateCurrency = () => {

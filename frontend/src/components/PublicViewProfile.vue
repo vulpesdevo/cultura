@@ -691,7 +691,6 @@ let client;
 const id_get_post = ref(null);
 const fetchUser = async () => {
 	const res = await store.dispatch("viewCulturaUser", userID.value);
-
 	user.value = res;
 	id_get_post.value = user.value.user.id;
 	fetchPosts(id_get_post.value);
@@ -756,16 +755,17 @@ const likePost = (postId) => {
 };
 
 const selectPost = (post) => {
-	showModal.value = true;
-	selectedPost.value = [post];
-
-	postId.value = selectedPost.value[0]._id;
-	repliedTo.value = selectedPost.value[0].author;
-	commentsInPost.value =
-		posts.value.find((p) => p._id === postId.value)?.comments || [];
-	// console.log("the id : ", commentsInPost.value);
+	// showModal.value = true;
+	// selectedPost.value = [post];
+	// post_id.value = post._id;
+	// replied_to.value = post.author;
+	// comments_in_post.value = post.comments || [];
+	router.push({
+		name: "view-post",
+		params: { post: post._id },
+		query: { n: "" },
+	});
 };
-
 const submitReply = () => {
 	client
 		.post("/api/commenting", {

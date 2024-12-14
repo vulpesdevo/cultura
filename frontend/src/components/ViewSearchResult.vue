@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-28 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-11 md:px-24 lg:px-20 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<section class="w-full mb-10 sm:mb-0">
-			<div class="flex flex-col w-full">
+			<div v-if="users.length > 0" class="flex flex-col w-full">
 				<label
 					for=""
 					class="text-prime dark:text-interface text-lg pb-2"
@@ -14,15 +14,15 @@
 						:to="{
 							name: 'user-profile',
 							params: {
-								username: user.username,
+								username: user?.username,
 							},
 							query: {
-								id: user.id,
+								id: user?.id,
 							},
 						}"
 						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
 						v-for="user in users"
-						:key="user.id"
+						:key="user?.id"
 					>
 						<div
 							class="w-14 sm:w-20 h-20 mr-2 sm:mr-4 flex justify-center items-center"
@@ -58,142 +58,511 @@
 					</router-link>
 				</div>
 			</div>
-			<div class="flex flex-col pt-4">
+			<div v-if="posts" class="flex flex-col pt-4">
 				<label for="" class="text-prime dark:text-interface text-lg"
 					>Posts:</label
 				>
-				<div
-					class="relative post-contents w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
-					v-for="post in posts"
-					:key="post?._id"
-				>
-					<div class="post-title flex justify-center items-center">
+				<section class="posts w-full mb-10 sm:mb-0">
+					<div>
 						<div
-							class="flex w-full sm:w-[90%] justify-between items-center"
+							class="relative post-contents w-full p-6 mt-4 rounded-xl shadow-lg bg-white dark:bg-dark-field transition-all duration-200 hover:shadow-xl font-montserrat"
+							v-for="post in posts"
+							:key="post._id"
 						>
+							<!-- Header Section -->
+							<div class="flex items-start justify-between mb-4">
+								<div class="flex items-center space-x-3">
+									<div
+										class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-700"
+									>
+										<img
+											:src="post.cultura_user.user_photo"
+											alt="Profile"
+											class="w-full h-full object-cover"
+										/>
+									</div>
+									<div class="flex flex-col space-y-1">
+										<div
+											class="flex items-center space-x-2"
+										>
+											<span
+												@click="
+													gotoUser(post.cultura_user)
+												"
+												class="font-medium text-xs text-gray-900 dark:text-white cursor-pointer hover:underline"
+												>@{{ post.author }}</span
+											>
+											<span
+												class="text-sm text-gray-500 dark:text-gray-400"
+												>•</span
+											>
+											<span
+												class="text-xs text-gray-500 dark:text-gray-400"
+												>{{
+													timesince(post.date_posted)
+												}}</span
+											>
+										</div>
+										<div
+											class="text-xs text-gray-500 dark:text-gray-400"
+										>
+											{{ post.category }} |
+											{{ post.country }}
+										</div>
+									</div>
+								</div>
+
+								<div class="flex items-center">
+									<router-link
+										:to="{
+											name: 'report',
+											query: {
+												post_id: post._id,
+												user_id: auth_user,
+											},
+										}"
+										class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-200"
+									>
+										<i
+											class="fa-solid fa-circle-exclamation text-gray-400 hover:text-red-500 text-xl"
+										></i>
+									</router-link>
+								</div>
+							</div>
+
+							<!-- Title Section -->
 							<h1
-								class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
+								class="font-bebas-neue text-2xl font-bold text-second mb-3 leading-4 tracking-wider"
 							>
 								{{ post.title }}
 							</h1>
-							<small class="text-second ml-5">{{
-								timesince(post?.date_posted)
-							}}</small>
-						</div>
-					</div>
-					<div
-						class="post-content flex w-full mt-4 dark:text-dark-prime"
-					>
-						<div class="w-14 h-14 mr-4">
-							<img
-								:src="post?.author_user_photo"
-								alt="Profile"
-								class="rounded-full cursor-pointer object-cover"
-							/>
-						</div>
-						<div class="w-full">
-							<div class="flex border-b-2 dark:border-gray-400">
-								<small
-									class="font-montserrat text-prime dark:text-dark-prime pr-5"
+
+							<!-- Content Section -->
+							<div class="space-y-4">
+								<p
+									v-if="!post.isEditing"
+									class="text-gray-600 dark:text-gray-300 leading-relaxed"
 								>
-									@{{ post?.author }}
-								</small>
-								<small
-									class="about-post font-montserrat dark:text-gray-400"
-								>
-									{{ post?.category }} | {{ post?.country }}
-								</small>
-							</div>
-							<p
-								class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify whitespace-normal"
-							>
-								{{ post?.content }}
-							</p>
-							<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
-								<img
-									:src="post?.image"
-									alt=""
-									class="h-full object-contain rounded-lg"
-								/>
-							</div>
-							<div
-								class="h-auto pb-2 sm:p-4"
-								v-else-if="post.itinerary_in_post"
-							>
+									{{ post.content }}
+								</p>
+
+								<textarea
+									v-else
+									v-model="post.editedContent"
+									class="w-full p-4 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+									rows="4"
+								></textarea>
+
+								<!-- Image Section -->
 								<div
-									class="cont-itinerary mt-6 pt-4 px-6 items-center align-middle rounded-lg shadow-lg bg-interface dark:bg-dark-interface cursor-pointer sm:w-11/12 sm:px-6"
-									:key="post.itinerary_in_post?.id"
+									v-if="!post.isEditing && post.image"
+									class="relative rounded-xl overflow-hidden cursor-pointer"
+									@click="openImageModal(post.image)"
+								>
+									<img
+										:src="post.image"
+										alt=""
+										class="w-full h-auto max-h-[20rem] object-cover"
+									/>
+									<div
+										class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
+									>
+										<span
+											class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+										>
+											<i
+												class="fas fa-search-plus text-4xl"
+											></i>
+										</span>
+									</div>
+								</div>
+
+								<div v-else-if="post.image" class="space-y-4">
+									<label class="block">
+										<span class="sr-only"
+											>Choose image</span
+										>
+										<input
+											type="file"
+											@change="
+												handleImageUpload($event, post)
+											"
+											accept="image/*"
+											class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-gray-700 dark:file:text-gray-200 hover:file:bg-blue-100 dark:hover:file:bg-gray-600 transition-all duration-200"
+										/>
+									</label>
+									<img
+										v-if="post.previewImage"
+										:src="post.previewImage"
+										alt="Preview"
+										class="w-full h-auto max-h-[20rem] object-cover rounded-xl cursor-pointer"
+										@click="
+											openImageModal(post.previewImage)
+										"
+									/>
+								</div>
+
+								<!-- Itinerary Section -->
+								<div
+									v-if="!post?.itinerary_in_post === []"
+									class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
 									@click="
 										goToViewItinerary(
-											post.itinerary_in_post?.id
+											post?.itinerary_in_post?.id
 										)
 									"
 								>
+									<img
+										:src="
+											post?.itinerary_in_post?.main_image
+										"
+										alt=""
+										class="w-full h-48 object-cover"
+									/>
 									<div
-										class="mt-2 sm:px-5 pb-5 sm:pt-5 mb-10 w-full"
+										class="p-4 bg-gray-50 dark:bg-gray-800"
 									>
-										<img
-											class="rounded-lg shadow-2xl object-cover drop-shadow-xl w-full h-auto"
-											:src="
-												post.itinerary_in_post
-													?.main_image
-											"
-											alt=""
+										<h3
+											class="text-xl font-bold text-gray-900 dark:text-white mb-2"
+										>
+											{{
+												post?.itinerary_in_post
+													?.main_title
+											}}
+										</h3>
+										<p
+											class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+										>
+											{{
+												post?.itinerary_in_post
+													?.main_description
+											}}
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- Actions Section -->
+							<div
+								class="flex items-center justify-end space-x-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700"
+							>
+								<button
+									@click.prevent="selectPost(post)"
+									class="flex items-center space-x-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+								>
+									<ChatBubbleLeftIcon class="size-4" />
+									<span class="text-xs">{{
+										post.comments?.length || 0
+									}}</span>
+								</button>
+
+								<div class="relative group">
+									<button
+										@click="likePost(post._id)"
+										class="flex items-center space-x-1"
+										:class="
+											post.is_liked
+												? 'text-second'
+												: 'text-gray-500 hover:text-second'
+										"
+									>
+										<HeartIcon
+											v-if="post.is_liked"
+											class="size-4"
 										/>
-										<div class="w-full h-auto py-2">
-											<h1
-												class="font-bebas-neue text-prime dark:text-interface text-3xl mt-5 sm:text-4xl"
+										<HeartIcon v-else class="size-4" />
+										<span class="text-xs">{{
+											formatLikeCount(post.like_count)
+										}}</span>
+									</button>
+									<div
+										v-if="post.likers.length > 0"
+										class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out"
+									>
+										<div
+											class="p-2 max-h-40 overflow-y-auto space-y-2"
+										>
+											<div
+												v-for="like in post.likers"
+												:key="like.id"
+												@click="gotoUser(like)"
+												class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
 											>
-												{{
-													post.itinerary_in_post
-														?.main_title
-												}}
-											</h1>
+												<img
+													:src="like.user_photo"
+													alt="User"
+													class="size-5 rounded-full object-cover"
+												/>
+												<span
+													class="text-xs text-gray-700 dark:text-gray-300"
+													>{{
+														like.user.username
+													}}</span
+												>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Image Modal -->
+						<div
+							v-if="showImageModal"
+							class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+							@click="closeImageModal"
+						>
+							<div class="max-w-4xl w-full max-h-screen p-4">
+								<img
+									:src="modalImage"
+									alt="Full size image"
+									class="w-full h-auto max-h-full object-contain"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div
+						class="comments-modal fixed z-50 inset-0 overflow-y-auto"
+						aria-labelledby="modal-title"
+						role="dialog"
+						aria-modal="true"
+						v-if="showModal"
+					>
+						<div
+							class="flex min-h-screen items-center justify-center p-4"
+						>
+							<div
+								class="fixed inset-0 bg-black/90 transition-opacity"
+								aria-hidden="true"
+							></div>
+
+							<div
+								class="relative w-full max-w-2xl bg-[#1c1c1f] rounded-xl shadow-xl overflow-hidden"
+							>
+								<!-- Header -->
+								<div
+									class="flex items-center justify-between p-6 border-b border-gray-800"
+								>
+									<h2
+										class="text-2xl font-semibold text-white"
+									>
+										Comments
+									</h2>
+									<button
+										@click="showModal = false"
+										class="text-gray-400 hover:text-white transition-colors"
+									>
+										<XIcon class="h-6 w-6" />
+									</button>
+								</div>
+
+								<!-- Post Content -->
+								<div
+									v-for="data in selectedPost"
+									:key="data._id"
+									class="p-6 border-b border-gray-800"
+								>
+									<div class="flex space-x-4">
+										<img
+											:src="data.author_user_photo"
+											alt="Profile"
+											class="h-10 w-10 rounded-full object-cover"
+										/>
+										<div class="flex-1 min-w-0">
+											<div
+												class="flex items-center justify-between"
+											>
+												<div
+													class="flex items-center space-x-2"
+												>
+													<span
+														class="text-white font-medium"
+														>{{ data.author }}</span
+													>
+													<span
+														class="text-gray-500 text-sm"
+														>{{ data.category }} |
+														{{ data.country }}</span
+													>
+												</div>
+											</div>
 											<p
-												class="font-montserrat text-sm text-justify h-20 overflow-hidden dark:text-interface"
+												class="mt-1 text-gray-300 text-sm"
 											>
-												{{
-													post.itinerary_in_post
-														?.main_description
-												}}
+												{{ data.content }}
 											</p>
+										</div>
+									</div>
+								</div>
+
+								<!-- Comments List -->
+								<div
+									class="overflow-y-auto max-h-[400px] p-6 space-y-6"
+								>
+									<div
+										v-for="comment in comments_in_post"
+										:key="comment._id"
+										class="flex space-x-4 relative"
+									>
+										<div class="flex-shrink-0">
+											<img
+												:src="comment.author_user_photo"
+												alt="Profile"
+												class="h-10 w-10 rounded-full object-cover"
+											/>
+										</div>
+										<div class="flex-1 min-w-0">
+											<div
+												class="flex items-center space-x-2"
+											>
+												<span
+													class="text-white font-medium"
+													>{{ comment.author }}</span
+												>
+												<span class="text-gray-500"
+													>to</span
+												>
+												<span class="text-blue-400">{{
+													comment.replied_to
+												}}</span>
+												<span
+													class="text-gray-500 text-sm"
+													>{{
+														timesince(
+															comment.date_posted
+														)
+													}}</span
+												>
+											</div>
+											<p
+												class="mt-1 text-gray-300 text-sm"
+											>
+												{{ comment.body }}
+											</p>
+											<!-- <div
+										class="flex items-center space-x-4 mt-2"
+									>
+										<button
+											class="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
+										>
+											<ThumbsUpIcon class="h-4 w-4" />
+										</button>
+										<button
+											class="text-gray-400 hover:text-white transition-colors text-sm"
+										>
+											Reply
+										</button>
+									</div> -->
+										</div>
+									</div>
+								</div>
+
+								<!-- Reply Input -->
+								<div class="p-6 border-t border-gray-800">
+									<div class="flex space-x-4">
+										<img
+											:src="post_profile_display"
+											alt="Profile"
+											class="h-10 w-10 rounded-full object-cover"
+										/>
+										<div class="flex-1">
+											<textarea
+												v-model="reply"
+												rows="3"
+												class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+												:placeholder="
+													'Replying to ' +
+													selectedPost[0]?.author
+												"
+											></textarea>
+											<div
+												class="flex justify-end mt-3 space-x-3"
+											>
+												<button
+													@click.prevent="submitReply"
+													class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+												>
+													Reply
+												</button>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="flex items-center justify-end">
-						<i
-							class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
-							@click.prevent="selectPost(post)"
-						></i>
+					<div
+						class="fixed z-50 inset-0 overflow-y-auto"
+						aria-labelledby="modal-title"
+						role="dialog"
+						aria-modal="true"
+						v-if="addItineraryModal"
+					>
 						<div
-							@click="likePost(post._id)"
-							class="flex items-center justify-start w-14"
+							class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
 						>
+							<div
+								class="fixed inset-0 bg-black bg-opacity-70 transition-opacity"
+								aria-hidden="true"
+							></div>
 							<span
-								v-if="post.is_liked"
-								class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+								class="hidden sm:inline-block sm:align-middle sm:h-screen"
+								aria-hidden="true"
+								>&#8203;</span
 							>
-								favorite
-							</span>
-							<span
-								v-else
-								class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
-								>favorite_border</span
+							<div
+								class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:w-1/3"
 							>
-							<small class="text-prime dark:text-dark-prime pl-1">
-								{{
-									post.like_count >= 1000
-										? (post.like_count / 1000).toFixed(1) +
-										  "k"
-										: post.like_count
-								}}
-							</small>
+								<div
+									class="flex flex-col justify-center items-center bg-interface w-full pt-2 px-6 sm:pt-5 sm:px-9 rounded-lg shadow-lg"
+								>
+									<h1
+										class="font-bebas-neue font-bold text-lg text-prime sm:text-4xl tracking-wider"
+									>
+										select itinerary
+									</h1>
+
+									<div
+										class="flex justify-start items-center align-middle h-auto w-full border-b-2"
+									>
+										<div
+											class="flex justify-center items-center font-montserrat text-lg text-prime font-medium w-1/2 h-10 my-2 p-2 mb-2 rounded-md cursor-pointer hover:bg-field"
+										>
+											+ Create Itinerary
+										</div>
+									</div>
+									<div
+										class="flex justify-start items-center text-prime w-full h-12 text-lg font-medium font-montserrat pl-3 my-2 rounded-md cursor-pointer hover:bg-second-light"
+										v-for="itinerary in itineraries"
+										:key="itinerary._id"
+										@click="selectItinerary(itinerary)"
+										:class="{
+											'bg-second-light':
+												selectedItinerary === itinerary,
+										}"
+									>
+										{{ itinerary.main_title }}
+									</div>
+									<div
+										class="flex flex-col items-center align-middle text-center mt-5"
+									>
+										<div class="flex font-montserrat">
+											<button
+												class="text-interface text-lg bg-gray-500 p-2 rounded-3xl w-32 h-12 mb-3 hover:bg-gray-400 mr-5"
+												@click="
+													addItineraryModal = false
+												"
+											>
+												Cancel
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
+				</section>
 			</div>
 
 			<div
@@ -348,7 +717,19 @@ import { ref, reactive, onMounted } from "vue";
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
 import { useRouter, useRoute } from "vue-router";
+import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
 
+import {
+	ChatBubbleLeftIcon,
+	HeartIcon,
+	PencilSquareIcon,
+	XMarkIcon,
+	CheckIcon,
+	PhotoIcon,
+	FaceSmileIcon,
+	PaperAirplaneIcon,
+	ArrowLeftIcon,
+} from "@heroicons/vue/24/solid";
 const router = useRouter();
 const route = useRoute();
 
@@ -377,6 +758,18 @@ const itineraries_frompost = ref([]);
 const selectedItinerary = ref(null);
 const id_of_selected = ref("");
 const isFullTextShown = ref({});
+const showImageModal = ref(false);
+const modalImage = ref("");
+// functions for image modal
+const openImageModal = (imageUrl) => {
+	modalImage.value = imageUrl;
+	showImageModal.value = true;
+};
+
+const closeImageModal = () => {
+	showImageModal.value = false;
+};
+
 const token = sessionStorage.getItem("TOKEN");
 
 const client = axios.create({
@@ -452,14 +845,19 @@ const timesince = (date) => {
 };
 
 const selectPost = (post) => {
-	showModal.value = true;
+	// showModal.value = true;
 	selectedPost.value = [post];
-	console.log("GET POST", selectedPost.value);
-	post_id.value = selectedPost.value[0]._id;
-	replied_to.value = selectedPost.value[0].author;
-	comments_in_post.value =
-		posts.value.find((p) => p._id === post_id.value)?.comments || [];
-	console.log("the id : ", comments_in_post.value);
+	// console.log("GET POST", selectedPost.value[0]._id);
+	const _id = selectedPost.value[0]._id;
+	// replied_to.value = selectedPost.value[0].author;
+	// comments_in_post.value =
+	// 	posts.value.find((p) => p._id === post_id.value)?.comments || [];
+	// console.log("the id : ", comments_in_post.value);
+	router.push({
+		name: "view-post",
+		params: { post: _id },
+		query: { n: "" },
+	});
 };
 
 const submitReply = () => {
@@ -497,6 +895,20 @@ const fetchPosts = () => {
 		.catch((error) => {
 			console.log(error);
 		});
+};
+const formatLikeCount = (count) => {
+	return count >= 1000 ? (count / 1000).toFixed(1) + "k" : count;
+};
+const gotoUser = async (user) => {
+	router.push({
+		name: "user-profile",
+		params: {
+			username: user.user.username,
+		},
+		query: {
+			id: user.id,
+		},
+	});
 };
 
 const isDark = useDark();

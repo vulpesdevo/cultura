@@ -180,6 +180,7 @@ const fetchLikenotification = async () => {
 	try {
 		await store.dispatch("fetchLikeNotifications");
 		like_notification.value = store.getters.getLikeNotifications;
+		console.log("LIKE NOTIF ", like_notification.value);
 	} catch (error) {
 		console.log(error);
 	}
@@ -195,7 +196,7 @@ const fetchFollownotification = async () => {
 };
 
 const handleNotificationClick = async (notification) => {
-	console.log("NOTIF ", notification);
+	// console.log("NOTIF ", notification);
 
 	await store.dispatch("updateNotificationReadStatus", {
 		notificationType:
@@ -211,9 +212,11 @@ const handleNotificationClick = async (notification) => {
 };
 
 const view_post = (post_id_notif, notif_id) => {
+	console.log("POST ID ", notif_id);
 	router.push({
 		name: "view-post",
-		params: { post_id_notif, notif_id },
+		params: { post: post_id_notif },
+		query: { n: notif_id },
 	});
 };
 
