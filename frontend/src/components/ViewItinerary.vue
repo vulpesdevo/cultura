@@ -1085,7 +1085,7 @@ const findNearestTouristAttractions = async () => {
 			service.nearbySearch(request, (results, status) => {
 				if (status === google.maps.places.PlacesServiceStatus.OK) {
 					suggested_places.value = results;
-					console.log("RESULTS Suggested", results);
+					// console.log("RESULTS Suggested", results);
 
 					results.forEach((place) => {
 						const name = place.name;
@@ -1095,13 +1095,12 @@ const findNearestTouristAttractions = async () => {
 							photoUrl = place.photos[0].getUrl({
 								maxWidth: 400,
 							});
+						} else {
+							// console.log(`Place: ${place}`);
 						}
-						console.log(
-							`Name: ${name}, Description: ${description}, Photo URL: ${photoUrl}`
-						);
 					});
 				} else {
-					console.error("Directions request failed due to", status);
+					console.error("Error finding tourist attractions:", status);
 				}
 			});
 		} else {
