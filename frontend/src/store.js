@@ -2,7 +2,8 @@ import { createStore } from "vuex";
 import axiosClient from "./axios";
 import { clean } from "profanity-cleaner";
 import filipinoBadWords from "./custom-badwords";
-
+import { useRouter } from "vue-router";
+const router = useRouter();
 const store = createStore({
 	state: {
 		user: {
@@ -104,8 +105,8 @@ const store = createStore({
 			state.otpData = otpData;
 		},
 		logout(state) {
+			state.user.token = "";
 			state.user.data = {};
-			state.user.token = null;
 			sessionStorage.removeItem("TOKEN");
 		},
 		SET_UNREAD_COUNT(state, count) {
@@ -587,7 +588,7 @@ const store = createStore({
 			return axiosClient
 				.post("/login", credentials)
 				.then((response) => {
-					console.log("setUser", response.data);
+					// console.log("setUser", response.data);
 					commit("setUser", response.data);
 					return response.data;
 				})
@@ -618,17 +619,21 @@ const store = createStore({
 		},
 
 		async logout({ commit, state }) {
-			console.log("", state.user.token);
-			return axiosClient
-				.post("/logout", {})
-				.then(() => {
-					commit("logout");
-				})
-				.catch((error) => {
-					console.log("Error logging out:", error);
-					console.error(error);
-					throw error;
-				});
+			// console.log("Logging out user with token:", state.user.token);
+			try {
+				const response = await axiosClient.post(
+					"/logout",
+
+					{
+						headers: { Authorization: `Token ${state.user.token}` },
+					}
+				);
+				console.log("Logout response:", response.data);
+				commit("logout");
+				return response;
+			} catch (error) {
+				throw error;
+			}
 		},
 		async search({ commit }, query) {
 			return axiosClient

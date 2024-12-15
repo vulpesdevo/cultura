@@ -23,11 +23,10 @@ import DefaultLayout from "./components/DefaultLayout.vue";
 import ReportsView from "./components/admin/ReportsView.vue";
 import CulturaUserAdminView from "./components/admin/CulturaUserAdminView.vue";
 
-import FlightCheck from "./components/FlightCheck.vue";
 const routes = [
 	{
-		path: "/dashboard",
-		// redirect: "/dashboard",
+		path: "/",
+		redirect: "/dashboard",
 		component: DefaultLayout,
 		meta: { requiresAuth: true },
 		children: [
@@ -105,7 +104,6 @@ const routes = [
 			},
 		],
 	},
-	{ path: "/", component: FlightCheck, name: "flight" },
 	{ path: "/login", name: "login", component: Login },
 	{
 		path: "/otp",

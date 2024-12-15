@@ -7,6 +7,7 @@ const axiosClient = axios.create({
 	timeout: 5000,
 	withCredentials: true,
 	xsrfHeaderName: "X-Csrftoken",
+
 	headers: {
 		"Content-Type": "application/json",
 	},

@@ -4,7 +4,7 @@
 	>
 		<!-- Topbar (mobile only) -->
 		<div
-			class="sm:hidden flex justify-between items-center w-full h-16 bg-interface dark:bg-dark-interface fixed top-0 p-3 z-50 shadow-lg"
+			class="sm:hidden flex justify-between items-center w-full h-16 bg-interface dark:bg-dark-interface fixed top-0 p-3 z-50 shadow-lg shadow-bg-interface"
 		>
 			<img
 				:src="isDark ? '/logo1Light.png' : '/culturalink_logo.png'"
@@ -283,6 +283,8 @@ const submitLogout = async () => {
 		await store.dispatch("logout");
 		router.push({ name: "login" });
 	} catch (error) {
+		router.push({ name: "tamsurvey" });
+
 		console.error("Error during logout:", error);
 	}
 };

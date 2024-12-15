@@ -1,11 +1,13 @@
-<template>
+<template lang="">
 	<!-- Viewing  of  Itinerary -->
 	<div
 		class="flex flex-col lg:flex-row h-screen bg-gray-100 dark:bg-gray-900"
 	>
 		<!-- Main Content -->
+
 		<div class="w-full lg:w-7/12 overflow-y-auto px-4 lg:px-8 py-6">
 			<!-- Hero Image and Title -->
+
 			<div
 				class="relative w-full h-[250px] rounded-lg overflow-hidden mb-6"
 			>
@@ -18,11 +20,35 @@
 					class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"
 				>
 					<div class="absolute bottom-0 left-0 p-6">
+						<div
+							v-if="editingField === 'main_title'"
+							class="flex items-center"
+						>
+							<input
+								v-model="tempEditValue"
+								class="text-3xl font-bold px-1.5 text-white font-bebas-neue tracking-wide bg-transparent border-b border-white"
+							/>
+							<button
+								@click="editItineraryDetails('main_title')"
+								class="ml-2 text-white"
+							>
+								Save
+							</button>
+						</div>
 						<h1
+							v-else
 							class="text-3xl font-bold text-white font-bebas-neue tracking-wide"
 						>
 							{{ itineraryDetails.main_title }}
+							<button
+								v-if="isOwner"
+								@click="editItineraryDetails('main_title')"
+								class="ml-2 text-sm"
+							>
+								Edit
+							</button>
 						</h1>
+
 						<div class="flex items-center mt-2">
 							<div class="flex items-center">
 								<StarIcon
@@ -74,6 +100,7 @@
 				</div>
 			</div>
 			<!-- Author Profile and Description -->
+			<!-- Author Profile and Description -->
 			<div class="flex items-start space-x-4 p-4">
 				<img
 					:src="itineraryDetails.user_photo"
@@ -95,23 +122,62 @@
 							})
 						}}</span>
 					</div>
+					<div
+						v-if="editingField === 'main_description'"
+						class="flex items-start"
+					>
+						<textarea
+							v-model="tempEditValue"
+							class="w-full text-xs pt-2 bg-transparent border rounded text-gray-900 dark:text-gray-300"
+							rows="3"
+						></textarea>
+						<button
+							@click="editItineraryDetails('main_description')"
+							class="ml-2 text-sm text-blue-500 hover:text-blue-700"
+						>
+							Save
+						</button>
+					</div>
 					<p
+						v-else
 						class="text-gray-900 text-xs pt-2 dark:text-gray-300 leading-relaxed"
 					>
 						{{ itineraryDetails.main_description }}
+						<button
+							v-if="isOwner"
+							@click="editItineraryDetails('main_description')"
+							class="ml-2 text-sm text-blue-500 hover:text-blue-700"
+						>
+							Edit
+						</button>
 					</p>
 				</div>
 			</div>
 
-			<!-- General Tips Section -->
+			<!-- Update the general tips section -->
 			<div class="p-6 rounded-lg shadow-sm">
 				<h2
 					class="text-base font-semibold mb-4 text-gray-900 dark:text-white w-full border-b border-gray-300 dark:border-gray-700 pb-2"
 				>
 					General Tips
+					<button
+						v-if="isOwner"
+						@click="editItineraryDetails('gen_tips')"
+						class="ml-2 text-sm"
+					>
+						{{ editingField === "gen_tips" ? "Save" : "Edit" }}
+					</button>
 				</h2>
 				<div class="w-full sm:w-[83%] mx-auto">
+					<div v-if="editingField === 'gen_tips'">
+						<textarea
+							v-model="tempEditValue"
+							class="w-full text-xs bg-transparent border rounded"
+							rows="10"
+						></textarea>
+					</div>
 					<p
+						v-else
 						v-for="(paragraph, index) in paragraphs"
 						:key="index"
 						class="text-gray-600 dark:text-gray-300 text-xs mb-4"
@@ -119,6 +185,7 @@
 					></p>
 				</div>
 			</div>
+
 			<!-- Budget Section -->
 			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6">
 				<h2
@@ -170,23 +237,24 @@
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
-						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto"
+						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto"
 					>
+						<button
+							v-if="isOwner"
+							@click="openEditModal(itinerary)"
+							class="absolute top-2 right-2 bg-gray-800 hover:bg-gray-900 text-white rounded-full p-2 shadow-xl drop-shadow-xl shadow-black transition-colors duration-200 ease-in-out z-20"
+						>
+							<PencilIcon class="size-4" />
+						</button>
 						<img
 							v-if="itinerary.photos"
 							:src="itinerary.photos[0].getUrl()"
 							:alt="itinerary.name"
 							class="w-full h-48 object-cover"
 						/>
-						<img
-							v-else-if="itinerary.place_image"
-							:src="itinerary.place_image"
-							:alt="itinerary.place_name"
-							class="w-full h-48 object-cover"
-						/>
 						<div
 							v-else
-							class="w-full h-48 flex items-center justify-center bg-gray-200"
+							class="w-full h-48 flex items-center justify-center bg-gray-700"
 						>
 							<span class="text-gray-500"
 								>No image available</span
@@ -277,7 +345,6 @@
 						:key="place.place_id"
 						@click="locateSuggestedPlace(place)"
 						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
-						:class="{ 'h-28': !hasPhoto(place) }"
 					>
 						<img
 							v-if="hasPhoto(place)"
@@ -285,6 +352,14 @@
 							:alt="place.name"
 							class="w-full h-48 object-cover"
 						/>
+						<div
+							v-else
+							class="w-full h-48 flex items-center justify-center bg-gray-700"
+						>
+							<span class="text-gray-500"
+								>No image available</span
+							>
+						</div>
 						<div class="p-4">
 							<div class="flex justify-between items-center mb-2">
 								<h3
@@ -307,7 +382,7 @@
 								<span
 									class="text-xs text-gray-600 dark:text-gray-300"
 								>
-									{{ place.rating }}
+									{{ place?.rating }}
 								</span>
 							</div>
 						</div>
@@ -345,18 +420,118 @@
 			<XIcon v-else class="w-6 h-6" />
 		</button>
 	</div>
+	<!-- Add the edit modal -->
+	<div
+		v-if="showModal"
+		class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+	>
+		<div
+			class="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl transform transition-all duration-300 ease-in-out"
+		>
+			<h3
+				class="text-3xl sm:text-4xl font-bold font-bebas-neue tracking-widest mb-6 text-gray-900 dark:text-white text-center"
+			>
+				Edit Stop
+			</h3>
+			<form @submit.prevent="submitItinerary" class="space-y-6">
+				<!-- Image Upload -->
+				<!-- Location -->
+				<div>
+					<label
+						for="autocomplete"
+						class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+					>
+						Set Location's Pin
+					</label>
+					<div class="relative">
+						<MapPinIcon
+							class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+						/>
+						<input
+							type="text"
+							placeholder="Enter location"
+							name="auto-complete"
+							ref="autocompleteRef"
+							id="autocomplete"
+							v-model="location"
+							@focus="initializeAutocomplete"
+							class="w-full pl-10 pr-12 py-3 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none transition-all duration-300 ease-in-out"
+							required
+						/>
+						<button
+							type="button"
+							@click="locatorBtn"
+							class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+							aria-label="Use current location"
+						>
+							<GlobeAltIcon class="h-5 w-5" />
+						</button>
+					</div>
+				</div>
+
+				<!-- Budget -->
+				<div>
+					<label
+						for="it-budget"
+						class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+					>
+						Budget
+					</label>
+					<div class="relative rounded-full shadow-sm">
+						<div
+							class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+						>
+							<span class="text-gray-500 sm:text-sm">{{
+								selectedSymbol
+							}}</span>
+						</div>
+						<input
+							type="number"
+							id="it-budget"
+							v-model="budget"
+							class="block w-full pl-10 pr-12 py-3 rounded-full border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 ease-in-out appearance-none"
+							placeholder="Enter budget"
+							required
+						/>
+					</div>
+				</div>
+
+				<div
+					class="flex sm:flex-row justify-between sm:justify-end items-center space-x-3 sm:space-y-0 mt-8"
+				>
+					<button
+						type="button"
+						@click="closeModal"
+						class="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						class="w-full sm:w-auto px-4 py-2 border border-transparent rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+					>
+						Save
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 </template>
 
 <script setup>
 import { ref, reactive, nextTick, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { StarIcon, MapIcon, XIcon } from "lucide-vue-next";
+import { PencilIcon } from "@heroicons/vue/24/solid";
+import { PhotoIcon, MapPinIcon, GlobeAltIcon } from "@heroicons/vue/24/outline";
+
 import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
 
 const user_id = ref("");
+
 const rating = ref(0); // Current user's rating
 const tempRating = ref(0); // Used for hover effect
 const hasSubmitted = ref(false);
@@ -367,6 +542,7 @@ const paragraphs = ref([]);
 
 const isEditing = ref(true);
 const main_title = ref("ITINERARY TITLE");
+const selectedImageUrlIn = ref("");
 
 const total_budget = ref(0);
 const convertedBudget = ref("");
@@ -588,8 +764,123 @@ const fetchUser = async () => {
 		console.log("ERROR", error.message);
 	}
 };
+const isOwner = computed(() => itineraryDetails.owner === username.value);
+const isEditMode = ref(false);
+const editingItinerary = ref(null);
+const editingField = ref(null);
+const tempEditValue = ref("");
+const toggleEditMode = () => {
+	isEditMode.value = !isEditMode.value;
+};
 
-onMounted(() => {
+const openEditModal = (itinerary) => {
+	editingItinerary.value = { ...itinerary };
+	// console.log("Editing itinerary:", editingItinerary.value);
+
+	location.value = itinerary.name;
+	budget.value = itinerary.budget;
+	showModal.value = true;
+};
+
+const closeModal = () => {
+	showModal.value = false;
+	editingItinerary.value = null;
+};
+
+const handleFileSelectionIn = (event) => {
+	const file = event.target.files[0];
+	if (file) {
+		selectedImageUrlIn.value = URL.createObjectURL(file);
+	}
+};
+const locatorBtn = () => {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				latitude.value = position.coords.latitude;
+				longitude.value = position.coords.longitude;
+				console.log("Current position:", position.coords);
+				getAddressFrom(latitude.value, longitude.value);
+			},
+			(error) => {
+				console.error("Geolocation error:", error.message);
+				locationError.value = `Error: ${error.message}`;
+			},
+			{
+				enableHighAccuracy: true,
+				timeout: 5000,
+				maximumAge: 0,
+			}
+		);
+	} else {
+		console.error("Geolocation is not supported by this browser.");
+		locationError.value = "Geolocation is not supported by this browser.";
+	}
+};
+const submitItinerary = () => {
+	const formData = new FormData();
+
+	formData.append("longitude", longitude.value);
+	formData.append("latitude", latitude.value);
+	formData.append("budget", budget.value);
+
+	client.value
+		.put(`/api/itinerary-stop/${editingItinerary.value.id}`, formData)
+		.then(async (response) => {
+			console.log(response.data);
+
+			// Update the local list_itineraries
+			const index = list_itineraries.value.findIndex(
+				(i) => i.id === editingItinerary.value.id
+			);
+			if (index !== -1) {
+				list_itineraries.value[index] = {
+					...list_itineraries.value[index],
+					...response.data,
+				};
+				console.log("LIST OF ITINERARIES", list_itineraries.value);
+			}
+			await letDetails();
+			await showLocationOntheMap();
+			showModal.value = false;
+			// location.value = "";
+			// budget.value = "";
+		})
+		.catch((error) => {
+			console.error(error);
+		});
+};
+
+const editItineraryDetails = async (field) => {
+	if (editingField.value === field) {
+		// Save changes
+		const formData = new FormData();
+		formData.append(field, tempEditValue.value);
+
+		try {
+			const response = await client.value.put(
+				`/api/itinerary/${itineraryDetails.id}`,
+				formData
+			);
+			if (response.data) {
+				itineraryDetails[field] = response.data[field];
+				if (field === "gen_tips") {
+					paragraphs.value = itineraryDetails.gen_tips.split(/\n+/);
+				}
+			}
+		} catch (error) {
+			console.error(`Error updating ${field}:`, error);
+		}
+
+		editingField.value = null;
+		tempEditValue.value = "";
+	} else {
+		// Start editing
+		editingField.value = field;
+		tempEditValue.value = itineraryDetails[field];
+	}
+};
+onMounted(async () => {
 	const token = sessionStorage.getItem("TOKEN");
 	const headers = {
 		Authorization: `Token ${token}`,
@@ -614,14 +905,9 @@ onMounted(() => {
 		});
 
 	// console.log("FROM OTHER", route.params.itinerarydata);
-
+	initializeAutocomplete();
 	fetchSavedItineraries();
 	fetchUser();
-
-	// populateDropdown();
-	// initializeAutocomplete();
-	// trackUserLocation();
-	findNearestTouristAttractions();
 	initializeMaps();
 	// checkArrival(destination);
 });
@@ -753,6 +1039,7 @@ const letDetails = async () => {
 	// console.log("List of itineraries with details:", list_itineraries.value);
 };
 const fetchItineraries = async () => {
+	// showModal.value = false;
 	try {
 		itineraryIds.value = list_itineraries.value.map(
 			(itinerary) => itinerary.id
@@ -850,27 +1137,15 @@ const checkCode = () => {
 	});
 };
 
-const getCurrentLocation = () => {
+const getCurrentLocation = async () => {
 	return new Promise((resolve, reject) => {
 		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					resolve({
-						latitude: position.coords.latitude,
-						longitude: position.coords.longitude,
-					});
-					// this.findNearestTouristAttractions();
-				},
-				(error) => {
-					reject(error);
-				}
-			);
+			navigator.geolocation.getCurrentPosition(resolve, reject);
 		} else {
 			reject(new Error("Geolocation is not supported by this browser."));
 		}
 	});
 };
-
 const deg2rad = (deg) => {
 	return deg * (Math.PI / 180);
 };
@@ -948,7 +1223,7 @@ const updateMaps = async (center) => {
 		});
 	}
 };
-const showLocationOntheMap = () => {
+const showLocationOntheMap = async () => {
 	if (list_itineraries.value.length === 0) {
 		// If list_itineraries is empty, use the user's current location or a default location
 		navigator.geolocation.getCurrentPosition(
@@ -956,11 +1231,11 @@ const showLocationOntheMap = () => {
 				const { latitude, longitude } = position.coords;
 				updateMaps({ lat: latitude, lng: longitude });
 			},
-			() => {
+			async () => {
 				// Fallback to a default location if unable to get the user's location
 				const defaultLat = 37.7749; // Example default latitude
 				const defaultLng = -122.4194; // Example default longitude
-				updateMaps({ lat: defaultLat, lng: defaultLng });
+				await updateMaps({ lat: defaultLat, lng: defaultLng });
 			}
 		);
 	} else {
@@ -1037,29 +1312,47 @@ const showLocationOntheMap = () => {
 };
 
 const autocomplete = ref(null);
+import { Loader } from "@googlemaps/js-api-loader";
 
-const initializeAutocomplete = () => {
-	nextTick(() => {
-		// Ensures the DOM is updated
-		const inputElement = autocomplete.value;
-
-		const autocompleteInstance = new google.maps.places.Autocomplete(
-			inputElement
+const getAddressFrom = async (lat, long) => {
+	try {
+		const response = await axios.get(
+			`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s
+`
 		);
 
-		autocompleteInstance.addListener("place_changed", () => {
-			// Get the place object from the autocomplete widget
-			const place = autocompleteInstance.getPlace();
+		if (response.data.results && response.data.results.length > 0) {
+			const address = response.data.results[0].formatted_address;
+			console.log("Reverse geocoded address:", address);
+			location.value = address;
+			// You can update a ref here to display the address in your component
+		} else {
+			console.error("No results found");
+		}
+	} catch (error) {
+		console.error("Error in reverse geocoding:", error);
+	}
+};
+const initializeAutocomplete = () => {
+	nextTick(async () => {
+		const loader = new Loader({
+			apiKey: "AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s",
+			version: "weekly",
+		});
 
-			// Check if the place has a geometry property
+		const Places = await loader.importLibrary("places");
+		const input = document.getElementById("autocomplete");
+
+		const autocomplete = new Places.Autocomplete(input);
+		autocomplete.addListener("place_changed", () => {
+			const place = autocomplete.getPlace();
 			if (place.geometry) {
-				// Extract the latitude and longitude from the place's geometry
 				latitude.value = place.geometry.location.lat();
 				longitude.value = place.geometry.location.lng();
 				location.value = place.formatted_address;
-				// Now you can use the latitude and longitude for whatever you need
+				console.log("Selected place:", location.value);
 			} else {
-				// console.log("Selected place does not have a geometry");
+				console.log("Selected place does not have a geometry");
 			}
 		});
 	});
@@ -1069,10 +1362,17 @@ const findNearestTouristAttractions = async () => {
 	const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 	try {
 		if (mobileMap.value) {
-			const location = await getCurrentLocation();
-			const service = new google.maps.places.PlacesService(
-				mobileMap.value
-			);
+			// const location = await getCurrentLocation();
+			// const service = new google.maps.places.PlacesService(
+			// 	mobileMap.value
+			// );
+			const position = await getCurrentLocation();
+			const location = {
+				latitude: position.coords.latitude,
+				longitude: position.coords.longitude,
+			};
+			const { PlacesService } = await google.maps.importLibrary("places");
+			const service = new PlacesService(mobileMap.value);
 
 			const request = {
 				location: new google.maps.LatLng(
@@ -1082,10 +1382,11 @@ const findNearestTouristAttractions = async () => {
 				radius: "3000",
 				type: ["tourist_attraction"],
 			};
+
 			service.nearbySearch(request, (results, status) => {
 				if (status === google.maps.places.PlacesServiceStatus.OK) {
 					suggested_places.value = results;
-					// console.log("RESULTS Suggested", results);
+					console.log("Suggested places:", results);
 
 					results.forEach((place) => {
 						const name = place.name;
@@ -1095,23 +1396,16 @@ const findNearestTouristAttractions = async () => {
 							photoUrl = place.photos[0].getUrl({
 								maxWidth: 400,
 							});
-						} else {
-							// console.log(`Place: ${place}`);
 						}
 					});
 				} else {
 					console.error("Error finding tourist attractions:", status);
 				}
 			});
-		} else {
 		}
 	} catch (error) {
 		console.error("Error finding nearest tourist attractions:", error);
 	}
-};
-
-const closeModal = () => {
-	showModal.value = false;
 };
 
 const openModal = (message) => {
@@ -1259,21 +1553,21 @@ const locateSuggestedPlace = (place) => {
 						return `
               <div style="
                 width: 300px;
-               
+
                 border-radius: 8px;
-                
+
                 font-family: Arial, sans-serif;
                 color: #FFFFFF;
                 overflow: hidden;
-				
+
 				margin-right: 10px;
 				margin-bottom: 10px;
-				
+
               ">
                 <div style="
                   height: 150px;
                   overflow: hidden;
-				  
+
                 ">
                   <img
                     src="${photoUrl}"
@@ -1492,7 +1786,11 @@ const updateCurrency = () => {
 
 onMounted(async () => {
 	await fetchExchangeRates();
-
+	if (typeof google !== "undefined" && google.maps) {
+		await findNearestTouristAttractions();
+	} else {
+		console.error("Google Maps API is not loaded");
+	}
 	// Set initial currency based on the saved currency
 	const savedCurrency = currency_list.value.find(
 		([code]) => code === currency_save.value

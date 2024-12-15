@@ -1,5 +1,5 @@
 <template>
-	<div class="w-full relative overflow-auto min-h-screen z-50">
+	<div class="w-full relative overflow-auto h-screen z-50">
 		<!-- Initial Modal -->
 		<div
 			:class="{ 'blur-background': tamNoResponse || tamCompleteResponse }"
@@ -217,95 +217,93 @@
 	</div>
 </template>
 
-<script>
-import axios from "axios";
-import router from "../routes";
+<script setup>
+import { ref, onMounted } from "vue";
+import axiosClient from "../axios";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+const router = useRouter();
+const store = useStore();
+const tamModalActive = ref(true);
+const tamOneActive = ref(false);
+const tamNoResponse = ref(false);
+const tamCompleteResponse = ref(false);
+const questions = ref([
+	{
+		text: "CulturaLink promotes understanding and appreciation of diverse cultures.",
+	},
+	{ text: "CulturaLink supports meaningful cultural exchange." },
+	{
+		text: "It is easy to find and connect with users from different cultural backgrounds.",
+	},
+	{ text: "Navigating through CulturaLink is simple and intuitive." },
+	{
+		text: "I intend to use CulturaLink to learn more about different cultures.",
+	},
+	{ text: "I would recommend CulturaLink to others." },
+]);
+const responses = ref(Array(6).fill(""));
 
-export default {
-	data() {
-		return {
-			tamModalActive: true,
-			tamOneActive: false,
-			tamNoResponse: false,
-			tamCompleteResponse: false,
-			questions: [
-				{
-					text: "CulturaLink promotes understanding and appreciation of diverse cultures.",
-				},
-				{ text: "CulturaLink supports meaningful cultural exchange." },
-				{
-					text: "It is easy to find and connect with users from different cultural backgrounds.",
-				},
-				{
-					text: "Navigating through CulturaLink is simple and intuitive.",
-				},
-				{
-					text: "I intend to use CulturaLink to learn more about different cultures.",
-				},
-				{ text: "I would recommend CulturaLink to others." },
-			],
-			responses: Array(6).fill(""),
-		};
-	},
-	created() {
-		this.token = sessionStorage.getItem("TOKEN");
-		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
-			withCredentials: true,
-			timeout: 5000,
-			xsrfCookieName: "csrftoken",
-			xsrfHeaderName: "X-Csrftoken",
-			headers: {
-				Authorization: `Token ${this.token}`,
-				"Content-Type": "application/json",
-			},
-		});
-	},
-	methods: {
-		maybeLater() {
-			this.tamModalActive = false;
-			router.push({ name: "dashboard" });
-		},
-		continueSurvey() {
-			this.tamOneActive = true;
-			this.tamModalActive = false;
-		},
-		submitSurvey() {
-			if (this.responses.includes("")) {
-				this.tamNoResponse = true;
-			} else {
-				this.client
-					.post("api/get-survey", {
-						q1: this.responses[0],
-						q2: this.responses[1],
-						q3: this.responses[2],
-						q4: this.responses[3],
-						q5: this.responses[4],
-						q6: this.responses[5],
-					})
-					.then(() => {
-						this.tamCompleteResponse = true;
-					})
-					.catch((error) => {
-						console.error("Error submitting survey:", error);
-					});
-				console.log(this.responses[0]);
-			}
-		},
-		logout() {
-			this.client
-				.post("api/logout")
-				.then(() => {
-					sessionStorage.removeItem("TOKEN");
-					router.push({ name: "login" }).then(() => {
-						window.location.reload();
-					});
-				})
-				.catch((error) => {
-					console.log("Logout error:", error);
-				});
-		},
-	},
+let token = "";
+let client = null;
+
+onMounted(() => {
+	// token = sessionStorage.getItem("TOKEN");
+	// client = axios.create({
+	// 	baseURL: "http://127.0.0.1:8000",
+	// 	withCredentials: true,
+	// 	timeout: 5000,
+	// 	xsrfCookieName: "csrftoken",
+	// 	xsrfHeaderName: "X-Csrftoken",
+	// 	headers: {
+	// 		Authorization: `Token ${token}`,
+	// 		"Content-Type": "application/json",
+	// 	},
+	// });
+});
+
+const maybeLater = () => {
+	tamModalActive.value = false;
+	router.push({ name: "dashboard" });
+};
+
+const continueSurvey = () => {
+	tamOneActive.value = true;
+	tamModalActive.value = false;
+};
+
+const submitSurvey = () => {
+	if (responses.value.includes("")) {
+		tamNoResponse.value = true;
+	} else {
+		axiosClient
+			.post("/get-survey", {
+				q1: responses.value[0],
+				q2: responses.value[1],
+				q3: responses.value[2],
+				q4: responses.value[3],
+				q5: responses.value[4],
+				q6: responses.value[5],
+			})
+			.then(() => {
+				tamCompleteResponse.value = true;
+			})
+			.catch((error) => {
+				console.error("Error submitting survey:", error);
+			});
+		console.log(responses.value[0]);
+	}
+};
+
+const logout = async () => {
+	try {
+		await store.dispatch("logout");
+		router.push({ name: "login" });
+	} catch (error) {
+		router.push({ name: "tamsurvey" });
+
+		console.error("Error during logout:", error);
+	}
 };
 </script>
 

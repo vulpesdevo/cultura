@@ -36,7 +36,7 @@
 						v-model="main_title"
 						@blur="handleTitleChange"
 						@keyup.enter="handleTitleChange"
-						class="text-5xl font-bold text-white bg-transparent w-full font-bebas-neue tracking-wide"
+						class="text-5xl px-2 font-bold text-prime dark:text-white bg-transparent w-full font-bebas-neue tracking-wide rounded-lg"
 						placeholder="Enter title"
 						maxlength="30"
 					/>
@@ -61,7 +61,7 @@
 					<textarea
 						v-model="setAboutMe"
 						@blur="isEditingAboutMe = false"
-						class="w-full text-gray-900 dark:text-white leading-relaxed bg-transparent resize-none outline-none"
+						class="w-full text-gray-900 dark:text-white text-sm leading-relaxed bg-transparent resize-none outline-none"
 						placeholder="Tell us about yourself"
 						rows="3"
 					></textarea>
@@ -89,43 +89,36 @@
 			</div>
 
 			<!-- Budget Section -->
-			<div
-				class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6"
-			>
+			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6">
 				<h2
-					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+					class="text-base font-semibold mb-4 text-gray-900 dark:text-white"
 				>
 					Budgeting
 				</h2>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
-						<div class="text-sm text-gray-500 dark:text-gray-400">
+						<div class="text-xs text-gray-500 dark:text-gray-400">
 							Total Budget
 						</div>
 						<div
-							class="text-2xl font-bold text-gray-200 dark:text-white"
+							class="text-lg font-bold text-gray-200 dark:text-white"
 						>
-							{{ selectedSymbol }}
-							<input
-								v-model="total_budget"
-								type="number"
-								class="bg-transparent w-24 focus:outline-none"
-							/>
+							{{ selectedSymbol }}{{ total_budget }}
 						</div>
 					</div>
 					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
-						<div class="text-sm text-gray-500 dark:text-gray-400">
+						<div class="text-xs text-gray-500 dark:text-gray-400">
 							Currency
 						</div>
 						<select
 							v-model="selectedCurrency"
-							@change="checkCode"
-							class="w-full bg-transparent border-0 text-gray-200 dark:text-white focus:ring-0 text-sm sm:text-base"
+							@change="updateCurrency"
+							class="w-full bg-transparent border-0 text-gray-200 dark:text-white focus:ring-0 text-xs sm:text-sm"
 						>
 							<option
-								v-for="[code, name] in currency_list"
+								v-for="[code, name, symbol] in currency_list"
 								:key="code"
-								:value="code"
+								:value="{ code, symbol }"
 								class="text-gray-900 dark:text-white focus:ring-0 dark:bg-gray-800 text-xs sm:text-sm"
 							>
 								{{ code }} - {{ name }}
@@ -136,15 +129,15 @@
 			</div>
 
 			<!-- Itinerary List -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-6">
+			<div class="rounded-lg shadow-sm mb-6">
 				<h2
-					class="text-xl font-semibold p-6 text-gray-900 dark:text-white"
+					class="text-lg font-semibold font-sans mb-4 text-gray-900 dark:text-white"
 				>
 					Itinerary Stops
 				</h2>
-				<div class="p-6 flex gap-3">
+				<div class="flex gap-3 mb-2">
 					<button
-						@click="showModal = true"
+						@click="openEditModal(null)"
 						class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-colors"
 					>
 						Add New Stop
@@ -156,17 +149,32 @@
 						Save Itinerary
 					</button>
 				</div>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
-						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02]"
+						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto"
 					>
+						<button
+							@click="openEditModal(itinerary)"
+							class="absolute top-2 right-2 bg-gray-800 hover:bg-gray-900 text-white rounded-full p-2 shadow-xl drop-shadow-xl shadow-black transition-colors duration-200 ease-in-out z-20"
+						>
+							<PencilIcon class="size-4" />
+						</button>
 						<img
-							:src="itinerary.place_image"
-							:alt="itinerary.title"
+							v-if="itinerary.photos"
+							:src="itinerary.photos[0].getUrl()"
+							:alt="itinerary.name"
 							class="w-full h-48 object-cover"
 						/>
+						<div
+							v-else
+							class="w-full h-48 flex items-center justify-center bg-gray-700"
+						>
+							<span class="text-gray-500"
+								>No image available</span
+							>
+						</div>
 						<div class="p-4">
 							<div class="flex items-center space-x-2 mb-2">
 								<div
@@ -175,30 +183,58 @@
 									{{ String.fromCharCode(66 + index) }}
 								</div>
 								<h3
-									class="text-lg font-semibold text-gray-900 dark:text-white"
+									class="text-base font-semibold text-gray-900 dark:text-white"
 								>
-									{{ itinerary.title }}
+									{{ itinerary.name }}
 								</h3>
 							</div>
-							<p class="text-gray-600 dark:text-gray-300 mb-4">
+							<p class="text-gray-600 text-xs dark:text-gray-300">
 								{{ itinerary.description }}
 							</p>
-							<div class="flex justify-between items-center">
-								<span
-									class="text-sm text-gray-500 dark:text-gray-400"
-									>Budget:</span
-								>
-								<span
-									class="font-semibold text-gray-900 dark:text-white"
-								>
-									{{ getSymbol(itinerary.code)
-									}}{{ itinerary.budget.toFixed(2) }}
-								</span>
+
+							<div class="py-3">
+								<div class="flex flex-wrap gap-1">
+									<span
+										v-for="type in itinerary?.types
+											? itinerary.types.slice(0, 3)
+											: []"
+										:key="type"
+										class="px-2 py-1 text-xs rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
+									>
+										{{ type.replace("_", " ") }}
+									</span>
+								</div>
 							</div>
-							<div
-								class="mt-2 text-sm text-gray-500 dark:text-gray-400"
-							>
-								Arrival: {{ checkArrival(itinerary) }}
+							<div class="flex justify-between items-center">
+								<div class="flex justify-between items-center">
+									<div class="flex items-center">
+										<StarIcon
+											class="size-4 text-yellow-400 mr-1"
+										/>
+										<span
+											class="text-xs text-gray-600 dark:text-gray-300"
+										>
+											{{ itinerary.rating || 0 }}
+										</span>
+									</div>
+								</div>
+								<div>
+									<span
+										class="text-xs text-gray-500 dark:text-gray-400"
+										>Budget:</span
+									>
+									<span
+										class="ml-3 font-semibold text-gray-900 dark:text-white text-sm"
+									>
+										{{ selectedSymbol
+										}}{{
+											convertCurrency(
+												itinerary.budget,
+												itinerary.code
+											)
+										}}
+									</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -242,13 +278,13 @@
 				class="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl transform transition-all duration-300 ease-in-out"
 			>
 				<h3
-					class="text-3xl sm:text-4xl font-bold mb-6 text-gray-900 dark:text-white text-center"
+					class="text-3xl sm:text-4xl font-bold mb-6 text-gray-500 font-bebas-neue tracking-wider dark:text-white text-center"
 				>
 					Add New Stop
 				</h3>
 				<form @submit.prevent="submitItinerary" class="space-y-6">
 					<!-- Image Upload -->
-					<div class="group relative">
+					<!-- <div class="group relative">
 						<label
 							for="imgSelectIn"
 							class="block w-full h-48 sm:h-64 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ease-in-out"
@@ -283,7 +319,7 @@
 							@change="handleFileSelectionIn"
 							accept="image/*"
 						/>
-					</div>
+					</div> -->
 
 					<!-- Location -->
 					<div>
@@ -343,22 +379,6 @@
 								placeholder="Enter budget"
 								required
 							/>
-							<div
-								class="absolute inset-y-0 right-0 flex items-center"
-							>
-								<label for="currency" class="sr-only"
-									>Currency</label
-								>
-								<select
-									id="currency"
-									v-model="selectedSymbol"
-									class="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md focus:ring-blue-500 focus:border-blue-500"
-								>
-									<option>$</option>
-									<option>€</option>
-									<option>£</option>
-								</select>
-							</div>
 						</div>
 					</div>
 
@@ -386,14 +406,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeMount, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeMount, nextTick, watch } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 
 import axios from "axios";
 import * as Dropdown from "primevue/dropdown";
 import router from "../routes";
-import { PhotoIcon, MapPinIcon, GlobeAltIcon } from "@heroicons/vue/24/outline";
 
+import { StarIcon, MapIcon, XIcon } from "lucide-vue-next";
+import { PencilIcon } from "@heroicons/vue/24/solid";
+import { PhotoIcon, MapPinIcon, GlobeAltIcon } from "@heroicons/vue/24/outline";
 // Reactive variables
 const isEditingTips = ref(true);
 const isEditingTitle = ref(true);
@@ -408,7 +430,7 @@ const setAboutMe = ref("");
 const total_budget = ref(0);
 const convertedBudget = ref("");
 const api =
-	"https://v6.exchangerate-api.com/v6/14L4SCh7Me4KaDH1xLnMmw==wik53BlNsvI2cN3k/latest/USD";
+	"https://v6.exchangerate-api.com/v6/eab4e81875a8acd578c8d5c1/latest/USD";
 const currency_list = ref([
 	["AED", "United Arab Emirates Dirhams", "د.إ"],
 	["AFN", "Afghan Afghani", "؋"],
@@ -561,8 +583,8 @@ const currency_list = ref([
 
 const selectedPera = ref(null);
 const list_budget = ref([]);
-const selectedCurrency = ref("PHP");
-const selectedSymbol = ref("");
+const selectedCurrency = ref("");
+const selectedSymbol = computed(() => selectedCurrency.value.symbol);
 const currency_save = ref("");
 const converted = ref(0);
 const paragraphs = ref([]);
@@ -585,7 +607,22 @@ const desktopMap = ref(null);
 const mobileMap = ref(null);
 const desktopMapRef = ref(null);
 const mobileMapRef = ref(null);
+onMounted(async () => {
+	await fetchExchangeRates();
+	const savedCurrency = currency_list.value.find(
+		([code]) => code === currency_save.value
+	);
+	if (savedCurrency) {
+		selectedCurrency.value = {
+			code: savedCurrency[0],
+			symbol: savedCurrency[2],
+		};
+	}
 
+	calculateTotalBudget();
+	initializeAutocomplete();
+	initializeMaps();
+});
 const initializeMaps = async () => {
 	nextTick(() => {
 		if (desktopMapRef.value && mobileMapRef.value) {
@@ -714,6 +751,164 @@ const showLocationOntheMap = () => {
 	// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
 	// This is a workaround because fitBounds does not let you specify max zoom level
 };
+const fetchExchangeRates = async () => {
+	try {
+		const response = await fetch(api);
+		const data = await response.json();
+		exchangeRates.value = data.conversion_rates;
+	} catch (error) {
+		console.error("Error fetching exchange rates:", error);
+	}
+};
+const exchangeRates = ref({});
+const convertCurrency = (amount, fromCurrency) => {
+	if (!amount || isNaN(amount)) return 0;
+
+	const toCurrency = selectedCurrency.value.code;
+
+	if (
+		!exchangeRates.value[fromCurrency] ||
+		!exchangeRates.value[toCurrency]
+	) {
+		console.warn(
+			`Exchange rate not available for ${fromCurrency} or ${toCurrency}`
+		);
+		return amount;
+	}
+
+	const amountInBaseCurrency = amount / exchangeRates.value[fromCurrency];
+	const convertedAmount =
+		amountInBaseCurrency * exchangeRates.value[toCurrency];
+	console.log(
+		`Converting ${amount} ${fromCurrency} to ${convertedAmount} ${toCurrency}`
+	);
+
+	return parseFloat(convertedAmount.toFixed(2));
+};
+
+const getPlaceDetails = async (lat, lng) => {
+	if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+		console.error("Invalid latitude or longitude values");
+		return null;
+	}
+
+	try {
+		const response = await axios.get(
+			"https://maps.googleapis.com/maps/api/geocode/json",
+			{
+				params: {
+					latlng: `${lat},${lng}`,
+					key: "AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s",
+				},
+			}
+		);
+		if (response.data.status === "OK") {
+			const placeDetails = response.data.results[0];
+
+			return placeDetails;
+		} else {
+			console.error("Geocoding API error:", response.data.status);
+			return null;
+		}
+	} catch (error) {
+		console.error("Error fetching place details:", error);
+		return null;
+	}
+};
+const calculateTotalBudget = () => {
+	total_budget.value = list_itineraries.value.reduce((total, itinerary) => {
+		const budget = parseFloat(itinerary.budget) || 0;
+		const code = itinerary.code || "PHP";
+		const convertedBudget = convertCurrency(budget, code);
+		console.log(
+			`Converting ${budget} ${code} to ${convertedBudget} ${selectedCurrency.value.code}`
+		);
+
+		return total + convertedBudget;
+	}, 0);
+	// console.log(`Total budget: ${total_budget.value}`);
+};
+const updateCurrency = () => {
+	calculateTotalBudget();
+};
+const letDetails = async () => {
+	for (const itinerary of list_itineraries.value) {
+		const placeDetails = await getPlaceDetails(
+			itinerary.latitude,
+			itinerary.longitude
+		);
+		if (placeDetails) {
+			// console.log("Place details:", placeDetails);
+			itinerary.description =
+				placeDetails.formatted_address || placeDetails.name;
+
+			// Get more details using the place ID
+			try {
+				const morePlaceDetails = await getMorePlaceDetails(
+					placeDetails.place_id
+				);
+				if (morePlaceDetails) {
+					Object.assign(itinerary, morePlaceDetails);
+				}
+			} catch (error) {
+				console.error("Error getting more place details:", error);
+			}
+		}
+	}
+	// console.log("List of itineraries with details:", list_itineraries.value);
+};
+const isEditMode = ref(false);
+const editingItinerary = ref(null);
+const editingField = ref(null);
+const tempEditValue = ref("");
+const openEditModal = (itinerary) => {
+	if (itinerary !== null) {
+		isEditMode.value = true;
+		editingItinerary.value = { ...itinerary };
+		location.value = itinerary.name;
+		budget.value = itinerary.budget;
+	} else {
+		isEditMode.value = false;
+		editingItinerary.value = null;
+		location.value = "";
+		budget.value = "";
+	}
+	// console.log("Editing itinerary:", editingItinerary.value);
+
+	showModal.value = true;
+};
+
+const closeModal = () => {
+	showModal.value = false;
+	editingItinerary.value = null;
+};
+const getMorePlaceDetails = async (placeId) => {
+	try {
+		const { PlacesService } = await google.maps.importLibrary("places");
+		const service = new PlacesService(document.createElement("div"));
+
+		return new Promise((resolve, reject) => {
+			service.getDetails(
+				{
+					placeId: placeId,
+				},
+				(place, status) => {
+					if (status === google.maps.places.PlacesServiceStatus.OK) {
+						// console.log("More place details:", place);
+						resolve(place);
+					} else {
+						console.error("Places API error:", status);
+						reject(new Error(`Places API error: ${status}`));
+					}
+				}
+			);
+		});
+	} catch (error) {
+		console.error("Error fetching more place details:", error);
+		throw error;
+	}
+};
+
 const checkArrival = (itinerary) => {
 	const now = new Date();
 	const arrivalDate = new Date(itinerary.arrival_date);
@@ -739,7 +934,6 @@ const deleteItinerary = (itineraryId) => {
 		})
 		.then(() => {
 			fetchItineraries();
-			checkCode();
 		})
 		.catch((error) => {
 			console.error(error);
@@ -921,19 +1115,38 @@ const submitItinerary = () => {
 		formData.append("image", pictureIn.value, pictureIn.value.name);
 	}
 
-	client.value
-		.post("/api/create-itinerary", formData, {
-			headers: {
-				"Content-Type": "multipart/form-data",
-			},
-		})
-		.then((response) => {
+	const url = isEditMode.value
+		? `/api/itinerary-stop/${editingItinerary.value.id}`
+		: "/api/create-itinerary";
+	const method = isEditMode.value ? "put" : "post";
+
+	client.value[method](url, formData, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+	})
+		.then(async (response) => {
 			console.log(response.data);
+
+			if (isEditMode.value) {
+				// Update the local list_itineraries
+				const index = list_itineraries.value.findIndex(
+					(i) => i.id === editingItinerary.value.id
+				);
+				if (index !== -1) {
+					list_itineraries.value[index] = {
+						...list_itineraries.value[index],
+						...response.data,
+					};
+					console.log("LIST OF ITINERARIES", list_itineraries.value);
+				}
+				await letDetails();
+				await showLocationOntheMap();
+			} else {
+				fetchItineraries();
+			}
+
 			showModal.value = false;
-			location.value = "";
-			budget.value = "";
-			fetchItineraries();
-			checkCode();
 		})
 		.catch((error) => {
 			console.error(error);
@@ -1023,11 +1236,12 @@ const fetchItineraries = async () => {
 		itineraryIds.value = list_itineraries.value.map(
 			(itinerary) => itinerary.id
 		);
-		checkCode();
+		// checkCode();
 		console.log("itineraryIds:", itineraryIds.value);
 
 		await sortItinerariesByProximity();
 		showLocationOntheMap();
+		letDetails();
 	} catch (error) {
 		console.log(error);
 	}
@@ -1064,27 +1278,6 @@ const initializeAutocomplete = () => {
 				console.log("Selected place does not have a geometry");
 			}
 		});
-		// autocomplete.addListener("place_changed", () => {
-		// 	const place = autocomplete.getPlace();
-		// 	console.log("Selected place:", place);
-		// });
-		// const inputElement = autocompleteRef.value;
-		// if (
-		// 	inputElement &&
-		// 	window.google &&
-		// 	window.google.maps &&
-		// 	window.google.maps.places
-		// ) {
-		// 	const autocomplete = new google.maps.places.Autocomplete(
-		// 		inputElement
-		// 	);
-
-		// 	});
-		// } else {
-		// 	console.error(
-		// 		"Autocomplete input element not found or Google Maps API not loaded"
-		// 	);
-		// }
 	});
 };
 const locatorBtn = () => {
@@ -1161,9 +1354,7 @@ onBeforeMount(() => {
 	fetchItineraries();
 });
 
-onMounted(() => {
-	initializeAutocomplete();
-	initializeMaps();
-});
+watch(list_itineraries, calculateTotalBudget, { deep: true });
+watch(selectedCurrency, calculateTotalBudget);
 </script>
 <style scoped></style>

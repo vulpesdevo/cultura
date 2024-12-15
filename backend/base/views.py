@@ -477,24 +477,38 @@ class EditUserProfile(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class UserLogout(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    # authentication_classes = ()
 
     def post(self, request):
         user = request.user
-        print("logout user: ", user)
-        # print("Logout Token: ", get_token.replace("Token", "").strip())
-        if not Survey.objects.filter(user=user):
+        print("logout user: ", user.id)
+
+        if not Survey.objects.filter(user_id=user.id):
             print("Exist")
             return Response(
                 {"message": "You have not completed the survey yet."},
-                status=status.HTTP_200_OK,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        token = UserView.token_auth
-        token_obj = Token.objects.get(key=token)
-        token_obj.delete()
+        # Retrieve the token from the request headers
+        token_key = request.auth.key if request.auth else None
+        print("token_key: ", token_key)
+        if token_key:
+            try:
+                token_obj = Token.objects.get(key=token_key)
+                token_obj.delete()
+            except Token.DoesNotExist:
+                return Response(
+                    {"message": "Invalid token."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         logout(request)
         return Response(status=status.HTTP_200_OK)
 
@@ -1206,6 +1220,53 @@ class DeleteItinerary(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class UpdateSaveItineraryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, id):
+        try:
+            # Retrieve the itinerary by id and owner
+            itinerary_save = SaveItinerary.objects.get(id=id, owner=request.user)
+            data = request.data
+
+            if "main_title" in data:
+                itinerary_save.main_title = data.get(
+                    "main_title", itinerary_save.main_title
+                ).strip()
+            if "main_description" in data:
+                itinerary_save.main_description = data.get(
+                    "main_description", itinerary_save.main_description
+                ).strip()
+            if "gen_tips" in data:
+                itinerary_save.gen_tips = data.get(
+                    "gen_tips", itinerary_save.gen_tips
+                ).strip()
+            if "currency" in data:
+                itinerary_save.currency = data.get(
+                    "currency", itinerary_save.currency
+                ).strip()
+            if "total_budget" in data:
+                itinerary_save.total_budget = data.get(
+                    "total_budget", itinerary_save.total_budget
+                )
+            if "itineraries" in data:
+                itinerary_save.itineraries = data.get(
+                    "itineraries", itinerary_save.itineraries
+                )
+            if "image" in request.FILES:
+                itinerary_save.main_image = request.FILES.get(
+                    "image", itinerary_save.main_image
+                )
+
+            itinerary_save.save()
+            serializer = SaveItinerarySerializer(itinerary_save)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except SaveItinerary.DoesNotExist:
+            return Response(
+                {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+
 class ItineraryCreate(APIView):
     """
     API view for creating a new Itinerary instance.
@@ -1244,7 +1305,33 @@ class ItineraryCreate(APIView):
         )
         # itinerary.save()
         serializer = ItinerarySerializer(itinerary)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, id):
+        try:
+            # Retrieve the itinerary by id and owner
+            itinerary = Itinerary.objects.get(id=id, owner=request.user)
+            data = request.data
+
+            itinerary.longitude = data.get("longitude", itinerary.longitude)
+            itinerary.latitude = data.get("latitude", itinerary.latitude)
+            itinerary.budget = data.get("budget", itinerary.budget)
+            print(
+                "DATA: ",
+                data.get(
+                    "longitude",
+                ),
+            )
+
+            itinerary.save()
+            serializer = ItinerarySerializer(itinerary)
+            print("IT :: ", serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Itinerary.DoesNotExist:
+            return Response(
+                {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
 
 import logging
@@ -1289,6 +1376,20 @@ class ItinerariesInView(APIView):
 class SaveItineraryView(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        # Retrieve all itineraries owned by the current user
+        itineraries = SaveItinerary.objects.filter(owner=request.user)
+        serializer = SaveItinerarySerializer(itineraries, many=True)
+
+        for itinerary_data in serializer.data:
+            main_image = itinerary_data.get("main_image", None)
+            if main_image:
+                # Build the absolute URI for the main image
+                abs_main_image_url = request.build_absolute_uri(main_image)
+                # Update the itinerary data with the absolute URI
+                itinerary_data["main_image"] = abs_main_image_url
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         data = request.data
         # Default to None if not provided
@@ -1319,12 +1420,6 @@ class SaveItineraryView(APIView):
         )
 
         serializer = SaveItinerarySerializer(itinerary_save)
-        # Set the owner to the current user before saving
-        # itineraries_init = Itinerary.objects.filter(owner=request.user,status=False)
-        # for itinerary in itineraries_init:
-        #     itinerary.status = True
-        #     itinerary.save()
-
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request):
@@ -1364,22 +1459,6 @@ class SaveItineraryView(APIView):
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-# class RatingItinerary(APIView):
-#     permission_classes = (permissions.IsAuthenticated,)
-
-#     def post(self, request):
-#         data = request.data
-#         itinerary_id = data.get("itinerary_id", 0)
-#         rate = data.get("rate", 0)
-#         print(rate, " ----- ", itinerary_id)
-#         itinerary, created = Ratings.objects.update_or_create(
-#             owner=request.user,
-#             itinerary=itinerary_id,
-#             defaults={"rating": rate},
-#         )
-#         return Response(status=status.HTTP_201_CREATED)
 
 
 class SaveItineraryListView(APIView):

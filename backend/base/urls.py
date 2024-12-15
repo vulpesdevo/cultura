@@ -85,6 +85,11 @@ urlpatterns = [
     ),
     # creating and calling itineraries
     path("create-itinerary", views.ItineraryCreate.as_view(), name="create-itinerary"),
+    path(
+        "itinerary-stop/<int:id>",
+        views.ItineraryCreate.as_view(),
+        name="itinerary-stop",
+    ),
     path("itinerary", views.ItineraryListView.as_view(), name="itineraries"),
     path("delete-itinerary", views.DeleteItinerary.as_view(), name="delete-itinerary"),
     path(
@@ -98,6 +103,11 @@ urlpatterns = [
     #     name="follow",
     # ),
     path("save-itinerary", views.SaveItineraryView.as_view(), name="save-itinerary"),
+    path(
+        "update-itinerary",
+        views.UpdateSaveItineraryView.as_view(),
+        name="update-itinerary",
+    ),
     path(
         "saved-itinerary", views.SaveItineraryListView.as_view(), name="saved-itinerary"
     ),
