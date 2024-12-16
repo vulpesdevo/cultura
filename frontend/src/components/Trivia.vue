@@ -82,7 +82,7 @@
 
 <script>
 import { ref, onMounted, onBeforeUnmount } from "vue";
-
+import axiosClient from "../axios";
 export default {
 	setup() {
 		const triviaQuestions = ref([]);

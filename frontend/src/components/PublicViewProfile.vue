@@ -613,7 +613,7 @@
 <script setup>
 import axios from "axios";
 import { ref, onMounted, computed } from "vue";
-
+import axiosClient from "../axios";
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
 import {
@@ -718,8 +718,8 @@ client = axios.create({
 });
 
 const follow = (id) => {
-	client
-		.post(`api/follow/${id}/follow/`)
+	axiosClient
+		.post(`/follow/${id}/follow/`)
 		.then((response) => {
 			console.log("following::", response.data);
 			// user.value.is_followed = response.data.is_followed;
@@ -743,8 +743,8 @@ const timesince = (date) => {
 };
 
 const likePost = (postId) => {
-	client
-		.post(`api/like-posts/${postId}/like_post/`)
+	axiosClient
+		.post(`/like-posts/${postId}/like_post/`)
 		.then((response) => {
 			// console.log(response.data);
 			fetchPosts(id_get_post.value);
@@ -767,7 +767,7 @@ const selectPost = (post) => {
 	});
 };
 const submitReply = () => {
-	client
+	axiosClient
 		.post("/api/commenting", {
 			post_id: postId.value,
 			replied_to: repliedTo.value,

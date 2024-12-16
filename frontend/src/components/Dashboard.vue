@@ -1,4 +1,4 @@
-<template>
+<template lang="">
 	<div
 		class="flex flex-col items-center align-middle w-full sm:px-11 md:px-24 lg:px-20 py-5 overflow-auto scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
@@ -296,7 +296,7 @@
 
 						<!-- Itinerary Section -->
 						<div
-							v-if="!post?.itinerary_in_post === []"
+							v-if="!post.itinerary_in_post"
 							class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
 							@click="
 								goToViewItinerary(post?.itinerary_in_post?.id)
@@ -632,6 +632,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
 import axios from "axios";
+import axiosClient from "../axios";
 import moment from "moment";
 import { clean } from "profanity-cleaner";
 import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
@@ -821,7 +822,7 @@ const submitPost = async () => {
 	}
 
 	try {
-		await client.post("/api/posting", formData, {
+		await axiosClient.post("/posting", formData, {
 			headers: { "Content-Type": "multipart/form-data" },
 		});
 		postTitle.value = "POST TITLE";
@@ -840,7 +841,7 @@ const submitPost = async () => {
 
 const submitReply = async () => {
 	try {
-		await client.post("/api/commenting", {
+		await axiosClient.post("/commenting", {
 			post_id: post_id.value,
 			replied_to: replied_to.value,
 			body: reply.value,

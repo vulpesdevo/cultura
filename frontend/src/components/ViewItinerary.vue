@@ -19,46 +19,55 @@
 				<div
 					class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"
 				>
-					<div class="absolute bottom-0 left-0 p-6">
-						<div
-							v-if="editingField === 'main_title'"
-							class="flex items-center"
-						>
-							<input
-								v-model="tempEditValue"
-								class="text-3xl font-bold px-1.5 text-white font-bebas-neue tracking-wide bg-transparent border-b border-white"
-							/>
-							<button
-								@click="editItineraryDetails('main_title')"
-								class="ml-2 text-white"
-							>
-								Save
-							</button>
-						</div>
-						<h1
-							v-else
-							class="text-3xl font-bold text-white font-bebas-neue tracking-wide"
-						>
-							{{ itineraryDetails.main_title }}
+					<div class="absolute bottom-0 left-0 p-6 w-full">
+						<div class="flex items-center justify-between">
+							<div class="flex-1">
+								<input
+									v-if="editingField === 'main_title'"
+									v-model="tempEditValue"
+									@blur="saveEdit('main_title')"
+									@keyup.enter="saveEdit('main_title')"
+									class="text-3xl font-bold px-1.5 py-1 text-white font-bebas-neue tracking-wide bg-black/30 border-b border-white w-full focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+									:ref="
+										(el) => {
+											if (el) el.focus();
+										}
+									"
+									placeholder="Enter title"
+								/>
+								<h1
+									v-else
+									class="text-3xl font-bold text-white font-bebas-neue tracking-wide"
+									@click="isOwner && toggleEdit('main_title')"
+								>
+									{{
+										itineraryDetails.main_title ||
+										"Untitled Itinerary"
+									}}
+								</h1>
+							</div>
 							<button
 								v-if="isOwner"
-								@click="editItineraryDetails('main_title')"
-								class="ml-2 text-sm"
+								@click="toggleEdit('main_title')"
+								class="ml-2 text-white hover:text-gray-200 transition-colors duration-200"
+								:aria-label="
+									editingField === 'main_title'
+										? 'Save title'
+										: 'Edit title'
+								"
 							>
-								Edit
-							</button>
-						</h1>
-
-						<div class="flex items-center mt-2">
-							<div class="flex items-center">
-								<StarIcon
-									class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 mr-1"
+								<PencilIcon
+									v-if="editingField !== 'main_title'"
+									class="size-4"
 								/>
-								<span
-									class="text-white font-semibold text-xs sm:text-base"
-									>{{ avgRating.toFixed(1) }} / 5</span
+								<div
+									v-else
+									class="flex items-center justify-between space-x-1 text-xs border border-second hover:border-blue-700 px-1.5 p-1 rounded-lg"
 								>
-							</div>
+									<CheckIcon class="size-3 font-bold" />
+									<span>Save</span>
+								</div>
+							</button>
 						</div>
 					</div>
 				</div>
@@ -99,93 +108,140 @@
 					</div>
 				</div>
 			</div>
+
 			<!-- Author Profile and Description -->
-			<!-- Author Profile and Description -->
-			<div class="flex items-start space-x-4 p-4">
+			<div
+				class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-6"
+			>
 				<img
 					:src="itineraryDetails.user_photo"
 					alt="Author profile"
 					class="size-9 rounded-full object-cover flex-shrink-0"
 				/>
 				<div class="flex-1">
-					<div class="flex items-center text-xs space-x-2 mb-1">
-						<h2 class="text-gray-900 dark:text-white">
-							@{{ itineraryDetails.creator_name }}
-						</h2>
-						<span class="text-gray-500">{{
-							new Date(
-								itineraryDetails.date_posted
-							).toLocaleDateString("en-US", {
-								month: "long",
-								day: "numeric",
-								year: "numeric",
-							})
-						}}</span>
-					</div>
-					<div
-						v-if="editingField === 'main_description'"
-						class="flex items-start"
-					>
-						<textarea
-							v-model="tempEditValue"
-							class="w-full text-xs pt-2 bg-transparent border rounded text-gray-900 dark:text-gray-300"
-							rows="3"
-						></textarea>
-						<button
-							@click="editItineraryDetails('main_description')"
-							class="ml-2 text-sm text-blue-500 hover:text-blue-700"
-						>
-							Save
-						</button>
-					</div>
-					<p
-						v-else
-						class="text-gray-900 text-xs pt-2 dark:text-gray-300 leading-relaxed"
-					>
-						{{ itineraryDetails.main_description }}
+					<div class="flex items-center justify-between">
+						<div class="flex items-center text-xs space-x-2 mb-1">
+							<h2 class="text-gray-900 dark:text-white">
+								@{{ itineraryDetails.creator_name }}
+							</h2>
+							<span class="text-gray-500">
+								{{ formatDate(itineraryDetails.date_posted) }}
+							</span>
+						</div>
 						<button
 							v-if="isOwner"
-							@click="editItineraryDetails('main_description')"
-							class="ml-2 text-sm text-blue-500 hover:text-blue-700"
+							@click="toggleEdit('main_description')"
+							class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+							:aria-label="
+								editingField === 'main_description'
+									? 'Save description'
+									: 'Edit description'
+							"
 						>
-							Edit
+							<PencilIcon
+								v-if="editingField !== 'main_description'"
+								class="h-4 w-4"
+							/>
+							<div
+								v-else
+								class="flex items-center justify-between space-x-1 text-xs border border-second hover:border-blue-700 px-1.5 p-1 rounded-lg"
+							>
+								<CheckIcon class="size-3 font-bold" />
+								<span>Save</span>
+							</div>
 						</button>
-					</p>
+					</div>
+
+					<div class="relative">
+						<textarea
+							v-if="editingField === 'main_description'"
+							v-model="tempEditValue"
+							@blur="saveEdit('main_description')"
+							class="w-full text-xs pt-2 bg-transparent border rounded text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+							rows="3"
+							:ref="
+								(el) => {
+									if (el) el.focus();
+								}
+							"
+							placeholder="Enter description"
+						></textarea>
+						<p
+							v-else
+							class="text-gray-900 text-xs pt-2 dark:text-gray-300 leading-relaxed"
+							@click="isOwner && toggleEdit('main_description')"
+						>
+							{{
+								itineraryDetails.main_description ||
+								"No description provided"
+							}}
+						</p>
+					</div>
 				</div>
 			</div>
 
-			<!-- Update the general tips section -->
-			<div class="p-6 rounded-lg shadow-sm">
-				<h2
-					class="text-base font-semibold mb-4 text-gray-900 dark:text-white w-full border-b border-gray-300 dark:border-gray-700 pb-2"
-				>
-					General Tips
+			<!-- General Tips Section -->
+			<div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+				<div class="flex items-center justify-between mb-4">
+					<h2
+						class="text-base font-semibold text-gray-900 dark:text-white"
+					>
+						General Tips
+					</h2>
 					<button
 						v-if="isOwner"
-						@click="editItineraryDetails('gen_tips')"
-						class="ml-2 text-sm"
+						@click="toggleEdit('gen_tips')"
+						class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+						:aria-label="
+							editingField === 'gen_tips'
+								? 'Save tips'
+								: 'Edit tips'
+						"
 					>
-						{{ editingField === "gen_tips" ? "Save" : "Edit" }}
+						<PencilIcon
+							v-if="editingField !== 'gen_tips'"
+							class="h-4 w-4"
+						/>
+						<div
+							v-else
+							class="flex items-center justify-between space-x-1 text-xs border border-second hover:border-blue-700 px-1.5 p-1 rounded-lg"
+						>
+							<CheckIcon class="size-3 font-bold" />
+							<span>Save</span>
+						</div>
 					</button>
-				</h2>
+				</div>
 				<div class="w-full sm:w-[83%] mx-auto">
-					<div v-if="editingField === 'gen_tips'">
+					<div v-if="editingField === 'gen_tips'" class="relative">
 						<textarea
 							v-model="tempEditValue"
-							class="w-full text-xs bg-transparent border rounded"
-							rows="10"
+							@blur="saveEdit('gen_tips')"
+							class="w-full text-xs bg-transparent border rounded p-2 dark:text-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+							rows="6"
+							:ref="
+								(el) => {
+									if (el) el.focus();
+								}
+							"
+							placeholder="Enter general tips"
 						></textarea>
 					</div>
-					<p
-						v-else
-						v-for="(paragraph, index) in paragraphs"
-						:key="index"
-						class="text-gray-600 dark:text-gray-300 text-xs mb-4"
-						v-html="formatText(paragraph)"
-					></p>
+					<div v-else @click="isOwner && toggleEdit('gen_tips')">
+						<p
+							v-for="(paragraph, index) in paragraphs"
+							:key="index"
+							class="text-gray-600 dark:text-gray-300 text-xs mb-4"
+							v-html="formatText(paragraph)"
+						></p>
+						<p
+							v-if="paragraphs.length === 0"
+							class="text-gray-500 dark:text-gray-400 text-xs italic"
+						>
+							No general tips provided
+						</p>
+					</div>
 				</div>
 			</div>
-
 			<!-- Budget Section -->
 			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6">
 				<h2
@@ -227,17 +283,45 @@
 			</div>
 
 			<!-- Itinerary List -->
-			<div class="rounded-lg shadow-sm mb-6">
-				<h2
-					class="text-lg font-semibold font-sans mb-4 text-gray-900 dark:text-white"
-				>
-					Itinerary Stops
-				</h2>
+			<div
+				class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 mb-6"
+			>
+				<div class="flex items-center justify-between mb-6">
+					<h2
+						class="text-xl font-semibold text-gray-900 dark:text-white"
+					>
+						Itinerary Stops
+					</h2>
+				</div>
+
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<!-- Add New Stop Card -->
+					<button
+						v-if="isOwner"
+						@click="openEditModal(null)"
+						class="group relative sm:h-[400px] h-[200px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden transition-all duration-300 hover:border-blue-500 dark:hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					>
+						<div
+							class="absolute inset-0 flex flex-col items-center justify-center p-6"
+						>
+							<div
+								class="rounded-full bg-gray-100 dark:bg-gray-700 p-3 mb-3 group-hover:bg-blue-100 dark:group-hover:bg-blue-900 transition-colors duration-300"
+							>
+								<PlusIcon
+									class="h-8 w-8 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+								/>
+							</div>
+							<span
+								class="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+							>
+								Add New Stop
+							</span>
+						</div>
+					</button>
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
-						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto"
+						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto sm:h-[400px]"
 					>
 						<button
 							v-if="isOwner"
@@ -263,12 +347,12 @@
 						<div class="p-4">
 							<div class="flex items-center space-x-2 mb-2">
 								<div
-									class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold"
+									class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold"
 								>
 									{{ String.fromCharCode(66 + index) }}
 								</div>
 								<h3
-									class="text-base font-semibold text-gray-900 dark:text-white"
+									class="flex-1 text-base font-semibold text-gray-900 dark:text-white truncate"
 								>
 									{{ itinerary.name }}
 								</h3>
@@ -421,6 +505,8 @@
 		</button>
 	</div>
 	<!-- Add the edit modal -->
+
+	<!-- Add New Stop Modal -->
 	<div
 		v-if="showModal"
 		class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -428,13 +514,22 @@
 		<div
 			class="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl transform transition-all duration-300 ease-in-out"
 		>
-			<h3
-				class="text-3xl sm:text-4xl font-bold font-bebas-neue tracking-widest mb-6 text-gray-900 dark:text-white text-center"
-			>
-				Edit Stop
-			</h3>
+			<div class="flex justify-between items-center mb-6">
+				<h3
+					class="text-3xl sm:text-4xl font-bold text-gray-500 font-bebas-neue tracking-wider dark:text-white"
+				>
+					{{ isEditMode ? "Edit Stop" : "Add New Stop" }}
+				</h3>
+				<button
+					v-if="isEditMode"
+					@click="showDeleteConfirmation = true"
+					class="text-red-500 hover:text-red-700 focus:outline-none"
+					aria-label="Delete stop"
+				>
+					<TrashIcon class="h-6 w-6" />
+				</button>
+			</div>
 			<form @submit.prevent="submitItinerary" class="space-y-6">
-				<!-- Image Upload -->
 				<!-- Location -->
 				<div>
 					<label
@@ -497,7 +592,7 @@
 				</div>
 
 				<div
-					class="flex sm:flex-row justify-between sm:justify-end items-center space-x-3 sm:space-y-0 mt-8"
+					class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-8"
 				>
 					<button
 						type="button"
@@ -516,6 +611,37 @@
 			</form>
 		</div>
 	</div>
+	<!-- Delete Confirmation Modal -->
+	<div
+		v-if="showDeleteConfirmation"
+		class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+	>
+		<div
+			class="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl"
+		>
+			<h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+				Confirm Deletion
+			</h3>
+			<p class="text-gray-600 dark:text-gray-300 mb-6">
+				Are you sure you want to delete this stop? This action cannot be
+				undone.
+			</p>
+			<div class="flex justify-end space-x-3">
+				<button
+					@click="showDeleteConfirmation = false"
+					class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+				>
+					Cancel
+				</button>
+				<button
+					@click="deleteItinerary"
+					class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 ease-in-out"
+				>
+					Delete
+				</button>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script setup>
@@ -523,10 +649,20 @@ import { ref, reactive, nextTick, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { StarIcon, MapIcon, XIcon } from "lucide-vue-next";
 import { PencilIcon } from "@heroicons/vue/24/solid";
-import { PhotoIcon, MapPinIcon, GlobeAltIcon } from "@heroicons/vue/24/outline";
+import {
+	PhotoIcon,
+	MapPinIcon,
+	GlobeAltIcon,
+	PlusIcon,
+	CheckIcon,
+	TrashIcon,
+	ArrowDownOnSquareIcon,
+} from "@heroicons/vue/24/outline";
+import axiosClient from "../axios";
 
 import axios from "axios";
-
+import { useStore } from "vuex";
+const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -540,6 +676,7 @@ const allRatings = ref([]); // Initial ratings from the backend
 const suggested_places = ref([]);
 const paragraphs = ref([]);
 
+const showDeleteConfirmation = ref(false);
 const isEditing = ref(true);
 const main_title = ref("ITINERARY TITLE");
 const selectedImageUrlIn = ref("");
@@ -748,6 +885,13 @@ const userMarker = ref(null);
 const userLocation = ref(null);
 const arrivalMessage = ref("");
 
+const formatDate = (dateString) => {
+	return new Date(dateString).toLocaleDateString("en-US", {
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	});
+};
 // Computed properties
 const isMobile = computed(() => window.innerWidth < 640);
 
@@ -758,13 +902,13 @@ const avgRating = computed(() => {
 });
 const fetchUser = async () => {
 	try {
-		const res = await client.value.get("api/user");
+		const res = await axiosClient.get("/user");
 		username.value = res.data.user.username;
 	} catch (error) {
 		console.log("ERROR", error.message);
 	}
 };
-const isOwner = computed(() => itineraryDetails.owner === username.value);
+const isOwner = computed(() => itineraryDetails.owner === user.value.user?.id);
 const isEditMode = ref(false);
 const editingItinerary = ref(null);
 const editingField = ref(null);
@@ -773,12 +917,48 @@ const toggleEditMode = () => {
 	isEditMode.value = !isEditMode.value;
 };
 
+const toggleEdit = (field) => {
+	if (editingField.value === field) {
+		saveEdit(field);
+	} else {
+		tempEditValue.value = itineraryDetails[field] || "";
+		editingField.value = field;
+	}
+};
+
+const saveEdit = async (field) => {
+	if (itineraryDetails) {
+		itineraryDetails[field] = tempEditValue.value;
+		if (field === "gen_tips") {
+			paragraphs.value = itineraryDetails.gen_tips.split(/\n+/);
+		}
+		editingField.value = null;
+		const data = { [field]: tempEditValue.value };
+		await store.dispatch("updateItineraryDetails", {
+			id: itinerary_id.value,
+			data,
+		});
+		// Here you would typically call an API to save the changes
+		// For example: await updateItineraryDetails(itineraryDetails.id, { [field]: tempEditValue.value });
+	} else {
+		console.error("itineraryDetails is undefined");
+	}
+};
+
 const openEditModal = (itinerary) => {
-	editingItinerary.value = { ...itinerary };
+	if (itinerary !== null) {
+		isEditMode.value = true;
+		editingItinerary.value = { ...itinerary };
+		location.value = itinerary.name;
+		budget.value = itinerary.budget;
+	} else {
+		isEditMode.value = false;
+		editingItinerary.value = null;
+		location.value = "";
+		budget.value = "";
+	}
 	// console.log("Editing itinerary:", editingItinerary.value);
 
-	location.value = itinerary.name;
-	budget.value = itinerary.budget;
 	showModal.value = true;
 };
 
@@ -792,6 +972,30 @@ const handleFileSelectionIn = (event) => {
 	if (file) {
 		selectedImageUrlIn.value = URL.createObjectURL(file);
 	}
+};
+const deleteItinerary = async () => {
+	const id = editingItinerary.value ? editingItinerary.value.id : null;
+	console.log("ID", id);
+
+	const viewed_it_id = itinerary_id.value;
+	if (editingItinerary.value) {
+		try {
+			await store.dispatch("deleteItinerary", {
+				id,
+				viewed_it_id,
+			});
+			const index = list_itineraries.value.findIndex(
+				(i) => i.id === editingItinerary.value.id
+			);
+			if (index !== -1) {
+				list_itineraries.value.splice(index, 1);
+			}
+		} catch (error) {
+			console.error("Error deleting itinerary:", error);
+		}
+	}
+	showDeleteConfirmation.value = false;
+	closeModal();
 };
 const locatorBtn = () => {
 	if (navigator.geolocation) {
@@ -823,34 +1027,55 @@ const submitItinerary = () => {
 	formData.append("longitude", longitude.value);
 	formData.append("latitude", latitude.value);
 	formData.append("budget", budget.value);
+	formData.append("code", selectedCurrency.value);
 
-	client.value
-		.put(`/api/itinerary-stop/${editingItinerary.value.id}`, formData)
+	const isEditMode = editingItinerary.value !== null;
+	const itineraryId = editingItinerary.value
+		? editingItinerary.value.id
+		: null;
+
+	store
+		.dispatch("submitItinerary", { formData, itineraryId })
 		.then(async (response) => {
-			console.log(response.data);
-
-			// Update the local list_itineraries
-			const index = list_itineraries.value.findIndex(
-				(i) => i.id === editingItinerary.value.id
-			);
-			if (index !== -1) {
-				list_itineraries.value[index] = {
-					...list_itineraries.value[index],
-					...response.data,
-				};
-				console.log("LIST OF ITINERARIES", list_itineraries.value);
+			if (itineraryId) {
+				const index = list_itineraries.value.findIndex(
+					(i) => i.id === editingItinerary.value.id
+				);
+				if (index !== -1) {
+					list_itineraries.value[index] = {
+						...list_itineraries.value[index],
+						...response,
+					};
+					console.log("LIST OF ITINERARIES", list_itineraries.value);
+				}
+				await letDetails();
+				await showLocationOntheMap();
+				showModal.value = false;
+			} else {
+				list_itineraries.value.push(response);
+				console.log("CREATEDD NEW in VIEWING: ", response);
+				const id = response.id;
+				const id_in_saved_itinerary = itinerary_id.value;
+				await store
+					.dispatch("updateSavedItinerary", {
+						id,
+						id_in_saved_itinerary,
+					})
+					.then(async (response) => {
+						console.log("UPDATED ITINERARY", response);
+						fetchItineraries();
+					})
+					.catch((error) => {
+						console.error(error);
+					});
 			}
-			await letDetails();
-			await showLocationOntheMap();
+
 			showModal.value = false;
-			// location.value = "";
-			// budget.value = "";
 		})
 		.catch((error) => {
 			console.error(error);
 		});
 };
-
 const editItineraryDetails = async (field) => {
 	if (editingField.value === field) {
 		// Save changes
@@ -858,8 +1083,8 @@ const editItineraryDetails = async (field) => {
 		formData.append(field, tempEditValue.value);
 
 		try {
-			const response = await client.value.put(
-				`/api/itinerary/${itineraryDetails.id}`,
+			const response = await axiosClient.put(
+				`/itinerary/${itineraryDetails.id}`,
 				formData
 			);
 			if (response.data) {
@@ -880,29 +1105,10 @@ const editItineraryDetails = async (field) => {
 		tempEditValue.value = itineraryDetails[field];
 	}
 };
+const user = ref({});
 onMounted(async () => {
-	const token = sessionStorage.getItem("TOKEN");
-	const headers = {
-		Authorization: `Token ${token}`,
-		"Content-Type": "application/json",
-	};
-	client.value = axios.create({
-		baseURL: "http://127.0.0.1:8000",
-		withCredentials: true,
-		timeout: 5000,
-		xsrfCookieName: "csrftoken",
-		xsrfHeaderName: "X-Csrftoken",
-		headers: headers,
-	});
-
-	client.value
-		.get("api/user")
-		.then((res) => {
-			username.value = res.data.user.username;
-		})
-		.catch((error) => {
-			console.log("ERROR", error.message);
-		});
+	await store.dispatch("fetchUserData");
+	user.value = store.getters.getUser.data;
 
 	// console.log("FROM OTHER", route.params.itinerarydata);
 	initializeAutocomplete();
@@ -1070,10 +1276,13 @@ const fetchSavedItineraries = async () => {
 		if (itinerary_id.value == null) {
 			router.push({ name: "itinerary" });
 		} else {
-			const response = await client.value.get(
-				`/api/viewing-itinerary/${itinerary_id.value}`
+			const response = await store.dispatch(
+				"fetchSavedItineraries",
+				itinerary_id.value
 			);
-			itineraries.value = response.data;
+			console.log("ITINERARY ID: " + response);
+
+			itineraries.value = response;
 			// console.log("ITINERARIES", itineraries.value);
 			itineraries.value.forEach((itinerary) => {
 				itineraryDetails.creator_name = itinerary.creator_name;
@@ -1475,7 +1684,7 @@ const submitRating = async () => {
 	hasSubmitted.value = true;
 	// ADD SUBMIT RATING TO BACKEND HERE
 	try {
-		const response = await client.value.put("api/ratings/", data);
+		const response = await axiosClient.put("/ratings/", data);
 		// console.log("Rating submitted successfully:", response.data);
 	} catch (error) {
 		console.error("Error submitting rating:", error);

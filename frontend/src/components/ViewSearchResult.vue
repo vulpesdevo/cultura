@@ -1,4 +1,4 @@
-<template>
+<template lang="">
 	<div
 		class="flex flex-col items-center align-middle w-full sm:px-11 md:px-24 lg:px-20 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
@@ -204,7 +204,7 @@
 
 								<!-- Itinerary Section -->
 								<div
-									v-if="!post?.itinerary_in_post === []"
+									v-if="!post.itinerary_in_post === []"
 									class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
 									@click="
 										goToViewItinerary(
@@ -718,7 +718,7 @@ import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
 import { useRouter, useRoute } from "vue-router";
 import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
-
+import axiosClient from "../axios";
 import {
 	ChatBubbleLeftIcon,
 	HeartIcon,
@@ -797,8 +797,8 @@ onMounted(() => {
 });
 
 const follow = (userId) => {
-	client
-		.post(`api/follow/${userId}/follow/`)
+	axiosClient
+		.post(`/follow/${userId}/follow/`)
 		.then((response) => {
 			console.log(response.data);
 			const userIndex = users.value.findIndex(
@@ -829,8 +829,8 @@ const goToViewItinerary = (itinerarydata) => {
 };
 
 const likePost = (post_id) => {
-	client
-		.post(`api/like-posts/${post_id}/like_post/`)
+	axiosClient
+		.post(`/like-posts/${post_id}/like_post/`)
 		.then((response) => {
 			console.log(response.data);
 			fetchPosts();
@@ -861,8 +861,8 @@ const selectPost = (post) => {
 };
 
 const submitReply = () => {
-	client
-		.post("/api/commenting", {
+	axiosClient
+		.post("/commenting", {
 			post_id: post_id.value,
 			replied_to: replied_to.value,
 			body: reply.value,
@@ -878,8 +878,8 @@ const submitReply = () => {
 };
 
 const fetchPosts = () => {
-	client
-		.get(`/api/posts-list`)
+	axiosClient
+		.get(`/posts-list`)
 		.then((response) => {
 			posts.value = response.data.reverse();
 			if (posts.value.length > 0) {

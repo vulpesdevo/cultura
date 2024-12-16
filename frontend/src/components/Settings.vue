@@ -688,7 +688,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
-
+import axiosClient from "../axios";
 const route = useRoute();
 const store = useStore();
 const router = useRouter();
@@ -801,7 +801,7 @@ const client = axios.create({
 
 const changeInformation = async () => {
 	try {
-		const response = await client.post("/api/update-information", {
+		const response = await axiosClient.post("/update-information", {
 			password: setpassword.value,
 			email: setemail.value,
 			country: setcountry.value,
@@ -821,7 +821,7 @@ const changeInformation = async () => {
 
 const changePassword = async () => {
 	try {
-		const response = await client.post("/api/change-password", {
+		const response = await axiosClient.post("/change-password", {
 			password: old_password.value,
 			new_password: new_password.value,
 		});

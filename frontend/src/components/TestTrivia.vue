@@ -477,6 +477,7 @@
 </template>
 
 <script setup>
+import axiosClient from "../axios";
 import { ref, reactive, nextTick, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -708,7 +709,7 @@ const avgRating = computed(() => {
 });
 const fetchUser = async () => {
 	try {
-		const res = await client.value.get("api/user");
+		const res = await axiosClient.get("/user");
 		username.value = res.data.user.username;
 	} catch (error) {
 		console.log("ERROR", error.message);
@@ -730,8 +731,8 @@ onMounted(() => {
 		headers: headers,
 	});
 
-	client.value
-		.get("api/user")
+	axiosClient
+		.get("/user")
 		.then((res) => {
 			username.value = res.data.user.username;
 		})
@@ -795,8 +796,8 @@ const fetchSavedItineraries = async () => {
 		if (itinerary_id.value == null) {
 			router.push({ name: "itinerary" });
 		} else {
-			const response = await client.value.get(
-				`/api/viewing-itinerary/${itinerary_id.value}`
+			const response = await axiosClient.get(
+				`/viewing-itinerary/${itinerary_id.value}`
 			);
 			itineraries.value = response.data;
 			console.log("ITINERARIES", itineraries.value);
@@ -1210,7 +1211,7 @@ const submitRating = async () => {
 	hasSubmitted.value = true;
 	// ADD SUBMIT RATING TO BACKEND HERE
 	try {
-		const response = await client.value.put("api/ratings/", data);
+		const response = await axiosClient.put("/ratings/", data);
 		console.log("Rating submitted successfully:", response.data);
 	} catch (error) {
 		console.error("Error submitting rating:", error);

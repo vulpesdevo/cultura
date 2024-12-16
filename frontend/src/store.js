@@ -26,6 +26,11 @@ const store = createStore({
 			culturaUsers: [],
 			culturaUser: null,
 		},
+
+		list_itineraries: [],
+		editingItinerary: null,
+		showModal: false,
+		showDeleteConfirmation: false,
 	},
 	getters: {
 		singleCulturaUser: (state) => state.viewed_user,
@@ -140,6 +145,32 @@ const store = createStore({
 			);
 			if (notification) {
 				notification.is_read = isRead;
+			}
+		},
+
+		SET_ITINERARIES(state, itineraries) {
+			state.list_itineraries = itineraries;
+		},
+		SET_EDITING_ITINERARY(state, itinerary) {
+			state.editingItinerary = itinerary;
+		},
+		TOGGLE_MODAL(state, value) {
+			state.showModal = value;
+		},
+		TOGGLE_DELETE_CONFIRMATION(state, value) {
+			state.showDeleteConfirmation = value;
+		},
+		REMOVE_ITINERARY(state, id) {
+			state.list_itineraries = state.list_itineraries.filter(
+				(itinerary) => itinerary.id !== id
+			);
+		},
+		UPDATE_ITINERARY(state, updatedItinerary) {
+			const index = state.list_itineraries.findIndex(
+				(itinerary) => itinerary.id === updatedItinerary.id
+			);
+			if (index !== -1) {
+				state.list_itineraries[index] = updatedItinerary;
 			}
 		},
 	},
@@ -437,8 +468,99 @@ const store = createStore({
 			try {
 				const response = await axiosClient.get("/saved-itinerary", {});
 				commit("setItineraries", response.data);
+				return response.data;
 			} catch (error) {
 				console.error("Error fetching itineraries:", error);
+			}
+		},
+		async updateItineraryDetails({ commit, state }, { id, data }) {
+			try {
+				const response = await axiosClient.put(
+					`/update/${id}/itinerary`,
+					data
+				);
+				// commit("SET_ITINERARY_DETAILS", response.data);
+				return response.data;
+			} catch (error) {
+				console.error("Error updating itinerary details:", error);
+			}
+		},
+		async deleteItinerary({ commit, state }, { id, viewed_it_id = null }) {
+			console.log("ID IN STORE DELETE: ", id);
+
+			try {
+				const response = await axiosClient.delete(
+					`/delete-itinerary/${id}/${viewed_it_id}`,
+					{
+						headers: {
+							Authorization: `Token ${state.user.token}`,
+						},
+					}
+				);
+				commit("REMOVE_ITINERARY", id);
+				return response.data;
+			} catch (error) {
+				console.error("Error deleting itinerary:", error);
+			}
+		},
+		async submitItinerary({ commit, state }, { formData, itineraryId }) {
+			const url = itineraryId
+				? `/itinerary-stop/${itineraryId}`
+				: "/create-itinerary";
+			const method = itineraryId ? "put" : "post";
+			console.log("FROM STORE:", itineraryId, method);
+
+			try {
+				const response = await axiosClient[method](url, formData, {
+					headers: {
+						Authorization: `Token ${state.user.token}`,
+					},
+				});
+
+				return response.data;
+			} catch (error) {
+				console.error("Error submitting itinerary:", error);
+			}
+		},
+		async saveMainItinerary({ commit, state }, formData) {
+			try {
+				const response = await axiosClient.post(
+					"/save-itinerary",
+					formData,
+					{
+						headers: {
+							Authorization: `Token ${state.user.token}`,
+						},
+					}
+				);
+				console.log(response.data);
+				// Reset form fields and navigate to itinerary page
+				return response.data;
+			} catch (error) {
+				console.error("Error saving itinerary:", error);
+			}
+		},
+		async updateSavedItinerary(
+			{ commit, state },
+			{ id, id_in_saved_itinerary }
+		) {
+			console.log("ID IN STORE UPDATE: ", id, id_in_saved_itinerary);
+
+			try {
+				const response = await axiosClient.put(
+					`/update-save-itinerary/${id}/saved-itinerary/${id_in_saved_itinerary}/`,
+
+					{
+						headers: {
+							Authorization: `Token ${state.user.token}`,
+						},
+					}
+				);
+				console.log(response.data);
+				// Reset form fields and navigate to itinerary page
+				return response.data;
+			} catch (error) {
+				console.error("Error saving itinerary:", error);
 			}
 		},
 		async fetchSavedItineraries({ commit, state }, itineraryId) {
@@ -449,7 +571,7 @@ const store = createStore({
 
 				const response = await axiosClient.get(
 					`/viewing-itinerary/${itineraryId}`,
-					{}
+					{ headers: { Authorization: `Token ${state.user.token}` } }
 				);
 				const itineraries = response.data;
 
@@ -476,7 +598,8 @@ const store = createStore({
 					commit("setItineraryDetails", itineraryDetails);
 				}
 
-				console.log("ITINERARIES", itineraries);
+				console.log("ITINERARIES", itineraries[0]);
+				return itineraries;
 			} catch (error) {
 				console.error("Error fetching saved itineraries:", error);
 			}
@@ -497,6 +620,23 @@ const store = createStore({
 				await axiosClient.post("/commenting", replyData, {});
 			} catch (error) {
 				console.error("Error submitting reply:", error);
+			}
+		},
+		async deleteComment({ commit, state }, { _id }) {
+			console.log("ID IN STORE DELETE: ", _id);
+
+			try {
+				const response = await axiosClient.delete(
+					`/delete/${_id}/comment`,
+					{
+						headers: {
+							Authorization: `Token ${state.user.token}`,
+						},
+					}
+				);
+				return response.data;
+			} catch (error) {
+				console.error("Error deleting comment:", error);
 			}
 		},
 		async submitPost({ state }, formData) {

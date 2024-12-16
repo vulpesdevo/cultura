@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="bg-gray-100 dark:bg-notif h-screen overflow-hidden pt-5 pb-5 px-4 sm:px-6 lg:px-14"
+		class="bg-gray-100 dark:bg-notif h-screen overflow-hidden pt-5 pb-5 px-4 sm:px-6 lg:px-28"
 	>
 		<div v-if="isLoading" class="flex items-center justify-center h-screen">
 			<div
@@ -196,14 +196,26 @@
 														user.user?.id &&
 													!editingCommentId
 												"
-												class="mt-1 text-right"
+												class="flex space-x-2"
 											>
 												<button
 													@click="startEdit(comment)"
-													class="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-end"
+													class="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
 												>
 													<PencilSquareIcon
-														class="h-4 w-4 mr-1"
+														class="h-4 w-4"
+													/>
+												</button>
+												<button
+													@click="
+														confirmDeleteComment(
+															comment
+														)
+													"
+													class="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+												>
+													<TrashIcon
+														class="h-4 w-4"
 													/>
 												</button>
 											</div>
@@ -282,6 +294,39 @@
 						</div>
 					</form>
 				</div>
+				<!-- Delete Confirmation Modal -->
+				<div
+					v-if="showDeleteModal"
+					class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+				>
+					<div
+						class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4"
+					>
+						<h3
+							class="text-lg font-semibold mb-4 text-gray-900 dark:text-white"
+						>
+							Confirm Delete
+						</h3>
+						<p class="mb-6 text-gray-600 dark:text-gray-300">
+							Are you sure you want to delete this comment? This
+							action cannot be undone.
+						</p>
+						<div class="flex justify-end space-x-4">
+							<button
+								@click="cancelDelete"
+								class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+							>
+								Cancel
+							</button>
+							<button
+								@click="deleteComment"
+								class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -303,6 +348,7 @@ import {
 	FaceSmileIcon,
 	PaperAirplaneIcon,
 	ArrowLeftIcon,
+	TrashIcon,
 } from "@heroicons/vue/24/solid";
 
 const store = useStore();
@@ -315,6 +361,9 @@ const isLoading = ref(true);
 const currentUserPhoto = ref("/path/to/default/user/photo.jpg"); // Replace with actual user photo
 const editingCommentId = ref(null);
 const editedCommentText = ref("");
+const showDeleteModal = ref(false);
+const commentToDelete = ref(null);
+
 const client = axios.create({
 	baseURL: "http://127.0.0.1:8000",
 	withCredentials: true,
@@ -332,7 +381,36 @@ const fetchUser = async () => {
 		console.error("Error fetching user data:", error);
 	}
 };
+const confirmDeleteComment = (comment) => {
+	commentToDelete.value = comment;
+	showDeleteModal.value = true;
+};
 
+const cancelDelete = () => {
+	showDeleteModal.value = false;
+	commentToDelete.value = null;
+};
+
+const deleteComment = async () => {
+	if (!commentToDelete.value) return;
+
+	await store
+		.dispatch("deleteComment", {
+			_id: commentToDelete.value._id,
+		})
+		.then((response) => {
+			console.log("Comment deleted:", response);
+
+			return fetchPost(); // Refetch posts to update the comment list
+		})
+		.then(() => {
+			showDeleteModal.value = false;
+			commentToDelete.value = null;
+		})
+		.catch((error) => {
+			console.error("Error deleting comment:", error);
+		});
+};
 onMounted(async () => {
 	isLoading.value = true;
 	try {
@@ -367,17 +445,14 @@ const likePost = (post_id) => {
 		});
 };
 const fetchPost = async () => {
-	isLoading.value = true;
 	try {
-		const response = await client.get(
-			`/api/liked-post-view/${route.params.post}/${route.query.n}`
+		const response = await axiosClient.get(
+			`/liked-post-view/${route.params.post}/${route.query.n}`
 		);
 		console.log("RESPONSE", response);
 		posts.value = response.data;
 	} catch (error) {
 		console.error("Error fetching post:", error);
-	} finally {
-		isLoading.value = false;
 	}
 };
 
@@ -385,7 +460,7 @@ const submitReply = async () => {
 	if (!reply.value.trim()) return;
 
 	try {
-		await client.post("/api/commenting", {
+		await axiosClient.post("/commenting", {
 			post_id: posts.value[0]._id, // Assuming we're commenting on the first post
 			body: reply.value,
 		});
@@ -426,7 +501,7 @@ const saveEdit = async (commentId) => {
 	if (!editedCommentText.value.trim()) return;
 
 	try {
-		await client.put(`/api/comments/${commentId}`, {
+		await axiosClient.put(`/comments/${commentId}`, {
 			body: editedCommentText.value,
 		});
 		await fetchPost(); // Refetch posts to show updated comment

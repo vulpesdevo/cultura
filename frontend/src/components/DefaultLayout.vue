@@ -194,6 +194,7 @@ import { ref, onMounted, onUnmounted, watch, watchEffect } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
+import axiosClient from "../axios";
 import {
 	HomeIcon,
 	BellIcon,

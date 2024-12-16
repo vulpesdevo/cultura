@@ -1188,6 +1188,18 @@ class CommentCreate(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, _id):
+        try:
+            # Retrieve the comment by _id and owner
+
+            comment = Comment.objects.get(_id=ObjectId(_id), author=request.user)
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Comment.DoesNotExist:
+            return Response(
+                {"error": "Comment not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
 
 class CommentListView(APIView):
     """
@@ -1210,7 +1222,7 @@ class DeleteItinerary(APIView):
     def post(self, request):
         data = request.data
 
-        itinerary_id = data.get("itinerary_id", 0)
+        itinerary_id = data.get("id", 0)
 
         try:
             itinerary = Itinerary.objects.get(id=itinerary_id)
@@ -1261,6 +1273,17 @@ class UpdateSaveItineraryView(APIView):
             itinerary_save.save()
             serializer = SaveItinerarySerializer(itinerary_save)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        except SaveItinerary.DoesNotExist:
+            return Response(
+                {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+    def delete(self, request, id):
+        try:
+            # Retrieve the itinerary by id and owner
+            itinerary = SaveItinerary.objects.get(id=id, owner=request.user)
+            itinerary.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except SaveItinerary.DoesNotExist:
             return Response(
                 {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
@@ -1333,6 +1356,38 @@ class ItineraryCreate(APIView):
                 {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
+    def delete(self, request, id, viewed_it_id=None):
+        print("VIEWED ID:: ", viewed_it_id)
+        try:
+            if viewed_it_id:
+                # Retrieve the SaveItinerary by viewed_it_id and owner
+                save_itinerary = SaveItinerary.objects.get(
+                    id=viewed_it_id, owner=request.user
+                )
+                itineraries = save_itinerary.itineraries.split(",")
+                if str(id) in itineraries:
+                    itineraries.remove(str(id))
+                    save_itinerary.itineraries = ",".join(itineraries)
+                    save_itinerary.save()
+                else:
+                    return Response(
+                        {"error": "Itinerary not found in SaveItinerary"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+            else:
+                # Retrieve the itinerary by id and owner
+                itinerary = Itinerary.objects.get(id=id, owner=request.user)
+                itinerary.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except SaveItinerary.DoesNotExist:
+            return Response(
+                {"error": "SaveItinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Itinerary.DoesNotExist:
+            return Response(
+                {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
 
 import logging
 from django.conf import settings
@@ -1371,6 +1426,41 @@ class ItinerariesInView(APIView):
         # print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
         # Your logic to return the itineraries
+
+
+class UpdateSaveItineraryAndStatus(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, id, id_in_saved_itinerary):
+        try:
+            # Retrieve the SaveItinerary by id and owner
+            save_itinerary = SaveItinerary.objects.get(
+                id=id_in_saved_itinerary, owner=request.user
+            )
+            data = request.data
+
+            # Append or include the id to itineraries
+            itineraries = save_itinerary.itineraries.split(",")
+            if str(id) not in itineraries:
+                itineraries.append(str(id))
+            save_itinerary.itineraries = ",".join(itineraries)
+
+            # Find the Itinerary by id and update the status to saved
+            itinerary = Itinerary.objects.get(id=id, owner=request.user)
+            itinerary.status = "saved"
+            itinerary.save()
+
+            save_itinerary.save()
+            serializer = SaveItinerarySerializer(save_itinerary)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except SaveItinerary.DoesNotExist:
+            return Response(
+                {"error": "SaveItinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Itinerary.DoesNotExist:
+            return Response(
+                {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class SaveItineraryView(APIView):

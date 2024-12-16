@@ -651,6 +651,7 @@
 <script>
 import axios from "axios";
 import router from "../routes";
+import axiosClient from "../axios";
 import { useDark, useToggle } from "@vueuse/core";
 import { ref } from "vue";
 export default {

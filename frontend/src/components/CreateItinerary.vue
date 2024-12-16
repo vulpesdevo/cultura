@@ -10,19 +10,34 @@
 			>
 				<label
 					for="imgSelect"
-					class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 cursor-pointer"
+					class="w-full h-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700"
 				>
-					<img
-						v-if="selectedImageUrl"
-						:src="selectedImageUrl"
-						class="w-full h-full object-cover"
-						alt="Selected image"
-					/>
 					<div
-						v-else
-						class="text-gray-500 dark:text-gray-400 text-xl"
+						class="flex flex-col items-center justify-center pt-5 pb-6"
 					>
-						+ Add Image
+						<PhotoIcon
+							v-if="!selectedImageUrl"
+							class="w-12 h-12 mb-3 text-gray-400"
+						/>
+						<img
+							v-else
+							:src="selectedImageUrl"
+							class="w-full h-full object-cover rounded-lg"
+							alt="Selected image"
+						/>
+						<p
+							v-if="!selectedImageUrl"
+							class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+						>
+							<span class="font-semibold">Click to upload</span>
+							or drag and drop
+						</p>
+						<p
+							v-if="!selectedImageUrl"
+							class="text-xs text-gray-500 dark:text-gray-400"
+						>
+							SVG, PNG, JPG or GIF (MAX. 800x400px)
+						</p>
 					</div>
 				</label>
 				<input
@@ -44,44 +59,41 @@
 			</div>
 
 			<!-- Author Profile and Description -->
-			<div
-				class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-6"
-			>
+			<div class="flex items-start sm:space-x-4 rounded-lg shadow-sm">
 				<img
-					:src="user_photo"
+					:src="user.user_photo"
 					alt="Author profile"
-					class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+					class="w-12 h-12 rounded-full object-cover hidden sm:flex flex-shrink-0"
 				/>
 				<div class="flex-1">
-					<div class="flex items-center text-sm space-x-2 mb-1">
-						<h2 class="text-gray-900 dark:text-white">
-							@{{ username }}
+					<div
+						class="hidden sm:flex items-center text-sm space-x-2 mb-2"
+					>
+						<h2 class="text-gray-900 dark:text-white font-semibold">
+							@{{ user.user?.username }}
 						</h2>
 					</div>
 					<textarea
 						v-model="setAboutMe"
 						@blur="isEditingAboutMe = false"
-						class="w-full text-gray-900 dark:text-white text-sm leading-relaxed bg-transparent resize-none outline-none"
+						class="w-full text-gray-700 dark:text-gray-300 text-sm leading-relaxed bg-gray-50 dark:bg-gray-700 rounded-md p-3 resize-none outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out"
 						placeholder="Tell us about yourself"
 						rows="3"
 					></textarea>
 				</div>
 			</div>
-
 			<!-- General Tips Section -->
-			<div
-				class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6"
-			>
+			<div class="rounded-lg shadow-sm mb-3 pt-3">
 				<h2
-					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white w-full border-b border-gray-300 dark:border-gray-700 pb-2"
+					class="text-base font-semibold mb-4 text-gray-900 dark:text-white w-full border-b border-gray-300 dark:border-gray-700 pb-2"
 				>
 					General Tips
 				</h2>
-				<div class="w-full sm:w-[83%] mx-auto">
+				<div class="w-full mx-auto">
 					<textarea
 						v-model="setTips"
 						@blur="isEditingTips = false"
-						class="w-full text-gray-600 dark:text-gray-300 text-sm bg-transparent resize-none outline-none"
+						class="w-full text-gray-700 dark:text-gray-300 text-sm bg-gray-50 dark:bg-gray-700 rounded-md p-3 resize-none outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out"
 						placeholder="What do you want to share?"
 						rows="4"
 					></textarea>
@@ -89,7 +101,7 @@
 			</div>
 
 			<!-- Budget Section -->
-			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6">
+			<div class="pb-6 rounded-lg shadow-sm mb-6">
 				<h2
 					class="text-base font-semibold mb-4 text-gray-900 dark:text-white"
 				>
@@ -129,27 +141,47 @@
 			</div>
 
 			<!-- Itinerary List -->
-			<div class="rounded-lg shadow-sm mb-6">
-				<h2
-					class="text-lg font-semibold font-sans mb-4 text-gray-900 dark:text-white"
-				>
-					Itinerary Stops
-				</h2>
-				<div class="flex gap-3 mb-2">
-					<button
-						@click="openEditModal(null)"
-						class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-colors"
+			<div
+				class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 mb-6"
+			>
+				<div class="flex items-center justify-between mb-6">
+					<h2
+						class="text-xl font-semibold text-gray-900 dark:text-white"
 					>
-						Add New Stop
-					</button>
+						Itinerary Stops
+					</h2>
 					<button
 						@click="saveMainItinerary"
-						class="w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-colors"
+						class="inline-flex items-center px-4 py-2 bg-second text-white text-sm font-medium rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300"
 					>
-						Save Itinerary
+						<ArrowDownOnSquareIcon class="h-5 w-5 mr-2" />
+						Save
 					</button>
 				</div>
+
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<!-- Add New Stop Card -->
+					<button
+						@click="openEditModal(null)"
+						class="group relative sm:h-[400px] h-[200px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden transition-all duration-300 hover:border-blue-500 dark:hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					>
+						<div
+							class="absolute inset-0 flex flex-col items-center justify-center p-6"
+						>
+							<div
+								class="rounded-full bg-gray-100 dark:bg-gray-700 p-3 mb-3 group-hover:bg-blue-100 dark:group-hover:bg-blue-900 transition-colors duration-300"
+							>
+								<PlusIcon
+									class="h-8 w-8 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+								/>
+							</div>
+							<span
+								class="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+							>
+								Add New Stop
+							</span>
+						</div>
+					</button>
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
@@ -277,50 +309,22 @@
 			<div
 				class="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl transform transition-all duration-300 ease-in-out"
 			>
-				<h3
-					class="text-3xl sm:text-4xl font-bold mb-6 text-gray-500 font-bebas-neue tracking-wider dark:text-white text-center"
-				>
-					Add New Stop
-				</h3>
+				<div class="flex justify-between items-center mb-6">
+					<h3
+						class="text-3xl sm:text-4xl font-bold text-gray-500 font-bebas-neue tracking-wider dark:text-white"
+					>
+						{{ isEditMode ? "Edit Stop" : "Add New Stop" }}
+					</h3>
+					<button
+						v-if="isEditMode"
+						@click="showDeleteConfirmation = true"
+						class="text-red-500 hover:text-red-700 focus:outline-none"
+						aria-label="Delete stop"
+					>
+						<TrashIcon class="h-6 w-6" />
+					</button>
+				</div>
 				<form @submit.prevent="submitItinerary" class="space-y-6">
-					<!-- Image Upload -->
-					<!-- <div class="group relative">
-						<label
-							for="imgSelectIn"
-							class="block w-full h-48 sm:h-64 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ease-in-out"
-							:class="{
-								'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600':
-									!selectedImageUrlIn,
-							}"
-						>
-							<img
-								v-if="selectedImageUrlIn"
-								:src="selectedImageUrlIn"
-								class="w-full h-full object-cover transition-all duration-300 ease-in-out group-hover:scale-105"
-								alt="Selected image"
-							/>
-							<div
-								v-else
-								class="flex flex-col items-center justify-center h-full"
-							>
-								<PhotoIcon
-									class="h-16 w-16 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400 transition-colors duration-300 ease-in-out"
-								/>
-								<span
-									class="mt-2 text-sm text-gray-500 dark:text-gray-400"
-									>Click to upload image</span
-								>
-							</div>
-						</label>
-						<input
-							type="file"
-							id="imgSelectIn"
-							class="hidden"
-							@change="handleFileSelectionIn"
-							accept="image/*"
-						/>
-					</div> -->
-
 					<!-- Location -->
 					<div>
 						<label
@@ -387,7 +391,7 @@
 					>
 						<button
 							type="button"
-							@click="showModal = false"
+							@click="closeModal"
 							class="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
 						>
 							Cancel
@@ -402,12 +406,46 @@
 				</form>
 			</div>
 		</div>
+		<!-- Delete Confirmation Modal -->
+		<div
+			v-if="showDeleteConfirmation"
+			class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+		>
+			<div
+				class="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl"
+			>
+				<h3
+					class="text-2xl font-bold mb-4 text-gray-900 dark:text-white"
+				>
+					Confirm Deletion
+				</h3>
+				<p class="text-gray-600 dark:text-gray-300 mb-6">
+					Are you sure you want to delete this stop? This action
+					cannot be undone.
+				</p>
+				<div class="flex justify-end space-x-3">
+					<button
+						@click="showDeleteConfirmation = false"
+						class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+					>
+						Cancel
+					</button>
+					<button
+						@click="deleteItinerary"
+						class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 ease-in-out"
+					>
+						Delete
+					</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeMount, nextTick, watch } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
+import axiosClient from "../axios";
 
 import axios from "axios";
 import * as Dropdown from "primevue/dropdown";
@@ -415,7 +453,17 @@ import router from "../routes";
 
 import { StarIcon, MapIcon, XIcon } from "lucide-vue-next";
 import { PencilIcon } from "@heroicons/vue/24/solid";
-import { PhotoIcon, MapPinIcon, GlobeAltIcon } from "@heroicons/vue/24/outline";
+import {
+	PhotoIcon,
+	MapPinIcon,
+	GlobeAltIcon,
+	PlusIcon,
+	CheckIcon,
+	TrashIcon,
+	ArrowDownOnSquareIcon,
+} from "@heroicons/vue/24/outline";
+import { useStore } from "vuex";
+const store = useStore();
 // Reactive variables
 const isEditingTips = ref(true);
 const isEditingTitle = ref(true);
@@ -664,7 +712,7 @@ const updateMaps = async (center) => {
 	}
 };
 
-const showLocationOntheMap = () => {
+const showLocationOntheMap = async () => {
 	if (list_itineraries.value.length === 0) {
 		// If list_itineraries is empty, use the user's current location or a default location
 		navigator.geolocation.getCurrentPosition(
@@ -857,6 +905,8 @@ const letDetails = async () => {
 	}
 	// console.log("List of itineraries with details:", list_itineraries.value);
 };
+const showDeleteConfirmation = ref(false);
+
 const isEditMode = ref(false);
 const editingItinerary = ref(null);
 const editingField = ref(null);
@@ -927,17 +977,25 @@ const checkArrival = (itinerary) => {
 };
 
 // Methods
-const deleteItinerary = (itineraryId) => {
-	client.value
-		.post("/api/delete-itinerary", {
-			itinerary_id: itineraryId,
-		})
-		.then(() => {
-			fetchItineraries();
-		})
-		.catch((error) => {
-			console.error(error);
-		});
+const deleteItinerary = async () => {
+	if (editingItinerary.value) {
+		try {
+			await store.dispatch("deleteItinerary", {
+				id: editingItinerary.value.id,
+				viewed_it_id: null,
+			});
+			const index = list_itineraries.value.findIndex(
+				(i) => i.id === editingItinerary.value.id
+			);
+			if (index !== -1) {
+				list_itineraries.value.splice(index, 1);
+			}
+		} catch (error) {
+			console.error("Error deleting itinerary:", error);
+		}
+	}
+	showDeleteConfirmation.value = false;
+	closeModal();
 };
 
 const scrollToElement = () => {
@@ -1078,12 +1136,8 @@ const saveMainItinerary = () => {
 		if (picture.value && picture.value instanceof File) {
 			formData.append("image", picture.value, picture.value.name);
 		}
-		client.value
-			.post("/api/save-itinerary", formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			})
+		store
+			.dispatch("saveMainItinerary", formData)
 			.then((response) => {
 				console.log(response.data);
 				main_title.value = "ITINERARY TITLE";
@@ -1097,7 +1151,6 @@ const saveMainItinerary = () => {
 				});
 			})
 			.catch((error) => {
-				// Handle error
 				console.error("Error saving itinerary:", error);
 			});
 	}
@@ -1115,35 +1168,30 @@ const submitItinerary = () => {
 		formData.append("image", pictureIn.value, pictureIn.value.name);
 	}
 
-	const url = isEditMode.value
-		? `/api/itinerary-stop/${editingItinerary.value.id}`
-		: "/api/create-itinerary";
-	const method = isEditMode.value ? "put" : "post";
+	const isEditMode = editingItinerary.value !== null;
+	const itineraryId = editingItinerary.value
+		? editingItinerary.value.id
+		: null;
 
-	client.value[method](url, formData, {
-		headers: {
-			"Content-Type": "multipart/form-data",
-		},
-	})
+	store
+		.dispatch("submitItinerary", { formData, itineraryId })
 		.then(async (response) => {
-			console.log(response.data);
-
-			if (isEditMode.value) {
-				// Update the local list_itineraries
+			if (itineraryId) {
 				const index = list_itineraries.value.findIndex(
 					(i) => i.id === editingItinerary.value.id
 				);
 				if (index !== -1) {
 					list_itineraries.value[index] = {
 						...list_itineraries.value[index],
-						...response.data,
+						...response,
 					};
 					console.log("LIST OF ITINERARIES", list_itineraries.value);
 				}
 				await letDetails();
 				await showLocationOntheMap();
+				showModal.value = false;
 			} else {
-				fetchItineraries();
+				await store.dispatch("fetchItineraries");
 			}
 
 			showModal.value = false;
@@ -1230,7 +1278,7 @@ const fetchItineraries = async () => {
 		headers: headers,
 	});
 	try {
-		const response = await client.get("/api/itinerary");
+		const response = await axiosClient.get("/itinerary");
 		list_itineraries.value = response.data;
 		console.log("list_itineraries:", list_itineraries.value);
 		itineraryIds.value = list_itineraries.value.map(
@@ -1324,32 +1372,14 @@ const getAddressFrom = async (lat, long) => {
 		console.error("Error in reverse geocoding:", error);
 	}
 };
-
+const user = ref({});
 // Lifecycle hooks
-onBeforeMount(() => {
-	const token = sessionStorage.getItem("TOKEN");
-	const headers = {
-		Authorization: `Token ${token}`,
-		"Content-Type": "application/json",
-	};
-	client.value = axios.create({
-		baseURL: "http://127.0.0.1:8000",
-		withCredentials: true,
-		timeout: 5000,
-		xsrfCookieName: "csrftoken",
-		xsrfHeaderName: "X-Csrftoken",
-		headers: headers,
-	});
-	client.value
-		.get("api/user")
-		.then((res) => {
-			username.value = res.data.user.username;
-			user_photo.value = res.data.profile.user_photo;
-			// console.log("HALAAA", user_photo.value);
-		})
-		.catch((error) => {
-			console.log("ERROR", error.message);
-		});
+onBeforeMount(async () => {
+	await store.dispatch("fetchUserData");
+	user.value = store.getters.getUser.data;
+	// username.value = user.username;
+	console.log("user:", user.value);
+
 	isEditingTitle.value = true;
 	fetchItineraries();
 });

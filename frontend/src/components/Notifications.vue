@@ -122,7 +122,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { Settings, Heart, MessageCircle } from "lucide-vue-next";
-
+import axiosClient from "../axios";
 const store = useStore();
 const router = useRouter();
 

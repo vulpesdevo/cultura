@@ -144,7 +144,7 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
 import { useStore } from "vuex";
-
+import axiosClient from "../axios";
 const router = useRouter();
 const store = useStore();
 const isDark = useDark();
@@ -180,14 +180,14 @@ const client = axios.create({
 });
 
 const submitLogout1 = () => {
-	client.post("/api/logout").then((res) => {
+	axiosClient.post("/logout").then((res) => {
 		console.log("Logged out user:", res.data);
 	});
 };
 
 const fetchLikenotification = async () => {
 	try {
-		const response = await client.get("/api/like-notification-list");
+		const response = await axiosClient.get("/like-notification-list");
 		unreadCount.value = response.data.filter(
 			(data) => !data.is_read
 		).length;
@@ -206,8 +206,8 @@ const submitLogout = () => {
 		Authorization: `Token ${token}`,
 		"Content-Type": "application/json",
 	};
-	client
-		.post("http://127.0.0.1:8000/api/logout")
+	axiosClient
+		.post("/logout")
 		.then((res) => {
 			if (res.data.message === "You have not completed the survey yet.") {
 				router.push({ name: "tamsurvey" }).then(() => {
@@ -266,8 +266,8 @@ onMounted(() => {
 	const token = sessionStorage.getItem("TOKEN");
 	client.defaults.headers.Authorization = `Token ${token}`;
 
-	client
-		.get("api/user", {})
+	axiosClient
+		.get("/user", {})
 		.then((res) => {
 			user.username = res.data.user.username;
 			user.fullname = res.data.profile[0].fullname;

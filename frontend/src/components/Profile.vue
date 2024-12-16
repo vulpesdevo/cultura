@@ -828,6 +828,7 @@ import {
 	TrophyIcon,
 	ArrowLeftIcon,
 } from "@heroicons/vue/24/outline";
+import axiosClient from "../axios";
 
 import axios from "axios";
 import moment from "moment";
@@ -939,8 +940,8 @@ const goToViewItinerary = (itineraryId) => {
 
 const follow = (userId) => {
 	console.log("The user", userId);
-	client
-		.post(`api/follow/${userId}/follow/`)
+	axiosClient
+		.post(`/follow/${userId}/follow/`)
 		.then((response) => {
 			console.log(response.data);
 			fetchPosts();
@@ -952,7 +953,7 @@ const follow = (userId) => {
 
 const fetchUser = async () => {
 	try {
-		const { data } = await client.get("api/user");
+		const { data } = await axiosClient.get("/user");
 		const { user, profile: userProfile } = data;
 		Object.assign(profile, {
 			username: user.username,
@@ -1006,8 +1007,8 @@ const changeProfile = () => {
 		formData.append("image", picture.value, picture.value.name);
 	}
 	console.log("FORM :", formData);
-	client
-		.post("/api/change-profile", formData, {
+	axiosClient
+		.post("/change-profile", formData, {
 			headers: {
 				"Content-Type": "multipart/form-data",
 			},
@@ -1022,8 +1023,8 @@ const changeProfile = () => {
 };
 
 const likePost = (post_id) => {
-	client
-		.post(`api/like-posts/${post_id}/like_post/`)
+	axiosClient
+		.post(`/like-posts/${post_id}/like_post/`)
 		.then((response) => {
 			console.log(response.data);
 			fetchPosts();
@@ -1050,8 +1051,8 @@ const deleteItem = () => {
 };
 
 const deletePost = () => {
-	client
-		.post("/api/delete-post", {
+	axiosClient
+		.post("/delete-post", {
 			post_id: openedPost_id.value,
 		})
 		.then((response) => {
@@ -1065,8 +1066,8 @@ const deletePost = () => {
 };
 
 const submitReply = () => {
-	client
-		.post("/api/commenting", {
+	axiosClient
+		.post("/commenting", {
 			post_id: post_id.value,
 			replied_to: replied_to.value,
 			body: reply.value,
@@ -1122,7 +1123,7 @@ const view_user = (user_data) => {
 
 const fetchPosts = async () => {
 	try {
-		const response = await client.get(`/api/profile-posts`);
+		const response = await axiosClient.get(`/profile-posts`);
 		posts.value = response.data.posts.reverse();
 
 		if (posts.value.length > 0) {

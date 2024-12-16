@@ -77,6 +77,9 @@ urlpatterns = [
     path("change-profile", views.EditUserProfile.as_view(), name="change-profile"),
     # creating and calling comments
     path("commenting", views.CommentCreate.as_view(), name="comment-create"),
+    path(
+        "delete/<str:_id>/comment", views.CommentCreate.as_view(), name="delete-comment"
+    ),
     path("comments", views.CommentListView.as_view(), name="comment-list"),
     path(
         "comments/<str:comment_id>",
@@ -91,7 +94,7 @@ urlpatterns = [
         name="itinerary-stop",
     ),
     path("itinerary", views.ItineraryListView.as_view(), name="itineraries"),
-    path("delete-itinerary", views.DeleteItinerary.as_view(), name="delete-itinerary"),
+    # path("delete-itinerary", views.DeleteItinerary.as_view(), name="delete-itinerary"),
     path(
         "itinerary/<int:id>",
         views.ItinerariesInView.as_view(),
@@ -107,6 +110,21 @@ urlpatterns = [
         "update-itinerary",
         views.UpdateSaveItineraryView.as_view(),
         name="update-itinerary",
+    ),
+    path(
+        "delete-itinerary/<int:id>/<int:viewed_it_id>",
+        views.ItineraryCreate.as_view(),
+        name="delete-itinerary",
+    ),
+    path(
+        "update-save-itinerary/<int:id>/saved-itinerary/<int:id_in_saved_itinerary>/",
+        views.UpdateSaveItineraryAndStatus.as_view(),
+        name="update-save-itinerary-and-status",
+    ),
+    path(
+        "update/<int:id>/itinerary",
+        views.UpdateSaveItineraryView.as_view(),
+        name="update-itinerary-details",
     ),
     path(
         "saved-itinerary", views.SaveItineraryListView.as_view(), name="saved-itinerary"

@@ -82,6 +82,7 @@
 </template>
 
 <script>
+import axiosClient from "../axios";
 import axios from "axios";
 import router from "../routes";
 import { useDark, useToggle } from "@vueuse/core";
@@ -107,8 +108,8 @@ export default {
 	watch: {
 		searchQuery(newQuery) {
 			console.log(newQuery);
-			this.client
-				.get("api/search/", {
+			axiosClient
+				.get("/search/", {
 					params: {
 						title: newQuery,
 					},
@@ -144,8 +145,8 @@ export default {
 				Authorization: `Token ${token}`,
 				"Content-Type": "application/json",
 			};
-			this.client
-				.post("http://127.0.0.1:8000/api/logout")
+			axiosClient
+				.post("/logout")
 				.then((res) => {
 					this.user.isAuthenticated = false;
 
@@ -182,8 +183,8 @@ export default {
 			},
 		});
 
-		this.client
-			.get("api/user")
+		axiosClient
+			.get("/user")
 			.then((res) => {
 				// console.log(res.data);
 				this.user.isAuthenticated = true;
