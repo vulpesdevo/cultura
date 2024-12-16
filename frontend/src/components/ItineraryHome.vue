@@ -106,7 +106,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { StarIcon, PlusIcon } from "@heroicons/vue/24/outline";
-
+import axiosClient from "../axios";
 const store = useStore();
 const router = useRouter();
 
@@ -130,17 +130,20 @@ const toggleMyItineraries = () => {
 };
 
 const calculateAvgRating = (ratings) => {
-	if (!ratings || ratings.length === 0) return 0;
-	let ratingValues;
 	try {
-		ratingValues = JSON.parse(ratings).map((r) => r.rating);
+		const parsedRatings = ratings;
+		if (Array.isArray(parsedRatings) && parsedRatings.length > 0) {
+			const total = parsedRatings.reduce(
+				(sum, current) => sum + current.rating,
+				0
+			);
+			return total / parsedRatings.length;
+		}
+		return 0;
 	} catch (error) {
 		console.error("Error parsing ratings:", error);
 		return 0;
 	}
-	if (!Array.isArray(ratingValues) || ratingValues.length === 0) return 0;
-	const total = ratingValues.reduce((sum, current) => sum + current, 0);
-	return total / ratingValues.length;
 };
 
 const fetchItineraries = async () => {

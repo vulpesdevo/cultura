@@ -295,31 +295,31 @@
 						</div>
 
 						<!-- Itinerary Section -->
+
 						<div
-							v-if="!post.itinerary_in_post"
+							v-else
+							v-for="itinerary in post.itinerary_in_post"
+							:key="itinerary.id"
 							class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
-							@click="
-								goToViewItinerary(post?.itinerary_in_post?.id)
-							"
+							@click="goToViewItinerary(itinerary.id)"
 						>
 							<img
-								:src="post?.itinerary_in_post?.main_image"
+								v-if="itinerary.main_image"
+								:src="itinerary.main_image"
 								alt=""
 								class="w-full h-48 object-cover"
 							/>
+
 							<div class="p-4 bg-gray-50 dark:bg-gray-800">
 								<h3
 									class="text-xl font-bold text-gray-900 dark:text-white mb-2"
 								>
-									{{ post?.itinerary_in_post?.main_title }}
+									{{ itinerary.main_title }}
 								</h3>
 								<p
 									class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
 								>
-									{{
-										post?.itinerary_in_post
-											?.main_description
-									}}
+									{{ itinerary.main_description }}
 								</p>
 							</div>
 						</div>
@@ -555,68 +555,190 @@
 				</div>
 			</div>
 			<div
-				class="fixed z-50 inset-0 overflow-y-auto"
+				v-if="addItineraryModal"
+				class="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm"
 				aria-labelledby="modal-title"
 				role="dialog"
 				aria-modal="true"
-				v-if="addItineraryModal"
 			>
-				<div
-					class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
-				>
+				<div class="h-screen px-4 text-center">
+					<!-- Background overlay -->
 					<div
-						class="fixed inset-0 bg-black bg-opacity-70 transition-opacity"
+						class="fixed inset-0 transition-opacity"
 						aria-hidden="true"
 					></div>
-					<span
-						class="hidden sm:inline-block sm:align-middle sm:h-screen"
-						aria-hidden="true"
-						>&#8203;</span
-					>
+
+					<!-- Modal panel -->
 					<div
-						class="inline-block align-center rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:w-1/3"
+						class="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform"
 					>
 						<div
-							class="flex flex-col justify-center items-center bg-interface w-full pt-2 px-6 sm:pt-5 sm:px-9 rounded-lg shadow-lg"
+							class="relative bg-white dark:bg-gray-900 rounded-xl shadow-2xl"
 						>
-							<h1
-								class="font-bebas-neue font-bold text-lg text-prime sm:text-4xl tracking-wider"
-							>
-								select itinerary
-							</h1>
-
+							<!-- Header -->
 							<div
-								class="flex justify-start items-center align-middle h-auto w-full border-b-2"
+								class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800"
 							>
-								<div
-									class="flex justify-center items-center font-montserrat text-lg text-prime font-medium w-1/2 h-10 my-2 p-2 mb-2 rounded-md cursor-pointer hover:bg-field"
+								<h2
+									class="text-2xl font-bold text-gray-900 dark:text-white"
 								>
-									+ Create Itinerary
-								</div>
+									Select Itinerary
+								</h2>
+								<button
+									@click="addItineraryModal = false"
+									class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+								>
+									<span class="sr-only">Close</span>
+									<XIcon class="w-6 h-6" />
+								</button>
 							</div>
+
+							<!-- Create new itinerary button -->
 							<div
-								class="flex justify-start items-center text-prime w-full h-12 text-lg font-medium font-montserrat pl-3 my-2 rounded-md cursor-pointer hover:bg-second-light"
-								v-for="itinerary in itineraries"
-								:key="itinerary._id"
-								@click="selectItinerary(itinerary)"
-								:class="{
-									'bg-second-light':
-										selectedItinerary === itinerary,
-								}"
+								class="p-6 border-b border-gray-200 dark:border-gray-800"
 							>
-								{{ itinerary.main_title }}
-							</div>
-							<div
-								class="flex flex-col items-center align-middle text-center mt-5"
-							>
-								<div class="flex font-montserrat">
-									<button
-										class="text-interface text-lg bg-gray-500 p-2 rounded-3xl w-32 h-12 mb-3 hover:bg-gray-400 mr-5"
-										@click="addItineraryModal = false"
+								<button
+									@click="createNewItinerary"
+									class="flex items-center w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+								>
+									<div
+										class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400"
 									>
-										Cancel
+										<PlusIcon class="w-6 h-6" />
+									</div>
+									<div class="ml-4">
+										<p
+											class="font-medium text-gray-900 dark:text-white"
+										>
+											Create New Itinerary
+										</p>
+										<p
+											class="text-sm text-gray-500 dark:text-gray-400"
+										>
+											Start planning a new travel
+											experience
+										</p>
+									</div>
+								</button>
+							</div>
+
+							<!-- Itinerary list -->
+							<div class="p-6 max-h-[60vh] overflow-y-auto">
+								<div
+									v-if="itineraries.length === 0"
+									class="text-center py-12"
+								>
+									<DocumentIcon
+										class="mx-auto h-12 w-12 text-gray-400"
+									/>
+									<h3
+										class="mt-2 text-lg font-medium text-gray-900 dark:text-white"
+									>
+										No itineraries
+									</h3>
+									<p
+										class="mt-1 text-sm text-gray-500 dark:text-gray-400"
+									>
+										Get started by creating a new itinerary
+									</p>
+								</div>
+
+								<div v-else class="space-y-4">
+									<button
+										v-for="itinerary in itineraries"
+										:key="itinerary.id"
+										@click="selectItinerary(itinerary)"
+										class="w-full group"
+									>
+										<div
+											class="flex items-start p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+											:class="{
+												'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800':
+													selectedItinerary?.id ===
+													itinerary.id,
+											}"
+										>
+											<!-- Itinerary image -->
+											<div class="flex-shrink-0">
+												<img
+													:src="itinerary.main_image"
+													:alt="itinerary.main_title"
+													class="w-20 h-20 rounded-lg object-cover"
+												/>
+											</div>
+
+											<!-- Itinerary details -->
+											<div
+												class="ml-4 flex-1 flex flex-col items-start justify-start min-w-0"
+											>
+												<div
+													class="flex items-center justify-between w-full"
+												>
+													<h3
+														class="text-base font-medium text-gray-900 dark:text-white truncate"
+														:class="{
+															'text-blue-600 dark:text-blue-400':
+																selectedItinerary?.id ===
+																itinerary.id,
+														}"
+													>
+														{{
+															itinerary.main_title
+														}}
+													</h3>
+													<span
+														class="text-xs text-gray-500 dark:text-gray-400"
+													>
+														{{
+															formatDate(
+																itinerary.date_posted
+															)
+														}}
+													</span>
+												</div>
+												<p
+													class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2"
+												>
+													{{
+														itinerary.main_description
+													}}
+												</p>
+												<div
+													class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400"
+												>
+													<CurrencyDollarIcon
+														class="flex-shrink-0 mr-1.5 h-4 w-4"
+													/>
+													{{ itinerary.currency }}
+													{{
+														itinerary.total_budget.toLocaleString()
+													}}
+													<span class="mx-2">•</span>
+													<StarIcon
+														class="flex-shrink-0 mr-1.5 h-4 w-4"
+													/>
+													{{
+														calculateAverageRating(
+															itinerary.rating
+														)
+													}}
+												</div>
+											</div>
+										</div>
 									</button>
 								</div>
+							</div>
+
+							<!-- Footer -->
+							<div
+								class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-800"
+							>
+								<button
+									@click="addItineraryModal = false"
+									class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								>
+									Cancel
+								</button>
 							</div>
 						</div>
 					</div>
@@ -647,6 +769,13 @@ import {
 	PaperAirplaneIcon,
 	ArrowLeftIcon,
 } from "@heroicons/vue/24/solid";
+
+import {
+	PlusIcon,
+	DocumentIcon,
+	CurrencyDollarIcon,
+	StarIcon,
+} from "@heroicons/vue/24/outline";
 
 import filipinoBadWords from "../custom-badwords";
 
@@ -679,6 +808,7 @@ const isFullTextShown = ref({});
 
 const showImageModal = ref(false);
 const modalImage = ref("");
+
 // functions for image modal
 const openImageModal = (imageUrl) => {
 	modalImage.value = imageUrl;
@@ -689,17 +819,37 @@ const closeImageModal = () => {
 	showImageModal.value = false;
 };
 
-const client = axios.create({
-	baseURL: "http://127.0.0.1:8000",
-	withCredentials: true,
-	timeout: 5000,
-	xsrfCookieName: "csrftoken",
-	xsrfHeaderName: "X-Csrftoken",
-	headers: {
-		Authorization: `Token ${sessionStorage.getItem("TOKEN")}`,
-		"Content-Type": "application/json",
-	},
-});
+const formatDate = (dateString) => {
+	return new Date(dateString).toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
+};
+
+const calculateAverageRating = (ratings) => {
+	if (!ratings || ratings.length === 0) return "No ratings";
+	const validRatings = ratings.filter((r) => r.rating && r.user_id);
+	if (validRatings.length === 0) return "No ratings";
+
+	const average =
+		validRatings.reduce((acc, curr) => acc + curr.rating, 0) /
+		validRatings.length;
+	return average.toFixed(1);
+};
+
+const createNewItinerary = () => {
+	// Implement create new itinerary logic
+	console.log("Creating new itinerary...");
+};
+
+const confirmSelection = () => {
+	if (selectedItinerary.value) {
+		// Emit selected itinerary to parent component
+		console.log("Selected itinerary:", selectedItinerary.value);
+		addItineraryModal.value = false;
+	}
+};
 
 const fetchUser = async () => {
 	try {
@@ -861,6 +1011,7 @@ const fetchSavedItineraries = async () => {
 	try {
 		await store.dispatch("fetchItineraries");
 		itineraries.value = store.getters.getItineraries;
+		console.log("ITINERARIES: ", itineraries.value);
 	} catch (error) {
 		console.error("Error fetching saved itineraries:", error);
 	}
@@ -873,6 +1024,8 @@ const selectItinerary = (itinerary) => {
 };
 
 const goToViewItinerary = (itineraryId) => {
+	console.log("ITINERARY ", itineraryId);
+
 	router.push({ name: "view-itinerary", query: { id: itineraryId } });
 };
 

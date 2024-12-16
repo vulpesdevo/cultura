@@ -485,7 +485,7 @@ const store = createStore({
 				console.error("Error updating itinerary details:", error);
 			}
 		},
-		async deleteItinerary({ commit, state }, { id, viewed_it_id = null }) {
+		async deleteItinerary({ commit, state }, { id, viewed_it_id = 0 }) {
 			console.log("ID IN STORE DELETE: ", id);
 
 			try {

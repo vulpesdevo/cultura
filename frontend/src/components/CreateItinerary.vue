@@ -982,7 +982,7 @@ const deleteItinerary = async () => {
 		try {
 			await store.dispatch("deleteItinerary", {
 				id: editingItinerary.value.id,
-				viewed_it_id: null,
+				viewed_it_id: 0,
 			});
 			const index = list_itineraries.value.findIndex(
 				(i) => i.id === editingItinerary.value.id
@@ -1126,7 +1126,7 @@ const saveMainItinerary = () => {
 		return;
 	} else {
 		let formData = new FormData();
-		formData.append("main_image", null);
+
 		formData.append("main_title", main_title.value);
 		formData.append("main_description", setAboutMe.value);
 		formData.append("gen_tips", setTips.value);
@@ -1134,7 +1134,7 @@ const saveMainItinerary = () => {
 		formData.append("currency", currency_save.value);
 		formData.append("itineraries", itineraryIds.value);
 		if (picture.value && picture.value instanceof File) {
-			formData.append("image", picture.value, picture.value.name);
+			formData.append("main_image", picture.value, picture.value.name);
 		}
 		store
 			.dispatch("saveMainItinerary", formData)
@@ -1191,7 +1191,8 @@ const submitItinerary = () => {
 				await showLocationOntheMap();
 				showModal.value = false;
 			} else {
-				await store.dispatch("fetchItineraries");
+				// await store.dispatch("fetchItineraries");
+				fetchItineraries();
 			}
 
 			showModal.value = false;

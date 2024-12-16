@@ -40,7 +40,7 @@ from .models import (
     Survey,
     UserSetting,
 )
-from bson import ObjectId
+from bson import ObjectId, errors
 from .permissions import IsAdminUser  # Import the custom permission class
 
 # from profanity.validators import validate_is_profane
@@ -1356,9 +1356,10 @@ class ItineraryCreate(APIView):
                 {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-    def delete(self, request, id, viewed_it_id=None):
-        print("VIEWED ID:: ", viewed_it_id)
+    def delete(self, request, id, viewed_it_id):
+
         try:
+            print("VIEWED ID:: ", viewed_it_id)
             if viewed_it_id:
                 # Retrieve the SaveItinerary by viewed_it_id and owner
                 save_itinerary = SaveItinerary.objects.get(
@@ -1377,6 +1378,7 @@ class ItineraryCreate(APIView):
             else:
                 # Retrieve the itinerary by id and owner
                 itinerary = Itinerary.objects.get(id=id, owner=request.user)
+                print("ITINERARY: ", itinerary)
                 itinerary.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except SaveItinerary.DoesNotExist:
@@ -1486,13 +1488,13 @@ class SaveItineraryView(APIView):
         main_title = data.get("main_title", "").strip()
         main_description = data.get("main_description", "").strip()
         gen_tips = data.get("gen_tips", "").strip()
-        currency = data.get("currency", "").strip()
+        currency = data.get("currency", "PHP").strip()
         total_budget = data.get("total_budget", 0.0)
         itinerary_ids = data.get("itineraries", [])
-        image = request.FILES.get("image", None)
+        image = request.FILES.get("main_image", None)
         itineraries = Itinerary.objects.filter(status="onqueue", owner=request.user)
         itineraries.update(status="saved")
-
+        print("IDDSs", itinerary_ids)
         user = CulturaUser.objects.get(user=request.user)
         user.guide_guru += 1
         user.save()
