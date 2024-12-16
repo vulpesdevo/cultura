@@ -350,7 +350,7 @@ import {
 	ArrowLeftIcon,
 	TrashIcon,
 } from "@heroicons/vue/24/solid";
-
+import axiosClient from "../axios";
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -434,8 +434,8 @@ const gotoUser = async (user) => {
 	});
 };
 const likePost = (post_id) => {
-	client
-		.post(`api/like-posts/${post_id}/like_post/`)
+	axiosClient
+		.post(`/like-posts/${post_id}/like_post/`)
 		.then((response) => {
 			console.log(response.data);
 			fetchPost();
