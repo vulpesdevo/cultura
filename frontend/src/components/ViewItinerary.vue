@@ -243,11 +243,11 @@
 				</div>
 			</div>
 			<!-- Budget Section -->
-			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6 mt-4">
+			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6">
 				<h2
 					class="text-base font-semibold mb-4 text-gray-900 dark:text-white"
 				>
-					Suggeted Budget
+					Suggeted budget
 				</h2>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
@@ -321,7 +321,8 @@
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
-						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto sm:h-[400px]"
+						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto sm:h-[400px] cursor-pointer"
+						@click="centerMapOnItinerary(itinerary)"
 					>
 						<button
 							v-if="isOwner"
@@ -399,7 +400,7 @@
 										}}{{
 											convertCurrency(
 												itinerary.budget,
-												"PHP"
+												itinerary.code
 											)
 										}}
 									</span>
@@ -990,6 +991,10 @@ const deleteItinerary = async () => {
 			if (index !== -1) {
 				list_itineraries.value.splice(index, 1);
 			}
+			await letDetails();
+			await fetchItineraries();
+			await showLocationOntheMap();
+			await sortItinerariesByProximity();
 		} catch (error) {
 			console.error("Error deleting itinerary:", error);
 		}
@@ -1049,7 +1054,9 @@ const submitItinerary = () => {
 					console.log("LIST OF ITINERARIES", list_itineraries.value);
 				}
 				await letDetails();
+				await fetchItineraries();
 				await showLocationOntheMap();
+				await sortItinerariesByProximity();
 				showModal.value = false;
 			} else {
 				list_itineraries.value.push(response);
@@ -1063,7 +1070,10 @@ const submitItinerary = () => {
 					})
 					.then(async (response) => {
 						console.log("UPDATED ITINERARY", response);
+						await letDetails();
 						await fetchItineraries();
+						await showLocationOntheMap();
+						await sortItinerariesByProximity();
 					})
 					.catch((error) => {
 						console.error(error);
@@ -1115,6 +1125,24 @@ onMounted(async () => {
 	await fetchSavedItineraries();
 	fetchUser();
 	initializeMaps();
+	await fetchExchangeRates();
+	if (typeof google !== "undefined" && google.maps) {
+		await findNearestTouristAttractions();
+	} else {
+		console.error("Google Maps API is not loaded");
+	}
+	// Set initial currency based on the saved currency
+	const savedCurrency = currency_list.value.find(
+		([code]) => code === currency_save.value
+	);
+	if (savedCurrency) {
+		selectedCurrency.value = {
+			code: savedCurrency[0],
+			symbol: savedCurrency[2],
+		};
+	}
+
+	calculateTotalBudget();
 	// checkArrival(destination);
 });
 const initializeMaps = async () => {
@@ -1260,7 +1288,7 @@ const fetchItineraries = async () => {
 		// // Sort the itineraries by proximity before showing them on the map
 		toDropDown.value = currency_save.value;
 		await sortItinerariesByProximity();
-		showLocationOntheMap();
+		await showLocationOntheMap();
 		letDetails();
 		// checkCode();
 	} catch (error) {
@@ -1300,7 +1328,6 @@ const fetchSavedItineraries = async () => {
 			allRatings.value = response.rating.map((item) => item.rating);
 			console.log("ITINERARY ID: " + list_itineraries.value);
 			await letDetails();
-			await fetchItineraries();
 			paragraphs.value = itineraryDetails.gen_tips.split(/\n+/);
 			// console.log("this is the paragraph", list_itineraries.value);
 			// Fetch place details for each itinerary and update main_description
@@ -1355,6 +1382,27 @@ const getCurrentLocation = async () => {
 		}
 	});
 };
+const addMarker = (map, position, label, title) => {
+	const marker = new google.maps.Marker({
+		position,
+		map,
+		label: {
+			text: label,
+			color: "white",
+			fontSize: "14px",
+			fontWeight: "bold",
+		},
+		title,
+	});
+	markers.value.push(marker);
+	return marker;
+};
+
+const clearMarkers = () => {
+	markers.value.forEach((marker) => marker.setMap(null));
+	markers.value = [];
+};
+
 const deg2rad = (deg) => {
 	return deg * (Math.PI / 180);
 };
@@ -1379,8 +1427,8 @@ const sortItinerariesByProximity = async () => {
 		const currentLocation = await getCurrentLocation();
 		list_itineraries.value.forEach((itinerary) => {
 			itinerary.distance = calculateDistance(
-				currentLocation.latitude,
-				currentLocation.longitude,
+				currentLocation.coords.latitude,
+				currentLocation.coords.longitude,
 				itinerary.latitude,
 				itinerary.longitude
 			);
@@ -1392,7 +1440,7 @@ const sortItinerariesByProximity = async () => {
 		});
 
 		// After sorting, you can now update the map
-		showLocationOntheMap();
+		await showLocationOntheMap();
 	} catch (error) {
 		console.error(error);
 	}
@@ -1412,112 +1460,287 @@ const initializeMap = (latitude, longitude) => {
 		title: "Your Location",
 	});
 };
-const updateMaps = async (center) => {
-	const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-
+const centerMapOnItinerary = (itinerary) => {
+	const position = new google.maps.LatLng(
+		itinerary.latitude,
+		itinerary.longitude
+	);
+	zoomMaps(position);
+};
+const updateMaps = (center) => {
 	if (desktopMap.value && mobileMap.value) {
 		desktopMap.value.setCenter(center);
 		mobileMap.value.setCenter(center);
-
-		new AdvancedMarkerElement({
-			position: center,
-			map: desktopMap.value,
-			title: "Your Location",
-		});
-
-		new AdvancedMarkerElement({
-			position: center,
-			map: mobileMap.value,
-			title: "Your Location",
-		});
+		desktopMap.value.setZoom(3); // Set a lower zoom level for international view
+		mobileMap.value.setZoom(3);
 	}
 };
-const showLocationOntheMap = async () => {
-	if (list_itineraries.value.length === 0) {
-		// If list_itineraries is empty, use the user's current location or a default location
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				const { latitude, longitude } = position.coords;
-				updateMaps({ lat: latitude, lng: longitude });
-			},
-			async () => {
-				// Fallback to a default location if unable to get the user's location
-				const defaultLat = 37.7749; // Example default latitude
-				const defaultLng = -122.4194; // Example default longitude
-				await updateMaps({ lat: defaultLat, lng: defaultLng });
-			}
+const zoomMaps = (center) => {
+	if (desktopMap.value && mobileMap.value) {
+		desktopMap.value.setCenter(center);
+		mobileMap.value.setCenter(center);
+		desktopMap.value.setZoom(15); // Set a lower zoom level for international view
+		mobileMap.value.setZoom(15);
+	}
+};
+const directionsService = ref(null);
+const directionsRenderer = ref(null);
+const markers = ref([]);
+const polylines = ref([]);
+const addPolylineBetweenCountries = (start, end, bounds) => {
+	const polyline = new google.maps.Polyline({
+		path: [
+			new google.maps.LatLng(start.lat, start.lng),
+			new google.maps.LatLng(end.lat, end.lng),
+		],
+		geodesic: true,
+		strokeColor: "#FF0000",
+		strokeOpacity: 1.0,
+		strokeWeight: 2,
+	});
+
+	polyline.setMap(map.value);
+	polylines.value.push(polyline);
+
+	bounds.extend(new google.maps.LatLng(start.lat, start.lng));
+	bounds.extend(new google.maps.LatLng(end.lat, end.lng));
+};
+const calculateAndDisplayRoute = async () => {
+	clearMarkersAndPolylines();
+	const bounds = new google.maps.LatLngBounds();
+
+	for (let i = 0; i < list_itineraries.value.length - 1; i++) {
+		const start = list_itineraries.value[i];
+		const end = list_itineraries.value[i + 1];
+
+		if (start.country === end.country) {
+			await calculateRouteWithinCountry(start, end, bounds);
+		} else {
+			addPolylineBetweenCountries(start, end, bounds);
+		}
+
+		addMarker(start, String.fromCharCode(65 + i));
+		if (i === list_itineraries.value.length - 2) {
+			addMarker(end, String.fromCharCode(65 + i + 1));
+		}
+	}
+
+	desktopMap.value.fitBounds(bounds, { padding: 50 });
+	mobileMap.value.fitBounds(bounds, { padding: 50 });
+};
+const calculateRouteWithinCountry = async (start, end, bounds) => {
+	const request = {
+		origin: new google.maps.LatLng(start.latitude, start.longitude),
+		destination: new google.maps.LatLng(end.latitude, end.longitude),
+		travelMode: google.maps.TravelMode.DRIVING,
+		region: "global",
+	};
+
+	try {
+		const result = await new Promise((resolve, reject) => {
+			directionsService.value.route(request, (response, status) => {
+				if (status === google.maps.DirectionsStatus.OK) {
+					resolve(response);
+				} else {
+					reject(new Error(`Directions request failed: ${status}`));
+				}
+			});
+		});
+
+		const renderer = new google.maps.DirectionsRenderer({
+			map: map.value,
+			suppressMarkers: true,
+			preserveViewport: true,
+		});
+		renderer.setDirections(result);
+
+		const route = result.routes[0];
+		for (let j = 0; j < route.legs.length; j++) {
+			const leg = route.legs[j];
+			bounds.extend(leg.start_location);
+			bounds.extend(leg.end_location);
+		}
+	} catch (error) {
+		console.error(
+			`Error calculating route from ${start.name} to ${end.name}:`,
+			error
 		);
+		await tryTransitMode(start, end, bounds);
+	}
+};
+const tryTransitMode = async (start, end, bounds) => {
+	const request = {
+		origin: new google.maps.LatLng(start.latitude, start.longitude),
+		destination: new google.maps.LatLng(end.latitude, end.longitude),
+		travelMode: google.maps.TravelMode.TRANSIT,
+		region: "global",
+	};
+
+	try {
+		const result = await new Promise((resolve, reject) => {
+			directionsService.value.route(request, (response, status) => {
+				if (status === google.maps.DirectionsStatus.OK) {
+					resolve(response);
+				} else {
+					reject(
+						new Error(
+							`Transit directions request failed: ${status}`
+						)
+					);
+				}
+			});
+		});
+
+		const transitRenderer = new google.maps.DirectionsRenderer({
+			map: map.value,
+			suppressMarkers: true,
+			preserveViewport: true,
+			polylineOptions: {
+				strokeColor: "blue",
+				strokeWeight: 4,
+			},
+		});
+		transitRenderer.setDirections(result);
+
+		const route = result.routes[0];
+		for (let j = 0; j < route.legs.length; j++) {
+			const leg = route.legs[j];
+			bounds.extend(leg.start_location);
+			bounds.extend(leg.end_location);
+		}
+	} catch (error) {
+		console.error(
+			`Error calculating transit route from ${start.name} to ${end.name}:`,
+			error
+		);
+		bounds.extend(new google.maps.LatLng(start.latitude, start.longitude));
+		bounds.extend(new google.maps.LatLng(end.latitude, end.longitude));
+	}
+};
+
+const clearMarkersAndPolylines = () => {
+	markers.value.forEach((marker) => marker.setMap(null));
+	markers.value = [];
+	polylines.value.forEach((polyline) => polyline.setMap(null));
+	polylines.value = [];
+};
+
+const showLocationOntheMap = async () => {
+	const currentLocation = await getCurrentLocation();
+	const bounds = new google.maps.LatLngBounds();
+	const directionsService = new google.maps.DirectionsService();
+	const directionsRendererDesktop = new google.maps.DirectionsRenderer({
+		map: desktopMap.value,
+		suppressMarkers: true, // Suppress default markers
+	});
+	const directionsRendererMobile = new google.maps.DirectionsRenderer({
+		map: mobileMap.value,
+		suppressMarkers: true, // Suppress default markers
+	});
+
+	clearMarkers(); // Clear existing markers
+
+	const start = new google.maps.LatLng(
+		currentLocation.coords.latitude,
+		currentLocation.coords.longitude
+	);
+	bounds.extend(start);
+
+	// Add marker for current location
+	addMarker(desktopMap.value, start, "A", "Your Location");
+	addMarker(mobileMap.value, start, "A", "Your Location");
+
+	if (list_itineraries.value.length === 0) {
+		updateMaps(start);
 	} else {
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				const { latitude, longitude } = position.coords;
-				const bounds = new google.maps.LatLngBounds();
-				const directionsService = new google.maps.DirectionsService();
-				const directionsRendererDesktop =
-					new google.maps.DirectionsRenderer({
-						map: desktopMap.value,
+		// Add markers for all itinerary points
+		list_itineraries.value.forEach((itinerary, index) => {
+			const position = new google.maps.LatLng(
+				itinerary.latitude,
+				itinerary.longitude
+			);
+			bounds.extend(position);
+			const label = String.fromCharCode(66 + index); // Start with 'B'
+			addMarker(
+				desktopMap.value,
+				position,
+				label,
+				`Location ${index + 1}`
+			);
+			addMarker(
+				mobileMap.value,
+				position,
+				label,
+				`Location ${index + 1}`
+			);
+		});
+
+		const end = new google.maps.LatLng(
+			list_itineraries.value[list_itineraries.value.length - 1].latitude,
+			list_itineraries.value[list_itineraries.value.length - 1].longitude
+		);
+
+		const waypoints = list_itineraries.value
+			.slice(0, -1)
+			.map((itinerary) => ({
+				location: new google.maps.LatLng(
+					itinerary.latitude,
+					itinerary.longitude
+				),
+				stopover: true,
+			}));
+
+		const travelModes = [
+			google.maps.TravelMode.DRIVING,
+			google.maps.TravelMode.TRANSIT,
+		];
+
+		for (const travelMode of travelModes) {
+			const request = {
+				origin: start,
+				destination: end,
+				waypoints: waypoints,
+				travelMode: travelMode,
+				optimizeWaypoints: false,
+				region: "global", // Enable cross-border routing
+			};
+
+			try {
+				const result = await new Promise((resolve, reject) => {
+					directionsService.route(request, (result, status) => {
+						if (status === google.maps.DirectionsStatus.OK) {
+							resolve(result);
+						} else {
+							reject(
+								new Error(
+									`Directions request failed due to ${status}`
+								)
+							);
+						}
 					});
-				const directionsRendererMobile =
-					new google.maps.DirectionsRenderer({
-						map: mobileMap.value,
-					});
-
-				const start = new google.maps.LatLng(latitude, longitude);
-				const end = new google.maps.LatLng(
-					list_itineraries.value[
-						list_itineraries.value.length - 1
-					].latitude,
-					list_itineraries.value[
-						list_itineraries.value.length - 1
-					].longitude
-				);
-
-				const waypoints = list_itineraries.value
-					.slice(0, -1)
-					.map((itinerary) => ({
-						location: new google.maps.LatLng(
-							itinerary.latitude,
-							itinerary.longitude
-						),
-						stopover: true,
-					}));
-
-				const request = {
-					origin: start,
-					destination: end,
-					waypoints: waypoints,
-					travelMode: google.maps.TravelMode.DRIVING,
-					optimizeWaypoints: false,
-				};
-
-				directionsService.route(request, (result, status) => {
-					if (status === google.maps.DirectionsStatus.OK) {
-						directionsRendererDesktop.setDirections(result);
-						directionsRendererMobile.setDirections(result);
-					} else {
-						console.error(
-							"Directions request failed due to " + status
-						);
-					}
 				});
 
-				bounds.extend(start);
-				bounds.extend(end);
-				desktopMap.value.fitBounds(bounds);
-				mobileMap.value.fitBounds(bounds);
+				directionsRendererDesktop.setDirections(result);
+				directionsRendererMobile.setDirections(result);
 
-				// Check arrival at destination
-				checkArrival(
-					list_itineraries.value[list_itineraries.value.length - 1]
-				);
-			},
-			() => {
-				console.error("Unable to retrieve current location");
+				// If we get a valid route, break the loop
+				break;
+			} catch (error) {
+				console.error(`Error with ${travelMode} mode:`, error);
+				// If it's the last travel mode and still fails, show an error to the user
+				if (travelMode === travelModes[travelModes.length - 1]) {
+					console.error(
+						"Unable to find a route with any travel mode"
+					);
+					// You might want to show an error message to the user here
+				}
 			}
-		);
+		}
 	}
-	// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
-	// This is a workaround because fitBounds does not let you specify max zoom level
+
+	// Fit the map to the bounds and add some padding
+	desktopMap.value.fitBounds(bounds, { padding: 50 });
+	mobileMap.value.fitBounds(bounds, { padding: 50 });
 };
 
 const autocomplete = ref(null);
@@ -1576,6 +1799,8 @@ const findNearestTouristAttractions = async () => {
 			// 	mobileMap.value
 			// );
 			const position = await getCurrentLocation();
+			console.log("Current location:", position);
+
 			const location = {
 				latitude: position.coords.latitude,
 				longitude: position.coords.longitude,
@@ -1993,26 +2218,7 @@ const updateCurrency = () => {
 	calculateTotalBudget();
 };
 
-onMounted(async () => {
-	await fetchExchangeRates();
-	if (typeof google !== "undefined" && google.maps) {
-		await findNearestTouristAttractions();
-	} else {
-		console.error("Google Maps API is not loaded");
-	}
-	// Set initial currency based on the saved currency
-	const savedCurrency = currency_list.value.find(
-		([code]) => code === currency_save.value
-	);
-	if (savedCurrency) {
-		selectedCurrency.value = {
-			code: savedCurrency[0],
-			symbol: savedCurrency[2],
-		};
-	}
-
-	calculateTotalBudget();
-});
+onMounted(async () => {});
 
 watch(list_itineraries, calculateTotalBudget, { deep: true });
 watch(selectedCurrency, calculateTotalBudget);

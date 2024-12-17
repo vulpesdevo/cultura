@@ -1,0 +1,148 @@
+};
+const showLocationOntheMap = async () => {
+	if (list_itineraries.value.length === 0) {
+		// If list_itineraries is empty, use the user's current location or a default location
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const { latitude, longitude } = position.coords;
+				updateMaps({ lat: latitude, lng: longitude });
+			},
+			async () => {
+				// Fallback to a default location if unable to get the user's location
+				const defaultLat = 37.7749; // Example default latitude
+				const defaultLng = -122.4194; // Example default longitude
+				await updateMaps({ lat: defaultLat, lng: defaultLng });
+			}
+		);
+	} else {
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const { latitude, longitude } = position.coords;
+				const bounds = new google.maps.LatLngBounds();
+				const directionsService = new google.maps.DirectionsService();
+				const directionsRendererDesktop =
+					new google.maps.DirectionsRenderer({
+						map: desktopMap.value,
+					});
+				const directionsRendererMobile =
+					new google.maps.DirectionsRenderer({
+						map: mobileMap.value,
+					});
+
+				const start = new google.maps.LatLng(latitude, longitude);
+				const end = new google.maps.LatLng(
+					list_itineraries.value[
+						list_itineraries.value.length - 1
+					].latitude,
+					list_itineraries.value[
+						list_itineraries.value.length - 1
+					].longitude
+				);
+
+				const waypoints = list_itineraries.value
+					.slice(0, -1)
+					.map((itinerary) => ({
+						location: new google.maps.LatLng(
+							itinerary.latitude,
+							itinerary.longitude
+						),
+						stopover: true,
+					}));
+
+				const updateDirections = async () => {
+					clearMarkers(); // Clear existing markers
+
+					const legs = [
+						start,
+						...waypoints.map((wp) => wp.location),
+						end,
+					];
+					const routes = [];
+
+					for (let i = 0; i < legs.length - 1; i++) {
+						const origin = legs[i];
+						const destination = legs[i + 1];
+
+						// Check if transit is available for this leg
+						const transitAvailable = await checkTransitAvailability(
+							origin,
+							destination
+						);
+						const travelMode = transitAvailable
+							? google.maps.TravelMode.TRANSIT
+							: google.maps.TravelMode.DRIVING;
+
+						const request = {
+							origin: origin,
+							destination: destination,
+							travelMode: travelMode,
+						};
+
+						const result = await new Promise((resolve) => {
+							directionsService.route(
+								request,
+								(result, status) => {
+									if (
+										status ===
+										google.maps.DirectionsStatus.OK
+									) {
+										resolve(result);
+									} else {
+										console.error(
+											"Directions request failed due to " +
+												status
+										);
+										resolve(null);
+									}
+								}
+							);
+						});
+
+						if (result) {
+							routes.push(...result.routes[0].legs);
+						}
+					}
+
+					const combinedResult = {
+						routes: [
+							{
+								legs: routes,
+							},
+						],
+					};
+					directionsRendererDesktop.setMap(desktopMap.value);
+					directionsRendererMobile.setMap(mobileMap.value);
+
+					directionsRendererDesktop.setDirections(combinedResult);
+					directionsRendererMobile.setDirections(combinedResult);
+
+					bounds.extend(start);
+					bounds.extend(end);
+					desktopMap.value.fitBounds(bounds);
+					mobileMap.value.fitBounds(bounds);
+
+					addMarker(start, desktopMap.value);
+					addMarker(end, desktopMap.value);
+					waypoints.forEach((wp) =>
+						addMarker(wp.location, desktopMap.value)
+					);
+
+					// Check arrival at destination
+					checkArrival(
+						list_itineraries.value[
+							list_itineraries.value.length - 1
+						]
+					);
+				};
+
+				// watch(selectedTravelMode, updateDirections);
+				updateDirections();
+			},
+			() => {
+				console.error("Unable to retrieve current location");
+			}
+		);
+	}
+	// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
+	// This is a workaround because fitBounds does not let you specify max zoom level
+};
