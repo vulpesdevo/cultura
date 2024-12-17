@@ -312,7 +312,7 @@
 
 							<div class="p-4 bg-gray-50 dark:bg-gray-800">
 								<h3
-									class="text-xl font-bold text-gray-900 dark:text-white mb-2"
+									class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
 								>
 									{{ itinerary.main_title }}
 								</h3>
@@ -675,7 +675,7 @@
 													class="flex items-center justify-between w-full"
 												>
 													<h3
-														class="text-base font-medium text-gray-900 dark:text-white truncate"
+														class="text-xs sm:text-base font-medium text-gray-900 dark:text-white truncate"
 														:class="{
 															'text-blue-600 dark:text-blue-400':
 																selectedItinerary?.id ===

@@ -73,6 +73,7 @@ class SaveItinerary(models.Model):
     )
     currency = models.CharField(
         max_length=255,
+        default="PHP",
     )
     total_budget = models.FloatField()
     itineraries = models.CharField(default=list, max_length=255)
@@ -88,7 +89,7 @@ class Itinerary(models.Model):
 
     longitude = models.FloatField()
     latitude = models.FloatField()
-    code = models.CharField(blank=True, null=True, max_length=50)
+    code = models.CharField(max_length=50, default="PHP")
     budget = models.FloatField(null=True, blank=True)
     date_posted = models.DateTimeField(auto_now_add=True)
     status = models.CharField(default="onqueue", max_length=255)

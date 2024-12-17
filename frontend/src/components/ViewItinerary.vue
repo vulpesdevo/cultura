@@ -243,11 +243,11 @@
 				</div>
 			</div>
 			<!-- Budget Section -->
-			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6">
+			<div class="pb-6 px-6 rounded-lg shadow-sm mb-6 mt-4">
 				<h2
 					class="text-base font-semibold mb-4 text-gray-900 dark:text-white"
 				>
-					Budgeting
+					Suggeted Budget
 				</h2>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
@@ -399,7 +399,7 @@
 										}}{{
 											convertCurrency(
 												itinerary.budget,
-												itinerary.code
+												"PHP"
 											)
 										}}
 									</span>
@@ -1063,7 +1063,7 @@ const submitItinerary = () => {
 					})
 					.then(async (response) => {
 						console.log("UPDATED ITINERARY", response);
-						fetchItineraries();
+						await fetchItineraries();
 					})
 					.catch((error) => {
 						console.error(error);
@@ -1112,7 +1112,7 @@ onMounted(async () => {
 
 	// console.log("FROM OTHER", route.params.itinerarydata);
 	initializeAutocomplete();
-	fetchSavedItineraries();
+	await fetchSavedItineraries();
 	fetchUser();
 	initializeMaps();
 	// checkArrival(destination);
@@ -1280,27 +1280,27 @@ const fetchSavedItineraries = async () => {
 				"fetchSavedItineraries",
 				itinerary_id.value
 			);
-			console.log("ITINERARY ID: " + response);
 
 			itineraries.value = response;
-			// console.log("ITINERARIES", itineraries.value);
-			itineraries.value.forEach((itinerary) => {
-				itineraryDetails.creator_name = itinerary.creator_name;
-				itineraryDetails.user_photo = itinerary.user_photo;
-				currency_save.value = itinerary.currency;
-				itineraryDetails.date_posted = itinerary.date_posted;
-				itineraryDetails.gen_tips = itinerary.gen_tips;
-				itineraryDetails.id = itinerary.id;
-				list_itineraries.value = itinerary.itineraries;
-				itineraryDetails.main_description = itinerary.main_description;
-				itineraryDetails.main_image = itinerary.main_image;
-				itineraryDetails.main_title = itinerary.main_title;
-				itineraryDetails.owner = itinerary.owner;
-				itineraryDetails.status = itinerary.status;
-				total_budget.value = itinerary.total_budget;
-				allRatings.value = itinerary.rating.map((item) => item.rating);
-			});
-			fetchItineraries();
+			console.log("ITINERARIES", itineraries.value);
+
+			itineraryDetails.creator_name = response.creator_name;
+			itineraryDetails.user_photo = response.cultura_user.user_photo;
+			currency_save.value = response.currency;
+			itineraryDetails.date_posted = response.date_posted;
+			itineraryDetails.gen_tips = response.gen_tips;
+			itineraryDetails.id = response.id;
+			list_itineraries.value = response.itineraries;
+			itineraryDetails.main_description = response.main_description;
+			itineraryDetails.main_image = response.main_image;
+			itineraryDetails.main_title = response.main_title;
+			itineraryDetails.owner = response.owner;
+			itineraryDetails.status = response.status;
+			total_budget.value = response.total_budget;
+			allRatings.value = response.rating.map((item) => item.rating);
+			console.log("ITINERARY ID: " + list_itineraries.value);
+			await letDetails();
+			await fetchItineraries();
 			paragraphs.value = itineraryDetails.gen_tips.split(/\n+/);
 			// console.log("this is the paragraph", list_itineraries.value);
 			// Fetch place details for each itinerary and update main_description

@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col items-center just align-middle w-full sm:px-8 py-2 overflow-x-hidden h-screen bg-field dark:bg-dark-notif sm:pt-7 px-2"
+		class="flex flex-col items-center just align-middle w-full sm:px-8 py-2 overflow-x-hidden h-screen bg-field dark:bg-dark-notif sm:pt-7 px-2 transition-colors duration-300"
 	>
 		<div
 			class="flex flex-col justify-start w-full text-prime bg-[#E8E8E8] dark:bg-dark-interface p-7 mb-5 sm:mb-10 sm:p-7 sm:px-20 rounded-3xl"

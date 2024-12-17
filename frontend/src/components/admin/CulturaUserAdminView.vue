@@ -281,7 +281,8 @@
 <script setup>
 import { ref, onMounted, reactive } from "vue";
 import { useStore } from "vuex";
-
+import { useRouter } from "vue-router";
+const router = useRouter();
 const store = useStore();
 const culturaUsers = ref([]);
 const showModal = ref(false);
@@ -297,7 +298,20 @@ const userForm = reactive({
 });
 
 onMounted(async () => {
-	await fetchUsers();
+	await store
+		.dispatch("fetchUserData")
+		.then(async (response) => {
+			if (!response.profile.is_admin) {
+				router.push({ name: "NotFound" });
+			} else {
+				await fetchUsers();
+			}
+		})
+		.catch((error) => {
+			console.error("Error fetching user data:", error);
+			router.push({ name: "NotFound" });
+		});
+	console.log("Cultura Users:", store.state.user.is_admin);
 });
 
 const fetchUsers = async () => {

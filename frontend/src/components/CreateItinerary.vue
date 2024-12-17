@@ -151,7 +151,7 @@
 						Itinerary Stops
 					</h2>
 					<button
-						@click="saveMainItinerary"
+						@click.prevent="saveMainItinerary"
 						class="inline-flex items-center px-4 py-2 bg-second text-white text-sm font-medium rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300"
 					>
 						<ArrowDownOnSquareIcon class="h-5 w-5 mr-2" />
@@ -262,7 +262,7 @@
 										}}{{
 											convertCurrency(
 												itinerary.budget,
-												itinerary.code
+												"PHP"
 											)
 										}}
 									</span>
@@ -1011,7 +1011,7 @@ const handleFileSelection = (event) => {
 	if (file) {
 		selectedImageUrl.value = URL.createObjectURL(file);
 		picture.value = file;
-		console.log("Image :", picture.value);
+		console.log("Image :", file);
 		isEditingTitle.value = true;
 	}
 };
@@ -1020,8 +1020,8 @@ const handleFileSelectionIn = (event) => {
 	const file = event.target.files[0];
 	if (file) {
 		selectedImageUrlIn.value = URL.createObjectURL(file);
-		pictureIn.value = file;
-		console.log("Image IN:", pictureIn.value);
+		picture.value = file;
+		console.log("Image IN:", picture.value);
 		isEditingTitle.value = true;
 	}
 };
@@ -1125,17 +1125,17 @@ const saveMainItinerary = () => {
 		alert("Please fill all fields correctly.");
 		return;
 	} else {
-		let formData = new FormData();
-
+		const formData = new FormData();
 		formData.append("main_title", main_title.value);
 		formData.append("main_description", setAboutMe.value);
 		formData.append("gen_tips", setTips.value);
 		formData.append("total_budget", total_budget.value);
 		formData.append("currency", currency_save.value);
 		formData.append("itineraries", itineraryIds.value);
-		if (picture.value && picture.value instanceof File) {
-			formData.append("main_image", picture.value, picture.value.name);
+		if (picture.value instanceof File) {
+			formData.append("image", picture.value, picture.value.name);
 		}
+
 		store
 			.dispatch("saveMainItinerary", formData)
 			.then((response) => {
@@ -1145,10 +1145,8 @@ const saveMainItinerary = () => {
 				setTips.value = "";
 				selectedImageUrl.value = null;
 				selectedImageUrlIn.value = null;
-				window.scrollTo(0, 0);
-				router.push({ name: "itinerary" }).then(() => {
-					window.location.reload();
-				});
+
+				router.push({ name: "itinerary" });
 			})
 			.catch((error) => {
 				console.error("Error saving itinerary:", error);
@@ -1162,7 +1160,7 @@ const submitItinerary = () => {
 	formData.append("longitude", longitude.value);
 	formData.append("latitude", latitude.value);
 	formData.append("budget", budget.value);
-	formData.append("code", selectedCurrency.value);
+	formData.append("code", currency_save.value);
 
 	if (pictureIn.value && pictureIn.value instanceof File) {
 		formData.append("image", pictureIn.value, pictureIn.value.name);

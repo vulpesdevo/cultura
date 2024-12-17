@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col sm:flex-row min-h-screen w-screen bg-white dark:bg-dark-interface"
+		class="flex flex-col sm:flex-row min-h-screen w-screen bg-white dark:bg-dark-interface transition-colors duration-300"
 	>
 		<!-- Topbar (mobile only) -->
 		<div
@@ -227,7 +227,7 @@ onMounted(async () => {
 		const userData = await store.dispatch("fetchUserData");
 		user.value = userData.user;
 		user.value.profile = userData.profile;
-		console.log("data", userData.profile);
+		console.log("data HAHAHA", user.value.profile.is_admin);
 	} catch (error) {
 		console.error("Error fetching user data:", error);
 	}

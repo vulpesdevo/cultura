@@ -565,6 +565,7 @@ class PostCreate(APIView):
         body = data.get("body", "").strip()
         # imgs = data.get("imgs", "").strip()
         image = request.FILES.get("image", None)
+
         country = data.get("country", "").strip()
         itinerary_id = data.get("itinerary_id", 0)
         try:
@@ -1491,10 +1492,11 @@ class SaveItineraryView(APIView):
         currency = data.get("currency", "PHP").strip()
         total_budget = data.get("total_budget", 0.0)
         itinerary_ids = data.get("itineraries", [])
-        image = request.FILES.get("main_image", None)
+        image = request.FILES.get("image", None)
+        print("IMAGE POST ", image)
         itineraries = Itinerary.objects.filter(status="onqueue", owner=request.user)
         itineraries.update(status="saved")
-        print("IDDSs", itinerary_ids)
+        print("IDDSs", image)
         user = CulturaUser.objects.get(user=request.user)
         user.guide_guru += 1
         user.save()
@@ -1589,17 +1591,45 @@ class SaveItineraryListView(APIView):
 
 
 class ViewItinerary(APIView):
-
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, id):
+        try:
+            itinerary = SaveItinerary.objects.get(id=id)
+            serializer = SaveItinerarySerializer(
+                itinerary, context={"request": request}
+            )
 
-        itineraries = SaveItinerary.objects.filter(id=id)
+            itinerary_data = serializer.data
+            self.update_image_url(itinerary_data, request)
+            self.update_cultura_user(itinerary_data, request)
+            self.update_itineraries(itinerary_data)
 
-        serializer = SaveItinerarySerializer(itineraries, many=True)
-        itineraries_list = [item["itineraries"] for item in serializer.data]
+            return Response(itinerary_data, status=status.HTTP_200_OK)
+        except SaveItinerary.DoesNotExist:
+            return Response(
+                {"error": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+    def update_image_url(self, itinerary_data, request):
+        main_image = itinerary_data.get("main_image")
+        if main_image:
+            abs_main_image_url = request.build_absolute_uri(main_image)
+            itinerary_data["main_image"] = abs_main_image_url
+
+    def update_cultura_user(self, itinerary_data, request):
+        author_id = itinerary_data["owner"]
+        user = User.objects.get(id=author_id)
+        cultura_user = CulturaUser.objects.get(user=user)
+        cultura_user_serializer = CulturaUserSerializer(
+            cultura_user, context={"request": request}
+        )
+        itinerary_data["cultura_user"] = cultura_user_serializer.data
+
+    def update_itineraries(self, itinerary_data):
+        itineraries_list = itinerary_data.get("itineraries", 0)
         itineraries_list_id = [
-            int(item) for item in itineraries_list[0].strip("[]").split(",")
+            int(item) for item in itineraries_list.split(",") if item.strip().isdigit()
         ]
 
         serialized_itineraries = []
@@ -1612,39 +1642,8 @@ class ViewItinerary(APIView):
             except Itinerary.DoesNotExist:
                 # Handle the case when the itinerary with the given id does not exist
                 pass
-        serializer.data[0]["itineraries"] = serialized_itineraries
-        for itinerary_data in serializer.data:
 
-            main_image = itinerary_data.get("main_image", None)
-            if main_image:
-                # Build the absolute URI for the main image
-                abs_main_image_url = request.build_absolute_uri(main_image)
-                # Update the itinerary data with the absolute URI
-                itinerary_data["main_image"] = abs_main_image_url
-                cultura_user = CulturaUser.objects.filter(user=itinerary_data["owner"])
-                profile = CulturaUserSerializer(cultura_user, many=True)
-
-                for post_data in profile.data:
-                    image = post_data.get("user_photo", None)
-                    if image:
-                        # Build the absolute URI for the image
-                        abs_image_url = request.build_absolute_uri(image)
-                        # Update the post data with the absolute URI
-                        itinerary_data["user_photo"] = abs_image_url
-            # print(itinerary_data)
-            for item in itinerary_data["itineraries"]:
-                # print(item)
-                place_image = item.get("place_image", None)
-                if place_image:
-                    # Build the absolute URI for the main image
-                    abs_place_image_url = request.build_absolute_uri(place_image)
-                    # Update the itinerary data with the absolute URI
-                    item["place_image"] = abs_place_image_url
-        # serializer.data['itineraries'] = serialized_itineraries
-        # print(serializer.data[0]["itineraries"])
-        # itiner = Itinerary.objects.filter(id=itinerary_ids)
-        # serializer.data['itineraries'] = ItinerarySerializer(itiner, many=True).data
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        itinerary_data["itineraries"] = serialized_itineraries
 
 
 class GetSettings(APIView):

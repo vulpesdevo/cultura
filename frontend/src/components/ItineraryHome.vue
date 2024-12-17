@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-12 sm:pt-10 h-screen"
+		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-12 sm:pt-10 h-screen transition-colors duration-300"
 	>
 		<div class="flex justify-between items-center mb-5">
 			<button

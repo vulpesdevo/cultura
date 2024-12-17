@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "./components/Login.vue";
-import Sidebar from "./components/Sidebar.vue";
 import Dashboard from "./components/Dashboard.vue";
 import Notification from "./components/Notifications.vue";
 import Profile from "./components/Profile.vue";
@@ -17,11 +16,12 @@ import Report from "./components/Report.vue";
 import TamSurvey from "./components/TamSurvey.vue";
 import Trivia from "./components/Trivia.vue";
 import EditPost from "./components/EditPost.vue";
-// Import store for auth check
 import store from "./store";
 import DefaultLayout from "./components/DefaultLayout.vue";
 import ReportsView from "./components/admin/ReportsView.vue";
 import CulturaUserAdminView from "./components/admin/CulturaUserAdminView.vue";
+import NotFound from "./components/NotFound.vue";
+import LandingPage from "./components/LandingPage.vue";
 
 const routes = [
 	{
@@ -30,34 +30,17 @@ const routes = [
 		component: DefaultLayout,
 		meta: { requiresAuth: true },
 		children: [
-			{ path: "/", component: Login, name: "login" },
 			{ path: "/dashboard", component: Dashboard, name: "dashboard" },
 			{ path: "/report", name: "report", component: Report },
-			{
-				path: "/edit-post/:post",
-				name: "editpost",
-				component: EditPost,
-			},
+			{ path: "/edit-post/:post", name: "editpost", component: EditPost },
 			{
 				path: "/notifications",
 				component: Notification,
 				name: "notifications",
 			},
-			{
-				path: "/trivia",
-				component: Trivia,
-				name: "trivia",
-			},
-			{
-				path: "/tamsurvey",
-				component: TamSurvey,
-				name: "tamsurvey",
-			},
-			{
-				path: "/itinerary",
-				component: ItineraryHome,
-				name: "itinerary",
-			},
+			{ path: "/trivia", component: Trivia, name: "trivia" },
+			{ path: "/tamsurvey", component: TamSurvey, name: "tamsurvey" },
+			{ path: "/itinerary", component: ItineraryHome, name: "itinerary" },
 			{
 				path: "/create-itinerary",
 				component: CreateItinerary,
@@ -85,26 +68,33 @@ const routes = [
 				component: PublicViewProfile,
 				name: "user-profile",
 			},
-			{
-				path: "/settings",
-				component: Settings,
-				name: "settings",
-			},
+			{ path: "/settings", component: Settings, name: "settings" },
 			{
 				path: "/rp",
 				component: ReportsView,
 				name: "rp",
-				meta: { requiresAdmin: true }, // Only admin can access
+				meta: { requiresAdmin: true },
 			},
 			{
 				path: "/cu",
 				component: CulturaUserAdminView,
 				name: "cu",
-				meta: { requiresAdmin: true }, // Only admin can access
+				meta: { requiresAdmin: true },
 			},
 		],
 	},
-	{ path: "/login", name: "login", component: Login },
+	{
+		path: "/",
+		name: "landing-page",
+		component: LandingPage,
+		meta: { isGuest: true },
+	},
+	{
+		path: "/login",
+		name: "login",
+		component: Login,
+		meta: { isGuest: true },
+	},
 	{
 		path: "/otp",
 		name: "otp",
@@ -117,6 +107,7 @@ const routes = [
 			}
 		},
 	},
+	{ path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
 ];
 
 const router = createRouter({
@@ -125,22 +116,18 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-	if (!store.state.user.token || !store.getters.getUser) {
-		await store.dispatch("fetchUserData");
+	if (!store.state.user.token) {
+		try {
+			await store.dispatch("fetchUserData");
+		} catch (error) {
+			console.error("Error fetching user data:", error);
+		}
 	}
-	const user = store.getters.getUser;
-	const isLoggedIn = !!store.state.user.token;
-	const isAdmin = user.data ? user.data.is_admin : false;
-
-	console.log("User logged in:", isLoggedIn);
-	console.log("Is admin:", isAdmin);
-
-	// const isAdmin = user.data ? user.data.is_admin : false;
-	// Get the user's admin status
 
 	if (to.meta.requiresAuth && !store.state.user.token) {
 		next({ name: "login" });
 	} else if (store.state.user.token && to.meta.isGuest) {
+		await store.dispatch("fetchUserData");
 		next({ name: "dashboard" });
 	} else {
 		next();
@@ -148,11 +135,6 @@ router.beforeEach(async (to, from, next) => {
 
 	if (to.name === "login" || to.name === "otp") {
 		window.scrollTo(0, 0);
-	}
-
-	if (requiresAdmin && !isAdmin) {
-		next({ name: "NotFound" });
-		return;
 	}
 });
 

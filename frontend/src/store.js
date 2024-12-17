@@ -2,14 +2,15 @@ import { createStore } from "vuex";
 import axiosClient from "./axios";
 import { clean } from "profanity-cleaner";
 import filipinoBadWords from "./custom-badwords";
-import { useRouter } from "vue-router";
-const router = useRouter();
+
 const store = createStore({
 	state: {
 		user: {
 			data: {},
 			token: sessionStorage.getItem("TOKEN"),
+			is_admin: null,
 		},
+
 		otpData: null,
 		unreadCount: 0,
 		searchResults: [],
@@ -34,7 +35,9 @@ const store = createStore({
 	},
 	getters: {
 		singleCulturaUser: (state) => state.viewed_user,
-
+		isAdmin(state) {
+			return state.user.is_admin;
+		},
 		isAuthenticated: (state) => !!state.user.token,
 		currentUser: (state) => state.user.data,
 		getUser(state) {
@@ -90,6 +93,9 @@ const store = createStore({
 		setUser(state, userData) {
 			state.user.data = userData.profile;
 			state.user.token = userData.token;
+			state.user.is_admin = userData.profile?.is_admin;
+			console.log("USER DATA", userData.profile?.is_admin);
+
 			sessionStorage.setItem("TOKEN", userData.token);
 		},
 
@@ -523,6 +529,7 @@ const store = createStore({
 			}
 		},
 		async saveMainItinerary({ commit, state }, formData) {
+			console.log("FORM DATA", formData);
 			try {
 				const response = await axiosClient.post(
 					"/save-itinerary",
@@ -530,6 +537,7 @@ const store = createStore({
 					{
 						headers: {
 							Authorization: `Token ${state.user.token}`,
+							"Content-Type": "multipart/form-data",
 						},
 					}
 				);
@@ -575,31 +583,31 @@ const store = createStore({
 				);
 				const itineraries = response.data;
 
-				if (itineraries.length > 0) {
-					const itinerary = itineraries[0];
-					const itineraryDetails = {
-						creator_name: itinerary.creator_name,
-						user_photo: itinerary.user_photo,
-						date_posted: itinerary.date_posted,
-						gen_tips: itinerary.gen_tips,
-						id: itinerary.id,
-						main_description: itinerary.main_description,
-						main_image: itinerary.main_image,
-						main_title: itinerary.main_title,
-						owner: itinerary.owner,
-						status: itinerary.status,
-						currency: itinerary.currency,
-						total_budget: itinerary.total_budget,
-						list_itineraries: itinerary.itineraries,
-						allRatings: itinerary.rating.map((item) => item.rating),
-						paragraphs: itinerary.gen_tips.split(/\n+/),
-					};
+				// if (itineraries.length > 0) {
+				// 	const itinerary = itineraries[0];
+				// 	const itineraryDetails = {
+				// 		creator_name: itinerary.creator_name,
+				// 		user_photo: itinerary.user_photo,
+				// 		date_posted: itinerary.date_posted,
+				// 		gen_tips: itinerary.gen_tips,
+				// 		id: itinerary.id,
+				// 		main_description: itinerary.main_description,
+				// 		main_image: itinerary.main_image,
+				// 		main_title: itinerary.main_title,
+				// 		owner: itinerary.owner,
+				// 		status: itinerary.status,
+				// 		currency: itinerary.currency,
+				// 		total_budget: itinerary.total_budget,
+				// 		list_itineraries: itinerary.itineraries,
+				// 		allRatings: itinerary.rating.map((item) => item.rating),
+				// 		paragraphs: itinerary.gen_tips.split(/\n+/),
+				// 	};
 
-					commit("setItineraryDetails", itineraryDetails);
-				}
+				// 	commit("setItineraryDetails", itineraryDetails);
+				// }
 
-				console.log("ITINERARIES", itineraries[0]);
-				return itineraries;
+				console.log("ITINER", itineraries);
+				return response.data;
 			} catch (error) {
 				console.error("Error fetching saved itineraries:", error);
 			}
@@ -739,23 +747,22 @@ const store = createStore({
 		},
 
 		async fetchUserData({ commit, state }) {
-			if (state.user.token) {
-				return axiosClient
-					.get("/user", {
-						headers: {
-							Authorization: `Token ${state.user.token}`,
-						},
-					})
-					.then((response) => {
-						commit("setUser", response.data);
-						console.log("setUser", response.data);
-						return response.data;
-					})
-					.catch((error) => {
-						console.error("Error fetching user data:", error);
-						throw error;
-					});
-			}
+			return axiosClient
+				.get("/user", {
+					headers: {
+						Authorization: `Token ${state.user.token}`,
+					},
+				})
+				.then((response) => {
+					commit("setUser", response.data);
+					console.log("setUser", response.data);
+					state.user.is_admin = response.data.profile.is_admin;
+					return response.data;
+				})
+				.catch((error) => {
+					console.error("Error fetching user data:", error);
+					throw error;
+				});
 		},
 
 		async logout({ commit, state }) {

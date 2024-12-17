@@ -1,4 +1,4 @@
-<template>
+<template lang="">
 	<div class="h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
 		<div class="max-w-7xl mx-auto">
 			<!-- Header -->
@@ -269,12 +269,29 @@ import {
 	TagIcon,
 	HeartIcon,
 } from "@heroicons/vue/24/outline";
-
+import { useRouter } from "vue-router";
+const router = useRouter();
 const store = useStore();
 const reports = ref([]);
 const loading = ref(true);
 const activeReporterId = ref(null);
+const isLoading = ref(true);
 
+onMounted(async () => {
+	await store
+		.dispatch("fetchUserData")
+		.then(async (response) => {
+			if (!response.profile.is_admin) {
+				router.push({ name: "NotFound" });
+			} else {
+				await fetchReports();
+			}
+		})
+		.catch((error) => {
+			console.error("Error fetching user data:", error);
+			router.push({ name: "NotFound" });
+		});
+});
 const fetchReports = async () => {
 	try {
 		const data = await store.dispatch("fetchReports");
@@ -313,8 +330,4 @@ const showReporterInfo = (reportId) => {
 const hideReporterInfo = () => {
 	activeReporterId.value = null;
 };
-
-onMounted(() => {
-	fetchReports();
-});
 </script>
