@@ -1,6 +1,6 @@
 <template lang="">
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-8 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-7 pt-5 bg-field dark:bg-dark-notif px-2"
+		class="flex flex-col items-center align-middle w-full sm:px-24 py-5 overflow-auto overflow-x-hidden scroll-smooth h-screen sm:pt-7 pt-5 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
 			class="relative profile-card flex sm:flex-row flex-col justify-center sm:justify-normal w-screen sm:w-full sm:mt-0 px-3 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
@@ -768,7 +768,7 @@ const selectPost = (post) => {
 };
 const submitReply = () => {
 	axiosClient
-		.post("/api/commenting", {
+		.post("/commenting", {
 			post_id: postId.value,
 			replied_to: repliedTo.value,
 			body: reply.value,
