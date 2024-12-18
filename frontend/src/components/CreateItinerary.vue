@@ -302,7 +302,7 @@
 		<!-- Mobile Map Toggle Button -->
 		<button
 			@click="toggleMap"
-			class="lg:hidden fixed bottom-24 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg z-50"
+			class="lg:hidden fixed bottom-24 left-4 bg-blue-500 text-white p-4 rounded-full shadow-lg z-50"
 		>
 			<MapIcon v-if="!showMap" class="w-6 h-6" />
 			<XIcon v-else class="w-6 h-6" />
@@ -1457,6 +1457,9 @@ const sortItinerariesByProximity = async () => {
 	}
 };
 const centerMapOnItinerary = (itinerary) => {
+	if (!showMap.value) {
+		toggleMap();
+	}
 	const position = new google.maps.LatLng(
 		itinerary.latitude,
 		itinerary.longitude
