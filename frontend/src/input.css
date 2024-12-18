@@ -8,3 +8,12 @@
 .gm-style .gm-style-iw-t::after {
 	background: red;
 }
+*::-webkit-scrollbar-button {
+	background: #6a7fdb;
+}
+*::-webkit-scrollbar-track-piece {
+	background: #888;
+}
+*::-webkit-scrollbar-thumb {
+	background: #eee;
+}

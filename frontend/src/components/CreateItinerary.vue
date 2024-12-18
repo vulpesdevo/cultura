@@ -1,5 +1,11 @@
-<template>
+<template lang="">
+	<div v-if="isLoading" class="flex items-center justify-center h-screen">
+		<div
+			class="w-12 h-12 border-t-4 border-blue-500 border-solid rounded-full animate-spin"
+		></div>
+	</div>
 	<div
+		v-if="!isLoading"
 		class="flex flex-col lg:flex-row h-screen bg-gray-100 dark:bg-gray-900"
 	>
 		<!-- Main Content -->
@@ -185,7 +191,8 @@
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
-						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto"
+						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto cursor-pointer"
+						@click="centerMapOnItinerary(itinerary)"
 					>
 						<button
 							@click="openEditModal(itinerary)"
@@ -398,9 +405,11 @@
 						</button>
 						<button
 							type="submit"
-							class="w-full sm:w-auto px-4 py-2 border border-transparent rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+							:disabled="isSaving"
+							class="w-full sm:w-auto px-4 py-2 border border-transparent rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
 						>
-							Save
+							<Spinner v-if="isSaving" class="mr-2" />
+							{{ isSaving ? "Saving..." : "Save" }}
 						</button>
 					</div>
 				</form>
@@ -430,23 +439,30 @@
 					>
 						Cancel
 					</button>
-					<button
+					<<button
 						@click="deleteItinerary"
-						class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 ease-in-out"
+						:disabled="isDeleting"
+						class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
 					>
-						Delete
+						<Spinner v-if="isDeleting" class="mr-2" />
+						{{ isDeleting ? "Deleting..." : "Delete" }}
 					</button>
 				</div>
 			</div>
 		</div>
 	</div>
+	<Snackbar
+		:show="showSnackbar"
+		:message="snackbarMessage"
+		:type="snackbarType"
+		@close="showSnackbar = false"
+	/>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeMount, nextTick, watch } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 import axiosClient from "../axios";
-
 import axios from "axios";
 import * as Dropdown from "primevue/dropdown";
 import router from "../routes";
@@ -463,6 +479,24 @@ import {
 	ArrowDownOnSquareIcon,
 } from "@heroicons/vue/24/outline";
 import { useStore } from "vuex";
+import Spinner from "./spinner/Spinner.vue";
+const isDeleting = ref(false);
+const isSaving = ref(false);
+import Snackbar from "./snackbars/Snackbar.vue";
+
+// Snackbar state
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarType = ref("error");
+const showMessage = (message, type = "error") => {
+	snackbarMessage.value = message;
+	snackbarType.value = type;
+	showSnackbar.value = true;
+	setTimeout(() => {
+		showSnackbar.value = false;
+	}, 5000); // Hide after 5 seconds
+};
+
 const store = useStore();
 // Reactive variables
 const isEditingTips = ref(true);
@@ -691,113 +725,286 @@ const initializeMaps = async () => {
 		showLocationOntheMap();
 	});
 };
-const updateMaps = async (center) => {
-	const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
-	if (desktopMap.value && mobileMap.value) {
-		desktopMap.value.setCenter(center);
-		mobileMap.value.setCenter(center);
+const directionsService = ref(null);
+const directionsRenderer = ref(null);
+const markers = ref([]);
+const polylines = ref([]);
+const addPolylineBetweenCountries = (start, end, bounds) => {
+	const polyline = new google.maps.Polyline({
+		path: [
+			new google.maps.LatLng(start.lat, start.lng),
+			new google.maps.LatLng(end.lat, end.lng),
+		],
+		geodesic: true,
+		strokeColor: "#FF0000",
+		strokeOpacity: 1.0,
+		strokeWeight: 2,
+	});
 
-		new AdvancedMarkerElement({
-			position: center,
-			map: desktopMap.value,
-			title: "Your Location",
+	polyline.setMap(map.value);
+	polylines.value.push(polyline);
+
+	bounds.extend(new google.maps.LatLng(start.lat, start.lng));
+	bounds.extend(new google.maps.LatLng(end.lat, end.lng));
+};
+
+const addMarker = (map, position, label, title) => {
+	const marker = new google.maps.Marker({
+		position,
+		map,
+		label: {
+			text: label,
+			color: "white",
+			fontSize: "14px",
+			fontWeight: "bold",
+		},
+		title,
+	});
+	markers.value.push(marker);
+	return marker;
+};
+
+const calculateAndDisplayRoute = async () => {
+	clearMarkersAndPolylines();
+	const bounds = new google.maps.LatLngBounds();
+
+	for (let i = 0; i < list_itineraries.value.length - 1; i++) {
+		const start = list_itineraries.value[i];
+		const end = list_itineraries.value[i + 1];
+
+		if (start.country === end.country) {
+			await calculateRouteWithinCountry(start, end, bounds);
+		} else {
+			addPolylineBetweenCountries(start, end, bounds);
+		}
+
+		addMarker(start, String.fromCharCode(65 + i));
+		if (i === list_itineraries.value.length - 2) {
+			addMarker(end, String.fromCharCode(65 + i + 1));
+		}
+	}
+
+	desktopMap.value.fitBounds(bounds, { padding: 50 });
+	mobileMap.value.fitBounds(bounds, { padding: 50 });
+};
+const calculateRouteWithinCountry = async (start, end, bounds) => {
+	const request = {
+		origin: new google.maps.LatLng(start.latitude, start.longitude),
+		destination: new google.maps.LatLng(end.latitude, end.longitude),
+		travelMode: google.maps.TravelMode.DRIVING,
+		region: "global",
+	};
+
+	try {
+		const result = await new Promise((resolve, reject) => {
+			directionsService.value.route(request, (response, status) => {
+				if (status === google.maps.DirectionsStatus.OK) {
+					resolve(response);
+				} else {
+					reject(new Error(`Directions request failed: ${status}`));
+				}
+			});
 		});
 
-		new AdvancedMarkerElement({
-			position: center,
-			map: mobileMap.value,
-			title: "Your Location",
+		const renderer = new google.maps.DirectionsRenderer({
+			map: map.value,
+			suppressMarkers: true,
+			preserveViewport: true,
 		});
+		renderer.setDirections(result);
+
+		const route = result.routes[0];
+		for (let j = 0; j < route.legs.length; j++) {
+			const leg = route.legs[j];
+			bounds.extend(leg.start_location);
+			bounds.extend(leg.end_location);
+		}
+	} catch (error) {
+		console.error(
+			`Error calculating route from ${start.name} to ${end.name}:`,
+			error
+		);
+		await tryTransitMode(start, end, bounds);
+	}
+};
+const tryTransitMode = async (start, end, bounds) => {
+	const request = {
+		origin: new google.maps.LatLng(start.latitude, start.longitude),
+		destination: new google.maps.LatLng(end.latitude, end.longitude),
+		travelMode: google.maps.TravelMode.TRANSIT,
+		region: "global",
+	};
+
+	try {
+		const result = await new Promise((resolve, reject) => {
+			directionsService.value.route(request, (response, status) => {
+				if (status === google.maps.DirectionsStatus.OK) {
+					resolve(response);
+				} else {
+					reject(
+						new Error(
+							`Transit directions request failed: ${status}`
+						)
+					);
+				}
+			});
+		});
+
+		const transitRenderer = new google.maps.DirectionsRenderer({
+			map: map.value,
+			suppressMarkers: true,
+			preserveViewport: true,
+			polylineOptions: {
+				strokeColor: "blue",
+				strokeWeight: 4,
+			},
+		});
+		transitRenderer.setDirections(result);
+
+		const route = result.routes[0];
+		for (let j = 0; j < route.legs.length; j++) {
+			const leg = route.legs[j];
+			bounds.extend(leg.start_location);
+			bounds.extend(leg.end_location);
+		}
+	} catch (error) {
+		console.error(
+			`Error calculating transit route from ${start.name} to ${end.name}:`,
+			error
+		);
+		bounds.extend(new google.maps.LatLng(start.latitude, start.longitude));
+		bounds.extend(new google.maps.LatLng(end.latitude, end.longitude));
 	}
 };
 
+const clearMarkers = () => {
+	markers.value.forEach((marker) => marker.setMap(null));
+	markers.value = [];
+};
+const clearMarkersAndPolylines = () => {
+	markers.value.forEach((marker) => marker.setMap(null));
+	markers.value = [];
+	polylines.value.forEach((polyline) => polyline.setMap(null));
+	polylines.value = [];
+};
+
 const showLocationOntheMap = async () => {
+	const currentLocation = await getCurrentLocation();
+	const bounds = new google.maps.LatLngBounds();
+	const directionsService = new google.maps.DirectionsService();
+	const directionsRendererDesktop = new google.maps.DirectionsRenderer({
+		map: desktopMap.value,
+		suppressMarkers: true, // Suppress default markers
+	});
+	const directionsRendererMobile = new google.maps.DirectionsRenderer({
+		map: mobileMap.value,
+		suppressMarkers: true, // Suppress default markers
+	});
+
+	clearMarkers(); // Clear existing markers
+
+	const start = new google.maps.LatLng(
+		currentLocation.coords.latitude,
+		currentLocation.coords.longitude
+	);
+	bounds.extend(start);
+
+	// Add marker for current location
+	addMarker(desktopMap.value, start, "A", "Your Location");
+	addMarker(mobileMap.value, start, "A", "Your Location");
+
 	if (list_itineraries.value.length === 0) {
-		// If list_itineraries is empty, use the user's current location or a default location
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				const { latitude, longitude } = position.coords;
-				updateMaps({ lat: latitude, lng: longitude });
-			},
-			() => {
-				// Fallback to a default location if unable to get the user's location
-				const defaultLat = 37.7749; // Example default latitude
-				const defaultLng = -122.4194; // Example default longitude
-				updateMaps({ lat: defaultLat, lng: defaultLng });
-			}
-		);
+		updateMaps(start);
 	} else {
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				const { latitude, longitude } = position.coords;
-				const bounds = new google.maps.LatLngBounds();
-				const directionsService = new google.maps.DirectionsService();
-				const directionsRendererDesktop =
-					new google.maps.DirectionsRenderer({
-						map: desktopMap.value,
+		// Add markers for all itinerary points
+		list_itineraries.value.forEach((itinerary, index) => {
+			const position = new google.maps.LatLng(
+				itinerary.latitude,
+				itinerary.longitude
+			);
+			bounds.extend(position);
+			const label = String.fromCharCode(66 + index); // Start with 'B'
+			addMarker(
+				desktopMap.value,
+				position,
+				label,
+				`Location ${index + 1}`
+			);
+			addMarker(
+				mobileMap.value,
+				position,
+				label,
+				`Location ${index + 1}`
+			);
+		});
+
+		const end = new google.maps.LatLng(
+			list_itineraries.value[list_itineraries.value.length - 1].latitude,
+			list_itineraries.value[list_itineraries.value.length - 1].longitude
+		);
+
+		const waypoints = list_itineraries.value
+			.slice(0, -1)
+			.map((itinerary) => ({
+				location: new google.maps.LatLng(
+					itinerary.latitude,
+					itinerary.longitude
+				),
+				stopover: true,
+			}));
+
+		const travelModes = [
+			google.maps.TravelMode.DRIVING,
+			google.maps.TravelMode.TRANSIT,
+		];
+
+		for (const travelMode of travelModes) {
+			const request = {
+				origin: start,
+				destination: end,
+				waypoints: waypoints,
+				travelMode: travelMode,
+				optimizeWaypoints: false,
+				region: "global", // Enable cross-border routing
+			};
+
+			try {
+				const result = await new Promise((resolve, reject) => {
+					directionsService.route(request, (result, status) => {
+						if (status === google.maps.DirectionsStatus.OK) {
+							resolve(result);
+						} else {
+							reject(
+								new Error(
+									`Directions request failed due to ${status}`
+								)
+							);
+						}
 					});
-				const directionsRendererMobile =
-					new google.maps.DirectionsRenderer({
-						map: mobileMap.value,
-					});
-
-				const start = new google.maps.LatLng(latitude, longitude);
-				const end = new google.maps.LatLng(
-					list_itineraries.value[
-						list_itineraries.value.length - 1
-					].latitude,
-					list_itineraries.value[
-						list_itineraries.value.length - 1
-					].longitude
-				);
-
-				const waypoints = list_itineraries.value
-					.slice(0, -1)
-					.map((itinerary) => ({
-						location: new google.maps.LatLng(
-							itinerary.latitude,
-							itinerary.longitude
-						),
-						stopover: true,
-					}));
-
-				const request = {
-					origin: start,
-					destination: end,
-					waypoints: waypoints,
-					travelMode: google.maps.TravelMode.DRIVING,
-					optimizeWaypoints: false,
-				};
-
-				directionsService.route(request, (result, status) => {
-					if (status === google.maps.DirectionsStatus.OK) {
-						directionsRendererDesktop.setDirections(result);
-						directionsRendererMobile.setDirections(result);
-					} else {
-						console.error(
-							"Directions request failed due to " + status
-						);
-					}
 				});
 
-				bounds.extend(start);
-				bounds.extend(end);
-				desktopMap.value.fitBounds(bounds);
-				mobileMap.value.fitBounds(bounds);
+				directionsRendererDesktop.setDirections(result);
+				directionsRendererMobile.setDirections(result);
 
-				// Check arrival at destination
-				checkArrival(
-					list_itineraries.value[list_itineraries.value.length - 1]
-				);
-			},
-			() => {
-				console.error("Unable to retrieve current location");
+				// If we get a valid route, break the loop
+				break;
+			} catch (error) {
+				console.error(`Error with ${travelMode} mode:`, error);
+				// If it's the last travel mode and still fails, show an error to the user
+				if (travelMode === travelModes[travelModes.length - 1]) {
+					console.error(
+						"Unable to find a route with any travel mode"
+					);
+					// You might want to show an error message to the user here
+				}
 			}
-		);
+		}
 	}
-	// Optional: adjust the zoom level after fitting bounds if the zoom is too close or too far
-	// This is a workaround because fitBounds does not let you specify max zoom level
+
+	// Fit the map to the bounds and add some padding
+	desktopMap.value.fitBounds(bounds, { padding: 50 });
+	mobileMap.value.fitBounds(bounds, { padding: 50 });
 };
 const fetchExchangeRates = async () => {
 	try {
@@ -978,6 +1185,8 @@ const checkArrival = (itinerary) => {
 
 // Methods
 const deleteItinerary = async () => {
+	isDeleting.value = true;
+
 	if (editingItinerary.value) {
 		try {
 			await store.dispatch("deleteItinerary", {
@@ -990,12 +1199,17 @@ const deleteItinerary = async () => {
 			if (index !== -1) {
 				list_itineraries.value.splice(index, 1);
 			}
+			await letDetails();
+			await fetchItineraries();
+			await sortItinerariesByProximity();
+			showDeleteConfirmation.value = false;
+			closeModal();
 		} catch (error) {
 			console.error("Error deleting itinerary:", error);
+		} finally {
+			isDeleting.value = false;
 		}
 	}
-	showDeleteConfirmation.value = false;
-	closeModal();
 };
 
 const scrollToElement = () => {
@@ -1122,8 +1336,7 @@ const saveMainItinerary = () => {
 		!setTips.value.trim() ||
 		main_title.value === "ITINERARY TITLE"
 	) {
-		alert("Please fill all fields correctly.");
-		return;
+		showMessage(`Please fill all fields correctly.`, "error");
 	} else {
 		const formData = new FormData();
 		formData.append("main_title", main_title.value);
@@ -1149,13 +1362,15 @@ const saveMainItinerary = () => {
 				router.push({ name: "itinerary" });
 			})
 			.catch((error) => {
-				console.error("Error saving itinerary:", error);
+				// console.error("Error saving itinerary:", error);
+				showMessage(`Error saving itinerary.`, "error");
 			});
 	}
 };
 
 const submitItinerary = () => {
 	const formData = new FormData();
+	isSaving.value = true;
 
 	formData.append("longitude", longitude.value);
 	formData.append("latitude", latitude.value);
@@ -1186,34 +1401,32 @@ const submitItinerary = () => {
 					console.log("LIST OF ITINERARIES", list_itineraries.value);
 				}
 				await letDetails();
-				await showLocationOntheMap();
-				showModal.value = false;
+				await fetchItineraries();
+
+				await sortItinerariesByProximity();
+				// showModal.value = false;
 			} else {
 				// await store.dispatch("fetchItineraries");
-				fetchItineraries();
+				await letDetails();
+				await fetchItineraries();
+
+				await sortItinerariesByProximity();
 			}
 
 			showModal.value = false;
 		})
 		.catch((error) => {
 			console.error(error);
+		})
+		.finally(() => {
+			isSaving.value = false;
 		});
 };
 
-const getCurrentLocation = () => {
+const getCurrentLocation = async () => {
 	return new Promise((resolve, reject) => {
 		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					resolve({
-						latitude: position.coords.latitude,
-						longitude: position.coords.longitude,
-					});
-				},
-				(error) => {
-					reject(error);
-				}
-			);
+			navigator.geolocation.getCurrentPosition(resolve, reject);
 		} else {
 			reject(new Error("Geolocation is not supported by this browser."));
 		}
@@ -1225,8 +1438,8 @@ const sortItinerariesByProximity = async () => {
 		const currentLocation = await getCurrentLocation();
 		list_itineraries.value.forEach((itinerary) => {
 			itinerary.distance = calculateDistance(
-				currentLocation.latitude,
-				currentLocation.longitude,
+				currentLocation.coords.latitude,
+				currentLocation.coords.longitude,
 				itinerary.latitude,
 				itinerary.longitude
 			);
@@ -1234,15 +1447,38 @@ const sortItinerariesByProximity = async () => {
 
 		list_itineraries.value.sort((a, b) => a.distance - b.distance);
 		list_itineraries.value.forEach((itinerary, index) => {
-			itinerary.order = String.fromCharCode(65 + index);
+			itinerary.order = String.fromCharCode(66 + index); // Start with 'B'
 		});
-		console.log("ORDER", list_itineraries.value);
-		showLocationOntheMap();
+
+		// After sorting, you can now update the map
+		await showLocationOntheMap();
 	} catch (error) {
 		console.error(error);
 	}
 };
-
+const centerMapOnItinerary = (itinerary) => {
+	const position = new google.maps.LatLng(
+		itinerary.latitude,
+		itinerary.longitude
+	);
+	zoomMaps(position);
+};
+const updateMaps = (center) => {
+	if (desktopMap.value && mobileMap.value) {
+		desktopMap.value.setCenter(center);
+		mobileMap.value.setCenter(center);
+		desktopMap.value.setZoom(3); // Set a lower zoom level for international view
+		mobileMap.value.setZoom(3);
+	}
+};
+const zoomMaps = (center) => {
+	if (desktopMap.value && mobileMap.value) {
+		desktopMap.value.setCenter(center);
+		mobileMap.value.setCenter(center);
+		desktopMap.value.setZoom(15); // Set a lower zoom level for international view
+		mobileMap.value.setZoom(15);
+	}
+};
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
 	const R = 6371;
 	const dLat = deg2rad(lat2 - lat1);
@@ -1306,15 +1542,18 @@ const autocompleteRef = ref(null);
 
 const initializeAutocomplete = () => {
 	nextTick(async () => {
-		const loader = new Loader({
-			apiKey: "AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s",
-			version: "weekly",
-		});
+		if (!window.google || !window.google.maps) {
+			const loader = new Loader({
+				apiKey: "AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s",
+				version: "weekly",
+			});
 
-		const Places = await loader.importLibrary("places");
+			await loader.load();
+		}
+
 		const input = document.getElementById("autocomplete");
+		const autocomplete = new google.maps.places.Autocomplete(input);
 
-		const autocomplete = new Places.Autocomplete(input);
 		autocomplete.addListener("place_changed", () => {
 			const place = autocomplete.getPlace();
 			if (place.geometry) {
@@ -1373,14 +1612,23 @@ const getAddressFrom = async (lat, long) => {
 };
 const user = ref({});
 // Lifecycle hooks
-onBeforeMount(async () => {
-	await store.dispatch("fetchUserData");
-	user.value = store.getters.getUser.data;
-	// username.value = user.username;
-	console.log("user:", user.value);
+const isLoading = ref(true);
 
-	isEditingTitle.value = true;
-	fetchItineraries();
+onBeforeMount(async () => {
+	isLoading.value = true;
+	try {
+		await store.dispatch("fetchUserData");
+		user.value = store.getters.getUser.data;
+		// username.value = user.username;
+		console.log("user:", user.value);
+
+		isEditingTitle.value = true;
+		fetchItineraries();
+	} catch (error) {
+		console.error("Error fetching data:", error);
+	} finally {
+		isLoading.value = false;
+	}
 });
 
 watch(list_itineraries, calculateTotalBudget, { deep: true });

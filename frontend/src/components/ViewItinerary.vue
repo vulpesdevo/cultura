@@ -1,7 +1,13 @@
 <template lang="">
 	<!-- Viewing  of  Itinerary -->
+	<div v-if="isLoading" class="flex items-center justify-center h-screen">
+		<div
+			class="w-12 h-12 border-t-4 border-blue-500 border-solid rounded-full animate-spin"
+		></div>
+	</div>
 	<div
-		class="flex flex-col lg:flex-row h-screen bg-gray-100 dark:bg-gray-900"
+		v-else
+		class="flex flex-col lg:flex-row h-screen bg-white dark:bg-gray-900"
 	>
 		<!-- Main Content -->
 
@@ -111,7 +117,7 @@
 
 			<!-- Author Profile and Description -->
 			<div
-				class="flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-6"
+				class="flex items-start space-x-4 p-4 dark:bg-gray-800 rounded-lg shadow-sm mb-6"
 			>
 				<img
 					:src="itineraryDetails.user_photo"
@@ -181,7 +187,7 @@
 			</div>
 
 			<!-- General Tips Section -->
-			<div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+			<div class="p-6 dark:bg-gray-800 rounded-lg shadow-sm">
 				<div class="flex items-center justify-between mb-4">
 					<h2
 						class="text-base font-semibold text-gray-900 dark:text-white"
@@ -250,30 +256,30 @@
 					Suggeted budget
 				</h2>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
-						<div class="text-xs text-gray-500 dark:text-gray-400">
+					<div class="bg-second dark:bg-gray-700 p-4 rounded-lg">
+						<div class="text-xs text-gray-700 dark:text-gray-400">
 							Total Budget
 						</div>
 						<div
-							class="text-lg font-bold text-gray-200 dark:text-white"
+							class="text-lg font-bold text-gray-700 dark:text-white"
 						>
 							{{ selectedSymbol }}{{ total_budget }}
 						</div>
 					</div>
-					<div class="bg-prime dark:bg-gray-700 p-4 rounded-lg">
-						<div class="text-xs text-gray-500 dark:text-gray-400">
+					<div class="bg-second dark:bg-gray-700 p-4 rounded-lg">
+						<div class="text-xs text-gray-700 dark:text-gray-400">
 							Currency
 						</div>
 						<select
 							v-model="selectedCurrency"
 							@change="updateCurrency"
-							class="w-full bg-transparent border-0 text-gray-200 dark:text-white focus:ring-0 text-xs sm:text-sm"
+							class="w-full bg-transparent border-0 text-gray-700 dark:text-white focus:ring-0 text-xs sm:text-sm"
 						>
 							<option
 								v-for="[code, name, symbol] in currency_list"
 								:key="code"
 								:value="{ code, symbol }"
-								class="text-gray-900 dark:text-white focus:ring-0 dark:bg-gray-800 text-xs sm:text-sm"
+								class="text-gray-900 dark:text-white bg-white focus:ring-0 dark:bg-gray-800 text-xs sm:text-sm"
 							>
 								{{ code }} - {{ name }}
 							</option>
@@ -321,7 +327,7 @@
 					<div
 						v-for="(itinerary, index) in list_itineraries"
 						:key="itinerary.id"
-						class="relative bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto sm:h-[400px] cursor-pointer"
+						class="relative bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform hover:scale-[1.02] h-auto sm:h-[400px] cursor-pointer"
 						@click="centerMapOnItinerary(itinerary)"
 					>
 						<button
@@ -400,7 +406,7 @@
 										}}{{
 											convertCurrency(
 												itinerary.budget,
-												itinerary.code
+												"PHP"
 											)
 										}}
 									</span>
@@ -412,7 +418,9 @@
 			</div>
 
 			<!-- Suggested Places -->
-			<div class="bg-white dark:bg-transparent rounded-lg shadow-sm mb-6">
+			<div
+				class="bg-white dark:bg-transparent rounded-lg shadow-sm mb-6 p-6"
+			>
 				<h2
 					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
 				>
@@ -429,7 +437,7 @@
 						v-for="place in suggested_places"
 						:key="place.place_id"
 						@click="locateSuggestedPlace(place)"
-						class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
+						class="bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
 					>
 						<img
 							v-if="hasPhoto(place)"
@@ -439,7 +447,7 @@
 						/>
 						<div
 							v-else
-							class="w-full h-48 flex items-center justify-center bg-gray-700"
+							class="w-full h-48 flex items-center justify-center dark:bg-gray-700 bg-white"
 						>
 							<span class="text-gray-500"
 								>No image available</span
@@ -499,7 +507,7 @@
 		<!-- Mobile Map Toggle Button -->
 		<button
 			@click="toggleMap"
-			class="lg:hidden fixed bottom-24 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg z-50"
+			class="lg:hidden fixed bottom-24 left-4 bg-blue-500 text-white p-4 rounded-full shadow-lg z-50"
 		>
 			<MapIcon v-if="!showMap" class="w-6 h-6" />
 			<XIcon v-else class="w-6 h-6" />
@@ -604,9 +612,11 @@
 					</button>
 					<button
 						type="submit"
-						class="w-full sm:w-auto px-4 py-2 border border-transparent rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+						:disabled="isSaving"
+						class="w-full sm:w-auto px-4 py-2 border border-transparent rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
 					>
-						Save
+						<Spinner v-if="isSaving" class="mr-2" />
+						{{ isSaving ? "Saving..." : "Save" }}
 					</button>
 				</div>
 			</form>
@@ -636,9 +646,11 @@
 				</button>
 				<button
 					@click="deleteItinerary"
-					class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 ease-in-out"
+					:disabled="isDeleting"
+					class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
 				>
-					Delete
+					<Spinner v-if="isDeleting" class="mr-2" />
+					{{ isDeleting ? "Deleting..." : "Delete" }}
 				</button>
 			</div>
 		</div>
@@ -646,7 +658,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick, computed, onMounted, watch } from "vue";
+import {
+	ref,
+	reactive,
+	nextTick,
+	computed,
+	onMounted,
+	watch,
+	onBeforeMount,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { StarIcon, MapIcon, XIcon } from "lucide-vue-next";
 import { PencilIcon } from "@heroicons/vue/24/solid";
@@ -660,9 +680,13 @@ import {
 	ArrowDownOnSquareIcon,
 } from "@heroicons/vue/24/outline";
 import axiosClient from "../axios";
-
+import Spinner from "./spinner/Spinner.vue";
+const isDeleting = ref(false);
+const isSaving = ref(false);
 import axios from "axios";
 import { useStore } from "vuex";
+const isLoading = ref(true);
+
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -975,6 +999,8 @@ const handleFileSelectionIn = (event) => {
 	}
 };
 const deleteItinerary = async () => {
+	isDeleting.value = true;
+
 	const id = editingItinerary.value ? editingItinerary.value.id : null;
 	console.log("ID", id);
 
@@ -995,12 +1021,14 @@ const deleteItinerary = async () => {
 			await fetchItineraries();
 			await showLocationOntheMap();
 			await sortItinerariesByProximity();
+			showDeleteConfirmation.value = false;
+			closeModal();
 		} catch (error) {
 			console.error("Error deleting itinerary:", error);
+		} finally {
+			isDeleting.value = false;
 		}
 	}
-	showDeleteConfirmation.value = false;
-	closeModal();
 };
 const locatorBtn = () => {
 	if (navigator.geolocation) {
@@ -1028,6 +1056,7 @@ const locatorBtn = () => {
 };
 const submitItinerary = () => {
 	const formData = new FormData();
+	isSaving.value = true;
 
 	formData.append("longitude", longitude.value);
 	formData.append("latitude", latitude.value);
@@ -1084,6 +1113,9 @@ const submitItinerary = () => {
 		})
 		.catch((error) => {
 			console.error(error);
+		})
+		.finally(() => {
+			isSaving.value = false;
 		});
 };
 const editItineraryDetails = async (field) => {
@@ -1116,14 +1148,23 @@ const editItineraryDetails = async (field) => {
 	}
 };
 const user = ref({});
-onMounted(async () => {
-	await store.dispatch("fetchUserData");
-	user.value = store.getters.getUser.data;
 
+onBeforeMount(async () => {
+	isLoading.value = true;
+	try {
+		await store.dispatch("fetchUserData");
+		user.value = store.getters.getUser.data;
+	} catch (error) {
+		console.error("Error fetching data:", error);
+	} finally {
+		isLoading.value = false;
+	}
+});
+onMounted(async () => {
 	// console.log("FROM OTHER", route.params.itinerarydata);
 	initializeAutocomplete();
 	await fetchSavedItineraries();
-	fetchUser();
+	// fetchUser();
 	initializeMaps();
 	await fetchExchangeRates();
 	if (typeof google !== "undefined" && google.maps) {
@@ -1133,7 +1174,7 @@ onMounted(async () => {
 	}
 	// Set initial currency based on the saved currency
 	const savedCurrency = currency_list.value.find(
-		([code]) => code === currency_save.value
+		([code]) => code === currency_save.value || "PHP"
 	);
 	if (savedCurrency) {
 		selectedCurrency.value = {
@@ -1143,6 +1184,7 @@ onMounted(async () => {
 	}
 
 	calculateTotalBudget();
+
 	// checkArrival(destination);
 });
 const initializeMaps = async () => {
@@ -1461,6 +1503,9 @@ const initializeMap = (latitude, longitude) => {
 	});
 };
 const centerMapOnItinerary = (itinerary) => {
+	if (!showMap.value) {
+		toggleMap();
+	}
 	const position = new google.maps.LatLng(
 		itinerary.latitude,
 		itinerary.longitude
@@ -2217,8 +2262,6 @@ const calculateTotalBudget = () => {
 const updateCurrency = () => {
 	calculateTotalBudget();
 };
-
-onMounted(async () => {});
 
 watch(list_itineraries, calculateTotalBudget, { deep: true });
 watch(selectedCurrency, calculateTotalBudget);

@@ -10,7 +10,7 @@
 		<div
 			v-if="!showLogin"
 			key="landing"
-			class="relative h-screen sm:overflow-hidden bg-white dark:bg-gray-700 transition-colors duration-300"
+			class="relative h-screen sm:overflow-hidden bg-interface dark:bg-dark-notif transition-colors duration-300"
 		>
 			<!-- Navigation -->
 			<nav class="px-4 sm:px-6">
@@ -20,8 +20,8 @@
 							<img
 								:src="
 									isDarkMode
-										? '/ULTURALINK-DMLong.png'
-										: '/culturalink_brand_logo.png'
+										? '/culturalink_brand_logo.png'
+										: '/ULTURALINK-DMLong.png'
 								"
 								alt="CulturalLink Logo"
 								class="h-32"
@@ -799,8 +799,10 @@
 										<input
 											type="text"
 											placeholder="Country"
+											id="country-autocomplete"
 											name="country"
 											v-model="rcountry"
+											ref="autocompletecountry"
 											class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime outline-second"
 											required
 										/>
@@ -1087,6 +1089,12 @@
 			</div>
 		</div>
 	</transition>
+	<Snackbar
+		:show="showSnackbar"
+		:message="snackbarMessage"
+		:type="snackbarType"
+		@close="showSnackbar = false"
+	/>
 </template>
 
 <script setup>
@@ -1103,6 +1111,21 @@ import {
 	MoonIcon,
 	ArrowLeftIcon,
 } from "@heroicons/vue/24/outline";
+import Snackbar from "./snackbars/Snackbar.vue";
+
+// Snackbar state
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarType = ref("error");
+const showMessage = (message, type = "error") => {
+	snackbarMessage.value = message;
+	snackbarType.value = type;
+	showSnackbar.value = true;
+	setTimeout(() => {
+		showSnackbar.value = false;
+	}, 5000); // Hide after 5 seconds
+};
+
 const router = useRouter();
 const store = useStore();
 const isDark = useDark();
@@ -1149,6 +1172,26 @@ const repassword = ref("");
 const fpemail = ref("");
 const fp_newpassword = ref("");
 const fp_confirmpassword = ref("");
+
+const initializeAutocompleteCountry = () => {
+	const inputElement = document.getElementById("country-autocomplete");
+	if (
+		inputElement &&
+		window.google &&
+		window.google.maps &&
+		window.google.maps.places
+	) {
+		const autocomplete = new google.maps.places.Autocomplete(inputElement, {
+			types: ["(regions)"],
+		});
+		autocomplete.addListener("place_changed", () => {
+			const place = autocomplete.getPlace();
+			if (place && place.formatted_address) {
+				rcountry.value = place.formatted_address;
+			}
+		});
+	}
+};
 
 // Computed properties
 const isGmailEmail = computed(() => {
@@ -1299,11 +1342,14 @@ const submitRegistration = async () => {
 			error.value = false;
 		} catch (error) {
 			console.error("Registration error:", error);
-			if (error.email_error) {
+
+			if (error.response.data.email_error) {
 				error_email.value = true;
+				showMessage(`${error.response.data.email_error}`, "error");
 			}
-			if (error.username_error) {
+			if (error.response.data.username_error) {
 				error_user.value = true;
+				showMessage(`${error.response.data.username_error}`, "error");
 			}
 		}
 	} else {
@@ -1320,10 +1366,11 @@ const submitLogin = async () => {
 			password: password.value,
 		});
 		router.push({ name: "dashboard" });
+		showMessage(`Logged in successfully as ${username.value}`, "success");
 	} catch (error) {
 		console.error("Login error:", error);
-		errorMessage.value = "Incorrect creadentials. Please try again.";
-
+		// errorMessage.value = "Incorrect creadentials. Please try again.";
+		showMessage(`Incorrect creadentials. Please try again.`, "error");
 		// Handle login error (e.g., show error message)
 	}
 };
@@ -1341,14 +1388,15 @@ const moveFocus = (event, index) => {
 };
 
 // Lifecycle hooks
-// onMounted(async () => {
-// 	try {
-// 		await store.dispatch("fetchUserData");
-// 		router.push({ name: "dashboard" });
-// 	} catch (error) {
-// 		console.log("User not authenticated or error fetching user data");
-// 	}
-// });
+onMounted(async () => {
+	initializeAutocompleteCountry();
+	// try {
+	// 	await store.dispatch("fetchUserData");
+	// 	router.push({ name: "dashboard" });
+	// } catch (error) {
+	// 	console.log("User not authenticated or error fetching user data");
+	// }
+});
 
 // Watchers
 watch(rpassword, (newVal) => {
@@ -1380,34 +1428,33 @@ const beforeLeave = (el) => {
 		mockup.style.transform = "translateX(-100%)";
 	}
 
-	if (features) {
-		features.style.transition = "transform 0.5s ease-in-out";
-		features.style.transform = "translateY(100%)";
-	}
+	// if (features) {
+	// 	features.style.transition = "transform 0.5s ease-in-out";
+	// 	features.style.transform = "translateY(100%)";
+	// }
 
-	otherElements.forEach((element) => {
-		element.style.transition = "opacity 0.5s ease-in-out";
-		element.style.opacity = "0";
-	});
+	// otherElements.forEach((element) => {
+	// 	element.style.transition = "opacity 0.5s ease-in-out";
+	// 	element.style.opacity = "0";
+	// });
 };
 
 const enter = (el, done) => {
-	const elements = el.querySelectorAll("*");
-	elements.forEach((element, index) => {
-		element.style.opacity = "0";
-		element.style.transform = "translateY(20px)";
-		element.style.transition = `opacity 0.5s ease-in-out ${
-			index * 0.1
-		}s, transform 0.5s ease-in-out ${index * 0.1}s`;
-	});
-
-	setTimeout(() => {
-		elements.forEach((element) => {
-			element.style.opacity = "1";
-			element.style.transform = "translateY(0)";
-		});
-		done();
-	}, 50);
+	// const elements = el.querySelectorAll("*");
+	// elements.forEach((element, index) => {
+	// 	element.style.opacity = "0";
+	// 	element.style.transform = "translateY(20px)";
+	// 	element.style.transition = `opacity 0.5s ease-in-out ${
+	// 		index * 0.1
+	// 	}s, transform 0.5s ease-in-out ${index * 0.1}s`;
+	// });
+	// setTimeout(() => {
+	// 	elements.forEach((element) => {
+	// 		element.style.opacity = "1";
+	// 		// element.style.transform = "translateY(0)";
+	// 	});
+	// 	done();
+	// }, 50);
 };
 
 const afterEnter = (el) => {
@@ -1425,7 +1472,7 @@ const afterEnter = (el) => {
 
 .page-enter-active,
 .page-leave-active {
-	transition: opacity 0.5s ease;
+	transition: opacity 0.3s ease;
 }
 
 .page-enter-from,
@@ -1436,13 +1483,7 @@ const afterEnter = (el) => {
 /* Add new transition styles */
 .page-enter-active,
 .page-leave-active {
-	transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.page-enter-from,
-.page-leave-to {
-	opacity: 0;
-	transform: translateY(50px);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Modal transition */

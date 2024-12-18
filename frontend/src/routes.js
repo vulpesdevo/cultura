@@ -39,7 +39,7 @@ const routes = [
 				name: "notifications",
 			},
 			{ path: "/trivia", component: Trivia, name: "trivia" },
-			{ path: "/tamsurvey", component: TamSurvey, name: "tamsurvey" },
+
 			{ path: "/itinerary", component: ItineraryHome, name: "itinerary" },
 			{
 				path: "/create-itinerary",
@@ -82,6 +82,12 @@ const routes = [
 				meta: { requiresAdmin: true },
 			},
 		],
+	},
+	{
+		path: "/tamsurvey",
+		component: TamSurvey,
+		name: "tamsurvey",
+		meta: { requiresAuth: true },
 	},
 	{
 		path: "/",

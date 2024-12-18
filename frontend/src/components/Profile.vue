@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="bg-gray-100 dark:bg-notif h-screen overflow-hidden pt-5 pb-5 px-4 sm:px-6 lg:px-14"
+		class="bg-gray-200 dark:bg-notif h-screen overflow-hidden pt-5 pb-5 px-4 sm:px-20"
 	>
 		<!-- Loading component -->
 		<div
@@ -18,7 +18,8 @@
 
 		<div v-else>
 			<div
-				class="relative profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 py-5 overflow-auto overflow-x-hidden h-screen bg-field dark:bg-dark-notif pt-5 sm:pt-7"
+				id="container"
+				class="relative profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 py-5 overflow-auto h-screen dark:bg-dark-notif pt-5 sm:pt-7 sm:px-5"
 			>
 				<div
 					class="relative profile-card flex sm:flex-row flex-col justify-center sm:justify-normal w-screen sm:w-full sm:mt-0 px-3 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"

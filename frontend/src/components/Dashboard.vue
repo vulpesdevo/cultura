@@ -12,6 +12,7 @@
 							v-model="postTitle"
 							@blur="handleTitleChange"
 							@keyup.enter="handleTitleChange"
+							@input="checkForBadWords('title')"
 							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-3xl rounded-lg border-field dark:bg-dark-field p-[.23rem] px-2 w-full ring-1 ring-gray-600 outline-[.5px] outline-none"
 							placeholder="POST TITLE"
 							autofocus
@@ -61,6 +62,7 @@
 						name=""
 						id="post-content"
 						v-model="postContent"
+						@input="checkForBadWords('content')"
 						cols="30"
 						rows=""
 						placeholder="What do you want to share?"
@@ -104,6 +106,7 @@
 				<input
 					id="country-post"
 					v-model="countryPost"
+					@input="checkForBadWords('country')"
 					type="text"
 					ref="autocompletecountry"
 					placeholder="Country"
@@ -746,6 +749,12 @@
 			</div>
 		</section>
 	</div>
+	<Snackbar
+		:show="showSnackbar"
+		:message="snackbarMessage"
+		:type="snackbarType"
+		@close="showSnackbar = false"
+	/>
 </template>
 
 <script setup>
@@ -809,6 +818,77 @@ const isFullTextShown = ref({});
 const showImageModal = ref(false);
 const modalImage = ref("");
 
+import Snackbar from "./snackbars/Snackbar.vue";
+const hasBadWords = ref({
+	title: false,
+	content: false,
+	country: false,
+});
+
+const englishBadWords = [
+	"fuck",
+	"shit",
+	"ass",
+	"bitch",
+	"cunt",
+	"damn",
+	"hell",
+	"whore",
+	"dick",
+	"piss",
+	"pussy",
+	"slut",
+	// Add more English bad words as needed
+];
+
+const allBadWords = [...filipinoBadWords, ...englishBadWords];
+// Snackbar state
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarType = ref("error");
+const showMessage = (message, type = "error") => {
+	snackbarMessage.value = message;
+	snackbarType.value = type;
+	showSnackbar.value = true;
+	setTimeout(() => {
+		showSnackbar.value = false;
+	}, 5000); // Hide after 5 seconds
+};
+
+const checkForBadWords = (field) => {
+	const text =
+		field === "title"
+			? postTitle.value
+			: field === "content"
+			? postContent.value
+			: countryPost.value;
+
+	const words = text.toLowerCase().split(/\s+/);
+	const hasBad = words.some((word) => allBadWords.includes(word));
+
+	hasBadWords.value[field] = hasBad;
+
+	if (hasBad) {
+		// showSnackbar.value = true;
+		// snackbarMessage.value = `Please remove inappropriate language from the ${field}.`;
+		showMessage(
+			`Please remove inappropriate language from the ${field}.`,
+			"error"
+		);
+	}
+};
+const isPostInvalid = computed(() => {
+	return (
+		hasBadWords.value.title ||
+		hasBadWords.value.content ||
+		hasBadWords.value.country ||
+		!categoryOption.value ||
+		!postTitle.value ||
+		postTitle.value.toLowerCase == "post title" ||
+		!postContent.value ||
+		!countryPost.value
+	);
+});
 // functions for image modal
 const openImageModal = (imageUrl) => {
 	modalImage.value = imageUrl;
@@ -949,43 +1029,37 @@ const gotoUser = async (user) => {
 	});
 };
 const submitPost = async () => {
-	if (
-		!categoryOption.value.trim() ||
-		!postContent.value.trim() ||
-		!countryPost.value.trim() ||
-		postTitle.value === "POST TITLE"
-	) {
-		alert("Please fill all fields correctly.");
-		return;
-	}
+	if (isPostInvalid.value) {
+		showMessage(`Please fill all fields correctly.`, "error");
+	} else {
+		const formData = new FormData();
+		formData.append("title", postTitle.value);
+		formData.append("category", categoryOption.value);
+		formData.append("body", postContent.value);
+		formData.append("country", countryPost.value);
+		if (id_of_selected.value) {
+			formData.append("itinerary_id", id_of_selected.value);
+		}
+		if (picture.value instanceof File) {
+			formData.append("image", picture.value, picture.value.name);
+		}
 
-	const formData = new FormData();
-	formData.append("title", postTitle.value);
-	formData.append("category", categoryOption.value);
-	formData.append("body", postContent.value);
-	formData.append("country", countryPost.value);
-	if (id_of_selected.value) {
-		formData.append("itinerary_id", id_of_selected.value);
-	}
-	if (picture.value instanceof File) {
-		formData.append("image", picture.value, picture.value.name);
-	}
-
-	try {
-		await axiosClient.post("/posting", formData, {
-			headers: { "Content-Type": "multipart/form-data" },
-		});
-		postTitle.value = "POST TITLE";
-		categoryOption.value = "";
-		postContent.value = "";
-		countryPost.value = "";
-		selectedImageUrl.value = null;
-		picture.value = null;
-		selectedItinerary.value = null;
-		id_of_selected.value = "";
-		await fetchPosts();
-	} catch (error) {
-		console.error("Error submitting post:", error);
+		try {
+			await axiosClient.post("/posting", formData, {
+				headers: { "Content-Type": "multipart/form-data" },
+			});
+			postTitle.value = "POST TITLE";
+			categoryOption.value = "";
+			postContent.value = "";
+			countryPost.value = "";
+			selectedImageUrl.value = null;
+			picture.value = null;
+			selectedItinerary.value = null;
+			id_of_selected.value = "";
+			await fetchPosts();
+		} catch (error) {
+			console.error("Error submitting post:", error);
+		}
 	}
 };
 

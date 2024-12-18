@@ -1,4 +1,4 @@
-<template>
+<template lang="">
 	<div
 		class="min-h-screen bg-gray-900 flex justify-center items-center absolute w-full top-0 left-0 px-4 sm:px-6 lg:px-8 z-50"
 	>
@@ -52,13 +52,21 @@
 			</div>
 		</div>
 	</div>
+	<Snackbar
+		:show="showSnackbar"
+		:message="snackbarMessage"
+		:type="snackbarType"
+		@close="showSnackbar = false"
+	/>
 </template>
 
 <script setup>
 import { ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
+import Snackbar from "./snackbars/Snackbar.vue";
 
+import axiosClient from "../axios";
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -115,20 +123,22 @@ const verifyOTP = async (modal) => {
 				window.scrollTo(0, 0);
 				router.push({ name: "dashboard" });
 				// Consider using a toast notification library for better UX
-				alert(
-					`Registered and logged in successfully as ${rusername.value}`
+				showMessage(
+					`Registered and logged in successfully as ${rusername.value}`,
+					"success"
 				);
 			} catch (error) {
 				console.error("ERROR:", error);
-				// Handle error (e.g., show error message to user)
 				if (error.response && error.response.data) {
-					alert(
+					showMessage(
 						`An error occurred: ${
 							error.response.data.message || "Unknown error"
 						}`
 					);
 				} else {
-					alert("An error occurred during registration or login");
+					showMessage(
+						"An error occurred during registration or login"
+					);
 				}
 			}
 		} else {
@@ -138,17 +148,18 @@ const verifyOTP = async (modal) => {
 				" failed to verify the ",
 				parseInt(inputs.value.join(""))
 			);
-			alert("Invalid OTP. Please try again.");
+			showMessage("Invalid OTP. Please try again.");
 		}
 	} else if (modal === "forgot-password") {
 		if (otp.value === parseInt(inputs.value.join(""))) {
-			// Handle forgot password logic
-			// You might want to emit an event or use a state management solution to handle modal changes
 			console.log("OTP verified for forgot password");
-			alert("OTP verified. You can now reset your password.");
+			showMessage(
+				"OTP verified. You can now reset your password.",
+				"success"
+			);
 		} else {
 			error.value = true;
-			alert("Wrong one-time password. Please try again.");
+			showMessage("Wrong one-time password. Please try again.");
 		}
 	}
 };
@@ -177,5 +188,18 @@ const handleKeyDown = (event, index) => {
 	if (event.key === "Backspace" && index > 0 && inputs.value[index] === "") {
 		inputRefs[index - 1].focus();
 	}
+};
+
+// Snackbar state
+const showSnackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarType = ref("error");
+const showMessage = (message, type = "error") => {
+	snackbarMessage.value = message;
+	snackbarType.value = type;
+	showSnackbar.value = true;
+	setTimeout(() => {
+		showSnackbar.value = false;
+	}, 5000); // Hide after 5 seconds
 };
 </script>

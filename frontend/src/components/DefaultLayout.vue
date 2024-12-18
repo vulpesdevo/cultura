@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col sm:flex-row min-h-screen w-screen bg-white dark:bg-dark-interface transition-colors duration-300"
+		class="flex flex-col sm:flex-row min-h-screen w-screen bg-white dark:bg-dark-interface transition-colors duration-300 shadow-lg"
 	>
 		<!-- Topbar (mobile only) -->
 		<div
@@ -36,7 +36,7 @@
 
 		<!-- Sidebar (desktop) / Bottom Navigation (mobile) -->
 		<aside
-			class="fixed flex flex-col sm:relative bottom-0 sm:bottom-auto left-0 right-0 sm:left-auto sm:right-auto w-full sm:w-64 bg-white dark:bg-dark-interface sm:min-h-screen z-40"
+			class="fixed flex flex-col sm:relative bottom-0 sm:bottom-auto left-0 right-0 sm:left-auto sm:right-auto w-full sm:w-64 bg-white dark:bg-dark-interface sm:min-h-screen z-40 shadow-lg shadow-gray-300 dark:shadow-gray-900"
 		>
 			<div class="hidden sm:flex flex-col items-center px-5">
 				<img
