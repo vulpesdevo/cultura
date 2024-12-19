@@ -10,6 +10,7 @@ const store = createStore({
 			token: sessionStorage.getItem("TOKEN"),
 			is_admin: null,
 		},
+		surveys: [],
 
 		otpData: null,
 		unreadCount: 0,
@@ -34,6 +35,8 @@ const store = createStore({
 		showDeleteConfirmation: false,
 	},
 	getters: {
+		surveys: (state) => state.surveys,
+
 		singleCulturaUser: (state) => state.viewed_user,
 		isAdmin(state) {
 			return state.user.is_admin;
@@ -74,6 +77,9 @@ const store = createStore({
 		},
 	},
 	mutations: {
+		SET_SURVEYS(state, surveys) {
+			state.surveys = surveys;
+		},
 		SET_CULTURAUSER(state, culturauser) {
 			state.viewed_user = culturauser;
 		},
@@ -184,12 +190,12 @@ const store = createStore({
 		// ADMIN  USER    MANAGEMENT
 		async fetchCulturaUsers({ commit, state }) {
 			return axiosClient
-				.get("culturausers/", {
+				.get("culturausers/all", {
 					headers: { Authorization: `Token ${state.user.token}` },
 				})
 				.then((response) => {
 					commit("setCulturaUsers", response.data);
-					return response;
+					return response.data;
 				})
 				.catch((error) => {
 					console.error("Error fetching CulturaUsers:", error);
@@ -197,7 +203,7 @@ const store = createStore({
 		},
 		async fetchCulturaUser({ commit, state }, id) {
 			return axiosClient
-				.get(`culturausers/${id}/`, {
+				.get(`culturauser/${id}/`, {
 					headers: { Authorization: `Token ${state.user.token}` },
 				})
 				.then((response) => {
@@ -446,7 +452,21 @@ const store = createStore({
 			}
 		},
 		//
-
+		// Survey
+		async fetchSurveys({ commit, state }) {
+			// commit("SET_LOADING", true);
+			try {
+				const response = await axiosClient.get("/surveys", {
+					headers: {
+						Authorization: `Token ${state.user.token}`,
+					},
+				});
+				commit("SET_SURVEYS", response.data);
+				return response.data;
+			} catch (error) {
+				console.log("Survey Error", error);
+			}
+		},
 		// dashboards actions
 		//
 		async fetchPosts({ commit, state }) {

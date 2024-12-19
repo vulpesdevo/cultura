@@ -23,6 +23,9 @@ from .serializers import (
     PostSerializer,
     CommentSerializer,
     ReportSerializer,
+    SearchResultUserSerializer,
+    SearchResultSaveItinerarySerializer,
+    SearchResultPostSerializer,
 )
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -47,26 +50,41 @@ from .permissions import IsAdminUser  # Import the custom permission class
 
 
 # ADMIN
-class CulturaUserAdminView(APIView):
+
+
+class CulturaUserDetails(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [SessionAuthentication, TokenAuthentication]
 
-    def get(self, request, pk=None):
-        if pk:
-            cultura_user = get_object_or_404(CulturaUser, pk=pk)
-            serializer = CulturaUserSerializer(
-                cultura_user, context={"request": request}
-            )
-        else:
-            cultura_users = CulturaUser.objects.all()
-            serializer = CulturaUserSerializer(
-                cultura_users, many=True, context={"request": request}
-            )
+    def get(self, request, id):
+        cultura_user = get_object_or_404(CulturaUser, id=id)
+        serializer = CulturaUserSerializer(cultura_user, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CulturaUserAdminView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        include_all_users = (
+            request.query_params.get("include_all_users", "false").lower() == "true"
+        )
+        cultura_users = CulturaUser.objects.all()
+        serializer = CulturaUserSerializer(
+            cultura_users,
+            many=True,
+            context={
+                "request": request,
+                "include_all_users": include_all_users,
+            },
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         data = request.data
-        serializer = CulturaUserSerializer(data=data, context={"request": request})
+        serializer = CulturaUserSerializer(
+            data=data, context={"request": request, "user": request.user}
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -75,7 +93,9 @@ class CulturaUserAdminView(APIView):
     def put(self, request, pk):
         cultura_user = get_object_or_404(CulturaUser, pk=pk)
         serializer = CulturaUserSerializer(
-            cultura_user, data=request.data, context={"request": request}
+            cultura_user,
+            data=request.data,
+            context={"request": request, "user": request.user},
         )
         if serializer.is_valid():
             serializer.save()
@@ -531,6 +551,30 @@ class GetSurvey(APIView):
         serializer = SurveySerializer(survey_data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get(self, request):
+        surveys = Survey.objects.all()
+        serializer = SurveySerializer(surveys, many=True)
+        for survey_data in serializer.data:
+            # self.update_user_photo(survey_data, request)
+            self.update_cultura_user(survey_data, request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def update_cultura_user(self, survey_data, request):
+        user = survey_data["user"]
+        # user = User.objects.get(id=user)
+        cultura_user = CulturaUser.objects.get(user=user)
+        cultura_user_serializer = CulturaUserSerializer(
+            cultura_user, context={"request": request}
+        )
+        survey_data["cultura_user"] = cultura_user_serializer.data
+
+    # def update_user_photo(self, survey_data, request):
+    #     print("SurveyDAta: ", survey_data)
+    # user_photo = survey_data.get("cultura_user", {}).get("user_photo")
+    # if user_photo:
+    #     abs_user_photo_url = request.build_absolute_uri(user_photo)
+    #     survey_data["cultura_user"]["user_photo"] = abs_user_photo_url
 
 
 from django.contrib.auth import get_user_model
@@ -995,6 +1039,15 @@ class ProfilePostListView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    def update_likers(self, post_data, request):
+        likers = post_data.get("likes", [])
+        user_ids = [liker["id"] for liker in likers]
+        cultura_users = CulturaUser.objects.filter(user_id__in=user_ids)
+        cultura_user_serializer = CulturaUserSerializer(
+            cultura_users, many=True, context={"request": request}
+        )
+        post_data["likers"] = cultura_user_serializer.data
+
     def get(self, request):
         posts = Post.objects.filter(author=request.user)
 
@@ -1003,6 +1056,8 @@ class ProfilePostListView(APIView):
         # Include the image URLs in the response
 
         for post_data in serializer.data:
+            self.update_likers(post_data, request)
+
             image = post_data.get("image", None)
             if image:
                 # Build the absolute URI for the image
@@ -1490,6 +1545,7 @@ class SaveItineraryView(APIView):
         main_description = data.get("main_description", "").strip()
         gen_tips = data.get("gen_tips", "").strip()
         currency = data.get("currency", "PHP").strip()
+
         total_budget = data.get("total_budget", 0.0)
         itinerary_ids = data.get("itineraries", [])
         image = request.FILES.get("image", None)
@@ -1690,6 +1746,15 @@ class GetSettings(APIView):
 class PublicPostProfile(APIView):
     permission_classes = [permissions.AllowAny]
 
+    def update_likers(self, post_data, request):
+        likers = post_data.get("likes", [])
+        user_ids = [liker["id"] for liker in likers]
+        cultura_users = CulturaUser.objects.filter(user_id__in=user_ids)
+        cultura_user_serializer = CulturaUserSerializer(
+            cultura_users, many=True, context={"request": request}
+        )
+        post_data["likers"] = cultura_user_serializer.data
+
     def get(self, request):
         data = request.data
         user = request.GET.get("user_id", 0)
@@ -1702,6 +1767,8 @@ class PublicPostProfile(APIView):
         # Include the image URLs in the response
 
         for post_data in serializer.data:
+            self.update_likers(post_data, request)
+
             image = post_data.get("image", None)
             if image:
                 # Build the absolute URI for the image
@@ -1766,6 +1833,7 @@ class PublicPostProfile(APIView):
 
 from functools import reduce
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class SearchView(APIView):
@@ -1784,7 +1852,7 @@ class SearchView(APIView):
         for word in search_words:
             q |= Q(fullname__icontains=word)
         users = CulturaUser.objects.filter(q).exclude(user=request.user)
-
+        print("USERS ::: ", users)
         q = Q()
         for word in search_words:
             q |= Q(main_title__icontains=word)
@@ -1805,72 +1873,15 @@ class SearchView(APIView):
             q |= Q(post_title__icontains=word)
         notifications = LikeNotification.objects.filter(q)
 
-        user_serializer = CulturaUserSerializer(
-            users, many=True, context={"user": request.user}
+        user_serializer = SearchResultUserSerializer(
+            users, many=True, context={"user": request.user, "request": request}
         )
-        for user_data in user_serializer.data:
-            image = user_data.get("user_photo", None)
-            if image:
-                abs_image_url = request.build_absolute_uri(image)
-                user_data["user_photo"] = abs_image_url
-
-            user_id = user_data["user"]["id"]
-            username = User.objects.get(id=user_id).username
-            user_data["username"] = username
-
-        save_itinerary_serializer = SaveItinerarySerializer(save_itineraries, many=True)
-
-        post_serializer = PostSerializer(posts, many=True)
-
-        for post_data in post_serializer.data:
-            image = post_data.get("image", None)
-            if image:
-                abs_image_url = request.build_absolute_uri(image)
-                post_data["image"] = abs_image_url
-
-            author_user_photo = CulturaUser.objects.get(
-                user=post_data["author"]
-            ).user_photo
-            abs_author_user_photo_url = request.build_absolute_uri(
-                author_user_photo.url
-            )
-            post_data["author_user_photo"] = abs_author_user_photo_url
-
-            comments = Comment.objects.filter(post_id=post_data["_id"])
-            comment_serializer = CommentSerializer(
-                comments, many=True, context={"request": request}
-            )
-            comment_data = comment_serializer.data
-
-            for comment in comment_data:
-                user = User.objects.get(id=comment["author"]).username
-                author_user_photo = CulturaUser.objects.get(
-                    user=comment["author"]
-                ).user_photo
-                abs_author_user_photo_url = request.build_absolute_uri(
-                    author_user_photo.url
-                )
-                comment["author_user_photo"] = abs_author_user_photo_url
-                comment["author"] = user
-
-            post_data["comments"] = comment_data
-            post_user = User.objects.get(id=post_data["author"]).username
-            post_data["author"] = post_user
-
-            Itinerary_ID = post_data.get("itinerary", 0)
-            if Itinerary_ID:
-                itineraries = SaveItinerary.objects.filter(id=int(Itinerary_ID))
-                IT_serializer = SaveItinerarySerializer(itineraries, many=True)
-
-                for itinerary_data in IT_serializer.data:
-                    main_image = itinerary_data.get("main_image", None)
-                    if main_image:
-                        abs_main_image_url = request.build_absolute_uri(main_image)
-                        itinerary_data["main_image"] = abs_main_image_url
-                    post_data["itinerary_in_post"] = itinerary_data
-
-            self.update_likers(post_data, request)
-            self.update_cultura_user(post_data, request)
+        save_itinerary_serializer = SearchResultSaveItinerarySerializer(
+            save_itineraries, many=True
+        )
+        post_serializer = SearchResultPostSerializer(
+            posts, many=True, context={"user": request.user, "request": request}
+        )
 
         return Response(
             {
@@ -1879,21 +1890,3 @@ class SearchView(APIView):
                 "posts": post_serializer.data,
             }
         )
-
-    def update_likers(self, post_data, request):
-        likers = post_data.get("likes", [])
-        user_ids = [liker["id"] for liker in likers]
-        cultura_users = CulturaUser.objects.filter(user_id__in=user_ids)
-        cultura_user_serializer = CulturaUserSerializer(
-            cultura_users, many=True, context={"request": request}
-        )
-        post_data["likers"] = cultura_user_serializer.data
-
-    def update_cultura_user(self, post_data, request):
-        author_username = post_data["author"]
-        user = User.objects.get(username=author_username)
-        cultura_user = CulturaUser.objects.get(user=user)
-        cultura_user_serializer = CulturaUserSerializer(
-            cultura_user, context={"request": request}
-        )
-        post_data["cultura_user"] = cultura_user_serializer.data

@@ -1,6 +1,6 @@
-<template>
+<template lang="">
 	<div
-		class="bg-gray-100 dark:bg-notif h-screen overflow-hidden pt-5 pb-5 px-4 sm:px-6 lg:px-28"
+		class="bg-gray-100 dark:bg-notif h-screen overflow-auto pt-5 pb-5 px-4 sm:px-6 lg:px-28"
 	>
 		<div v-if="isLoading" class="flex items-center justify-center h-screen">
 			<div
@@ -63,26 +63,33 @@
 					/>
 
 					<!-- Itinerary Preview (if available) -->
+					<!-- Itinerary Section -->
 					<div
-						v-if="
-							post.itinerary_in_post && post.itinerary_in_post.id
-						"
-						class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-						@click="goToViewItinerary(post.itinerary_in_post.id)"
+						v-else
+						v-for="itinerary in post.itinerary_in_post"
+						:key="itinerary.id"
+						class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+						@click="goToViewItinerary(itinerary.id)"
 					>
 						<img
-							:src="post.itinerary_in_post.main_image"
-							alt="Itinerary image"
-							class="w-full h-48 object-cover rounded-lg mb-2"
+							v-if="itinerary.main_image"
+							:src="itinerary.main_image"
+							alt=""
+							class="w-full h-48 object-cover"
 						/>
-						<h3 class="font-semibold text-lg mb-1">
-							{{ post.itinerary_in_post.main_title }}
-						</h3>
-						<p
-							class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2"
-						>
-							{{ post.itinerary_in_post.main_description }}
-						</p>
+
+						<div class="p-4 bg-gray-50 dark:bg-gray-800">
+							<h3
+								class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
+							>
+								{{ itinerary.main_title }}
+							</h3>
+							<p
+								class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+							>
+								{{ itinerary.main_description }}
+							</p>
+						</div>
 					</div>
 				</div>
 
@@ -115,9 +122,29 @@
 							v-if="post.likers.length > 0"
 							class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out"
 						>
-							<div class="p-2 max-h-40 overflow-y-auto space-y-2">
+							<div
+								class="p-2 max-h-40 overflow-y-auto space-y-2"
+								v-for="like in post.likers"
+							>
+								<router-link
+									to="/profile"
+									v-if="
+										like?.user.username ===
+										user?.user.username
+									"
+									class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+									><img
+										:src="like.user_photo"
+										alt="User"
+										class="size-5 rounded-full object-cover"
+									/><span
+										class="text-xs text-gray-700 dark:text-gray-300"
+									>
+										You
+									</span></router-link
+								>
 								<div
-									v-for="like in post.likers"
+									v-else
 									:key="like.id"
 									@click="gotoUser(like)"
 									class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -129,8 +156,9 @@
 									/>
 									<span
 										class="text-xs text-gray-700 dark:text-gray-300"
-										>{{ like.user.username }}</span
 									>
+										{{ like.user.username }}
+									</span>
 								</div>
 							</div>
 						</div>
@@ -472,7 +500,9 @@ const submitReply = async () => {
 };
 
 const goToViewItinerary = (itineraryId) => {
-	router.push({ name: "view-itinerary", params: { id: itineraryId } });
+	console.log("ITINERARY ", itineraryId);
+
+	router.push({ name: "view-itinerary", query: { id: itineraryId } });
 };
 
 const timesince = (date) => {

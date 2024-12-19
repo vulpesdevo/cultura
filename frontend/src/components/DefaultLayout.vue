@@ -159,6 +159,38 @@
 								<span>Profile</span>
 							</router-link>
 						</li>
+						<li v-if="isAdmin">
+							<router-link
+								to="/rp"
+								class="flex items-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md"
+								@click="closePopup"
+							>
+								<DocumentChartBarIcon class="w-5 h-5 mr-3" />
+								<span>Reports</span>
+							</router-link>
+						</li>
+						<li v-if="isAdmin">
+							<router-link
+								to="/cu"
+								class="flex items-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md"
+								@click="closePopup"
+							>
+								<UserIcon class="w-5 h-5 mr-3" />
+								<span>Users</span>
+							</router-link>
+						</li>
+						<li v-if="isAdmin">
+							<router-link
+								to="/response"
+								class="flex items-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md"
+								@click="closePopup"
+							>
+								<ChatBubbleBottomCenterIcon
+									class="w-5 h-5 mr-3"
+								/>
+								<span>Reponse</span>
+							</router-link>
+						</li>
 						<li>
 							<router-link
 								to="/settings"
@@ -205,6 +237,9 @@ import {
 	ArrowRightOnRectangleIcon,
 	MagnifyingGlassIcon,
 	ChevronUpIcon,
+	DocumentChartBarIcon,
+	UserIcon,
+	ChatBubbleBottomCenterIcon,
 } from "@heroicons/vue/24/outline";
 
 const store = useStore();
@@ -221,12 +256,13 @@ const links = ref([
 	{ name: "Itineraries", path: "/itinerary", icon: MapIcon },
 	{ name: "Trivia", path: "/trivia", icon: AcademicCapIcon },
 ]);
-
+const isAdmin = ref(false);
 onMounted(async () => {
 	try {
 		const userData = await store.dispatch("fetchUserData");
 		user.value = userData.user;
 		user.value.profile = userData.profile;
+		isAdmin.value = user.value.profile.is_admin;
 		console.log("data HAHAHA", user.value.profile.is_admin);
 	} catch (error) {
 		console.error("Error fetching user data:", error);

@@ -193,19 +193,31 @@
 							</div>
 							<div class="flex flex-col space-y-1">
 								<div class="flex items-center space-x-2">
+									<router-link
+										v-if="
+											post.author === user.user.username
+										"
+										:to="{ name: 'profile' }"
+										class="font-medium text-xs text-gray-900 dark:text-white hover:underline"
+									>
+										@{{ post.author }}
+									</router-link>
 									<span
+										v-else
 										@click="gotoUser(post.cultura_user)"
 										class="font-medium text-xs text-gray-900 dark:text-white cursor-pointer hover:underline"
-										>@{{ post.author }}</span
 									>
+										@{{ post.author }}
+									</span>
 									<span
 										class="text-sm text-gray-500 dark:text-gray-400"
 										>•</span
 									>
 									<span
 										class="text-xs text-gray-500 dark:text-gray-400"
-										>{{ timesince(post.date_posted) }}</span
 									>
+										{{ timesince(post.date_posted) }}
+									</span>
 								</div>
 								<div
 									class="text-xs text-gray-500 dark:text-gray-400"
@@ -367,9 +379,27 @@
 							>
 								<div
 									class="p-2 max-h-40 overflow-y-auto space-y-2"
+									v-for="like in post.likers"
 								>
+									<router-link
+										to="/profile"
+										v-if="
+											like?.user.username ===
+											user?.user.username
+										"
+										class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+										><img
+											:src="like.user_photo"
+											alt="User"
+											class="size-5 rounded-full object-cover"
+										/><span
+											class="text-xs text-gray-700 dark:text-gray-300"
+										>
+											You
+										</span></router-link
+									>
 									<div
-										v-for="like in post.likers"
+										v-else
 										:key="like.id"
 										@click="gotoUser(like)"
 										class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -381,8 +411,9 @@
 										/>
 										<span
 											class="text-xs text-gray-700 dark:text-gray-300"
-											>{{ like.user.username }}</span
 										>
+											{{ like.user.username }}
+										</span>
 									</div>
 								</div>
 							</div>
@@ -792,6 +823,7 @@ const store = useStore();
 const router = useRouter();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
+const user = computed(() => store.state.user.data);
 
 const posts = ref([]);
 const post_profile_display = ref(null);

@@ -22,6 +22,7 @@ import ReportsView from "./components/admin/ReportsView.vue";
 import CulturaUserAdminView from "./components/admin/CulturaUserAdminView.vue";
 import NotFound from "./components/NotFound.vue";
 import LandingPage from "./components/LandingPage.vue";
+import SurveyResponse from "./components/admin/SurveyResponse.vue";
 
 const routes = [
 	{
@@ -32,7 +33,11 @@ const routes = [
 		children: [
 			{ path: "/dashboard", component: Dashboard, name: "dashboard" },
 			{ path: "/report", name: "report", component: Report },
-			{ path: "/edit-post/:post", name: "editpost", component: EditPost },
+			{
+				path: "/edit-post/:post_id",
+				name: "editpost",
+				component: EditPost,
+			},
 			{
 				path: "/notifications",
 				component: Notification,
@@ -80,6 +85,12 @@ const routes = [
 				component: CulturaUserAdminView,
 				name: "cu",
 				meta: { requiresAdmin: true },
+			},
+			{
+				path: "/response",
+				component: SurveyResponse,
+				name: "response",
+				meta: { requiresAuth: true },
 			},
 		],
 	},

@@ -11,50 +11,50 @@
 				>
 				<div class="w-full grid sm:grid-cols-2 gap-4">
 					<router-link
-						:to="{
-							name: 'user-profile',
-							params: {
-								username: user?.username,
-							},
-							query: {
-								id: user?.id,
-							},
-						}"
-						class="w-full bg-interface dark:bg-dark-interface flex shadow-lg h-24 justify-between items-center p-5 text-prime dark:text-interface rounded-xl"
 						v-for="user in users"
 						:key="user?.id"
+						:to="{
+							name: 'user-profile',
+							params: { username: user?.id },
+							query: { id: user?.id },
+						}"
+						class="bg-white dark:bg-dark-field shadow-lg rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl"
 					>
-						<div
-							class="w-14 sm:w-20 h-20 mr-2 sm:mr-4 flex justify-center items-center"
-						>
-							<img
-								:src="user.user_photo"
-								alt="Profile"
-								class="rounded-full cursor-pointer"
-							/>
+						<div class="flex items-center p-4 sm:p-6">
+							<div class="flex-shrink-0 mr-4">
+								<img
+									:src="user.user_photo"
+									:alt="`${user.fullname}'s profile picture`"
+									class="size-14 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+								/>
+							</div>
+							<div class="flex-grow">
+								<h3
+									class="text-sm sm:text-xl font-semibold text-gray-900 dark:text-white mb-1"
+								>
+									{{ user.fullname }}
+								</h3>
+								<div
+									class="flex sm:flex-row flex-col items-center space-x-2"
+								>
+									<p
+										class="text-xs text-gray-600 dark:text-gray-300"
+									>
+										{{ user.country }}
+									</p>
+									<p
+										class="text-xs text-gray-500 dark:text-gray-400 truncate"
+									>
+										{{ user.email }}
+									</p>
+								</div>
+							</div>
+							<div class="flex-shrink-0 ml-4">
+								<ChevronRightIcon
+									class="w-6 h-6 text-gray-400"
+								/>
+							</div>
 						</div>
-						<div class="font-montserrat text-left w-1/2 sm:w-full">
-							<p class="font-bold">{{ user.fullname }}</p>
-							<small class="flex sm:flex-row flex-col"
-								>{{ user.country }}
-								<span>| {{ user.email }}</span></small
-							>
-						</div>
-
-						<button
-							v-if="user.is_followed"
-							class="bg-dark-second-dark w-24 sm:w-36 h-8 rounded-xl"
-							@click.prevent="follow(user.user)"
-						>
-							Followed
-						</button>
-						<button
-							v-if="!user.is_followed"
-							class="bg-second w-24 sm:w-36 h-8 rounded-xl"
-							@click.prevent="follow(user.user)"
-						>
-							Follow
-						</button>
 					</router-link>
 				</div>
 			</div>
@@ -85,23 +85,43 @@
 										<div
 											class="flex items-center space-x-2"
 										>
+											<router-link
+												v-if="
+													post.cultura_user?.user
+														.username ===
+													user.user.username
+												"
+												:to="{ name: 'profile' }"
+												class="font-medium text-xs text-gray-900 dark:text-white hover:underline"
+											>
+												@{{
+													post.cultura_user?.user
+														.username
+												}}
+											</router-link>
 											<span
+												v-else
 												@click="
 													gotoUser(post.cultura_user)
 												"
 												class="font-medium text-xs text-gray-900 dark:text-white cursor-pointer hover:underline"
-												>@{{ post.author }}</span
 											>
+												@{{
+													post.cultura_user?.user
+														.username
+												}}
+											</span>
 											<span
 												class="text-sm text-gray-500 dark:text-gray-400"
 												>•</span
 											>
 											<span
 												class="text-xs text-gray-500 dark:text-gray-400"
-												>{{
-													timesince(post.date_posted)
-												}}</span
 											>
+												{{
+													timesince(post.date_posted)
+												}}
+											</span>
 										</div>
 										<div
 											class="text-xs text-gray-500 dark:text-gray-400"
@@ -204,39 +224,31 @@
 
 								<!-- Itinerary Section -->
 								<div
-									v-if="!post.itinerary_in_post === []"
+									v-else
+									v-for="itinerary in post.itinerary_in_post"
+									:key="itinerary.id"
 									class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
-									@click="
-										goToViewItinerary(
-											post?.itinerary_in_post?.id
-										)
-									"
+									@click="goToViewItinerary(itinerary.id)"
 								>
 									<img
-										:src="
-											post?.itinerary_in_post?.main_image
-										"
+										v-if="itinerary.main_image"
+										:src="itinerary.main_image"
 										alt=""
 										class="w-full h-48 object-cover"
 									/>
+
 									<div
 										class="p-4 bg-gray-50 dark:bg-gray-800"
 									>
 										<h3
-											class="text-xl font-bold text-gray-900 dark:text-white mb-2"
+											class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
 										>
-											{{
-												post?.itinerary_in_post
-													?.main_title
-											}}
+											{{ itinerary.main_title }}
 										</h3>
 										<p
 											class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
 										>
-											{{
-												post?.itinerary_in_post
-													?.main_description
-											}}
+											{{ itinerary.main_description }}
 										</p>
 									</div>
 								</div>
@@ -281,9 +293,27 @@
 									>
 										<div
 											class="p-2 max-h-40 overflow-y-auto space-y-2"
+											v-for="like in post.likers"
 										>
+											<router-link
+												to="/profile"
+												v-if="
+													like?.user.username ===
+													user?.user.username
+												"
+												class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+												><img
+													:src="like.user_photo"
+													alt="User"
+													class="size-5 rounded-full object-cover"
+												/><span
+													class="text-xs text-gray-700 dark:text-gray-300"
+												>
+													You
+												</span></router-link
+											>
 											<div
-												v-for="like in post.likers"
+												v-else
 												:key="like.id"
 												@click="gotoUser(like)"
 												class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -295,10 +325,9 @@
 												/>
 												<span
 													class="text-xs text-gray-700 dark:text-gray-300"
-													>{{
-														like.user.username
-													}}</span
 												>
+													{{ like.user.username }}
+												</span>
 											</div>
 										</div>
 									</div>
@@ -713,12 +742,15 @@
 </template>
 <script setup>
 import axios from "axios";
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
+import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
 import axiosClient from "../axios";
+import { ChevronRightIcon } from "@heroicons/vue/24/outline";
+
 import {
 	ChatBubbleLeftIcon,
 	HeartIcon,
@@ -730,6 +762,8 @@ import {
 	PaperAirplaneIcon,
 	ArrowLeftIcon,
 } from "@heroicons/vue/24/solid";
+const store = useStore();
+
 const router = useRouter();
 const route = useRoute();
 
@@ -769,6 +803,7 @@ const openImageModal = (imageUrl) => {
 const closeImageModal = () => {
 	showImageModal.value = false;
 };
+const user = computed(() => store.state.user.data);
 
 const token = sessionStorage.getItem("TOKEN");
 
@@ -821,11 +856,10 @@ const follow = (userId) => {
 		});
 };
 
-const goToViewItinerary = (itinerarydata) => {
-	router.push({
-		name: "view-itinerary",
-		params: { itinerarydata },
-	});
+const goToViewItinerary = (itineraryId) => {
+	console.log("ITINERARY ", itineraryId);
+
+	router.push({ name: "view-itinerary", query: { id: itineraryId } });
 };
 
 const likePost = (post_id) => {

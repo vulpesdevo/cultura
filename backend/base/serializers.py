@@ -1,7 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from .models import (
     FollowingNotification,
     LikeNotification,
@@ -94,14 +94,156 @@ class CulturaUserSerializer(serializers.ModelSerializer):
 
     def get_user_photo(self, obj):
         request = self.context.get("request")
-
         if obj.user_photo and request:
             return request.build_absolute_uri(obj.user_photo.url)
         return None
 
     def get_posts(self, obj):
-        posts = Post.objects.filter(author=obj.user)
-        return PostSerializer(posts, many=True, context=self.context).data
+        if hasattr(obj, "user") and obj.user:
+            try:
+                posts = Post.objects.filter(author=obj.user)
+                return PostSerializer(posts, many=True).data
+            except User.DoesNotExist:
+                return []
+        return []
+
+
+class SearchResultUserSerializer(serializers.ModelSerializer):
+    user_photo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CulturaUser
+        fields = "__all__"
+
+    def get_user_photo(self, obj):
+        request = self.context.get("request")
+        if obj.user_photo and request:
+            return request.build_absolute_uri(obj.user_photo.url)
+        return None
+
+
+class SearchResultSaveItinerarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SaveItinerary
+        fields = "__all__"
+
+
+class SearchResultPostSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    author_user_photo = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
+    itinerary_in_post = serializers.SerializerMethodField()
+    cultura_user = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    likers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = [
+            "_id",
+            "author",
+            "title",
+            "content",
+            "category",
+            "image",
+            "author_user_photo",
+            "country",
+            "date_posted",
+            "likes",
+            "likers",
+            "itinerary",
+            "like_count",
+            "is_liked",
+            "comments",
+            "itinerary_in_post",
+            "cultura_user",
+        ]
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
+    def get_author_user_photo(self, obj):
+        try:
+            author_user_photo = CulturaUser.objects.get(user=obj.author).user_photo
+            request = self.context.get("request")
+            if author_user_photo and request:
+                return request.build_absolute_uri(author_user_photo.url)
+        except ObjectDoesNotExist:
+            return None
+
+    def get_comments(self, obj):
+        comments = Comment.objects.filter(post_id=obj._id)
+        request = self.context.get("request")
+        comment_serializer = CommentSerializer(
+            comments, many=True, context={"request": request}
+        )
+        return comment_serializer.data
+
+    def get_itinerary_in_post(self, obj):
+        itinerary_id = obj.itinerary
+        if itinerary_id:
+            itineraries = SaveItinerary.objects.filter(id=int(itinerary_id))
+            request = self.context.get("request")
+            itinerary_serializer = SaveItinerarySerializer(
+                itineraries, many=True, context={"request": request}
+            )
+            for itinerary_data in itinerary_serializer.data:
+                main_image = itinerary_data.get("main_image", None)
+                if main_image:
+                    abs_main_image_url = request.build_absolute_uri(main_image)
+                    itinerary_data["main_image"] = abs_main_image_url
+            return itinerary_serializer.data
+        return []
+
+    def get_cultura_user(self, obj):
+        try:
+            user = UserModel.objects.get(id=obj.author.id)
+            cultura_user = CulturaUser.objects.get(user=user)
+            request = self.context.get("request")
+            cultura_user_serializer = CulturaUserSerializer(
+                cultura_user, context={"request": request}
+            )
+            return cultura_user_serializer.data
+        except ObjectDoesNotExist:
+            return None
+
+    def get_like_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked(self, obj):
+        user = self.context.get("user")
+        return user in obj.likes.all()
+
+    def get_likers(self, obj):
+        likers = obj.likes.all()
+        user_ids = [liker.id for liker in likers]
+        cultura_users = CulturaUser.objects.filter(user_id__in=user_ids)
+        request = self.context.get("request")
+        cultura_user_serializer = CulturaUserSerializer(
+            cultura_users, many=True, context={"request": request}
+        )
+        return cultura_user_serializer.data
+
+
+class SearchResultCommentSerializer(serializers.ModelSerializer):
+    author_user_photo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ["id", "content", "author", "author_user_photo"]
+
+    def get_author_user_photo(self, obj):
+        try:
+            author_user_photo = CulturaUser.objects.get(user=obj.author).user_photo
+            request = self.context.get("request")
+            if author_user_photo and request:
+                return request.build_absolute_uri(author_user_photo.url)
+        except ObjectDoesNotExist:
+            return None
 
 
 class CommentSerializer(serializers.ModelSerializer):

@@ -73,6 +73,7 @@ urlpatterns = [
     ),
     path("rating", views.ProfilePostListView.as_view(), name="rate-itinerary"),
     path("get-survey", views.GetSurvey.as_view(), name="get-survey"),
+    path("surveys/", views.GetSurvey.as_view(), name="get-surveys"),
     path("delete-post", views.ProfilePostListView.as_view(), name="delete-post"),
     path("change-profile", views.EditUserProfile.as_view(), name="change-profile"),
     # creating and calling comments
@@ -137,13 +138,13 @@ urlpatterns = [
     ),
     # ADMIN
     path(
-        "culturausers/",
+        "culturausers/all",
         views.CulturaUserAdminView.as_view(),
         name="culturauser-list-create",
     ),
     path(
-        "culturausers/<int:pk>/",
-        views.CulturaUserAdminView.as_view(),
+        "culturauser/<int:id>/",
+        views.CulturaUserDetails.as_view(),
         name="culturauser-detail",
     ),
     path("view_user/<int:pk>/", views.UserDetailView.as_view(), name="user-detail"),

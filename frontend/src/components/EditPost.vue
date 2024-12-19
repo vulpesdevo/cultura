@@ -1,75 +1,62 @@
 <template>
-	<div class="h-screen bg-gray-900 text-white px-4 overflow-auto">
-		<div class="max-w-5xl mx-auto">
-			<!-- Header -->
-			<h1 class="text-3xl font-bold mb-8 pt-4">Edit Post</h1>
-
-			<div class="bg-gray-800 rounded-xl p-6 shadow-xl">
-				<form @submit.prevent="handleSubmit" class="space-y-6">
-					<!-- Author Info -->
-					<div class="flex items-center space-x-4">
+	<div
+		class="bg-gray-200 dark:bg-notif h-screen overflow-auto pt-5 pb-5 px-4 sm:px-6 lg:px-28"
+	>
+		<div v-if="isLoading" class="flex items-center justify-center h-screen">
+			<div
+				class="w-12 h-12 border-t-4 border-blue-500 border-solid rounded-full animate-spin"
+			></div>
+		</div>
+		<div v-else>
+			<button
+				@click="goBack"
+				class="mb-6 flex items-center space-x-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
+			>
+				<ArrowLeftIcon class="h-5 w-5" />
+				<span class="text-sm font-medium">Back</span>
+			</button>
+			<div class="bg-white dark:bg-dark-field rounded-lg shadow-lg">
+				<form @submit.prevent="handleSubmit" class="space-y-6 p-6">
+					<!-- Post Header -->
+					<div class="flex items-center space-x-3">
 						<img
-							:src="post.author_user_photo"
+							:src="post.cultura_user.user_photo"
 							alt="Profile"
-							class="w-12 h-12 rounded-full object-cover ring-2 ring-blue-500"
+							class="w-10 h-10 rounded-full object-cover"
 						/>
 						<div>
-							<div class="flex items-center space-x-2">
-								<span class="font-medium"
-									>@{{ post.author }}</span
-								>
-								<span class="text-gray-400">•</span>
-								<span class="text-gray-400"
-									>{{ post.category }} |
-									{{ post.country }}</span
-								>
+							<input
+								v-model="post.title"
+								type="text"
+								class="font-semibold text-gray-900 dark:text-white bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none w-full"
+								placeholder="Enter post title"
+							/>
+							<div
+								class="flex items-center text-sm text-gray-500 dark:text-gray-400"
+							>
+								<span>@{{ post.author }}</span>
+								<span class="mx-1">•</span>
+								<span>{{ timesince(post.date_posted) }}</span>
 							</div>
 						</div>
 					</div>
 
-					<!-- Title Input -->
-					<div>
-						<input
-							v-model="post.title"
-							type="text"
-							class="w-full bg-gray-700 border-0 rounded-lg p-4 text-xl font-semibold focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-							placeholder="Enter post title"
-							:class="{
-								'border-red-500': validationErrors.title,
-							}"
-						/>
-						<p
-							v-if="validationErrors.title"
-							class="mt-1 text-red-500 text-sm"
-						>
-							{{ validationErrors.title }}
-						</p>
-					</div>
-
-					<!-- Content Input -->
+					<!-- Post Content -->
 					<div>
 						<textarea
 							v-model="post.content"
 							rows="4"
-							class="w-full bg-gray-700 border-0 rounded-lg p-4 resize-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+							class="w-full ring-1 ring-gray-700 border-0 bg-dark-field rounded-lg p-4 text-gray-800 dark:text-gray-200 resize-none focus:ring-1 focus:ring-blue-500 transition-all duration-200"
 							placeholder="What's on your mind?"
-							:class="{
-								'border-red-500': validationErrors.content,
-							}"
 						></textarea>
-						<p
-							v-if="validationErrors.content"
-							class="mt-1 text-red-500 text-sm"
-						>
-							{{ validationErrors.content }}
-						</p>
 					</div>
 
 					<!-- Image Upload -->
-					<div class="relative">
+					<div v-if="post.image" class="relative">
 						<div
-							class="relative rounded-lg overflow-hidden"
+							class="relative rounded-lg overflow-hidden cursor-pointer"
 							:class="{ 'h-64': selectedImageUrl || post.image }"
+							@click="triggerFileInput"
 						>
 							<img
 								v-if="selectedImageUrl || post.image"
@@ -79,40 +66,16 @@
 							/>
 							<div
 								v-else
-								class="h-48 bg-gray-700 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors duration-200"
-								@click="triggerFileInput"
+								class="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-400 dark:border-gray-600 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
 							>
 								<div class="text-center">
-									<i
-										class="fas fa-image text-3xl mb-2 text-gray-400"
-									></i>
-									<p class="text-gray-400">
-										Click to add an image
+									<PhotoIcon
+										class="h-12 w-12 text-gray-400 dark:text-gray-500 mb-2"
+									/>
+									<p class="text-gray-500 dark:text-gray-400">
+										Click to add or change image
 									</p>
 								</div>
-							</div>
-
-							<!-- Image Controls -->
-							<div
-								v-if="selectedImageUrl || post.image"
-								class="absolute top-2 right-2 flex space-x-2"
-							>
-								<button
-									type="button"
-									@click="triggerFileInput"
-									class="p-2 bg-gray-900 bg-opacity-75 rounded-full hover:bg-opacity-100 transition-all duration-200"
-									title="Change image"
-								>
-									<i class="fas fa-camera text-white"></i>
-								</button>
-								<button
-									type="button"
-									@click="removeImage"
-									class="p-2 bg-gray-900 bg-opacity-75 rounded-full hover:bg-opacity-100 transition-all duration-200"
-									title="Remove image"
-								>
-									<i class="fas fa-times text-white"></i>
-								</button>
 							</div>
 						</div>
 						<input
@@ -123,23 +86,60 @@
 							@change="handleFileSelection"
 						/>
 					</div>
+					<!-- Itinerary Preview -->
+					<div
+						v-if="
+							post.itinerary_in_post &&
+							post.itinerary_in_post.length > 0
+						"
+					>
+						<h3
+							class="text-lg font-semibold mb-2 text-gray-900 dark:text-white"
+						>
+							Attached Itinerary
+						</h3>
+						<div
+							v-for="itinerary in post.itinerary_in_post"
+							:key="itinerary.id"
+							class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all duration-200"
+						>
+							<img
+								v-if="itinerary.main_image"
+								:src="itinerary.main_image"
+								alt=""
+								class="w-full h-48 object-cover"
+							/>
+							<div class="p-4 bg-gray-50 dark:bg-gray-700">
+								<h4
+									class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
+								>
+									{{ itinerary.main_title }}
+								</h4>
+								<p
+									class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+								>
+									{{ itinerary.main_description }}
+								</p>
+							</div>
+						</div>
+					</div>
 
 					<!-- Action Buttons -->
 					<div class="flex justify-end space-x-4 pt-4">
 						<button
 							type="button"
 							@click="cancelEdit"
-							class="px-6 py-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200"
+							class="px-6 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
 							:disabled="isSubmitting"
-							class="px-6 py-2 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+							class="px-6 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
 						>
 							<span v-if="isSubmitting" class="animate-spin">
-								<i class="fas fa-spinner"></i>
+								<ArrowPathIcon class="h-5 w-5" />
 							</span>
 							<span>{{
 								isSubmitting ? "Saving..." : "Save Changes"
@@ -155,73 +155,49 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
 import axiosClient from "../axios";
+import moment from "moment";
+import {
+	ArrowLeftIcon,
+	PhotoIcon,
+	CameraIcon,
+	XMarkIcon,
+	ArrowPathIcon,
+} from "@heroicons/vue/24/solid";
 
 const route = useRoute();
 const router = useRouter();
 const fileInput = ref(null);
 const selectedImageUrl = ref(null);
 const isSubmitting = ref(false);
-
-const validationErrors = reactive({
-	title: "",
-	content: "",
-});
+const isLoading = ref(true);
+const posts = ref([]);
 
 const post = reactive({
 	_id: "",
 	title: "",
 	author: "",
-	author_user_photo: "",
+	cultura_user: { user_photo: "" },
 	category: "",
 	country: "",
 	content: "",
 	image: null,
 	date_posted: new Date(),
-	is_liked: false,
-	like_count: 0,
 });
 
-// Initialize axios client
-const token = sessionStorage.getItem("TOKEN");
-const client = axios.create({
-	baseURL: "http://127.0.0.1:8000",
-	withCredentials: true,
-	timeout: 5000,
-	xsrfCookieName: "csrftoken",
-	xsrfHeaderName: "X-Csrftoken",
-	headers: {
-		Authorization: `Token ${token}`,
-		"Content-Type": "application/json",
-	},
-});
-
-onMounted(() => {
-	const postParam = route.params.post;
-	if (postParam) {
-		const parsedPost = JSON.parse(postParam);
-		Object.assign(post, parsedPost);
+onMounted(async () => {
+	isLoading.value = true;
+	try {
+		await fetchPost();
+		if (posts.value.length > 0) {
+			Object.assign(post, posts.value[0]);
+		}
+	} catch (error) {
+		console.error("Error fetching post:", error);
+	} finally {
+		isLoading.value = false;
 	}
 });
-
-const validateForm = () => {
-	let isValid = true;
-	validationErrors.title = "";
-	validationErrors.content = "";
-
-	if (!post.title.trim()) {
-		validationErrors.title = "Title is required";
-		isValid = false;
-	}
-
-	if (!post.content.trim()) {
-		validationErrors.content = "Content is required";
-		isValid = false;
-	}
-
-	return isValid;
-};
 
 const triggerFileInput = () => {
 	fileInput.value.click();
@@ -247,11 +223,19 @@ const removeImage = () => {
 	}
 };
 
-const handleSubmit = async () => {
-	if (!validateForm()) {
-		return;
+const fetchPost = async () => {
+	try {
+		const response = await axiosClient.get(
+			`/liked-post-view/${route.params.post_id}/`
+		);
+		console.log("RESPONSE", response);
+		posts.value = response.data;
+	} catch (error) {
+		console.error("Error fetching post:", error);
 	}
+};
 
+const handleSubmit = async () => {
 	isSubmitting.value = true;
 
 	try {
@@ -263,11 +247,16 @@ const handleSubmit = async () => {
 			formData.append("image", post.image);
 		}
 
-		await client.put(`/api/posting/${post._id}/`, formData, {
-			headers: {
-				"Content-Type": "multipart/form-data",
-			},
-		});
+		const response = await axiosClient.put(
+			`/posting/${route.params.post_id}/`,
+			formData,
+			{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			}
+		);
+		console.log("RESPONSE EDITING: ", response);
 
 		router.push({ name: "profile" });
 	} catch (error) {
@@ -281,17 +270,16 @@ const handleSubmit = async () => {
 const cancelEdit = () => {
 	router.push({ name: "profile" });
 };
+
+const goBack = () => {
+	router.go(-1);
+};
+
+const timesince = (date) => {
+	return moment(date).fromNow();
+};
 </script>
 
 <style scoped>
-/* Ensure smooth transitions */
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
-}
+/* Add any additional styles here */
 </style>

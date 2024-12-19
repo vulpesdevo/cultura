@@ -1,7 +1,7 @@
 <template>
-	<div class="h-screen bg-gray-900 p-6">
+	<div class="h-screen bg-field dark:bg-gray-900 p-6">
 		<div class="max-w-7xl mx-auto">
-			<h1 class="text-3xl font-bold text-white mb-8">
+			<h1 class="text-3xl font-bold text-prime dark:text-white mb-8">
 				Cultura Users Management
 			</h1>
 
@@ -10,7 +10,7 @@
 				<div
 					v-for="user in culturaUsers"
 					:key="user.id"
-					class="relative bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:translate-y-[-2px]"
+					class="relative bg-dark-second-dark dark:bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:translate-y-[-2px]"
 				>
 					<div class="p-6">
 						<!-- User Header -->
@@ -49,9 +49,6 @@
 								>
 									{{ user.is_active ? "Active" : "Inactive" }}
 								</span>
-								<span class="text-sm text-gray-500 mt-1"
-									>ID: {{ user.id }}</span
-								>
 							</div>
 						</div>
 
@@ -301,7 +298,7 @@ onMounted(async () => {
 	await store
 		.dispatch("fetchUserData")
 		.then(async (response) => {
-			if (!response.profile.is_admin) {
+			if (response.profile.is_admin === false) {
 				router.push({ name: "NotFound" });
 			} else {
 				await fetchUsers();
@@ -316,7 +313,9 @@ onMounted(async () => {
 
 const fetchUsers = async () => {
 	const res = await store.dispatch("fetchCulturaUsers");
-	culturaUsers.value = res.data;
+	console.log("Cultura:", res);
+
+	culturaUsers.value = res;
 };
 
 const openCreateModal = () => {

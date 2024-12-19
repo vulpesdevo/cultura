@@ -227,128 +227,212 @@
 			</div>
 			<div
 				v-if="!user.is_private || user.is_followed"
-				class="post-contents w-screen sm:w-full p-3 mt-3 px-6 sm:mt-6 sm:px-9 sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+				class="relative post-contents w-full p-6 mt-4 rounded-xl shadow-lg bg-white dark:bg-dark-field transition-all duration-200 hover:shadow-xl font-montserrat"
 				v-for="post in posts"
 				:key="post._id"
 			>
-				<div class="post-title flex justify-start items-center">
-					<div class="flex w-[90%] items-center">
-						<h1
-							class="font-bebas-neue text-lg text-prime dark:text-dark-prime sm:text-2xl"
+				<div class="flex items-start justify-between mb-4">
+					<div class="flex items-center space-x-3">
+						<div
+							class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-700"
 						>
-							{{ post.title }}
-						</h1>
-						<small class="text-second ml-5">{{
-							timesince(post.date_posted)
-						}}</small>
-					</div>
-				</div>
-				<div class="post-content flex w-full mt-4">
-					<div class="w-14 h-14 mr-4">
-						<img
-							:src="post.author_user_photo"
-							alt="Profile"
-							class="rounded-full cursor-pointer object-cover"
-						/>
-					</div>
-					<div class="w-full">
-						<div class="flex border-b-2 dark:border-gray-400">
-							<small
-								class="font-montserrat text-prime dark:text-dark-prime pr-5"
-							>
-								@{{ post.author }}
-							</small>
-							<small
-								class="about-post font-montserrat dark:text-gray-400"
-							>
-								{{ post.category }} | {{ post.country }}
-							</small>
-						</div>
-						<p
-							class="font-montserrat w-full rounded-lg resize-none p-4 text-sm text-justify dark:text-dark-prime"
-						>
-							{{ post.content }}
-						</p>
-						<div class="sm:h-96 pb-2 sm:p-4" v-if="post.image">
 							<img
-								:src="post.image"
-								alt=""
-								class="h-full object-contain rounded-lg"
+								:src="post.author_user_photo"
+								alt="Profile"
+								class="w-full h-full object-cover"
 							/>
 						</div>
-						<div class="h-auto pb-2 sm:p-4" v-else>
+						<div class="flex flex-col space-y-1">
+							<div class="flex items-center space-x-2">
+								<span
+									class="font-medium text-xs text-gray-900 dark:text-white"
+									>@{{ post.author }}</span
+								>
+								<span
+									class="text-xs text-gray-500 dark:text-gray-400"
+									>•</span
+								>
+								<span
+									class="text-xs text-gray-500 dark:text-gray-400"
+									>{{ timesince(post.date_posted) }}</span
+								>
+							</div>
 							<div
-								v-if="post.itinerary_in_post"
-								@click="
-									goToViewItinerary(post.itinerary_in_post.id)
-								"
-								class="cursor-pointer bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4"
+								class="text-xs text-gray-500 dark:text-gray-400"
 							>
-								<img
-									:src="post.itinerary_in_post.main_image"
-									:alt="post.itinerary_in_post.main_title"
-									class="w-full h-32 object-cover rounded mb-2"
-								/>
-								<h3
-									class="font-semibold text-gray-900 dark:text-white mb-1"
-								>
-									{{ post.itinerary_in_post.main_title }}
-								</h3>
-								<p
-									class="text-sm text-gray-600 dark:text-gray-400"
-								>
-									{{
-										post.itinerary_in_post.main_description
-									}}
-								</p>
+								{{ post.category }} | {{ post.country }}
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center justify-end">
-					<i
-						class="fa-regular fa-comment text-second text-2xl pr-2 cursor-pointer"
-						@click.prevent="selectPost(post)"
-					></i>
-					<div
-						@click="likePost(post._id)"
-						class="flex items-center justify-start w-14"
+
+				<!-- Title Section -->
+				<h1
+					class="text-xl font-medi text-gray-900 dark:text-second mb-3"
+				>
+					{{ post.title }}
+				</h1>
+
+				<!-- Content Section -->
+				<div class="space-y-4">
+					<p
+						class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed"
 					>
-						<span
-							v-if="post.is_liked"
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
+						{{ post.content }}
+					</p>
+
+					<!-- Image Section -->
+					<div
+						v-if="post.image"
+						class="relative rounded-xl overflow-hidden cursor-pointer"
+						@click="openImageModal(post.image)"
+					>
+						<img
+							:src="post.image"
+							alt=""
+							class="w-full h-auto max-h-[20rem] object-cover"
+						/>
+						<div
+							class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
 						>
-							favorite
-						</span>
-						<span
-							v-else
-							class="material-icons-outlined text-second text-[1.7rem] cursor-pointer"
-							>favorite_border</span
+							<span
+								class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+							>
+								<i class="fas fa-search-plus text-4xl"></i>
+							</span>
+						</div>
+					</div>
+
+					<!-- Itinerary Section -->
+					<div
+						v-if="post.itinerary_in_post"
+						class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+						@click="goToViewItinerary(post.itinerary_in_post.id)"
+					>
+						<img
+							:src="post.itinerary_in_post.main_image"
+							alt=""
+							class="w-full h-48 object-cover"
+						/>
+						<div class="p-4 bg-gray-50 dark:bg-gray-800">
+							<h3
+								class="text-xl font-bold text-gray-900 dark:text-white mb-2"
+							>
+								{{ post.itinerary_in_post.main_title }}
+							</h3>
+							<p
+								class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+							>
+								{{ post.itinerary_in_post.main_description }}
+							</p>
+						</div>
+					</div>
+				</div>
+				<!-- Actions Section -->
+				<!-- Actions Section -->
+				<div
+					class="flex items-center justify-end space-x-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700"
+				>
+					<button
+						@click.prevent="selectPost(post)"
+						class="flex items-center space-x-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+					>
+						<ChatBubbleLeftIcon class="size-4" />
+						<span class="text-sm">{{
+							post.comments?.length || 0
+						}}</span>
+					</button>
+
+					<div class="relative group">
+						<button
+							@click="likePost(post._id)"
+							class="flex items-center space-x-1"
+							:class="
+								post.is_liked
+									? 'text-second'
+									: 'text-gray-500 hover:text-second'
+							"
 						>
-						<small class="text-prime dark:text-dark-prime pl-1">
-							{{
-								post.like_count >= 1000
-									? (post.like_count / 1000).toFixed(1) + "k"
-									: post.like_count
-							}}
-						</small>
+							<HeartIcon v-if="post.is_liked" class="size-4" />
+							<HeartIcon v-else class="size-4" />
+							<span>{{ formatLikeCount(post.like_count) }}</span>
+						</button>
+						<div
+							v-if="post.likers.length > 0"
+							class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out"
+						>
+							<div
+								class="p-2 max-h-40 overflow-y-auto space-y-2"
+								v-for="like in post.likers"
+							>
+								<router-link
+									to="/profile"
+									v-if="
+										like?.user.username ===
+										user?.user.username
+									"
+									class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+									><img
+										:src="like.user_photo"
+										alt="User"
+										class="size-5 rounded-full object-cover"
+									/><span
+										class="text-xs text-gray-700 dark:text-gray-300"
+									>
+										You
+									</span></router-link
+								>
+								<div
+									v-else
+									:key="like.id"
+									@click="gotoUser(like)"
+									class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+								>
+									<img
+										:src="like.user_photo"
+										alt="User"
+										class="size-5 rounded-full object-cover"
+									/>
+									<span
+										class="text-xs text-gray-700 dark:text-gray-300"
+									>
+										{{ like.user.username }}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Image Modal -->
+				<div
+					v-if="showImageModal"
+					class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+					@click="closeImageModal"
+				>
+					<div class="max-w-4xl w-full max-h-screen p-4">
+						<img
+							:src="modalImage"
+							alt="Full size image"
+							class="w-full h-auto max-h-full object-contain"
+						/>
 					</div>
 				</div>
 			</div>
-			<div
-				v-else
-				class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center"
-			>
-				<h2
-					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
-				>
-					Private Account
-				</h2>
-				<p class="text-gray-600 dark:text-gray-300">
-					This account is private. Follow to see their posts.
-				</p>
-			</div>
 		</div>
+		<div
+			v-else
+			class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center"
+		>
+			<h2
+				class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+			>
+				Private Account
+			</h2>
+			<p class="text-gray-600 dark:text-gray-300">
+				This account is private. Follow to see their posts.
+			</p>
+		</div>
+
 		<div
 			class="flex justify-center items-center achievements w-full pt-3 px-3 sm:pt-6 sm:px-9"
 			v-if="activeTab === 'achievements'"
@@ -616,13 +700,29 @@ import { ref, onMounted, computed } from "vue";
 import axiosClient from "../axios";
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
+
 import {
+	CogIcon,
+	CameraIcon,
+	EnvelopeIcon,
+	GlobeAltIcon,
 	UserIcon,
 	PhotoIcon,
 	TrophyIcon,
+	ArrowLeftIcon,
 	UserPlusIcon,
 	UserMinusIcon,
 } from "@heroicons/vue/24/outline";
+
+import {
+	ChatBubbleLeftIcon,
+	HeartIcon,
+	PencilSquareIcon,
+	XMarkIcon,
+	CheckIcon,
+	FaceSmileIcon,
+	PaperAirplaneIcon,
+} from "@heroicons/vue/24/solid";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 
@@ -641,6 +741,22 @@ const hasExplorerExtraordinaire = ref(false);
 const hasKnowledgeSeeker = ref(false);
 const hasTrendsetter = ref(false);
 const hasCulturaContributor = ref(false);
+
+const visitor_user = computed(() => store.state.user.data);
+const gotoUser = async (user) => {
+	router.push({
+		name: "user-profile",
+		params: {
+			username: user.user.username,
+		},
+		query: {
+			id: user.id,
+		},
+	});
+};
+const formatLikeCount = (count) => {
+	return count >= 1000 ? (count / 1000).toFixed(1) + "k" : count;
+};
 
 const profile = ref(false);
 const activeTab = ref("posts");
@@ -731,11 +847,18 @@ const follow = (id) => {
 		});
 };
 
-const goToViewItinerary = (itinerarydata) => {
-	this.$router.push({
-		name: "view-itinerary",
-		params: { itinerarydata },
-	});
+const goToViewItinerary = (itineraryId) => {
+	router.push({ name: "view-itinerary", query: { id: itineraryId } });
+};
+const showImageModal = ref(false);
+const modalImage = ref("");
+// functions for image modal
+const openImageModal = (imageUrl) => {
+	modalImage.value = imageUrl;
+	showImageModal.value = true;
+};
+const closeImageModal = () => {
+	showImageModal.value = false;
 };
 
 const timesince = (date) => {

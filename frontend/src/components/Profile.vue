@@ -1,4 +1,4 @@
-<template>
+<template lang="">
 	<div
 		class="bg-gray-200 dark:bg-notif h-screen overflow-hidden pt-5 pb-5 px-4 sm:px-20"
 	>
@@ -389,19 +389,12 @@
 									v-if="isMenuOpen === post._id"
 									class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
 								>
-									<!-- @click.prevent="editItem" -->
-									<!-- <a
-                    href="#"
-                    class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    aria-disabled="true"
-                    >Edit</a
-                  > -->
 									<router-link
 										class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
 										:to="{
 											name: 'editpost',
 											params: {
-												post: JSON.stringify(post),
+												post_id: post._id,
 											},
 										}"
 									>
@@ -495,52 +488,95 @@
 								@click.prevent="selectPost(post)"
 								class="flex items-center space-x-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
 							>
-								<i class="fa-regular fa-comment text-xl"></i>
+								<ChatBubbleLeftIcon class="size-4" />
 								<span class="text-sm">{{
 									post.comments?.length || 0
 								}}</span>
 							</button>
 
-							<button
-								@click="likePost(post._id)"
-								class="flex items-center space-x-2 text-gray-500 hover:text-second dark:text-gray-400 dark:hover:text-second transition-colors duration-200"
-							>
-								<span class="material-icons-outlined text-xl">
-									{{
+							<div class="relative group">
+								<button
+									@click="likePost(post._id)"
+									class="flex items-center space-x-1"
+									:class="
 										post.is_liked
-											? "favorite"
-											: "favorite_border"
-									}}
-								</span>
-								<span class="text-sm">
-									{{
-										post.like_count >= 1000
-											? (post.like_count / 1000).toFixed(
-													1
-											  ) + "k"
-											: post.like_count
-									}}
-								</span>
-							</button>
+											? 'text-second'
+											: 'text-gray-500 hover:text-second'
+									"
+								>
+									<HeartIcon
+										v-if="post.is_liked"
+										class="size-4"
+									/>
+									<HeartIcon v-else class="size-4" />
+									<span>{{
+										formatLikeCount(post.like_count)
+									}}</span>
+								</button>
+								<div
+									v-if="post.likers.length > 0"
+									class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out"
+								>
+									<div
+										class="p-2 max-h-40 overflow-y-auto space-y-2"
+										v-for="like in post.likers"
+									>
+										<router-link
+											to="/profile"
+											v-if="
+												like?.user.username ===
+												user?.user.username
+											"
+											class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+											><img
+												:src="like.user_photo"
+												alt="User"
+												class="size-5 rounded-full object-cover"
+											/><span
+												class="text-xs text-gray-700 dark:text-gray-300"
+											>
+												You
+											</span></router-link
+										>
+										<div
+											v-else
+											:key="like.id"
+											@click="gotoUser(like)"
+											class="flex items-center space-x-2 cursor-pointer py-1 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+										>
+											<img
+												:src="like.user_photo"
+												alt="User"
+												class="size-5 rounded-full object-cover"
+											/>
+											<span
+												class="text-xs text-gray-700 dark:text-gray-300"
+											>
+												{{ like.user.username }}
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
-					</div>
-					<!-- Image Modal -->
-					<div
-						v-if="showImageModal"
-						class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
-						@click="closeImageModal"
-					>
-						<div class="max-w-4xl w-full max-h-screen p-4">
-							<img
-								:src="modalImage"
-								alt="Full size image"
-								class="w-full h-auto max-h-full object-contain"
-							/>
+						<!-- Image Modal -->
+						<div
+							v-if="showImageModal"
+							class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+							@click="closeImageModal"
+						>
+							<div class="max-w-4xl w-full max-h-screen p-4">
+								<img
+									:src="modalImage"
+									alt="Full size image"
+									class="w-full h-auto max-h-full object-contain"
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
 				<div
-					class="flex justify-center items-center achievements w-full p-4 sm:px-9"
+					class="flex justify-center items-center achievements w-full sm:px-9"
 					v-if="activeTab === 'achievements'"
 				>
 					<div
@@ -819,6 +855,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
+import axiosClient from "../axios";
 import {
 	CogIcon,
 	CameraIcon,
@@ -829,7 +866,16 @@ import {
 	TrophyIcon,
 	ArrowLeftIcon,
 } from "@heroicons/vue/24/outline";
-import axiosClient from "../axios";
+
+import {
+	ChatBubbleLeftIcon,
+	HeartIcon,
+	PencilSquareIcon,
+	XMarkIcon,
+	CheckIcon,
+	FaceSmileIcon,
+	PaperAirplaneIcon,
+} from "@heroicons/vue/24/solid";
 
 import axios from "axios";
 import moment from "moment";
@@ -859,10 +905,23 @@ const profile = reactive({
 	password: "",
 	country: "",
 });
-
+const user = computed(() => store.state.user.data);
+const gotoUser = async (user) => {
+	router.push({
+		name: "user-profile",
+		params: {
+			username: user.user.username,
+		},
+		query: {
+			id: user.id,
+		},
+	});
+};
 const posts = ref([]);
 const followers = ref([]);
-
+const formatLikeCount = (count) => {
+	return count >= 1000 ? (count / 1000).toFixed(1) + "k" : count;
+};
 const activeTab = ref("posts");
 const tabs = [
 	{ id: "posts", name: "Posts", icon: PhotoIcon },

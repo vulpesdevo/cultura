@@ -16,25 +16,23 @@
 			<nav class="px-4 sm:px-6">
 				<div class="mx-auto flex justify-between items-center">
 					<div class="flex items-center">
-						<a href="/" class="flex items-center">
-							<img
-								:src="
-									isDarkMode
-										? '/culturalink_brand_logo.png'
-										: '/ULTURALINK-DMLong.png'
-								"
-								alt="CulturalLink Logo"
-								class="h-32"
-							/>
-						</a>
+						<img
+							:src="
+								isDark
+									? '/ULTURALINK-DMLong.png'
+									: '/culturalink_brand_logo.png'
+							"
+							alt="CulturalLink Logo"
+							class="h-32"
+						/>
 					</div>
 					<div class="flex items-center space-x-4">
 						<button
-							@click="toggleDarkMode"
+							@click="toggleDark()"
 							class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
 							aria-label="Toggle dark mode"
 						>
-							<SunIcon v-if="isDarkMode" class="h-5 w-5" />
+							<SunIcon v-if="isDark" class="h-5 w-5" />
 							<MoonIcon v-else class="h-5 w-5" />
 						</button>
 						<button
@@ -1131,12 +1129,12 @@ const store = useStore();
 const isDark = useDark();
 
 const toggleDark = useToggle(isDark);
-const isDarkMode = ref(false);
+// const isDarkMode = ref(false);
 
-const toggleDarkMode = () => {
-	isDarkMode.value = !isDarkMode.value;
-	document.documentElement.classList.toggle("dark");
-};
+// const toggleDarkMode = () => {
+// 	isDarkMode.value = !isDarkMode.value;
+// 	document.documentElement.classList.toggle("dark");
+// };
 
 // State variables
 const showLogin = ref(false);
