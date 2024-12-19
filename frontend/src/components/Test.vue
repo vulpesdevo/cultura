@@ -678,7 +678,7 @@ export default {
 	created() {
 		this.token = sessionStorage.getItem("TOKEN");
 		this.client = axios.create({
-			baseURL: "http://127.0.0.1:8000",
+			baseURL: "https://apicultura.futurewebbuilders.design",
 			withCredentials: true,
 			timeout: 5000,
 			xsrfCookieName: "csrftoken",

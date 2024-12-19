@@ -365,7 +365,7 @@ const showDeleteModal = ref(false);
 const commentToDelete = ref(null);
 
 const client = axios.create({
-	baseURL: "http://127.0.0.1:8000",
+	baseURL: "https://apicultura.futurewebbuilders.design",
 	withCredentials: true,
 	headers: {
 		Authorization: `Token ${sessionStorage.getItem("TOKEN")}`,

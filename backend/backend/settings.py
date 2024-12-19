@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
-import os
+from django.core.management.utils import get_random_secret_key
 from pathlib import Path
+import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -23,17 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-c^c(w^2rg32e#co9gj@-du$@&fvub9m-=sth(o^mcz7w^+$)5#"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,https://cultura.futurewebbuilders.design").split(",")
+DEVELOPMENT_MODE = os.getenv("DEVELOPMENT_MODE", "False") == "True"
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost",
+    "https://cultura.futurewebbuilders.design",
+    "https://www.cultura.futurewebbuilders.design", 
+    "http://178.128.84.168",
     "http://127.0.0.1",
     "https://culturalink.com",
 ]
@@ -41,6 +42,8 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ORIGIN_WHITELIST = (
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "https://cultura.futurewebbuilders.design",
+    "https://www.cultura.futurewebbuilders.design", 
     "https://culturalink.com",
 )
 CORS_ALLOW_CREDENTIALS = True
@@ -113,12 +116,14 @@ DATABASES = {
     "default": {
         "ENGINE": "djongo",
         "NAME": "cultura",
-        # 'CLIENT': {
-        #     'host': 'mongodb://localhost:27017/',
-        # }
-        # "CLIENT": {
-        #     "host": "mongodb+srv://culturalink:2sg5IrIemQjd0d1S@cluster0.ajrds80.mongodb.net/"
-        # },
+        'CLIENT': {
+            'host': 'mongodb://127.0.0.1:27017/cultura',
+            'port': 12017,
+            'username': 'CulturaSystem',
+            'password': 'rFthCulTura008LLio',
+            'authSource': 'admin',
+            'authMechanism': 'SCRAM-SHA-1',
+        }
     }
 }
 
@@ -208,6 +213,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_URL = "/uploads/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 # BASE_URL = 'http://127.0.0.1:8000/'
@@ -217,3 +223,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
