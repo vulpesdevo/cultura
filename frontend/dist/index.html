@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/culturalink_logo.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+			rel="stylesheet"
+		/>
+
+		<!-- from cdn -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script
+			async
+			defer
+			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGNh44Urq3R3CJWtWYcAsvtRiwwupo-5s&loading=async&libraries=places,marker,maps"
+		></script>
+		<style>
+			.gm-style .gm-style-iw-d::-webkit-scrollbar-track,
+			.gm-style .gm-style-iw-d::-webkit-scrollbar-track-piece,
+			.gm-style .gm-style-iw-c,
+			.gm-style .gm-style-iw-t::after {
+				background: #2d313d;
+			}
+			.gm-style .gm-style-iw-c button.gm-ui-hover-effect {
+				background-color: #2d313d; /* Change this to your desired color */
+				border: none;
+				width: 24px;
+				height: 24px;
+				opacity: 1;
+			}
+
+			.gm-style .gm-style-iw-c button.gm-ui-hover-effect span {
+				background-color: #ffffff; /* Change this to your desired color */
+				width: 12px;
+				height: 2px;
+				display: block;
+			}
+
+			.gm-style .gm-style-iw-c button.gm-ui-hover-effect span::before {
+				content: "";
+				background-color: #ffffff; /* Change this to your desired color */
+				width: 12px;
+				height: 2px;
+				display: block;
+
+				transform: rotate(-90deg);
+			}
+		</style>
+		<script>
+			tailwind.config = {
+				darkMode: ["class"],
+				content: [
+					"./index.html",
+					"./src/**/*.{html,vue,js,ts,jsx,tsx}",
+				],
+
+				theme: {
+					extend: {
+						screens: {
+							xs: "412px",
+						},
+						colors: {
+							interface: "#F7F7F7",
+							prime: "#1A193F",
+							second: "#6A7FDB",
+							field: "#D1D0D0",
+							"second-light": "#7589E1",
+							notif: "#1E1E1E",
+							dark: {
+								interface: "#2D313D",
+								prime: "#F7F7F7",
+								second: "#6A7FDB",
+								field: "#2D313D",
+								"second-dark": "#5B606F",
+								notif: "#1E1E1E",
+							},
+						},
+						fontFamily: {
+							montserrat: ["Montserrat", "sans-serif"],
+							"bebas-neue": ["Bebas Neue", "cursive"],
+						},
+						scrollbar: {
+							none: {
+								"scrollbar-width": "none",
+							},
+						},
+					},
+				},
+			};
+			if (
+				localStorage.theme === "dark" ||
+				(!("theme" in localStorage) &&
+					window.matchMedia("(prefers-color-scheme: dark)").matches)
+			) {
+				document.documentElement.classList.add("dark");
+			} else {
+				document.documentElement.classList.remove("dark");
+			}
+
+			// Whenever the user explicitly chooses light mode
+			localStorage.theme = "light";
+
+			// Whenever the user explicitly chooses dark mode
+			localStorage.theme = "dark";
+
+			// Whenever the user explicitly chooses to respect the OS preference
+			localStorage.removeItem("theme");
+		</script>
+		<script>
+			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+		</script>
+		<script type="text/javascript">
+			window.tiledeskSettings = {
+				projectid: "670a45a5c982220013ce26ae",
+			};
+			(function (d, s, id) {
+				var w = window;
+				var d = document;
+				var i = function () {
+					i.c(arguments);
+				};
+				i.q = [];
+				i.c = function (args) {
+					i.q.push(args);
+				};
+				w.Tiledesk = i;
+				var js,
+					fjs = d.getElementsByTagName(s)[0];
+				if (d.getElementById(id)) return;
+				js = d.createElement(s);
+				js.id = id;
+				js.async = true;
+				js.src = "https://widget.tiledesk.com/v6/launch.js";
+				fjs.parentNode.insertBefore(js, fjs);
+			})(document, "script", "tiledesk-jssdk");
+		</script>
+		<title>Culturalink</title>
+		<script type="module" crossorigin src="/assets/index-Bh4akshP.js"></script>
+		<link rel="stylesheet" crossorigin href="/assets/index-CDDigH0H.css">
+	</head>
+	<body>
+		<div id="app"></div>
+
+		<script src="https://unpkg.com/@material-tailwind/html@latest/scripts/collapse.js"></script>
+	</body>
+</html>

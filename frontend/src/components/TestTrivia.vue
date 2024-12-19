@@ -723,7 +723,7 @@ onMounted(() => {
 		"Content-Type": "application/json",
 	};
 	client.value = axios.create({
-		baseURL: "http://127.0.0.1:8000",
+		baseURL: "https://apicultura.futurewebbuilders.design",
 		withCredentials: true,
 		timeout: 5000,
 		xsrfCookieName: "csrftoken",
