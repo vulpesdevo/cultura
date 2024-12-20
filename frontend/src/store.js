@@ -35,6 +35,8 @@ const store = createStore({
 		showDeleteConfirmation: false,
 	},
 	getters: {
+		// getItineraries: (state) => state.itineraries,
+
 		surveys: (state) => state.surveys,
 
 		singleCulturaUser: (state) => state.viewed_user,
@@ -107,8 +109,15 @@ const store = createStore({
 		setPosts(state, posts) {
 			state.posts = posts;
 		},
+		appendPosts(state, posts) {
+			state.posts = [...state.posts, ...posts];
+		},
 		setItineraries(state, itineraries) {
 			state.itineraries = itineraries;
+		},
+
+		appendItineraries(state, itineraries) {
+			state.itineraries = [...state.itineraries, ...itineraries];
 		},
 		setItineraryDetails(state, itineraryDetails) {
 			state.itineraryDetails = itineraryDetails;
@@ -463,10 +472,14 @@ const store = createStore({
 		},
 		// dashboards actions
 		//
-		async fetchPosts({ commit, state }) {
+		async fetchPosts({ commit, state }, { page = 1, perPage = 5 }) {
 			try {
-				const response = await axiosClient.get("/posts-list");
-				const cleanedPosts = response.data.reverse().map((post) => {
+				const response = await axiosClient.get(
+					`/posts-list?page=${page}&page_size=${perPage}`
+				);
+				console.log("POSTS::", response.data);
+
+				const cleanedPosts = response.data.results.map((post) => {
 					return {
 						...post,
 						title: clean(post.title, {
@@ -479,18 +492,46 @@ const store = createStore({
 						}),
 					};
 				});
-				commit("setPosts", cleanedPosts);
+				// commit("setPosts", cleanedPosts);
+				commit("appendPosts", cleanedPosts);
+				return response.data !== null; // Return whether there are more posts to load
 			} catch (error) {
 				console.error("Error fetching posts:", error);
+				return false;
 			}
 		},
-		async fetchItineraries({ commit, state }) {
+		async fetchItineraries({ commit, state }, { page = 1, perPage = 6 }) {
 			try {
-				const response = await axiosClient.get("/saved-itinerary", {});
-				commit("setItineraries", response.data);
-				return response.data;
+				const response = await axiosClient.get(
+					`/saved-itinerary?page=${page}&page_size=${perPage}`
+				);
+				console.log("ITINERARIES::", response.data);
+
+				const cleanedItineraries = response.data.results.map(
+					(itinerary) => {
+						return {
+							...itinerary,
+							main_title: clean(itinerary.main_title, {
+								customMatch: (word) => word.length % 2 !== 0,
+								customBadWords: filipinoBadWords,
+							}),
+							main_description: clean(
+								itinerary.main_description,
+								{
+									customMatch: (word) =>
+										word.length % 2 !== 0,
+									customBadWords: filipinoBadWords,
+								}
+							),
+						};
+					}
+				);
+
+				commit("appendItineraries", cleanedItineraries);
+				return response.data.next !== null; // Return whether there are more itineraries to load
 			} catch (error) {
 				console.error("Error fetching itineraries:", error);
+				return false;
 			}
 		},
 		async updateItineraryDetails({ commit, state }, { id, data }) {

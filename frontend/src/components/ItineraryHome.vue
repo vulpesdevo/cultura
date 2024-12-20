@@ -1,11 +1,13 @@
 <template>
 	<div
-		class="flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-12 sm:pt-10 h-screen transition-colors duration-300"
+		class="relative flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-12 sm:pt-10 h-screen transition-colors duration-300"
 	>
-		<div class="flex justify-between items-center mb-5">
+		<div
+			class="fixed top-0 w-full flex justify-start items-center mb-5 bg-field h-16 z-20"
+		>
 			<button
 				@click="toggleMyItineraries"
-				class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+				class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
 			>
 				{{
 					showMyItineraries
@@ -22,7 +24,10 @@
 			</router-link>
 		</div>
 
-		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7">
+		<div
+			class="itinerary-container grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7"
+			@scroll="onScroll"
+		>
 			<div
 				v-for="(itinerary, index) in filteredItineraries"
 				:key="itinerary.id"
@@ -97,6 +102,34 @@
 					</div>
 				</div>
 			</div>
+			<div
+				v-if="loading"
+				class="loading border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full h-full mx-auto mt-10"
+			>
+				<div class="animate-pulse flex space-x-4">
+					<div
+						class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
+					></div>
+					<div class="flex-1 space-y-6 py-1">
+						<div
+							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+						></div>
+						<div class="space-y-3">
+							<div class="grid grid-cols-3 gap-4">
+								<div
+									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
+								></div>
+								<div
+									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
+								></div>
+							</div>
+							<div
+								class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+							></div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -145,12 +178,39 @@ const calculateAvgRating = (ratings) => {
 		return 0;
 	}
 };
+const page = ref(1); // Current page number
+const perPage = 6; // Items per page
+const loading = ref(false); // Loading state
+const hasMore = ref(true); // Whether more data is available
 
 const fetchItineraries = async () => {
+	if (!hasMore.value || loading.value) return; // Avoid multiple calls
+
+	loading.value = true;
 	try {
-		await store.dispatch("fetchItineraries");
+		const moreItineraries = await store.dispatch("fetchItineraries", {
+			page: page.value,
+			perPage,
+		});
+		console.log("MORE ITINERARIES : ", store.getters.getItineraries);
+
+		if (!moreItineraries) {
+			hasMore.value = false; // No more data available
+		}
+		page.value++;
 	} catch (error) {
-		console.error(error);
+		console.error("Error fetching itineraries:", error);
+	} finally {
+		loading.value = false;
+	}
+};
+const onScroll = (event) => {
+	const container = event.target;
+	if (
+		container.scrollTop + container.clientHeight >=
+		container.scrollHeight - 10
+	) {
+		fetchItineraries(); // Load more data when scrolled to the bottom
 	}
 };
 
@@ -185,8 +245,8 @@ watch(filteredItineraries, (newVal) => {
 	}, {});
 });
 
-onMounted(() => {
-	fetchItineraries();
+onMounted(async () => {
+	await fetchItineraries();
 });
 </script>
 

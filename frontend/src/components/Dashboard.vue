@@ -1,9 +1,10 @@
 <template lang="">
 	<div
-		class="flex flex-col items-center align-middle w-full sm:px-11 md:px-24 lg:px-20 py-5 overflow-auto scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		class="post-container flex flex-col items-center align-middle w-full sm:px-11 md:px-24 lg:px-20 py-5 overflow-y-auto scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
+		@scroll="onScroll"
 	>
 		<div
-			class="top-0 z-10 crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+			class="z-10 crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 		>
 			<div class="flex justify-between items-center w-full">
 				<div class="w-1/2">
@@ -225,39 +226,12 @@
 				</button>
 			</div>
 		</div>
-		<div
-			v-if="!posts.length"
-			class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
-		>
-			<div class="animate-pulse flex space-x-4">
-				<div
-					class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
-				></div>
-				<div class="flex-1 space-y-6 py-1">
-					<div
-						class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
-					></div>
-					<div class="space-y-3">
-						<div class="grid grid-cols-3 gap-4">
-							<div
-								class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
-							></div>
-							<div
-								class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
-							></div>
-						</div>
-						<div
-							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
-						></div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<section class="posts w-full mb-10 sm:mb-0">
+
+		<section class="w-full mb-10 sm:mb-0">
 			<div>
 				<div
 					class="relative post-contents w-full p-6 mt-4 rounded-xl shadow-lg bg-white dark:bg-dark-field transition-all duration-200 hover:shadow-xl font-montserrat"
-					v-for="post in displayedPosts"
+					v-for="post in posts"
 					:key="post._id"
 				>
 					<!-- Header Section -->
@@ -500,6 +474,35 @@
 							alt="Full size image"
 							class="w-full h-auto max-h-full object-contain"
 						/>
+					</div>
+				</div>
+				<!-- <div v-if="loading" class="loading">Loading...</div> -->
+				<div
+					v-if="loading"
+					class="loading border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto mt-10"
+				>
+					<div class="animate-pulse flex space-x-4">
+						<div
+							class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
+						></div>
+						<div class="flex-1 space-y-6 py-1">
+							<div
+								class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+							></div>
+							<div class="space-y-3">
+								<div class="grid grid-cols-3 gap-4">
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
+									></div>
+									<div
+										class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
+									></div>
+								</div>
+								<div
+									class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+								></div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -845,14 +848,6 @@
 					</div>
 				</div>
 			</div>
-			<div v-if="hasMorePosts" class="flex justify-center mt-8">
-				<button
-					@click="loadMorePosts"
-					class="bg-second hover:bg-second-light text-white font-bold py-2 px-4 rounded"
-				>
-					Load More
-				</button>
-			</div>
 		</section>
 		<transition
 			enter-active-class="transition ease-out duration-300"
@@ -919,7 +914,7 @@ const isDark = useDark();
 const toggleDark = useToggle(isDark);
 const user = computed(() => store.state.user.data);
 
-const posts = ref([]);
+const posts = computed(() => store.getters.getPosts); // Reactive array to store posts
 const post_profile_display = ref(null);
 const selectedImageUrl = ref(null);
 const picture = ref(null);
@@ -1089,22 +1084,49 @@ const fetchUser = async () => {
 	}
 };
 
-const displayedPosts = ref([]);
-const postsPerPage = 5;
-const currentPage = ref(1);
+// const displayedPosts = ref([]);
+// const postsPerPage = 5;
+// const currentPage = ref(1);
 
 const hasMorePosts = computed(() => {
 	return displayedPosts.value.length < posts.value.length;
 });
-const fetchPosts = async () => {
-	try {
-		await store.dispatch("fetchPosts");
+const page = ref(1); // Current page number
+const perPage = 5; // Items per page
+const loading = ref(false); // Loading state
+const hasMore = ref(true); // Whether more data is available
 
-		posts.value = store.getters.getPosts;
-		// console.log("POSTS:  ", posts.value);
-		updateDisplayedPosts();
+// Fetch posts from the API
+const fetchPosts = async () => {
+	if (!hasMore.value || loading.value) return; // Avoid multiple calls
+
+	loading.value = true;
+	try {
+		const morePosts = await store.dispatch("fetchPosts", {
+			page: page.value,
+			perPage,
+		});
+		console.log("MORE POSTS : ", store.getters.getPosts);
+
+		if (!morePosts) {
+			hasMore.value = false; // No more data available
+		}
+		page.value++;
 	} catch (error) {
 		console.error("Error fetching posts:", error);
+	} finally {
+		loading.value = false;
+	}
+};
+
+// Handle scroll event
+const onScroll = (event) => {
+	const container = event.target;
+	if (
+		container.scrollTop + container.clientHeight >=
+		container.scrollHeight - 10
+	) {
+		fetchPosts(); // Load more data when scrolled to the bottom
 	}
 };
 const updateDisplayedPosts = () => {

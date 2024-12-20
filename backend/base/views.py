@@ -43,6 +43,8 @@ from .models import (
     Survey,
     UserSetting,
 )
+from rest_framework.pagination import PageNumberPagination
+
 from bson import ObjectId, errors
 from .permissions import IsAdminUser  # Import the custom permission class
 
@@ -876,31 +878,43 @@ class MarkAllNotificationsReadView(APIView):
         )
 
 
-class PostListView(APIView):
-    """
-    API view to retrieve a list of all Post instances from the database.
-    Any user, authenticated or not, is allowed to access this view.
-    """
+class PostPagination(PageNumberPagination):
+    page_size = 3  # Number of posts per page
+    page_size_query_param = "page_size"
+    max_page_size = 50
 
+
+class PostListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True, context={"user": request.user})
+        paginator = PostPagination()
+        paginated_posts = paginator.paginate_queryset(posts, request)
+        print("PAGINATED POSTS: ", paginated_posts)
+        serializer = PostSerializer(
+            paginated_posts, many=True, context={"user": request.user}
+        )
+        # print("SERIALIZER: ", serializer.data)
 
         for post_data in serializer.data:
-            self.update_image_url(post_data, request)
-            self.update_comments(post_data, request)
-            self.update_author(post_data)
-            self.update_itinerary(post_data, request)
-            self.update_cultura_user(post_data, request)
-            self.update_likers(post_data, request)
+            self._extracted_from_get_12(post_data, request)
+        print("PAGINATED POSTS", paginator.get_paginated_response(serializer.data))
+        # return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
+
+    # TODO Rename this here and in `get`
+    def _extracted_from_get_12(self, post_data, request):
+        self.update_image_url(post_data, request)
+        self.update_comments(post_data, request)
+        self.update_author(post_data)
+        self.update_itinerary(post_data, request)
+        self.update_cultura_user(post_data, request)
+        self.update_likers(post_data, request)
 
     def update_image_url(self, post_data, request):
-        image = post_data.get("image")
-        if image:
+        if image := post_data.get("image"):
             abs_image_url = request.build_absolute_uri(image)
             post_data["image"] = abs_image_url
 
@@ -1611,39 +1625,39 @@ class SaveItineraryView(APIView):
             )
 
 
+class SaveItineraryPagination(PageNumberPagination):
+    page_size = 10  # Default number of items per page
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class SaveItineraryListView(APIView):
 
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        # Retrieve all itineraries owned by the current user
-
         itineraries = SaveItinerary.objects.all()
-        serializer = SaveItinerarySerializer(itineraries, many=True)
+        paginator = SaveItineraryPagination()
+        paginated_itineraries = paginator.paginate_queryset(itineraries, request)
+        serializer = SaveItinerarySerializer(paginated_itineraries, many=True)
         users = CulturaUser.objects.filter(user=request.user)
         user_serializer = CulturaUserSerializer(
             users, many=True, context={"user": request.user}
         )
 
         for itinerary_data in serializer.data:
-
             main_image = itinerary_data.get("main_image", None)
             if main_image:
-                # Build the absolute URI for the main image
                 abs_main_image_url = request.build_absolute_uri(main_image)
-                # Update the itinerary data with the absolute URI
                 itinerary_data["main_image"] = abs_main_image_url
-            # Ensure rating_str is a string before calling replace
 
             for user_data in user_serializer.data:
                 image = user_data.get("user_photo", None)
                 if image:
-                    # Build the absolute URI for the image
                     abs_image_url = request.build_absolute_uri(image)
-                    # Update the post data with the absolute URI
                     itinerary_data["user_photo"] = abs_image_url
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class ViewItinerary(APIView):
