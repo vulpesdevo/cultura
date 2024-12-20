@@ -1,6 +1,6 @@
 <template lang="">
 	<div
-		class="bg-gray-200 dark:bg-notif h-screen overflow-hidden pt-5 pb-5 px-4 sm:px-20"
+		class="bg-gray-200 dark:bg-notif h-screen w-full overflow-hidden overflow-x-hidden pt-5 pb-5 sm:px-20"
 	>
 		<!-- Loading component -->
 		<div
@@ -19,10 +19,10 @@
 		<div v-else>
 			<div
 				id="container"
-				class="relative profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 py-5 overflow-auto h-screen dark:bg-dark-notif pt-5 sm:pt-7 sm:px-5"
+				class="relative profile-main flex flex-col items-center align-middle w-full pb-16 sm:pb-10 py-5 overflow-y-auto overflow-x-hidden h-screen dark:bg-dark-notif pt-0 sm:pt-7"
 			>
 				<div
-					class="relative profile-card flex sm:flex-row flex-col justify-center sm:justify-normal w-screen sm:w-full sm:mt-0 px-3 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+					class="relative profile-card flex sm:flex-row flex-col justify-center sm:justify-normal w-screen sm:w-full sm:mt-0 sm:px-9 rounded-sm sm:rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 					v-show="profile"
 				>
 					<!-- Settings Button -->
@@ -199,9 +199,9 @@
 					</div>
 				</div>
 				<div class="profile-tabs w-full my-5 px-4 sm:px-6 md:px-8">
-					<div class="max-w-3xl mx-auto">
+					<div class="mx-auto">
 						<nav
-							class="flex flex-wrap justify-center space-x-2 sm:space-x-4"
+							class="flex justify-center space-x-2 sm:space-x-4"
 							aria-label="Profile tabs"
 						>
 							<button
@@ -377,42 +377,58 @@
 								</div>
 							</div>
 
-							<div class="flex w-[10%] justify-end relative">
-								<button @click="toggleMenu(post._id)" class="">
-									<span
-										class="material-icons-outlined dark:text-dark-prime"
-									>
-										more_horiz
-									</span>
-								</button>
-								<div
-									v-if="isMenuOpen === post._id"
-									class="absolute mt-5 w-48 bg-white border border-gray-200 rounded-md shadow-lg"
+							<div class="relative">
+								<button
+									@click="toggleMenu(post._id)"
+									class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+									aria-label="Post options"
 								>
-									<router-link
-										class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-										:to="{
-											name: 'editpost',
-											params: {
-												post_id: post._id,
-											},
-										}"
+									<EllipsisHorizontalIcon
+										class="w-6 h-6 text-gray-600 dark:text-gray-300"
+									/>
+								</button>
+								<transition
+									enter-active-class="transition ease-out duration-200"
+									enter-from-class="transform opacity-0 scale-95"
+									enter-to-class="transform opacity-100 scale-100"
+									leave-active-class="transition ease-in duration-150"
+									leave-from-class="transform opacity-100 scale-100"
+									leave-to-class="transform opacity-0 scale-95"
+								>
+									<div
+										v-if="isMenuOpen === post._id"
+										class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10"
+										v-click-outside="closeMenu"
 									>
-										Edit
-									</router-link>
-									<a
-										href="#"
-										@click.prevent="deleteItem(post._id)"
-										class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-										>Delete</a
-									>
-								</div>
+										<router-link
+											:to="{
+												name: 'editpost',
+												params: { post_id: post._id },
+											}"
+											class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+										>
+											<PencilIcon
+												class="w-5 h-5 mr-3 text-gray-400"
+											/>
+											Edit
+										</router-link>
+										<button
+											@click="deleteItem(post._id)"
+											class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 transition-colors duration-150"
+										>
+											<TrashIcon
+												class="w-5 h-5 mr-3 text-red-400"
+											/>
+											Delete
+										</button>
+									</div>
+								</transition>
 							</div>
 						</div>
 
 						<!-- Title Section -->
 						<h1
-							class="text-xl font-medi text-gray-900 dark:text-second mb-3"
+							class="text-2xl font-medium font-bebas-neue text-gray-900 dark:text-second mb-3"
 						>
 							{{ post.title }}
 						</h1>
@@ -427,55 +443,69 @@
 
 							<!-- Image Section -->
 							<div
-								v-if="post.image"
-								class="relative rounded-xl overflow-hidden cursor-pointer"
-								@click="openImageModal(post.image)"
+								class="flex sm:flex-row flex-col sm:space-x-2 space-y-2 sm:space-y-0 items-start"
 							>
-								<img
-									:src="post.image"
-									alt=""
-									class="w-full h-auto max-h-[20rem] object-cover"
-								/>
 								<div
-									class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
+									v-if="!post.isEditing && post.image"
+									class="relative w-1/2 rounded-xl overflow-hidden cursor-pointer"
+									:class="{
+										'w-full': !post.itinerary_in_post,
+									}"
+									@click="openImageModal(post.image)"
 								>
-									<span
-										class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+									<img
+										:src="post.image"
+										alt=""
+										class="w-full max-h-[15rem] object-cover"
+									/>
+									<div
+										class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
 									>
-										<i
-											class="fas fa-search-plus text-4xl"
-										></i>
-									</span>
+										<span
+											class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+										>
+											<i
+												class="fas fa-search-plus text-4xl"
+											></i>
+										</span>
+									</div>
 								</div>
-							</div>
-
-							<!-- Itinerary Section -->
-							<div
-								v-if="post.itinerary_in_post"
-								class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
-								@click="
-									goToViewItinerary(post.itinerary_in_post.id)
-								"
-							>
-								<img
-									:src="post.itinerary_in_post.main_image"
-									alt=""
-									class="w-full h-48 object-cover"
-								/>
-								<div class="p-4 bg-gray-50 dark:bg-gray-800">
-									<h3
-										class="text-xl font-bold text-gray-900 dark:text-white mb-2"
+								<div
+									v-if="post.itinerary_in_post"
+									:key="post.itinerary_in_post.id"
+									class="rounded-xl w-full overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+									@click="
+										goToViewItinerary(
+											post.itinerary_in_post.id
+										)
+									"
+								>
+									<img
+										v-if="post.itinerary_in_post.main_image"
+										:src="post.itinerary_in_post.main_image"
+										alt=""
+										class="w-full h-48 object-cover"
+									/>
+									<div
+										class="p-4 bg-gray-50 dark:bg-gray-800"
 									>
-										{{ post.itinerary_in_post.main_title }}
-									</h3>
-									<p
-										class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
-									>
-										{{
-											post.itinerary_in_post
-												.main_description
-										}}
-									</p>
+										<h3
+											class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
+										>
+											{{
+												post.itinerary_in_post
+													.main_title
+											}}
+										</h3>
+										<p
+											class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+										>
+											{{
+												post.itinerary_in_post
+													.main_description
+											}}
+										</p>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -838,11 +868,37 @@
 							>
 								Cancel
 							</button>
+
 							<button
-								class="rounded-xl text-xl text-white bg-red-900 py-2 px-7 font-bebas-neue"
-								@click="deletePost"
+								type="submit"
+								class="rounded-xl text-xl text-white bg-red-900 py-2 px-7 font-bebas-neue font-montserrat p-2 w-36 h-8 sm:h-10 hover:bg-rose-800 cursor-pointer flex items-center justify-center"
+								@click.prevent="deletePost"
+								:disabled="isDeleting"
 							>
-								Delete
+								<span v-if="!isDeleting">Delete</span>
+								<span v-else class="flex items-center">
+									<svg
+										class="animate-spin h-5 w-5 mr-3 text-white"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+									>
+										<circle
+											class="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											stroke-width="4"
+										></circle>
+										<path
+											class="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+										></path>
+									</svg>
+									Deleting...
+								</span>
 							</button>
 						</div>
 					</div>
@@ -868,6 +924,9 @@ import {
 } from "@heroicons/vue/24/outline";
 
 import {
+	EllipsisHorizontalIcon,
+	PencilIcon,
+	TrashIcon,
 	ChatBubbleLeftIcon,
 	HeartIcon,
 	PencilSquareIcon,
@@ -885,6 +944,10 @@ import { useStore } from "vuex";
 const route = useRoute();
 const store = useStore();
 const router = useRouter();
+
+const closeMenu = () => {
+	isMenuOpen.value = null;
+};
 
 const hasContentCreator = ref(false);
 const hasGuideGuru = ref(false);
@@ -989,7 +1052,6 @@ const fetchData = async () => {
 	} catch (error) {
 		console.error("Error fetching data:", error);
 	} finally {
-		console.log("Data fetched, setting isLoading to false");
 		isLoading.value = false;
 	}
 };
@@ -999,11 +1061,9 @@ const goToViewItinerary = (itineraryId) => {
 };
 
 const follow = (userId) => {
-	console.log("The user", userId);
 	axiosClient
 		.post(`/follow/${userId}/follow/`)
 		.then((response) => {
-			console.log(response.data);
 			fetchPosts();
 		})
 		.catch((error) => {
@@ -1035,8 +1095,6 @@ const fetchUser = async () => {
 		hasTrendsetter.value = userProfile.trend_setter >= 50;
 		hasCulturaContributor.value =
 			userProfile.content_creator >= 20 && userProfile.guide_guru >= 10;
-
-		console.log("USER", userProfile);
 	} catch (error) {
 		console.log("ERROR", error);
 		throw error;
@@ -1044,14 +1102,12 @@ const fetchUser = async () => {
 };
 
 const handleFileSelection = (event) => {
-	console.log("Image : TRIGERRED");
 	const file = event.target.files[0];
 
 	if (file) {
 		selectedImageUrl.value = URL.createObjectURL(file);
 		picture.value = file;
 		changingPhoto.value = true;
-		console.log("Image :", picture.value);
 	}
 };
 
@@ -1066,7 +1122,6 @@ const changeProfile = () => {
 	if (picture.value && picture.value instanceof File) {
 		formData.append("image", picture.value, picture.value.name);
 	}
-	console.log("FORM :", formData);
 	axiosClient
 		.post("/change-profile", formData, {
 			headers: {
@@ -1074,7 +1129,6 @@ const changeProfile = () => {
 			},
 		})
 		.then((response) => {
-			console.log("CHANGE PROFILE !!");
 			fetchUser();
 		})
 		.catch((error) => {
@@ -1086,7 +1140,6 @@ const likePost = (post_id) => {
 	axiosClient
 		.post(`/like-posts/${post_id}/like_post/`)
 		.then((response) => {
-			console.log(response.data);
 			fetchPosts();
 		})
 		.catch((error) => {
@@ -1107,22 +1160,28 @@ const editItem = () => {
 const deleteItem = () => {
 	modalDeleteActive.value = !modalDeleteActive.value;
 	isMenuOpen.value = null;
-	console.log("the opened : ", openedPost_id.value);
 };
 
+const isDeleting = ref(false);
 const deletePost = () => {
-	axiosClient
-		.post("/delete-post", {
-			post_id: openedPost_id.value,
-		})
-		.then((response) => {
-			console.log(response.data);
-			fetchPosts();
-			modalDeleteActive.value = false;
-		})
-		.catch((error) => {
-			console.error(error);
-		});
+	isDeleting.value = true;
+	try {
+		axiosClient
+			.post("/delete-post", {
+				post_id: openedPost_id.value,
+			})
+			.then((response) => {
+				fetchPosts();
+				modalDeleteActive.value = false;
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	} catch (error) {
+		console.error(error);
+	} finally {
+		isDeleting.value = false;
+	}
 };
 
 const submitReply = () => {
@@ -1133,7 +1192,6 @@ const submitReply = () => {
 			body: reply.value,
 		})
 		.then((response) => {
-			console.log(response.data);
 			reply.value = "";
 			fetchPosts();
 		})
@@ -1193,7 +1251,6 @@ const fetchPosts = async () => {
 				[];
 		}
 		followers.value = response.data.followers;
-		console.log("Followers", followers.value);
 	} catch (error) {
 		console.log(error);
 		throw error;

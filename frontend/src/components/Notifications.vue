@@ -16,13 +16,14 @@
 						>
 							Mark all as read
 						</button>
-						<button
+						<router-link
+							:to="{ name: 'settings' }"
 							class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
 						>
 							<Settings
 								class="w-5 h-5 text-gray-600 dark:text-gray-400"
 							/>
-						</button>
+						</router-link>
 					</div>
 				</div>
 
@@ -123,6 +124,8 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { Settings, Heart, MessageCircle } from "lucide-vue-next";
 import axiosClient from "../axios";
+import moment from "moment";
+
 const store = useStore();
 const router = useRouter();
 
@@ -148,19 +151,8 @@ const filteredNotifications = computed(() => {
 	}
 });
 
-const formatDate = (dateString) => {
-	const date = new Date(dateString);
-	const now = new Date();
-	const diffTime = Math.abs(now - date);
-	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-	if (diffDays === 1) return "Yesterday";
-	if (diffDays < 7) return `${diffDays} days ago`;
-	return date.toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-		year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
-	});
+const formatDate = (date) => {
+	return moment(date).fromNow();
 };
 
 const getNotificationText = (notification) => {
@@ -180,7 +172,6 @@ const fetchLikenotification = async () => {
 	try {
 		await store.dispatch("fetchLikeNotifications");
 		like_notification.value = store.getters.getLikeNotifications;
-		console.log("LIKE NOTIF ", like_notification.value);
 	} catch (error) {
 		console.log(error);
 	}
@@ -212,7 +203,6 @@ const handleNotificationClick = async (notification) => {
 };
 
 const view_post = (post_id_notif, notif_id) => {
-	console.log("POST ID ", notif_id);
 	router.push({
 		name: "view-post",
 		params: { post: post_id_notif },
@@ -221,8 +211,6 @@ const view_post = (post_id_notif, notif_id) => {
 };
 
 const view_user = (user_data) => {
-	console.log("USER DATA ", user_data);
-
 	router.push({
 		name: "user-profile",
 		params: {

@@ -162,7 +162,6 @@ const fetchTriviaQuestions = async () => {
 		triviaQuestions.value.push(...data);
 		showAnswers.value.push(false);
 		requestCount.value += 1;
-		console.log("Trivia Questions:", triviaQuestions.value);
 	} catch (err) {
 		error.value = `Failed to fetch trivia questions: ${err.message}`;
 		console.error("Failed to fetch trivia questions:", err);

@@ -16,7 +16,7 @@
 			</div>
 
 			<!-- Reports List -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+			<div class="h-full bg-white dark:bg-gray-800 rounded-lg shadow-sm">
 				<div class="overflow-hidden">
 					<div v-if="loading" class="p-4 sm:p-6 text-center">
 						<div
@@ -50,7 +50,7 @@
 
 					<div
 						v-else
-						class="divide-y divide-gray-200 dark:divide-gray-700"
+						class="h-full divide-y divide-gray-200 dark:divide-gray-700"
 					>
 						<div
 							v-for="report in reports"
@@ -137,7 +137,9 @@
 								</div>
 
 								<!-- Report Details -->
-								<div class="p-4 bg-gray-50 dark:bg-gray-900">
+								<div
+									class="p-4 h-full bg-gray-50 dark:bg-gray-900"
+								>
 									<div
 										class="flex flex-col sm:flex-row sm:items-center sm:justify-between"
 									>
@@ -223,7 +225,7 @@
 											v-if="
 												activeReporterId === report._id
 											"
-											class="absolute z-10 w-64 p-4 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+											class="absolute w-64 p-4 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-40"
 										>
 											<h5
 												class="font-semibold text-gray-900 dark:text-white"

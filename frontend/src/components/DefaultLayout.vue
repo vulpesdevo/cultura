@@ -263,7 +263,6 @@ onMounted(async () => {
 		user.value = userData.user;
 		user.value.profile = userData.profile;
 		isAdmin.value = user.value.profile.is_admin;
-		console.log("data HAHAHA", user.value.profile.is_admin);
 	} catch (error) {
 		console.error("Error fetching user data:", error);
 	}
@@ -282,12 +281,10 @@ const closePopup = () => {
 
 watch(() => router.currentRoute.value, closePopup);
 watch(searchQuery, (newQuery) => {
-	console.log(newQuery);
 	store
 		.dispatch("search", newQuery)
 		.then((response) => {
 			searchResults.value = response;
-			console.log("SEARCH RESULT :: ", response);
 
 			if (searchQuery.value) {
 				router.replace({
@@ -309,7 +306,7 @@ const fetchNotification = async () => {
 		await store.dispatch("fetchFollowNotifications");
 
 		unreadCount.value = store.getters.getTotalUnreadNotificationsCount; // Assuming you have a getter for unread count
-		console.log("unreadCount", unreadCount.value);
+		// console.log("unreadCount", unreadCount.value);
 	} catch (error) {
 		console.error("Error fetching notifications:", error);
 	}
@@ -330,9 +327,8 @@ watch(lastFetchTime, () => {
 	fetchNotification(); // Call fetchNotification whenever lastFetchTime changes
 });
 
-// Example of updating lastFetchTime periodically
 setInterval(() => {
-	lastFetchTime.value = Date.now(); // Update the timestamp to trigger the watcher
+	lastFetchTime.value = Date.now();
 }, 6000); // Fetch notifications every minute
 </script>
 

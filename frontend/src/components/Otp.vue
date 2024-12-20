@@ -1,4 +1,4 @@
-<template lang="">
+<template>
 	<div
 		class="min-h-screen bg-gray-900 flex justify-center items-center absolute w-full top-0 left-0 px-4 sm:px-6 lg:px-8 z-50"
 	>
@@ -41,23 +41,38 @@
 				/>
 			</div>
 
-			<!-- Verify Button -->
-			<div class="flex justify-center">
+			<!-- Verify and Resend Buttons -->
+			<div class="flex justify-center space-x-4">
 				<button
 					@click="verifyOTP('register')"
-					class="rounded-full text-xl sm:text-2xl md:text-3xl text-white mt-3 mb-6 bg-second py-2 px-6 sm:py-3 sm:px-8 md:py-4 md:px-10 font-bebas-neue transition duration-300 ease-in-out hover:bg-opacity-90"
+					class="rounded-full text-xl sm:text-2xl md:text-3xl text-white mt-3 mb-6 bg-second py-2 px-6 sm:py-3 sm:px-8 md:py-4 md:px-10 font-bebas-neue transition duration-300 ease-in-out hover:bg-opacity-90 flex items-center justify-center"
 				>
+					<CheckCircleIcon class="h-6 w-6 mr-2" />
 					VERIFY
+				</button>
+				<button
+					@click="resendOTP"
+					:disabled="isResending"
+					class="rounded-full text-xl sm:text-2xl md:text-3xl text-white mt-3 mb-6 bg-gray-600 py-2 px-6 sm:py-3 sm:px-8 md:py-4 md:px-10 font-bebas-neue transition duration-300 ease-in-out hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+				>
+					<template v-if="!isResending">
+						<ArrowPathIcon class="h-6 w-6 mr-2" />
+						RESEND
+					</template>
+					<template v-else>
+						<ArrowPathIcon class="h-6 w-6 mr-2 animate-spin" />
+						RESENDING...
+					</template>
 				</button>
 			</div>
 		</div>
+		<Snackbar
+			:show="showSnackbar"
+			:message="snackbarMessage"
+			:type="snackbarType"
+			@close="showSnackbar = false"
+		/>
 	</div>
-	<Snackbar
-		:show="showSnackbar"
-		:message="snackbarMessage"
-		:type="snackbarType"
-		@close="showSnackbar = false"
-	/>
 </template>
 
 <script setup>
@@ -65,6 +80,11 @@ import { ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 import Snackbar from "./snackbars/Snackbar.vue";
+import {
+	CheckCircleIcon,
+	ArrowPathIcon,
+	ClockIcon,
+} from "@heroicons/vue/24/solid";
 
 import axiosClient from "../axios";
 const store = useStore();
@@ -74,6 +94,7 @@ const route = useRoute();
 const inputs = ref(new Array(6).fill(""));
 const inputRefs = reactive([]);
 const error = ref(false);
+const isResending = ref(false);
 
 const email = ref(route.query.email);
 const fullname = ref(route.query.rname);
@@ -84,13 +105,6 @@ const rpassword = ref(route.query.rpassword);
 const otp = computed(() => store.state.otpData);
 
 const verifyOTP = async (modal) => {
-	console.log("Email:", email.value);
-	console.log("Fullname:", fullname.value);
-	console.log("Country:", country.value);
-	console.log("Username:", rusername.value);
-	console.log("Password:", rpassword.value);
-	console.log("OTP in OTP.vue ", otp.value, " ", inputs.value);
-
 	if (modal === "register") {
 		if (otp.value === parseInt(inputs.value.join(""))) {
 			try {
@@ -107,7 +121,6 @@ const verifyOTP = async (modal) => {
 					"register",
 					userData
 				);
-				console.log("Registration successful:", registrationResponse);
 
 				// Login the user after successful registration
 				const loginCredentials = {
@@ -118,9 +131,8 @@ const verifyOTP = async (modal) => {
 					"login",
 					loginCredentials
 				);
-				console.log("Login successful:", loginResponse);
 
-				window.scrollTo(0, 0);
+				// window.scrollTo(0, 0);
 				router.push({ name: "dashboard" });
 				// Consider using a toast notification library for better UX
 				showMessage(
@@ -143,16 +155,11 @@ const verifyOTP = async (modal) => {
 			}
 		} else {
 			error.value = true;
-			console.log(
-				otp.value,
-				" failed to verify the ",
-				parseInt(inputs.value.join(""))
-			);
+
 			showMessage("Invalid OTP. Please try again.");
 		}
 	} else if (modal === "forgot-password") {
 		if (otp.value === parseInt(inputs.value.join(""))) {
-			console.log("OTP verified for forgot password");
 			showMessage(
 				"OTP verified. You can now reset your password.",
 				"success"
@@ -187,6 +194,22 @@ const handleKeyDown = (event, index) => {
 	// Handle backspace
 	if (event.key === "Backspace" && index > 0 && inputs.value[index] === "") {
 		inputRefs[index - 1].focus();
+	}
+};
+
+const resendOTP = async () => {
+	isResending.value = true;
+	try {
+		const response = await store.dispatch("sendOtp", {
+			email: email.value,
+			username: rusername.value,
+		});
+		showMessage(`OTP sent successfully to ${email.value}`, "success");
+	} catch (error) {
+		console.error("Error resending OTP:", error);
+		showMessage("Failed to resend OTP. Please try again.");
+	} finally {
+		isResending.value = false;
 	}
 };
 

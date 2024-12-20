@@ -3,7 +3,7 @@
 		class="flex flex-col items-center align-middle w-full sm:px-11 md:px-24 lg:px-20 py-5 overflow-auto scroll-smooth h-screen sm:pt-3 bg-field dark:bg-dark-notif px-2"
 	>
 		<div
-			class="crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
+			class="top-0 z-10 crate-post-container w-full pt-3 px-6 mb-3 sm:pt-6 sm:px-9 rounded-lg shadow-lg bg-interface dark:bg-dark-interface"
 		>
 			<div class="flex justify-between items-center w-full">
 				<div class="w-1/2">
@@ -31,34 +31,69 @@
 						{{ postTitle }}
 					</h1>
 				</div>
-				<div
-					class="drop-down-categ w-1/2 flex items-center justify-end font-montserrat"
-				>
-					<select
-						id="category-option"
-						v-model="categoryOption"
-						class="appearance-none outline-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg ring-1 ring-gray-600 block w-3/4 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-					>
-						<option class="mb-2" value="" disabled selected>
-							Category
-						</option>
-						<option value="Food">Food</option>
-						<option value="Traditions">Traditions</option>
-						<option value="History">History</option>
-					</select>
+				<div class="w-1/2 sm:w-1/4 font-montserrat">
+					<div class="relative">
+						<select
+							id="category-option"
+							v-model="categoryOption"
+							class="appearance-none w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8"
+						>
+							<option value="" disabled selected>
+								Select a Category
+							</option>
+							<option
+								v-for="category in categories"
+								:key="category"
+								:value="category"
+							>
+								{{ category }}
+							</option>
+						</select>
+						<div
+							class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300"
+						>
+							<ChevronDownIcon class="h-4 w-4" />
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="for-content flex flex-col w-full mt-3">
-				<div class="flex space-x-2">
+				<div class="flex sm:space-x-2">
 					<div class="hidden sm:flex size-14 rounded-full">
+						<span
+							v-if="!post_profile_display"
+							class="flex items-center"
+						>
+							<svg
+								class="animate-spin h-5 w-5 mr-3 dark:text-white"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								></path>
+							</svg>
+						</span>
 						<img
+							v-else
 							:src="post_profile_display"
 							alt="Profile"
 							class="object-cover rounded-full cursor-pointer"
 						/>
 					</div>
 					<textarea
-						class="w-full rounded-lg resize-none p-4 outline-none dark:bg-dark-field dark:text-dark-prime"
+						class="w-full rounded-lg resize-none p-4 outline-none ring-1 ring-gray-600 dark:bg-dark-field dark:text-dark-prime"
 						name=""
 						id="post-content"
 						v-model="postContent"
@@ -68,41 +103,61 @@
 						placeholder="What do you want to share?"
 					></textarea>
 				</div>
-				<div
-					class="added-img-container flex h-20 sm:ml-[4.5rem] mt-2 rounded-lg"
-					v-if="selectedImageUrl"
-				>
-					<img
-						:src="selectedImageUrl"
-						alt="Post Image"
-						class="object-cover w-32 h-full rounded-lg mr-1"
-					/>
-				</div>
-				<div
-					class="added-itinerary-container flex items-center justify-between bg-field dark:bg-dark-second-dark h-10 w-1/3 p-3 sm:ml-[4.5rem] mt-2 rounded-lg"
-					v-if="selectedItinerary"
-				>
-					<p class="">{{ selectedItinerary.main_title }}</p>
-					<span
-						class="material-icons-outlined text-second text-2xl cursor-pointer"
-						@click="selectedItinerary = null"
-						>close</span
+				<div class="mt-4 space-y-4">
+					<!-- Image preview -->
+					<div v-if="selectedImageUrl" class="relative group">
+						<img
+							:src="selectedImageUrl"
+							alt="Post Image"
+							class="w-auto h-28 sm:h-40 object-cover rounded-lg shadow-md transition-all duration-300 group-hover:brightness-75"
+						/>
+						<button
+							@click="removeImage"
+							class="absolute top-2 left-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+						>
+							<XMarkIcon class="h-5 w-5" />
+						</button>
+					</div>
+
+					<!-- Itinerary preview -->
+					<div
+						v-if="selectedItinerary"
+						class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow-md"
 					>
+						<div class="flex items-center justify-between">
+							<h3
+								class="text-lg font-semibold text-gray-800 dark:text-white truncate"
+							>
+								{{ selectedItinerary.main_title }}
+							</h3>
+							<button
+								@click="removeItinerary"
+								class="text-gray-500 hover:text-red-500 transition-colors duration-200"
+							>
+								<XMarkIcon class="h-5 w-5" />
+							</button>
+						</div>
+						<p
+							class="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2"
+						>
+							{{ selectedItinerary.main_description }}
+						</p>
+					</div>
 				</div>
 			</div>
 			<div
-				class="about-country font-montserrat flex my-3 items-center justify-between border-b-2 dark:border-dark-field p-1"
+				class="about-country font-montserrat flex my-3 items-center sm:justify-between border-b-2 dark:border-dark-field"
 			>
 				<p
 					class="hidden sm:flex text-sm text-prime dark:text-dark-prime"
 				>
 					What country is your post about?
 				</p>
-				<p
-					class="flex sm:hidden text-sm text-prime dark:text-dark-prime"
+				<!-- <p
+					class="text-sm text-prime dark:text-dark-prime"
 				>
 					Country
-				</p>
+				</p> -->
 				<input
 					id="country-post"
 					v-model="countryPost"
@@ -110,7 +165,7 @@
 					type="text"
 					ref="autocompletecountry"
 					placeholder="Country"
-					class="bg-field dark:bg-dark-second-dark dark:text-dark-prime text-xs rounded-full pl-4 ml-2 h-9 w-1/2 outline-none"
+					class="bg-field dark:bg-dark-second-dark dark:text-dark-prime text-xs rounded-full pl-4 sm:ml-2 h-9 w-full sm:w-1/2 outline-none"
 				/>
 
 				<div class="hidden sm:flex sm:w-1/5"></div>
@@ -136,37 +191,63 @@
 						>explore</span
 					>
 				</div>
-				<input
-					@click.prevent="submitPost"
+
+				<button
 					type="submit"
-					value="Post"
-					class="font-montserrat text-xl bg-second text-interface p-2 rounded-full w-36 h-10 sm:h-12 hover:bg-second-light cursor-pointer"
-				/>
+					class="font-montserrat text-base bg-second text-interface p-2 rounded-full w-36 h-8 sm:h-10 hover:bg-second-light cursor-pointer flex items-center justify-center"
+					@click.prevent="submitPost"
+					:disabled="isPosting"
+				>
+					<span v-if="!isPosting">Post</span>
+					<span v-else class="flex items-center">
+						<svg
+							class="animate-spin h-5 w-5 mr-3 text-white"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+							></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						Posting
+					</span>
+				</button>
 			</div>
 		</div>
 		<div
 			v-if="!posts.length"
-			class="border border-gray-300 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
+			class="border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full mx-auto"
 		>
 			<div class="animate-pulse flex space-x-4">
 				<div
-					class="rounded-full bg-gray-300 dark:bg-slate-700 h-10 w-10"
+					class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
 				></div>
 				<div class="flex-1 space-y-6 py-1">
 					<div
-						class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+						class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
 					></div>
 					<div class="space-y-3">
 						<div class="grid grid-cols-3 gap-4">
 							<div
-								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-2"
+								class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
 							></div>
 							<div
-								class="h-2 bg-gray-300 dark:bg-slate-700 rounded col-span-1"
+								class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
 							></div>
 						</div>
 						<div
-							class="h-2 bg-gray-300 dark:bg-slate-700 rounded"
+							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
 						></div>
 					</div>
 				</div>
@@ -176,7 +257,7 @@
 			<div>
 				<div
 					class="relative post-contents w-full p-6 mt-4 rounded-xl shadow-lg bg-white dark:bg-dark-field transition-all duration-200 hover:shadow-xl font-montserrat"
-					v-for="post in posts"
+					v-for="post in displayedPosts"
 					:key="post._id"
 				>
 					<!-- Header Section -->
@@ -270,72 +351,58 @@
 
 						<!-- Image Section -->
 						<div
-							v-if="!post.isEditing && post.image"
-							class="relative rounded-xl overflow-hidden cursor-pointer"
-							@click="openImageModal(post.image)"
+							class="flex sm:flex-row flex-col sm:space-x-2 space-y-2 sm:space-y-0 items-start"
 						>
-							<img
-								:src="post.image"
-								alt=""
-								class="w-full h-auto max-h-[20rem] object-cover"
-							/>
 							<div
-								class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
+								v-if="!post.isEditing && post.image"
+								class="relative w-1/2 rounded-xl overflow-hidden cursor-pointer"
+								:class="{
+									'w-full': !post.itinerary_in_post,
+								}"
+								@click="openImageModal(post.image)"
 							>
-								<span
-									class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
-								>
-									<i class="fas fa-search-plus text-4xl"></i>
-								</span>
-							</div>
-						</div>
-
-						<div v-else-if="post.image" class="space-y-4">
-							<label class="block">
-								<span class="sr-only">Choose image</span>
-								<input
-									type="file"
-									@change="handleImageUpload($event, post)"
-									accept="image/*"
-									class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-gray-700 dark:file:text-gray-200 hover:file:bg-blue-100 dark:hover:file:bg-gray-600 transition-all duration-200"
+								<img
+									:src="post.image"
+									alt=""
+									class="w-full max-h-[15rem] object-cover"
 								/>
-							</label>
-							<img
-								v-if="post.previewImage"
-								:src="post.previewImage"
-								alt="Preview"
-								class="w-full h-auto max-h-[20rem] object-cover rounded-xl cursor-pointer"
-								@click="openImageModal(post.previewImage)"
-							/>
-						</div>
-
-						<!-- Itinerary Section -->
-
-						<div
-							v-else
-							v-for="itinerary in post.itinerary_in_post"
-							:key="itinerary.id"
-							class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
-							@click="goToViewItinerary(itinerary.id)"
-						>
-							<img
-								v-if="itinerary.main_image"
-								:src="itinerary.main_image"
-								alt=""
-								class="w-full h-48 object-cover"
-							/>
-
-							<div class="p-4 bg-gray-50 dark:bg-gray-800">
-								<h3
-									class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
+								<div
+									class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
 								>
-									{{ itinerary.main_title }}
-								</h3>
-								<p
-									class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
-								>
-									{{ itinerary.main_description }}
-								</p>
+									<span
+										class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+									>
+										<i
+											class="fas fa-search-plus text-4xl"
+										></i>
+									</span>
+								</div>
+							</div>
+							<div
+								v-if="post.itinerary_in_post"
+								v-for="itinerary in post.itinerary_in_post"
+								:key="itinerary.id"
+								class="rounded-xl w-full overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+								@click="goToViewItinerary(itinerary.id)"
+							>
+								<img
+									v-if="itinerary.main_image"
+									:src="itinerary.main_image"
+									alt=""
+									class="w-full h-48 object-cover"
+								/>
+								<div class="p-4 bg-gray-50 dark:bg-gray-800">
+									<h3
+										class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
+									>
+										{{ itinerary.main_title }}
+									</h3>
+									<p
+										class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+									>
+										{{ itinerary.main_description }}
+									</p>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -778,7 +845,32 @@
 					</div>
 				</div>
 			</div>
+			<div v-if="hasMorePosts" class="flex justify-center mt-8">
+				<button
+					@click="loadMorePosts"
+					class="bg-second hover:bg-second-light text-white font-bold py-2 px-4 rounded"
+				>
+					Load More
+				</button>
+			</div>
 		</section>
+		<transition
+			enter-active-class="transition ease-out duration-300"
+			enter-from-class="opacity-0 translate-y-10"
+			enter-to-class="opacity-100 translate-y-0"
+			leave-active-class="transition ease-in duration-300"
+			leave-from-class="opacity-100 translate-y-0"
+			leave-to-class="opacity-0 translate-y-10"
+		>
+			<button
+				v-show="showScrollTop"
+				@click="scrollToTop"
+				class="fixed bottom-5 right-5 bg-second hover:bg-second-light text-white p-2 rounded-full shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-second"
+				aria-label="Scroll to top"
+			>
+				<ChevronUpIcon class="h-6 w-6" />
+			</button>
+		</transition>
 	</div>
 	<Snackbar
 		:show="showSnackbar"
@@ -789,7 +881,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
@@ -808,6 +900,8 @@ import {
 	FaceSmileIcon,
 	PaperAirplaneIcon,
 	ArrowLeftIcon,
+	ChevronDownIcon,
+	ChevronUpIcon,
 } from "@heroicons/vue/24/solid";
 
 import {
@@ -835,6 +929,28 @@ const postTitle = ref("");
 const addItineraryModal = ref(false);
 const showModal = ref(false);
 const categoryOption = ref("");
+const categories = [
+	"Food",
+	"Traditions",
+	"History",
+	"Art",
+	"Music",
+	"Literature",
+	"Fashion",
+	"Festivals",
+	"Language",
+	"Architecture",
+	"Sports",
+	"Religion",
+	"Mythology",
+	"Crafts",
+	"Dance",
+	"Cinema",
+	"Technology",
+	"Education",
+	"Cuisine",
+	"Folklore",
+];
 const postContent = ref("");
 const countryPost = ref("");
 const selectedPost = ref([]);
@@ -951,14 +1067,13 @@ const calculateAverageRating = (ratings) => {
 };
 
 const createNewItinerary = () => {
-	// Implement create new itinerary logic
-	console.log("Creating new itinerary...");
+	addItineraryModal.value = false;
+	router.push({ name: "create-itinerary" });
 };
 
 const confirmSelection = () => {
 	if (selectedItinerary.value) {
 		// Emit selected itinerary to parent component
-		console.log("Selected itinerary:", selectedItinerary.value);
 		addItineraryModal.value = false;
 	}
 };
@@ -966,7 +1081,6 @@ const confirmSelection = () => {
 const fetchUser = async () => {
 	try {
 		const res = await store.dispatch("fetchUserData");
-		console.log(res);
 
 		post_profile_display.value = res.profile?.user_photo;
 		auth_user.value = res.user.id;
@@ -975,16 +1089,35 @@ const fetchUser = async () => {
 	}
 };
 
+const displayedPosts = ref([]);
+const postsPerPage = 5;
+const currentPage = ref(1);
+
+const hasMorePosts = computed(() => {
+	return displayedPosts.value.length < posts.value.length;
+});
 const fetchPosts = async () => {
 	try {
 		await store.dispatch("fetchPosts");
 
 		posts.value = store.getters.getPosts;
-		console.log("POSTS:  ", posts.value);
+		// console.log("POSTS:  ", posts.value);
+		updateDisplayedPosts();
 	} catch (error) {
 		console.error("Error fetching posts:", error);
 	}
 };
+const updateDisplayedPosts = () => {
+	const start = 0;
+	const end = currentPage.value * postsPerPage;
+	displayedPosts.value = posts.value.slice(start, end);
+};
+
+const loadMorePosts = () => {
+	currentPage.value++;
+	updateDisplayedPosts();
+};
+
 const formatLikeCount = (count) => {
 	return count >= 1000 ? (count / 1000).toFixed(1) + "k" : count;
 };
@@ -1060,6 +1193,7 @@ const gotoUser = async (user) => {
 		},
 	});
 };
+const isPosting = ref(false);
 const submitPost = async () => {
 	if (isPostInvalid.value) {
 		showMessage(`Please fill all fields correctly.`, "error");
@@ -1075,6 +1209,7 @@ const submitPost = async () => {
 		if (picture.value instanceof File) {
 			formData.append("image", picture.value, picture.value.name);
 		}
+		isPosting.value = true;
 
 		try {
 			await axiosClient.post("/posting", formData, {
@@ -1091,8 +1226,21 @@ const submitPost = async () => {
 			await fetchPosts();
 		} catch (error) {
 			console.error("Error submitting post:", error);
+		} finally {
+			isPosting.value = false;
 		}
 	}
+};
+const removeImage = () => {
+	selectedImageUrl.value = null;
+	// Reset the file input if needed
+	if (document.getElementById("imgSelect")) {
+		document.getElementById("imgSelect").value = "";
+	}
+};
+const removeItinerary = () => {
+	id_of_selected.value = "";
+	selectedItinerary.value = null;
 };
 
 const submitReply = async () => {
@@ -1117,7 +1265,7 @@ const fetchSavedItineraries = async () => {
 	try {
 		await store.dispatch("fetchItineraries");
 		itineraries.value = store.getters.getItineraries;
-		console.log("ITINERARIES: ", itineraries.value);
+		// console.log("ITINERARIES: ", itineraries.value);
 	} catch (error) {
 		console.error("Error fetching saved itineraries:", error);
 	}
@@ -1130,8 +1278,6 @@ const selectItinerary = (itinerary) => {
 };
 
 const goToViewItinerary = (itineraryId) => {
-	console.log("ITINERARY ", itineraryId);
-
 	router.push({ name: "view-itinerary", query: { id: itineraryId } });
 };
 
@@ -1158,8 +1304,29 @@ const handleImageUpload = (event, post) => {
 		reader.readAsDataURL(file);
 	}
 };
+const showScrollTop = ref(false);
 
+const checkScroll = () => {
+	showScrollTop.value = window.scrollY > 100;
+};
+
+const scrollToTop = () => {
+	window.scrollTo({
+		top: 0,
+		behavior: "smooth",
+	});
+};
+
+// onMounted(() => {});
+
+onUnmounted(() => {
+	window.removeEventListener("scroll", checkScroll);
+});
 onMounted(async () => {
+	window.addEventListener("scroll", checkScroll);
+	nextTick(() => {
+		checkScroll(); // Check scroll position after initial render
+	});
 	await fetchUser();
 	await fetchPosts();
 	await fetchSavedItineraries();

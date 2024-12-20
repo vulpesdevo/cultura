@@ -2,7 +2,7 @@ import axios from "axios";
 import store from "./store";
 
 const axiosClient = axios.create({
-	baseURL: "https://apicultura.futurewebbuilders.design/api",
+	baseURL: "http://127.0.0.1:8000/api",
 	xsrfCookieName: "csrftoken",
 	timeout: 5000,
 	withCredentials: true,

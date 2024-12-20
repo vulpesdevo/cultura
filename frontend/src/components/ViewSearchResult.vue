@@ -175,81 +175,60 @@
 
 								<!-- Image Section -->
 								<div
-									v-if="!post.isEditing && post.image"
-									class="relative rounded-xl overflow-hidden cursor-pointer"
-									@click="openImageModal(post.image)"
+									class="flex sm:flex-row flex-col sm:space-x-2 space-y-2 sm:space-y-0 items-start"
 								>
-									<img
-										:src="post.image"
-										alt=""
-										class="w-full h-auto max-h-[20rem] object-cover"
-									/>
 									<div
-										class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
+										v-if="!post.isEditing && post.image"
+										class="relative w-1/2 rounded-xl overflow-hidden cursor-pointer"
+										:class="{
+											'w-full': !post.itinerary_in_post,
+										}"
+										@click="openImageModal(post.image)"
 									>
-										<span
-											class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
-										>
-											<i
-												class="fas fa-search-plus text-4xl"
-											></i>
-										</span>
-									</div>
-								</div>
-
-								<div v-else-if="post.image" class="space-y-4">
-									<label class="block">
-										<span class="sr-only"
-											>Choose image</span
-										>
-										<input
-											type="file"
-											@change="
-												handleImageUpload($event, post)
-											"
-											accept="image/*"
-											class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-gray-700 dark:file:text-gray-200 hover:file:bg-blue-100 dark:hover:file:bg-gray-600 transition-all duration-200"
+										<img
+											:src="post.image"
+											alt=""
+											class="w-full max-h-[15rem] object-cover"
 										/>
-									</label>
-									<img
-										v-if="post.previewImage"
-										:src="post.previewImage"
-										alt="Preview"
-										class="w-full h-auto max-h-[20rem] object-cover rounded-xl cursor-pointer"
-										@click="
-											openImageModal(post.previewImage)
-										"
-									/>
-								</div>
-
-								<!-- Itinerary Section -->
-								<div
-									v-else
-									v-for="itinerary in post.itinerary_in_post"
-									:key="itinerary.id"
-									class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
-									@click="goToViewItinerary(itinerary.id)"
-								>
-									<img
-										v-if="itinerary.main_image"
-										:src="itinerary.main_image"
-										alt=""
-										class="w-full h-48 object-cover"
-									/>
-
+										<div
+											class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center"
+										>
+											<span
+												class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+											>
+												<i
+													class="fas fa-search-plus text-4xl"
+												></i>
+											</span>
+										</div>
+									</div>
 									<div
-										class="p-4 bg-gray-50 dark:bg-gray-800"
+										v-if="post.itinerary_in_post"
+										v-for="itinerary in post.itinerary_in_post"
+										:key="itinerary.id"
+										class="rounded-xl w-full overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"
+										@click="goToViewItinerary(itinerary.id)"
 									>
-										<h3
-											class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
+										<img
+											v-if="itinerary.main_image"
+											:src="itinerary.main_image"
+											alt=""
+											class="w-full h-48 object-cover"
+										/>
+										<div
+											class="p-4 bg-gray-50 dark:bg-gray-800"
 										>
-											{{ itinerary.main_title }}
-										</h3>
-										<p
-											class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
-										>
-											{{ itinerary.main_description }}
-										</p>
+											<h3
+												class="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-2"
+											>
+												{{ itinerary.main_title }}
+											</h3>
+											<p
+												class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2"
+											>
+												{{ itinerary.main_description }}
+											</p>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -742,7 +721,7 @@
 </template>
 <script setup>
 import axios from "axios";
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useDark, useToggle } from "@vueuse/core";
 import moment from "moment";
 import { useStore } from "vuex";
@@ -819,23 +798,34 @@ const client = axios.create({
 	},
 });
 
-onMounted(() => {
-	if (!route.query.q) {
-		router.push({ name: "dashboard" });
-	} else {
+const loadSearchResults = () => {
+	if (route.query.q) {
 		result.value = JSON.parse(route.query.q);
-		console.log("valid object", result.value);
 		posts.value = result.value.posts;
 		users.value = result.value.users;
-		console.log("user", result.value.users);
+	} else {
+		router.push({ name: "dashboard" });
 	}
+};
+onMounted(() => {
+	loadSearchResults();
 });
+
+// Watch for changes in the route query
+watch(
+	() => route.query.q,
+	(newQuery) => {
+		if (newQuery) {
+			loadSearchResults();
+		}
+	},
+	{ immediate: true }
+);
 
 const follow = (userId) => {
 	axiosClient
 		.post(`/follow/${userId}/follow/`)
 		.then((response) => {
-			console.log(response.data);
 			const userIndex = users.value.findIndex(
 				(user) => user.user === userId
 			);
@@ -857,8 +847,6 @@ const follow = (userId) => {
 };
 
 const goToViewItinerary = (itineraryId) => {
-	console.log("ITINERARY ", itineraryId);
-
 	router.push({ name: "view-itinerary", query: { id: itineraryId } });
 };
 
@@ -866,7 +854,6 @@ const likePost = (post_id) => {
 	axiosClient
 		.post(`/like-posts/${post_id}/like_post/`)
 		.then((response) => {
-			console.log(response.data);
 			fetchPosts();
 		})
 		.catch((error) => {
@@ -902,7 +889,6 @@ const submitReply = () => {
 			body: reply.value,
 		})
 		.then((response) => {
-			console.log(response.data);
 			reply.value = "";
 			fetchPosts();
 		})
@@ -917,14 +903,11 @@ const fetchPosts = () => {
 		.then((response) => {
 			posts.value = response.data.reverse();
 			if (posts.value.length > 0) {
-				console.log("GET POST fetch", selectedPost.value);
 				itineraries_frompost.value = posts.value[0].itinerary_in_post;
 				comments_in_post.value =
 					posts.value.find((p) => p._id === post_id.value)
 						?.comments || [];
-				console.log("the id : ", comments_in_post.value);
 			}
-			console.log("updated :", posts.value[0]);
 		})
 		.catch((error) => {
 			console.log(error);

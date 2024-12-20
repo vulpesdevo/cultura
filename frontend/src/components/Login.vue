@@ -255,11 +255,36 @@
 						@click="fpmodalActive = true"
 						>Forgot passsword?</a
 					>
-					<input
+					<button
 						type="submit"
-						value="Log in"
-						class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light cursor-pointer"
-					/>
+						class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light cursor-pointer flex items-center justify-center"
+						:disabled="isLoggingIn"
+					>
+						<span v-if="!isLoggingIn">Log in</span>
+						<span v-else class="flex items-center">
+							<svg
+								class="animate-spin h-5 w-5 mr-3 text-white"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								></path>
+							</svg>
+							Logging in...
+						</span>
+					</button>
 					<span class="flex"
 						><p class="text-black dark:text-dark-prime">
 							Don't have an account?
@@ -1248,7 +1273,6 @@ const sendOTPfp = async () => {
 				"sendForgotPasswordOTP",
 				fpemail.value
 			);
-			console.log("OTP send successful:", response);
 			fpmodalOTPActive.value = true;
 			fpmodalActive.value = false;
 		} catch (error) {
@@ -1308,9 +1332,12 @@ const confirmPassword = async () => {
 		console.log("Password does not match");
 	}
 };
+const isSigningUp = ref(false);
 
 const submitRegistration = async () => {
 	if (rpassword.value === repassword.value) {
+		isSigningUp.value = true;
+
 		try {
 			// await store.dispatch("register", {
 			// 	email: email.value,
@@ -1323,8 +1350,9 @@ const submitRegistration = async () => {
 				email: email.value,
 				username: rusername.value,
 			});
+			showMessage(`Otp sent successfully to ${email.value}`, "success");
 
-			console.log("Otp send successful:", response);
+			// console.log("Otp send successful:", response);
 			// Navigate to OTP verification or dashboard based on your flow
 			router.push({
 				name: "otp",
@@ -1349,6 +1377,8 @@ const submitRegistration = async () => {
 				error_user.value = true;
 				showMessage(`${error.response.data.username_error}`, "error");
 			}
+		} finally {
+			isSigningUp.value = false;
 		}
 	} else {
 		error.value = true;
@@ -1356,8 +1386,10 @@ const submitRegistration = async () => {
 	}
 };
 const errorMessage = ref("");
-
+const isLoggingIn = ref(false);
 const submitLogin = async () => {
+	isLoggingIn.value = true;
+
 	try {
 		await store.dispatch("login", {
 			username: username.value,
@@ -1370,6 +1402,8 @@ const submitLogin = async () => {
 		// errorMessage.value = "Incorrect creadentials. Please try again.";
 		showMessage(`Incorrect creadentials. Please try again.`, "error");
 		// Handle login error (e.g., show error message)
+	} finally {
+		isLoggingIn.value = false;
 	}
 };
 

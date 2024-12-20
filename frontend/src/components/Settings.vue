@@ -733,7 +733,6 @@ const confirmPrivacy = async (confirm) => {
 	if (confirm) {
 		try {
 			await store.dispatch("updatePrivacy", isPrivate.value);
-			console.log("Privacy updated successfully");
 			createToast(
 				`Your account is now ${
 					isPrivate.value ? "private" : "public"
@@ -806,7 +805,6 @@ const changeInformation = async () => {
 			email: setemail.value,
 			country: setcountry.value,
 		});
-		console.log("Changed:", response.data);
 		createToast("Information updated successfully.", "success");
 		editing.value = false;
 		setpassword.value = "";
@@ -825,7 +823,6 @@ const changePassword = async () => {
 			password: old_password.value,
 			new_password: new_password.value,
 		});
-		console.log("Changed:", response.data);
 		createToast("Password changed successfully.", "success");
 		passediting.value = false;
 		resetPasswordFields();

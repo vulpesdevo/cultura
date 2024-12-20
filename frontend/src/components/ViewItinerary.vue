@@ -1002,7 +1002,6 @@ const deleteItinerary = async () => {
 	isDeleting.value = true;
 
 	const id = editingItinerary.value ? editingItinerary.value.id : null;
-	console.log("ID", id);
 
 	const viewed_it_id = itinerary_id.value;
 	if (editingItinerary.value) {
@@ -1036,7 +1035,7 @@ const locatorBtn = () => {
 			(position) => {
 				latitude.value = position.coords.latitude;
 				longitude.value = position.coords.longitude;
-				console.log("Current position:", position.coords);
+				// console.log("Current position:", position.coords);
 				getAddressFrom(latitude.value, longitude.value);
 			},
 			(error) => {
@@ -1080,7 +1079,7 @@ const submitItinerary = () => {
 						...list_itineraries.value[index],
 						...response,
 					};
-					console.log("LIST OF ITINERARIES", list_itineraries.value);
+					// console.log("LIST OF ITINERARIES", list_itineraries.value);
 				}
 				await letDetails();
 				await fetchItineraries();
@@ -1089,7 +1088,7 @@ const submitItinerary = () => {
 				showModal.value = false;
 			} else {
 				list_itineraries.value.push(response);
-				console.log("CREATEDD NEW in VIEWING: ", response);
+				// console.log("CREATEDD NEW in VIEWING: ", response);
 				const id = response.id;
 				const id_in_saved_itinerary = itinerary_id.value;
 				await store
@@ -1098,7 +1097,7 @@ const submitItinerary = () => {
 						id_in_saved_itinerary,
 					})
 					.then(async (response) => {
-						console.log("UPDATED ITINERARY", response);
+						// console.log("UPDATED ITINERARY", response);
 						await letDetails();
 						await fetchItineraries();
 						await showLocationOntheMap();
@@ -1352,7 +1351,7 @@ const fetchSavedItineraries = async () => {
 			);
 
 			itineraries.value = response;
-			console.log("ITINERARIES", itineraries.value);
+			// console.log("ITINERARIES", itineraries.value);
 
 			itineraryDetails.creator_name = response.creator_name;
 			itineraryDetails.user_photo = response.cultura_user.user_photo;
@@ -1368,7 +1367,7 @@ const fetchSavedItineraries = async () => {
 			itineraryDetails.status = response.status;
 			total_budget.value = response.total_budget;
 			allRatings.value = response.rating.map((item) => item.rating);
-			console.log("ITINERARY ID: " + list_itineraries.value);
+			// console.log("ITINERARY ID: " + list_itineraries.value);
 			await letDetails();
 			paragraphs.value = itineraryDetails.gen_tips.split(/\n+/);
 			// console.log("this is the paragraph", list_itineraries.value);
@@ -1800,7 +1799,7 @@ const getAddressFrom = async (lat, long) => {
 
 		if (response.data.results && response.data.results.length > 0) {
 			const address = response.data.results[0].formatted_address;
-			console.log("Reverse geocoded address:", address);
+			// console.log("Reverse geocoded address:", address);
 			location.value = address;
 			// You can update a ref here to display the address in your component
 		} else {
@@ -1827,7 +1826,7 @@ const initializeAutocomplete = () => {
 				latitude.value = place.geometry.location.lat();
 				longitude.value = place.geometry.location.lng();
 				location.value = place.formatted_address;
-				console.log("Selected place:", location.value);
+				// console.log("Selected place:", location.value);
 			} else {
 				console.log("Selected place does not have a geometry");
 			}
@@ -1844,7 +1843,7 @@ const findNearestTouristAttractions = async () => {
 			// 	mobileMap.value
 			// );
 			const position = await getCurrentLocation();
-			console.log("Current location:", position);
+			// console.log("Current location:", position);
 
 			const location = {
 				latitude: position.coords.latitude,
@@ -1865,7 +1864,7 @@ const findNearestTouristAttractions = async () => {
 			service.nearbySearch(request, (results, status) => {
 				if (status === google.maps.places.PlacesServiceStatus.OK) {
 					suggested_places.value = results;
-					console.log("Suggested places:", results);
+					// console.log("Suggested places:", results);
 
 					results.forEach((place) => {
 						const name = place.name;

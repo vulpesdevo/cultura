@@ -46,7 +46,7 @@
 						<textarea
 							v-model="post.content"
 							rows="4"
-							class="w-full ring-1 ring-gray-700 border-0 bg-dark-field rounded-lg p-4 text-gray-800 dark:text-gray-200 resize-none focus:ring-1 focus:ring-blue-500 transition-all duration-200"
+							class="w-full ring-1 ring-blue-700 border-0 dark:bg-dark-field rounded-lg p-4 text-gray-800 dark:text-gray-200 resize-none focus:ring-1 focus:ring-blue-500 transition-all duration-200"
 							placeholder="What's on your mind?"
 						></textarea>
 					</div>
@@ -228,7 +228,6 @@ const fetchPost = async () => {
 		const response = await axiosClient.get(
 			`/liked-post-view/${route.params.post_id}/`
 		);
-		console.log("RESPONSE", response);
 		posts.value = response.data;
 	} catch (error) {
 		console.error("Error fetching post:", error);
@@ -256,7 +255,6 @@ const handleSubmit = async () => {
 				},
 			}
 		);
-		console.log("RESPONSE EDITING: ", response);
 
 		router.push({ name: "profile" });
 	} catch (error) {

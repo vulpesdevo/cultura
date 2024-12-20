@@ -1,7 +1,9 @@
 <template>
-	<div class="h-screen bg-field dark:bg-gray-900 p-6">
+	<div class="h-screen bg-gray-50 dark:bg-gray-900 p-6">
 		<div class="max-w-7xl mx-auto">
-			<h1 class="text-3xl font-bold text-prime dark:text-white mb-8">
+			<h1
+				class="text-5xl font-bold font-bebas-neue text-prime dark:text-white mb-4"
+			>
 				Cultura Users Management
 			</h1>
 
@@ -10,7 +12,7 @@
 				<div
 					v-for="user in culturaUsers"
 					:key="user.id"
-					class="relative bg-dark-second-dark dark:bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:translate-y-[-2px]"
+					class="relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 shadow-lg hover:shadow-blue-500/10 hover:translate-y-[-2px]"
 				>
 					<div class="p-6">
 						<!-- User Header -->
@@ -89,13 +91,13 @@
 						<div class="mt-4 flex justify-end space-x-2">
 							<button
 								@click="openEditModal(user)"
-								class="px-4 py-2 text-sm font-medium text-white bg-blue-500/10 rounded-md hover:bg-blue-500/20 transition-colors duration-200"
+								class="px-4 py-2 text-sm font-medium text-white bg-second dark:bg-blue-500/10 rounded-md hover:bg-blue-500/20 transition-colors duration-200"
 							>
 								Edit
 							</button>
 							<button
 								@click="confirmDelete(user.id)"
-								class="px-4 py-2 text-sm font-medium text-white bg-red-500/10 rounded-md hover:bg-red-500/20 transition-colors duration-200"
+								class="px-4 py-2 text-sm font-medium text-white bg-rose-400 dark:bg-red-500/10 rounded-md hover:bg-red-500/20 transition-colors duration-200"
 							>
 								Delete
 							</button>
@@ -103,7 +105,7 @@
 
 						<!-- Hover Details -->
 						<div
-							class="absolute inset-0 w-3/4 bg-gray-800/95 opacity-0 group-hover:opacity-100 group-hover:visible transition-all duration-300 flex items-center justify-center p-6 z-10"
+							class="absolute inset-0 w-3/4 bg-gray-500/70 dark:bg-gray-800/95 opacity-0 group-hover:opacity-100 group-hover:visible transition-all duration-300 flex items-center justify-center p-6 z-10"
 							:class="{
 								'opacity-100 ': activeUserId === user.id,
 							}"
@@ -122,7 +124,7 @@
 									<!-- Stats -->
 									<div>
 										<h5
-											class="text-sm font-medium text-gray-400 mb-2"
+											class="text-sm font-medium text-white dark:text-gray-400 mb-2"
 										>
 											Statistics
 										</h5>

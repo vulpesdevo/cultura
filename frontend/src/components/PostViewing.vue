@@ -22,9 +22,9 @@
 			>
 				<!-- Post Header -->
 				<div
-					class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
+					class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-start sm:justify-between"
 				>
-					<div class="flex items-center space-x-3">
+					<div class="flex items-center w-full sm:w-auto space-x-3">
 						<img
 							:src="post.cultura_user.user_photo"
 							alt="Profile"
@@ -32,7 +32,7 @@
 						/>
 						<div>
 							<h2
-								class="font-semibold text-gray-900 dark:text-white"
+								class="font-semibold font-bebas-neue tracking-wider text-gray-900 dark:text-white"
 							>
 								{{ post.title }}
 							</h2>
@@ -45,7 +45,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="text-sm text-gray-500 dark:text-gray-400">
+					<div
+						class="text-sm text-gray-500 dark:text-gray-400 w-3/4 sm:w-auto"
+					>
 						{{ post.category }} | {{ post.country }}
 					</div>
 				</div>
@@ -65,7 +67,7 @@
 					<!-- Itinerary Preview (if available) -->
 					<!-- Itinerary Section -->
 					<div
-						v-else
+						v-if="post.itinerary_in_post"
 						v-for="itinerary in post.itinerary_in_post"
 						:key="itinerary.id"
 						class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 cursor-pointer"

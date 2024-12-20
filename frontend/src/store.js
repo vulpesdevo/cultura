@@ -100,7 +100,6 @@ const store = createStore({
 			state.user.data = userData.profile;
 			state.user.token = userData.token;
 			state.user.is_admin = userData.profile?.is_admin;
-			console.log("USER DATA", userData.profile?.is_admin);
 
 			sessionStorage.setItem("TOKEN", userData.token);
 		},
@@ -208,7 +207,6 @@ const store = createStore({
 				})
 				.then((response) => {
 					// commit("setCulturaUser", response.data);
-					console.log("CulturaUser", response.data);
 
 					return response.data;
 				})
@@ -219,7 +217,6 @@ const store = createStore({
 		async viewCulturaUser({ commit }, id) {
 			try {
 				const response = await axiosClient.get(`/view_user/${id}/`);
-				console.log("CulturaUser", response.data);
 
 				commit("SET_CULTURAUSER", response.data);
 				return response.data;
@@ -233,7 +230,6 @@ const store = createStore({
 					"/user/update-privacy/",
 					{ is_private }
 				);
-				console.log("Privacy updated", response.data);
 
 				return response.data;
 			} catch (error) {
@@ -241,8 +237,6 @@ const store = createStore({
 			}
 		},
 		async fetchPublicProfilePosts({ commit }, userID) {
-			console.log("USERID::", userID);
-
 			try {
 				const response = await axiosClient.get(
 					"/public-profile-posts/",
@@ -512,8 +506,6 @@ const store = createStore({
 			}
 		},
 		async deleteItinerary({ commit, state }, { id, viewed_it_id = 0 }) {
-			console.log("ID IN STORE DELETE: ", id);
-
 			try {
 				const response = await axiosClient.delete(
 					`/delete-itinerary/${id}/${viewed_it_id}`,
@@ -534,7 +526,6 @@ const store = createStore({
 				? `/itinerary-stop/${itineraryId}`
 				: "/create-itinerary";
 			const method = itineraryId ? "put" : "post";
-			console.log("FROM STORE:", itineraryId, method);
 
 			try {
 				const response = await axiosClient[method](url, formData, {
@@ -549,7 +540,6 @@ const store = createStore({
 			}
 		},
 		async saveMainItinerary({ commit, state }, formData) {
-			console.log("FORM DATA", formData);
 			try {
 				const response = await axiosClient.post(
 					"/save-itinerary",
@@ -561,7 +551,6 @@ const store = createStore({
 						},
 					}
 				);
-				console.log(response.data);
 				// Reset form fields and navigate to itinerary page
 				return response.data;
 			} catch (error) {
@@ -572,8 +561,6 @@ const store = createStore({
 			{ commit, state },
 			{ id, id_in_saved_itinerary }
 		) {
-			console.log("ID IN STORE UPDATE: ", id, id_in_saved_itinerary);
-
 			try {
 				const response = await axiosClient.put(
 					`/update-save-itinerary/${id}/saved-itinerary/${id_in_saved_itinerary}/`,
@@ -584,7 +571,6 @@ const store = createStore({
 						},
 					}
 				);
-				console.log(response.data);
 				// Reset form fields and navigate to itinerary page
 				return response.data;
 			} catch (error) {
@@ -626,7 +612,6 @@ const store = createStore({
 				// 	commit("setItineraryDetails", itineraryDetails);
 				// }
 
-				console.log("ITINER", itineraries);
 				return response.data;
 			} catch (error) {
 				console.error("Error fetching saved itineraries:", error);
@@ -651,8 +636,6 @@ const store = createStore({
 			}
 		},
 		async deleteComment({ commit, state }, { _id }) {
-			console.log("ID IN STORE DELETE: ", _id);
-
 			try {
 				const response = await axiosClient.delete(
 					`/delete/${_id}/comment`,
@@ -775,7 +758,6 @@ const store = createStore({
 				})
 				.then((response) => {
 					commit("setUser", response.data);
-					console.log("setUser", response.data);
 					state.user.is_admin = response.data.profile.is_admin;
 					return response.data;
 				})
@@ -795,7 +777,6 @@ const store = createStore({
 						headers: { Authorization: `Token ${state.user.token}` },
 					}
 				);
-				console.log("Logout response:", response.data);
 				commit("logout");
 				return response;
 			} catch (error) {

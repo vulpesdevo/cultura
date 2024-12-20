@@ -33,6 +33,7 @@
 		"primevue": "^4.0.0",
 		"profanity-cleaner": "^0.0.3",
 		"serpapi": "^2.1.0",
+		"socket.io-client": "^4.8.1",
 		"vue": "^3.4.21",
 		"vue-router": "^4.0.13",
 		"vue3-otp-input": "^0.5.21",
