@@ -302,96 +302,109 @@
 			<!-- Forgot Password Modal -->
 			<div
 				v-show="fpmodalActive"
-				class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
 			>
 				<div
 					v-if="fpmodalActive"
-					class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface dark:bg-dark-interface self-start mt-36"
+					class="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transition-all duration-300 ease-in-out transform"
 				>
-					<div class="w-full flex justify-end items-end">
-						<span
-							@click="fpmodalActive = false"
-							class="flex material-icons-outlined justify-end cursor-pointer dark:text-interface"
-							>close</span
-						>
-					</div>
-					<h1
-						class="flex text-4xl sm:text-7xl text-prime dark:text-interface font-bebas-neue my-5 justify-center"
-					>
-						reset your password
-					</h1>
-					<p
-						class="flex text-center text-xs sm:text-[1rem] my-5 mb-7 sm:my-7 px-7 sm:px-20 font-montserrat dark:text-interface"
-					>
-						A one-time PIN will be emailed to you to help reset your
-						password.
-					</p>
-					<form class="flex justify-center w-full sm:px-24">
-						<div class="relative text-left mb-4 w-full">
-							<label
-								for=""
-								class="hidden sm:flex dark:text-interface"
-								>Email</label
+					<div class="p-6">
+						<div class="flex justify-end">
+							<button
+								@click="closeFpModal"
+								class="text-gray-400 hover:text-gray-500 transition-colors duration-200"
 							>
-
-							<div
-								class="absolute inset-y-0 start-0 flex sm:mt-6 items-center ps-3.5 pointer-events-none"
-							>
+								<span class="sr-only">Close</span>
 								<svg
-									class="w-4 h-4 text-gray-500 dark:text-gray-400"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="currentColor"
-									viewBox="0 0 20 16"
+									class="h-6 w-6"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
 								>
 									<path
-										d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z"
-									/>
-									<path
-										d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M6 18L18 6M6 6l12 12"
 									/>
 								</svg>
-							</div>
-							<input
-								type="email"
-								id="email"
-								v-model="fpemail"
-								:class="{
-									'ring-2 ring-red-500 ring-inset': error,
-									'ring-2 ring-green-500 ring-inset':
-										isGmailEmail,
-								}"
-								required
-								class="border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2 sm:mt-0 pl-5 rounded-full h-11 bg-field dark:bg-dark-second-dark dark:text-dark-prime outline-second"
-								placeholder="name@gmail.com"
-							/>
+							</button>
 						</div>
-						<!-- <div class="flex-col mb-6 px-5 sm:px-28">
-						<label
-							for="email"
-							class="flex ms-3 mb-2 text-sm font-bold text-prime dark:text-interface justify-start"
-							>Email</label
+
+						<h2
+							class="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-white mt-2 mb-6"
 						>
-						<input
-							type="email"
-							id="email"
-							v-model="fpemail"
-							class="text-prime text-sm rounded-3xl w-full p-2.5 pl-6 bg-field outline-none"
-							:class="{
-								'outline-red-500': error, // add this line
-							}"
-							required
-							placeholder="christina.tecson@sdca.edu.ph"
-						/>
-					</div> -->
-					</form>
-					<div class="flex justify-center">
-						<button
-							@click="sendOTPfp"
-							class="rounded-full text-xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue justify-center"
+							Reset Your Password
+						</h2>
+
+						<p
+							class="text-center text-gray-600 dark:text-gray-300 mb-8"
 						>
-							Send OTP
-						</button>
+							A one-time PIN will be emailed to you to help reset
+							your password.
+						</p>
+
+						<form @submit.prevent="sendOTPfp" class="space-y-6">
+							<div class="space-y-2">
+								<label
+									for="email"
+									class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+								>
+									Email
+								</label>
+								<div class="relative">
+									<div
+										class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+									>
+										<svg
+											class="w-5 h-5 text-gray-400"
+											fill="currentColor"
+											viewBox="0 0 20 16"
+										>
+											<path
+												d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z"
+											/>
+											<path
+												d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z"
+											/>
+										</svg>
+									</div>
+									<input
+										type="email"
+										id="email"
+										v-model="fpemail"
+										:class="{
+											'ring-2 ring-red-500': error,
+											'ring-2 ring-green-500':
+												isGmailEmail && !error,
+										}"
+										required
+										class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+										placeholder="name@example.com"
+										:disabled="isRequesting"
+									/>
+								</div>
+								<p
+									v-if="error"
+									class="mt-2 text-sm text-red-600 dark:text-red-500"
+								>
+									Please enter a valid email address.
+								</p>
+							</div>
+
+							<div class="flex justify-center">
+								<button
+									type="submit"
+									class="w-full sm:w-auto px-6 py-3 bg-second text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center"
+									:disabled="isRequesting"
+								>
+									<Spinner v-if="isRequesting" class="mr-2" />
+									{{
+										isRequesting ? "Sending..." : "Send OTP"
+									}}
+								</button>
+							</div>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -458,95 +471,153 @@
 			</div>
 			<div
 				v-if="fpmodalOTPActive"
-				class="absolute w-full bg-black bg-opacity-30 h-screen top-0 left-0 flex justify-center px-8 z-50"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
 			>
 				<div
-					class="flex-col sm:w-1/2 rounded-lg p-4 bg-interface self-start mt-36"
+					class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 ease-in-out"
 				>
-					<div class="flex justify-end">
-						<span
-							@click="fpmodalOTPActive = false"
-							class="material-icons-outlined justify-items-center"
-							>close</span
-						>
-					</div>
-					<h1
-						class="flex justify-center text-4xl sm:text-7xl text-prime font-bebas-neue my-5"
-					>
-						ENTER ONE TIME PIN
-					</h1>
-					<p
-						class="flex justify-center text-sm sm:text-lg my-5 mb-7 sm:my-7 px-7 sm:px-20 font-montserrat text-center"
-					>
-						Enter the pin sent to your email for verification
-					</p>
-					<form>
-						<div
-							class="flex mb-6 text-4xl text-center justify-evenly sm:px-28"
-						>
-							<input
-								v-for="(input, index) in inputs"
-								:key="index"
-								type="text"
-								maxlength="1"
-								class="w-12 sm:w-16 h-16 text-center text-2xl font-extrabold text-slate-900 bg-slate-200 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-								:class="{
-									'outline-red-500': error,
-									'outline-none': input !== '', // add this line
-								}"
-								v-model="inputs[index]"
-								@keyup="moveFocus($event, index)"
-								@input="
-									inputs[index] = $event.target.value.replace(
-										/[^0-9]/g,
-										''
-									)
-								"
-								:ref="(el) => (inputsRefs[index] = el)"
-							/>
+					<div class="p-6">
+						<div class="flex justify-end">
+							<button
+								@click="closeFpmodalOTP"
+								class="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+							>
+								<span class="sr-only">Close</span>
+								<svg
+									class="h-6 w-6"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M6 18L18 6M6 6l12 12"
+									/>
+								</svg>
+							</button>
 						</div>
-					</form>
-					<div class="flex justify-center">
-						<button
-							@click="verifyOTP('forgot-password')"
-							class="rounded-full text-2xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue"
+
+						<h2
+							class="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-white mt-2 mb-6"
 						>
-							Verify
-						</button>
+							Enter One-Time PIN
+						</h2>
+
+						<p
+							class="text-center text-gray-600 dark:text-gray-300 mb-8"
+						>
+							Enter the PIN sent to your email for verification
+						</p>
+
+						<form @submit.prevent="verifyOTP('forgot-password')">
+							<div
+								class="flex justify-center space-x-2 sm:space-x-4 mb-6"
+							>
+								<template
+									v-for="(input, index) in inputs"
+									:key="index"
+								>
+									<input
+										type="text"
+										maxlength="1"
+										v-model="inputs[index]"
+										@keyup="moveFocus($event, index)"
+										@input="sanitizeInput(index)"
+										:ref="
+											(el) => {
+												if (el) inputsRefs[index] = el;
+											}
+										"
+										class="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold text-gray-900 bg-gray-100 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+										:class="{
+											'border-red-500 focus:ring-red-500':
+												error,
+											'border-green-500 focus:ring-green-500':
+												inputs[index] !== '',
+										}"
+									/>
+								</template>
+							</div>
+
+							<div class="flex justify-center">
+								<button
+									type="submit"
+									class="w-full sm:w-auto px-6 py-3 bg-second text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center"
+									:disabled="isVerifying"
+								>
+									<Spinner v-if="isVerifying" class="mr-2" />
+									{{
+										isVerifying ? "Verifying..." : "Verify"
+									}}
+								</button>
+							</div>
+						</form>
+
+						<p
+							class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400"
+						>
+							Didn't receive the code?
+							<button
+								@click="resendOTP"
+								class="text-blue-600 hover:text-blue-800 font-medium"
+							>
+								Resend
+							</button>
+						</p>
 					</div>
 				</div>
 			</div>
 			<div
 				v-show="modalChangeActive"
-				class="fixed flex bg-black bg-opacity-30 h-screen w-screen items-start justify-center px-8"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
 			>
 				<div
 					v-if="modalChangeActive"
-					class="flex-col w-full sm:w-1/2 rounded-lg p-4 bg-interface dark:bg-dark-interface mt-36"
+					class="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transition-all duration-300 ease-in-out transform"
 				>
-					<div class="w-full flex justify-end items-end">
-						<span
-							@click="modalChangeActive = false"
-							class="flex material-icons-outlined justify-end dark:text-interface cursor-pointer"
-							>close</span
-						>
-					</div>
-					<h1
-						class="flex text-4xl sm:text-7xl text-prime dark:text-interface font-bebas-neue my-5 justify-center"
-					>
-						Change Password
-					</h1>
-					<form method="POST">
-						<div class="flex-col mb-6 px-5 sm:px-28">
-							<div
-								class="sm:mb-2 flex flex-col justify-between items-start"
+					<div class="p-6">
+						<div class="flex justify-end">
+							<button
+								@click="closeModal"
+								class="text-gray-400 hover:text-gray-500 transition-colors duration-200"
 							>
-								<label
-									for="newpassword"
-									class="hidden sm:flex ms-3 mb-2 text-sm font-bold text-prime dark:text-interface justify-start"
-									>New Password</label
+								<span class="sr-only">Close</span>
+								<svg
+									class="h-6 w-6"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
 								>
-								<div class="relative w-full px-1">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M6 18L18 6M6 6l12 12"
+									/>
+								</svg>
+							</button>
+						</div>
+
+						<h2
+							class="text-3xl font-bold text-center text-gray-900 dark:text-white mt-2 mb-6"
+						>
+							Change Password
+						</h2>
+
+						<form
+							@submit.prevent="confirmPassword"
+							class="space-y-6"
+						>
+							<div class="space-y-2">
+								<label
+									for="fp_newpassword"
+									class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+								>
+									New Password
+								</label>
+								<div class="relative">
 									<input
 										:type="
 											showPassword ? 'text' : 'password'
@@ -554,111 +625,55 @@
 										id="fp_newpassword"
 										v-model="fp_newpassword"
 										:class="{
-											'outline-red-500': error, // add this line
+											'ring-2 ring-red-500': error,
 										}"
-										class="text-prime text-sm rounded-3xl w-full h-10 pl-6 pr-14 bg-field dark:bg-dark-second-dark dark:text-interface outline-second"
-										placeholder="New Password"
+										class="block w-full px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+										placeholder="Enter new password"
 										required
 									/>
 									<button
-										class="absolute right-5 top-2"
-										@click.prevent="
-											showPassword = !showPassword
-										"
+										type="button"
+										@click="showPassword = !showPassword"
+										class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500"
 									>
 										<i
-											class="fas text-gray-500 dark:text-gray-400"
 											:class="
 												showPassword
-													? 'fa-eye'
-													: 'fa-eye-slash'
+													? 'fas fa-eye'
+													: 'fas fa-eye-slash'
 											"
 										></i>
 									</button>
 								</div>
 							</div>
 
-							<div
-								class="flex flex-col justify-end items-start mt-0 mb-2"
-							>
-								<div
-									class="flex w-full sm:w-3/4 h-20 dark:text-dark-second-dark"
-								>
-									<div
-										class="flex flex-col items-end justify-evenly w-5 h-full"
-									>
-										<div class="h-3">
-											<span
-												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasCapitalLetter"
-											>
-												check_circle
-											</span>
-										</div>
-										<div class="h-3">
-											<span
-												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasSymbol"
-											>
-												check_circle
-											</span>
-										</div>
-										<div class="h-3">
-											<span
-												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasNumber"
-											>
-												check_circle
-											</span>
-										</div>
-										<div class="h-3">
-											<span
-												class="material-icons-outlined text-green-700 text-sm"
-												v-if="hasMinLength"
-											>
-												check_circle
-											</span>
-										</div>
-									</div>
-									<div
-										class="flex flex-col justify-evenly h-20 items-start pt-[.45rem]"
-									>
-										<label
-											for="has-capital-letter"
-											class="ml-2 text-xs h-4"
-											>has capital letter</label
-										>
-
-										<label
-											for="has-symbol"
-											class="ml-2 text-xs h-4"
-											>has symbol</label
-										>
-
-										<label
-											for="has-number"
-											class="ml-2 text-xs h-4"
-											>has number</label
-										>
-
-										<label
-											for="has-min-length"
-											class="ml-2 text-xs h-4"
-											>has at least 8 characters</label
-										>
-									</div>
-								</div>
+							<div class="grid grid-cols-2 gap-4">
+								<ValidationItem
+									:isValid="hasCapitalLetter"
+									label="Capital letter"
+								/>
+								<ValidationItem
+									:isValid="hasSymbol"
+									label="Symbol"
+								/>
+								<ValidationItem
+									:isValid="hasMinLength"
+									label="8 characters"
+								/>
+								<ValidationItem
+									:isValid="hasNumber"
+									label="Number"
+								/>
 							</div>
 
-							<div
-								class="mb-6 flex flex-col justify-between items-start"
-							>
+							<div class="space-y-2">
 								<label
-									for="newpassword"
-									class="hidden sm:flex ms-3 mb-2 text-sm font-bold text-prime dark:text-interface justify-start"
-									>Confirm Password</label
+									for="fp_confirmpassword"
+									class="block text-sm font-medium text-gray-700 dark:text-gray-300"
 								>
-								<div class="relative w-full px-1">
+									Confirm Password
+								</label>
+								<div class="relative">
 									<input
 										:type="
 											showRePassword ? 'text' : 'password'
@@ -667,53 +682,58 @@
 										v-model="fp_confirmpassword"
 										:class="[
 											!isValidNewPassword
-												? 'cursor-not-allowed'
-												: 'cursor-pointer',
-											error ? 'outline-red-500' : '',
+												? 'cursor-not-allowed bg-gray-200 dark:bg-gray-600'
+												: '',
+											error ? 'ring-2 ring-red-500' : '',
 										]"
-										class="text-prime text-sm rounded-3xl w-full h-10 pl-6 pr-14 bg-field dark:bg-dark-second-dark dark:text-interface outline-second"
-										placeholder="Confirm New Password"
+										class="block w-full px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+										placeholder="Confirm new password"
 										:disabled="!isValidNewPassword"
 										required
 									/>
 									<button
-										:disabled="!isValidNewPassword"
-										:class="[
-											!isValidNewPassword
-												? 'cursor-not-allowed'
-												: 'cursor-pointer',
-										]"
-										class="absolute right-5 top-2"
-										@click.prevent="
+										type="button"
+										@click="
 											showRePassword = !showRePassword
 										"
+										:disabled="!isValidNewPassword"
+										:class="
+											!isValidNewPassword
+												? 'cursor-not-allowed'
+												: 'cursor-pointer'
+										"
+										class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500"
 									>
 										<i
-											class="fas text-gray-500 dark:text-gray-400"
 											:class="
 												showRePassword
-													? 'fa-eye'
-													: 'fa-eye-slash'
+													? 'fas fa-eye'
+													: 'fas fa-eye-slash'
 											"
 										></i>
 									</button>
 								</div>
 							</div>
-						</div>
-					</form>
-					<div class="flex justify-center">
-						<button
-							@click="confirmPassword"
-							:class="[
-								!isValidNewPassword || !isValidConfirmPassword
-									? 'cursor-not-allowed'
-									: 'cursor-pointer',
-							]"
-							class="rounded-full text-xl text-white mt-3 mb-6 bg-second py-3 px-7 font-bebas-neue justify-center"
-							:disabled="!isValidNewPassword"
-						>
-							Confirm
-						</button>
+
+							<div class="flex justify-center">
+								<button
+									type="submit"
+									:disabled="
+										!isValidNewPassword ||
+										!isValidConfirmPassword
+									"
+									:class="[
+										!isValidNewPassword ||
+										!isValidConfirmPassword
+											? 'bg-gray-300 cursor-not-allowed'
+											: 'bg-blue-600 hover:bg-blue-700',
+									]"
+									class="w-full sm:w-auto px-6 py-3 text-white font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+								>
+									Confirm
+								</button>
+							</div>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -952,97 +972,29 @@
 												></i>
 											</button>
 										</div>
-										<div class="flex">
-											<div
-												class="flex flex-col justify-start items-start mt-0 mb-2"
-											>
-												<div
-													class="flex w-full sm:w-dull h-12 dark:text-dark-second-dark"
-												>
-													<div
-														class="flex flex-col items-start justify-evenly w-5 h-full"
-													>
-														<div class="h-2">
-															<span
-																class="material-icons-outlined text-green-700 text-sm"
-																v-if="
-																	hasCapitalLetter
-																"
-															>
-																check_circle
-															</span>
-														</div>
-														<div class="h-2">
-															<span
-																class="material-icons-outlined text-green-700 text-sm"
-																v-if="hasSymbol"
-															>
-																check_circle
-															</span>
-														</div>
-													</div>
-													<div
-														class="flex flex-col justify-evenly h-12 items-start pt-[.45rem]"
-													>
-														<label
-															for="has-capital-letter"
-															class="ml-2 text-xs h-2"
-															>has capital
-															letter</label
-														>
-														<label
-															for="has-symbol"
-															class="ml-2 text-xs h-2"
-															>has symbol</label
-														>
-													</div>
-												</div>
-											</div>
-											<div
-												class="flex flex-col justify-end items-start mt-0 mb-2 ml-2"
-											>
-												<div
-													class="flex w-full sm:w-full h-12 dark:text-dark-second-dark"
-												>
-													<div
-														class="flex flex-col items-end justify-evenly w-5 h-full"
-													>
-														<div class="h-2">
-															<span
-																class="material-icons-outlined text-green-700 text-sm"
-																v-if="hasNumber"
-															>
-																check_circle
-															</span>
-														</div>
-														<div class="h-2">
-															<span
-																class="material-icons-outlined text-green-700 text-sm"
-																v-if="
-																	hasMinLength
-																"
-															>
-																check_circle
-															</span>
-														</div>
-													</div>
-													<div
-														class="flex flex-col justify-evenly h-12 items-start pt-[.45rem]"
-													>
-														<label
-															for="has-number"
-															class="ml-2 text-xs h-2"
-															>has number</label
-														>
 
-														<label
-															for="has-min-length"
-															class="ml-2 text-xs h-2"
-															>has at least 8
-															characters</label
-														>
-													</div>
-												</div>
+										<div
+											class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-2"
+										>
+											<div class="space-y-1">
+												<ValidationItem
+													:isValid="hasCapitalLetter"
+													label="Capital letter"
+												/>
+												<ValidationItem
+													:isValid="hasSymbol"
+													label="Has symbol"
+												/>
+											</div>
+											<div class="space-y-1 sm:space-x-0">
+												<ValidationItem
+													:isValid="hasMinLength"
+													label="8 characters"
+												/>
+												<ValidationItem
+													:isValid="hasNumber"
+													label="Has number"
+												/>
 											</div>
 										</div>
 									</div>
@@ -1100,11 +1052,36 @@
 								</div>
 							</div>
 							<div class="flex justify-center mt-4">
-								<input
+								<button
 									type="submit"
-									value="SIGN UP"
-									class="font-bebas-neue text-interface text-3xl bg-second p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light cursor-pointer"
-								/>
+									class="font-bebas-neue text-3xl bg-second text-interface p-2 rounded-full w-52 h-14 mb-6 hover:bg-second-light cursor-pointer flex items-center justify-center"
+									:disabled="isSigningUp"
+								>
+									<span v-if="!isSigningUp">Sign Up</span>
+									<span v-else class="flex items-center">
+										<svg
+											class="animate-spin h-5 w-5 mr-3 text-white"
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<circle
+												class="opacity-25"
+												cx="12"
+												cy="12"
+												r="10"
+												stroke="currentColor"
+												stroke-width="4"
+											></circle>
+											<path
+												class="opacity-75"
+												fill="currentColor"
+												d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+											></path>
+										</svg>
+										Signing Up...
+									</span>
+								</button>
 							</div>
 						</form>
 					</div>
@@ -1125,7 +1102,12 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { useDark, useToggle } from "@vueuse/core";
+import Spinner from "./spinner/Spinner.vue";
+
+import ValidationItem from "./validation_item/ValidationItem.vue";
+
 import axiosClient from "../axios";
+
 import {
 	UsersIcon,
 	MapPinIcon,
@@ -1172,7 +1154,7 @@ const modalChangeActive = ref(false);
 const modalInvalidActive = ref(false);
 const showRePassword = ref(false);
 const showPassword = ref(false);
-const inputs = ref(new Array(6).fill(""));
+const inputs = ref(["", "", "", "", "", ""]);
 const inputsRefs = ref([]);
 const error = ref(false);
 const error_user = ref(false);
@@ -1265,16 +1247,37 @@ const isValidRePassword = computed(() => repassword.value === rpassword.value);
 const createToast = (message, type) => {
 	// Toast creation logic (unchanged)
 };
-
+const isRequesting = ref(false);
 const sendOTPfp = async () => {
+	if (fpemail.value !== "") {
+		isRequesting.value = true;
+
+		try {
+			const response = await store.dispatch(
+				"sendForgotPasswordOTP",
+				fpemail.value
+			);
+			showMessage(`Otp sent successfully to ${fpemail.value}`, "success");
+			fpmodalOTPActive.value = true;
+			fpmodalActive.value = false;
+		} catch (error) {
+			console.log("ERROR: ", error);
+		} finally {
+			isRequesting.value = false;
+		}
+	} else {
+		error.value = true;
+		console.log("put email");
+	}
+};
+const resendOTP = async () => {
 	if (fpemail.value !== "") {
 		try {
 			const response = await store.dispatch(
 				"sendForgotPasswordOTP",
 				fpemail.value
 			);
-			fpmodalOTPActive.value = true;
-			fpmodalActive.value = false;
+			showMessage(`Otp sent successfully to ${fpemail.value}`, "success");
 		} catch (error) {
 			console.log("ERROR: ", error);
 		}
@@ -1284,34 +1287,37 @@ const sendOTPfp = async () => {
 	}
 };
 
+const sanitizeInput = (index) => {
+	inputs.value[index] = inputs.value[index].replace(/[^0-9]/g, "");
+};
+
+const isVerifying = ref(false);
 const verifyOTP = async (modal) => {
 	try {
-		if (modal === "register") {
-			await store.dispatch(
-				"verifyRegistrationOTP",
-				parseInt(inputs.value.join(""))
-			);
-			// Handle successful verification
-			router.push({ name: "dashboard" });
-		} else if (modal === "forgot-password") {
-			const verified = await store.dispatch(
-				"verifyForgotPasswordOTP",
-				parseInt(inputs.value.join(""))
-			);
-			if (verified) {
-				fpmodalOTPActive.value = false;
-				modalChangeActive.value = true;
-			} else {
-				error.value = true;
-				createToast("Wrong one-time password", "error");
-			}
+		isVerifying.value = true;
+		const otp = inputs.value.join("");
+
+		if (parseInt(otp) === store.state.otpData.otp) {
+			fpmodalOTPActive.value = false;
+			modalChangeActive.value = true;
+		} else {
+			showMessage("Wrong one-time password", "error");
+			isVerifying.value = false;
 		}
 	} catch (error) {
 		console.error("OTP verification error:", error);
 		error.value = true;
 	}
 };
-
+const closeFpmodalOTP = () => {
+	fpmodalOTPActive.value = false;
+};
+const closeModal = () => {
+	modalChangeActive.value = false;
+};
+const closeFpModal = () => {
+	fpmodalActive.value = false;
+};
 const confirmPassword = async () => {
 	if (fp_newpassword.value === fp_confirmpassword.value) {
 		try {
@@ -1320,7 +1326,7 @@ const confirmPassword = async () => {
 				password: fp_newpassword.value,
 			});
 			modalChangeActive.value = false;
-			createToast(
+			showMessage(
 				`${fpemail.value}\nPassword changed successfully`,
 				"success"
 			);
@@ -1408,14 +1414,10 @@ const submitLogin = async () => {
 };
 
 const moveFocus = (event, index) => {
-	if (event.key.match(/^[0-9]$/)) {
-		if (index < inputs.value.length - 1) {
-			inputsRefs.value[index + 1].focus();
-		}
-	} else if (event.keyCode === 8) {
-		if (index > 0) {
-			inputsRefs.value[index - 1].focus();
-		}
+	if (event.key === "Backspace" && index > 0 && inputs.value[index] === "") {
+		inputsRefs.value[index - 1].focus();
+	} else if (index < inputs.value.length - 1 && inputs.value[index] !== "") {
+		inputsRefs.value[index + 1].focus();
 	}
 };
 

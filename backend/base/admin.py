@@ -48,6 +48,8 @@ class PostAdmin(admin.ModelAdmin):
         "itinerary",
         "country",
         "date_posted",
+        "is_warned",
+        "is_reported",
     )
 
     def post_info(self, obj):
@@ -101,6 +103,7 @@ class LikeNotificationAdmin(admin.ModelAdmin):
     list_display = (
         "post_obj_id",
         "notif_type",
+        "comment_id",
         "post_author",
         "post_title",
         "post_content",

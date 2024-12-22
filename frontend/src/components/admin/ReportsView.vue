@@ -1,5 +1,5 @@
 <template lang="">
-	<div class="h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
+	<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
 		<div class="max-w-7xl mx-auto">
 			<!-- Header -->
 			<div class="mb-6 sm:mb-8">
@@ -172,6 +172,7 @@
 											<button
 												@click="
 													handleApprove(
+														report._id,
 														report.post._id
 													)
 												"
@@ -184,14 +185,17 @@
 											</button>
 											<button
 												@click="
-													handleDelete(report._id)
+													handleWarning(
+														report._id,
+														report.post._id
+													)
 												"
-												class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900"
+												class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-orange-500 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 dark:focus:ring-offset-gray-900"
 											>
-												<TrashIcon
+												<ExclamationTriangleIcon
 													class="h-4 w-4 mr-1"
 												/>
-												Delete
+												Warn
 											</button>
 										</div>
 									</div>
@@ -270,6 +274,7 @@ import {
 	MapPinIcon,
 	TagIcon,
 	HeartIcon,
+	ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
 import { useRouter } from "vue-router";
 const router = useRouter();
@@ -305,10 +310,13 @@ const fetchReports = async () => {
 	}
 };
 
-const handleApprove = async (id) => {
+const handleApprove = async (id, post_id) => {
 	try {
-		await store.dispatch("updateReport", {
+		await store.dispatch("warnReport", {
 			id,
+			post_id: post_id,
+			mark_as_warned: false,
+			mark_as_reported: true,
 		});
 		await fetchReports();
 	} catch (error) {
@@ -316,9 +324,16 @@ const handleApprove = async (id) => {
 	}
 };
 
-const handleDelete = async (id) => {
+const handleWarning = async (id, post_id) => {
 	try {
-		await store.dispatch("deleteReport", id);
+		await store.dispatch("warnReport", {
+			id,
+			post_id: post_id,
+
+			mark_as_warned: true,
+			mark_as_reported: false,
+		});
+
 		await fetchReports();
 	} catch (error) {
 		console.error("Error deleting report:", error);

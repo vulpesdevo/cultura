@@ -1,5 +1,6 @@
 from gc import get_objects
 import json
+import traceback
 from django.contrib.auth import get_user_model, login, logout, authenticate
 from django.forms import ValidationError
 from django.http import Http404, HttpResponseServerError
@@ -65,7 +66,7 @@ class CulturaUserDetails(APIView):
 
 
 class CulturaUserAdminView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         include_all_users = (
@@ -104,9 +105,14 @@ class CulturaUserAdminView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        cultura_user = get_object_or_404(CulturaUser, pk=pk)
-        cultura_user.delete()
+    def delete(self, request, id):
+        print("USERS DEL:", id)
+        cultura_user = get_object_or_404(CulturaUser, id=id)
+        user = cultura_user.user
+        # Delete the user's token
+        Token.objects.filter(user=user).delete()
+        # Delete the user
+        user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -141,10 +147,37 @@ class ReportDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        report = get_object_or_404(Report, pk=pk)
-        serializer = ReportSerializer(report, data=request.data)
+        report = get_object_or_404(Report, _id=ObjectId(pk))
+        serializer = ReportSerializer(report, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            if post_id := request.data.get("post_id"):
+                post = get_object_or_404(Post, _id=ObjectId(post_id))
+                print("POST LIST :", post.author)
+
+                if request.data.get("mark_as_warned"):
+                    post.mark_as_warned()
+                    like_notification = LikeNotification(
+                        post_obj_id=post_id,
+                        post_author=post.author,
+                        notif_type="warn",
+                        post_title=post.title,
+                        post_content=post.content,
+                    )
+                    like_notification.save()
+
+                if request.data.get("mark_as_reported"):
+                    like_notification = LikeNotification(
+                        post_obj_id=post_id,
+                        post_author=post.author,
+                        notif_type="reported",
+                        post_title=post.title,
+                        post_content=post.content,
+                    )
+                    like_notification.save()
+                    post.mark_as_reported()
+                    post.delete()
+
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -179,13 +212,12 @@ class UserView(APIView):
         TokenAuthentication,
     )
 
-    ##
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
 
         # Get the CulturaUser profile associated with the authenticated user
-        cultura_user = get_object_or_404(CulturaUser, user=user)
+        cultura_user = get_object_or_404(CulturaUser, user_id=user.id)
         profile_serializer = CulturaUserSerializer(
             cultura_user, context={"request": request}
         )
@@ -197,6 +229,15 @@ class UserView(APIView):
             profile_data["user_photo"] = abs_image_url
         else:
             profile_data["user_photo"] = None
+
+        # Get the SaveItinerary objects associated with the authenticated user
+        itineraries = SaveItinerary.objects.filter(owner_id=user.id)
+
+        itinerary_serializer = SaveItinerarySerializer(
+            itineraries, many=True, context={"request": request}
+        )
+        print(itinerary_serializer.data)
+
         token, created = Token.objects.get_or_create(user=user)
 
         return Response(
@@ -204,6 +245,7 @@ class UserView(APIView):
                 "user": serializer.data,
                 "userfullname": cultura_user.fullname,
                 "profile": profile_data,
+                "itineraries": itinerary_serializer.data,
                 "token": token.key,
             },
             status=status.HTTP_200_OK,
@@ -682,10 +724,12 @@ class PostViewSet(viewsets.ModelViewSet):
         if user in post.likes.all():
             post.likes.remove(user)
             message = "post unliked"
-            LikeNotification.objects.filter(post_obj_id=object_id).delete()
+            # LikeNotification.objects.filter(post_obj_id=object_id,).delete()
             user_cult = CulturaUser.objects.get(user=request.user)
             user_cult.like_leader -= 1
             user_cult.save()
+            is_liked = True
+
         else:
             post.likes.add(user)
             user_cult = CulturaUser.objects.get(user=request.user)
@@ -702,12 +746,20 @@ class PostViewSet(viewsets.ModelViewSet):
                 audience=user_cult.user,
             )
             like_notification.save()
+            is_liked = True
 
             # Optionally, handle unlike action, e.g., delete the notification
 
         # Serialize the LikeNotification instance
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(
+            {
+                "message": message,
+                "is_liked": is_liked,
+                "like_count": post.likes.count(),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class Following(viewsets.ModelViewSet):
@@ -739,10 +791,11 @@ class Following(viewsets.ModelViewSet):
             message = "User unfollowed"
         else:
             user_to_follow.followers.add(user)
+            print("USER TO FOLLOWED: %s" % user_to_follow.user_id)
             user_to_follow.save()
             following_notif = FollowingNotification(
                 followed_by=user,
-                following=user_to_follow,
+                following=user_to_follow.user_id,
                 notif_type="follow",
             )
             following_notif.save()
@@ -860,22 +913,41 @@ class NotificationStatusView(APIView):
 
 
 class MarkAllNotificationsReadView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        # Update all unread like notifications
-        LikeNotification.objects.filter(post_author=request.user, is_read=False).update(
-            is_read=True
-        )
+        user = request.user
 
-        # Update all unread follow notifications
-        FollowingNotification.objects.filter(
-            following=str(request.user.id), is_read=False
-        ).update(is_read=True)
+        try:
 
-        return Response(
-            {"message": "All notifications marked as read"}, status=status.HTTP_200_OK
-        )
+            # Get all unread follow notifications
+            follow_notifications = FollowingNotification.objects.filter(
+                is_read=False,
+                following=str(user.id),
+            )
+
+            # Combine both querysets
+            all_notifications = list(follow_notifications)
+
+            # Mark all notifications as read
+            for notification in all_notifications:
+                notification.is_read = True
+                notification.save()
+
+            return Response(
+                {"message": "All notifications marked as read"},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            # Log the error with more details
+            print(f"Error marking notifications as read: {e}")
+            traceback.print_exc()
+            return Response(
+                {
+                    "error": f"An error occurred while marking notifications as read: {e}"
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class PostPagination(PageNumberPagination):
@@ -891,7 +963,7 @@ class PostListView(APIView):
         posts = Post.objects.all()
         paginator = PostPagination()
         paginated_posts = paginator.paginate_queryset(posts, request)
-        print("PAGINATED POSTS: ", paginated_posts)
+        # print("PAGINATED POSTS: ", paginated_posts)
         serializer = PostSerializer(
             paginated_posts, many=True, context={"user": request.user}
         )
@@ -899,7 +971,7 @@ class PostListView(APIView):
 
         for post_data in serializer.data:
             self._extracted_from_get_12(post_data, request)
-        print("PAGINATED POSTS", paginator.get_paginated_response(serializer.data))
+        # print("PAGINATED POSTS", paginator.get_paginated_response(serializer.data))
         # return Response(serializer.data, status=status.HTTP_200_OK)
 
         return paginator.get_paginated_response(serializer.data)
@@ -1223,21 +1295,22 @@ class CommentCreate(APIView):
         post = Post.objects.get(_id=object_id)
         title = post.title
 
+        logging.info(
+            f"Comment created - Post ID: {post_id}, Author: {request.user.username}"
+        )
+
+        serializer = CommentSerializer(comment)
+        print("COMMENT DATA: ", serializer.data)
         like_notification = LikeNotification(
             post_obj_id=post_id,
             post_author=replied_to,
+            comment_id=serializer.data["_id"],
             notif_type="commented",
             post_title=title,
             post_content=reply,
             audience=request.user.username,
         )
         like_notification.save()
-        logging.info(
-            f"Comment created - Post ID: {post_id}, Author: {request.user.username}"
-        )
-
-        serializer = CommentSerializer(comment)
-
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, comment_id):
@@ -1263,6 +1336,9 @@ class CommentCreate(APIView):
             # Retrieve the comment by _id and owner
 
             comment = Comment.objects.get(_id=ObjectId(_id), author=request.user)
+            notification = LikeNotification.objects.get(comment_id=str(ObjectId(_id)))
+            print("NOTIF DELETED: ", notification)
+            notification.delete()
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Comment.DoesNotExist:

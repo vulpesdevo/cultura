@@ -15,7 +15,11 @@
 				<ArrowLeftIcon class="h-5 w-5" />
 				<span class="text-sm font-medium">Back</span>
 			</button>
+
+			<DeletedPostIndicator v-if="postDeleted" />
+
 			<div
+				v-else
 				v-for="post in posts"
 				:key="post._id"
 				class="bg-white dark:bg-dark-field rounded-lg shadow-lg mb-8"
@@ -45,10 +49,28 @@
 							</div>
 						</div>
 					</div>
-					<div
-						class="text-sm text-gray-500 dark:text-gray-400 w-3/4 sm:w-auto"
-					>
-						{{ post.category }} | {{ post.country }}
+
+					<div class="flex items-center">
+						<div
+							class="text-sm text-gray-500 dark:text-gray-400 w-3/4 sm:w-auto"
+						>
+							{{ post.category }} | {{ post.country }}
+						</div>
+						<router-link
+							v-if="post.author !== user?.user.username"
+							:to="{
+								name: 'report',
+								query: {
+									post_id: post._id,
+									user_id: user?.user.id,
+								},
+							}"
+							class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-200"
+						>
+							<i
+								class="fa-solid fa-circle-exclamation text-gray-400 hover:text-red-500 text-xl"
+							></i>
+						</router-link>
 					</div>
 				</div>
 
@@ -109,15 +131,17 @@
 					<div class="relative group">
 						<button
 							@click="likePost(post._id)"
-							class="flex items-center space-x-1"
-							:class="
-								post.is_liked
-									? 'text-second'
-									: 'text-gray-500 hover:text-second'
-							"
+							class="flex items-center space-x-1 text-gray-500 hover:text-second"
 						>
-							<HeartIcon v-if="post.is_liked" class="h-5 w-5" />
-							<HeartIcon v-else class="h-5 w-5" />
+							<HeartIcon
+								:class="[
+									'h-5 w-5',
+									{
+										'text-second fill-current':
+											post.is_liked,
+									},
+								]"
+							/>
 							<span>{{ formatLikeCount(post.like_count) }}</span>
 						</button>
 						<div
@@ -201,7 +225,21 @@
 											class="flex items-center justify-between mb-2"
 										>
 											<div class="space-x-2">
+												<router-link
+													to="/profile"
+													v-if="
+														comment?.author.user
+															.username ===
+														user?.user.username
+													"
+													class="font-semibold text-xs text-gray-900 dark:text-white hover:underline cursor-pointer"
+													>{{
+														comment.author.user
+															?.username
+													}}</router-link
+												>
 												<span
+													v-else
 													@click="
 														gotoUser(comment.author)
 													"
@@ -370,7 +408,6 @@ import moment from "moment";
 import { useStore } from "vuex";
 import {
 	ChatBubbleLeftIcon,
-	HeartIcon,
 	PencilSquareIcon,
 	XMarkIcon,
 	CheckIcon,
@@ -380,7 +417,9 @@ import {
 	ArrowLeftIcon,
 	TrashIcon,
 } from "@heroicons/vue/24/solid";
+import { HeartIcon } from "@heroicons/vue/24/outline";
 import axiosClient from "../axios";
+import DeletedPostIndicator from "./posts/DeletedPostIndicator.vue";
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -393,6 +432,7 @@ const editingCommentId = ref(null);
 const editedCommentText = ref("");
 const showDeleteModal = ref(false);
 const commentToDelete = ref(null);
+const postDeleted = ref(false);
 
 const client = axios.create({
 	baseURL: "https://apicultura.futurewebbuilders.design",
@@ -406,7 +446,6 @@ const user = computed(() => store.state.user.data);
 const fetchUser = async () => {
 	try {
 		await store.dispatch("fetchUserData");
-		console.log("User data fetched:", user.value);
 	} catch (error) {
 		console.error("Error fetching user data:", error);
 	}
@@ -423,10 +462,11 @@ const cancelDelete = () => {
 
 const deleteComment = async () => {
 	if (!commentToDelete.value) return;
-
+	console.log("Deleting comment:", commentToDelete.value);
 	await store
 		.dispatch("deleteComment", {
 			_id: commentToDelete.value._id,
+			audience: commentToDelete.value.author?.user.username,
 		})
 		.then((response) => {
 			console.log("Comment deleted:", response);
@@ -463,26 +503,38 @@ const gotoUser = async (user) => {
 		},
 	});
 };
-const likePost = (post_id) => {
-	axiosClient
-		.post(`/like-posts/${post_id}/like_post/`)
-		.then((response) => {
-			console.log(response.data);
-			fetchPost();
-		})
-		.catch((error) => {
-			console.error("Error liking the post:", error);
+const likePost = async (postId) => {
+	try {
+		await store.dispatch("likePost", postId);
+		// Update the posts array
+		posts.value = posts.value.map((post) => {
+			if (post._id === postId) {
+				post.is_liked = !post.is_liked;
+				post.like_count += post.is_liked ? 1 : -1;
+			}
+			return post;
 		});
+		// await fetchPosts();
+	} catch (error) {
+		console.error("Error liking the post:", error);
+	}
 };
 const fetchPost = async () => {
 	try {
 		const response = await axiosClient.get(
 			`/liked-post-view/${route.params.post}/${route.query.n}`
 		);
-		console.log("RESPONSE", response);
-		posts.value = response.data;
+		console.log("Post data:", user.value);
+
+		if (response.data.length === 0) {
+			postDeleted.value = true;
+		} else {
+			posts.value = response.data;
+			postDeleted.value = false;
+		}
 	} catch (error) {
 		console.error("Error fetching post:", error);
+		postDeleted.value = true;
 	}
 };
 
@@ -491,6 +543,7 @@ const submitReply = async () => {
 
 	try {
 		await axiosClient.post("/commenting", {
+			replied_to: posts.value[0].author,
 			post_id: posts.value[0]._id, // Assuming we're commenting on the first post
 			body: reply.value,
 		});

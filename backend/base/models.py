@@ -123,6 +123,16 @@ class Post(models.Model):
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, blank=True)
     comments = models.ManyToManyField(Comment, blank=True)
+    is_warned = models.BooleanField(default=False)
+    is_reported = models.BooleanField(default=False)
+
+    def mark_as_warned(self):
+        self.is_warned = True
+        self.save()
+
+    def mark_as_reported(self):
+        self.is_reported = True
+        self.save()
 
 
 class LikeNotification(models.Model):
@@ -135,6 +145,7 @@ class LikeNotification(models.Model):
     post_content = models.CharField(
         max_length=255,
     )
+    comment_id = models.CharField(max_length=255, blank=True, null=True)
     notif_type = models.CharField(max_length=255)
     audience = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)

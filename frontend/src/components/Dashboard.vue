@@ -104,9 +104,9 @@
 						placeholder="What do you want to share?"
 					></textarea>
 				</div>
-				<div class="mt-4 space-y-4">
+				<div class="flex mt-4 space-x-4">
 					<!-- Image preview -->
-					<div v-if="selectedImageUrl" class="relative group">
+					<div v-if="selectedImageUrl" class="relative group w-1/4">
 						<img
 							:src="selectedImageUrl"
 							alt="Post Image"
@@ -123,7 +123,7 @@
 					<!-- Itinerary preview -->
 					<div
 						v-if="selectedItinerary"
-						class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow-md"
+						class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-full shadow-md"
 					>
 						<div class="flex items-center justify-between">
 							<h3
@@ -250,7 +250,7 @@
 								<div class="flex items-center space-x-2">
 									<router-link
 										v-if="
-											post.author === user.user.username
+											post.author === user?.user.username
 										"
 										:to="{ name: 'profile' }"
 										class="font-medium text-xs text-gray-900 dark:text-white hover:underline"
@@ -284,6 +284,7 @@
 
 						<div class="flex items-center">
 							<router-link
+								v-if="post.author !== user?.user.username"
 								:to="{
 									name: 'report',
 									query: {
@@ -398,18 +399,17 @@
 						<div class="relative group">
 							<button
 								@click="likePost(post._id)"
-								class="flex items-center space-x-1"
-								:class="
-									post.is_liked
-										? 'text-second'
-										: 'text-gray-500 hover:text-second'
-								"
+								class="flex items-center space-x-1 text-gray-500 hover:text-second"
 							>
 								<HeartIcon
-									v-if="post.is_liked"
-									class="size-4"
+									:class="[
+										'h-5 w-5',
+										{
+											'text-second fill-current':
+												post.is_liked,
+										},
+									]"
 								/>
-								<HeartIcon v-else class="size-4" />
 								<span>{{
 									formatLikeCount(post.like_count)
 								}}</span>
@@ -507,157 +507,6 @@
 				</div>
 			</div>
 
-			<div
-				class="comments-modal fixed z-50 inset-0 overflow-y-auto"
-				aria-labelledby="modal-title"
-				role="dialog"
-				aria-modal="true"
-				v-if="showModal"
-			>
-				<div class="flex min-h-screen items-center justify-center p-4">
-					<div
-						class="fixed inset-0 bg-black/90 transition-opacity"
-						aria-hidden="true"
-					></div>
-
-					<div
-						class="relative w-full max-w-2xl bg-[#1c1c1f] rounded-xl shadow-xl overflow-hidden"
-					>
-						<!-- Header -->
-						<div
-							class="flex items-center justify-between p-6 border-b border-gray-800"
-						>
-							<h2 class="text-2xl font-semibold text-white">
-								Comments
-							</h2>
-							<button
-								@click="showModal = false"
-								class="text-gray-400 hover:text-white transition-colors"
-							>
-								<XIcon class="h-6 w-6" />
-							</button>
-						</div>
-
-						<!-- Post Content -->
-						<div
-							v-for="data in selectedPost"
-							:key="data._id"
-							class="p-6 border-b border-gray-800"
-						>
-							<div class="flex space-x-4">
-								<img
-									:src="data.author_user_photo"
-									alt="Profile"
-									class="h-10 w-10 rounded-full object-cover"
-								/>
-								<div class="flex-1 min-w-0">
-									<div
-										class="flex items-center justify-between"
-									>
-										<div
-											class="flex items-center space-x-2"
-										>
-											<span
-												class="text-white font-medium"
-												>{{ data.author }}</span
-											>
-											<span class="text-gray-500 text-sm"
-												>{{ data.category }} |
-												{{ data.country }}</span
-											>
-										</div>
-									</div>
-									<p class="mt-1 text-gray-300 text-sm">
-										{{ data.content }}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<!-- Comments List -->
-						<div
-							class="overflow-y-auto max-h-[400px] p-6 space-y-6"
-						>
-							<div
-								v-for="comment in comments_in_post"
-								:key="comment._id"
-								class="flex space-x-4 relative"
-							>
-								<div class="flex-shrink-0">
-									<img
-										:src="comment.author_user_photo"
-										alt="Profile"
-										class="h-10 w-10 rounded-full object-cover"
-									/>
-								</div>
-								<div class="flex-1 min-w-0">
-									<div class="flex items-center space-x-2">
-										<span class="text-white font-medium">{{
-											comment.author
-										}}</span>
-										<span class="text-gray-500">to</span>
-										<span class="text-blue-400">{{
-											comment.replied_to
-										}}</span>
-										<span class="text-gray-500 text-sm">{{
-											timesince(comment.date_posted)
-										}}</span>
-									</div>
-									<p class="mt-1 text-gray-300 text-sm">
-										{{ comment.body }}
-									</p>
-									<!-- <div
-										class="flex items-center space-x-4 mt-2"
-									>
-										<button
-											class="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
-										>
-											<ThumbsUpIcon class="h-4 w-4" />
-										</button>
-										<button
-											class="text-gray-400 hover:text-white transition-colors text-sm"
-										>
-											Reply
-										</button>
-									</div> -->
-								</div>
-							</div>
-						</div>
-
-						<!-- Reply Input -->
-						<div class="p-6 border-t border-gray-800">
-							<div class="flex space-x-4">
-								<img
-									:src="post_profile_display"
-									alt="Profile"
-									class="h-10 w-10 rounded-full object-cover"
-								/>
-								<div class="flex-1">
-									<textarea
-										v-model="reply"
-										rows="3"
-										class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-										:placeholder="
-											'Replying to ' +
-											selectedPost[0]?.author
-										"
-									></textarea>
-									<div
-										class="flex justify-end mt-3 space-x-3"
-									>
-										<button
-											@click.prevent="submitReply"
-											class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
-										>
-											Reply
-										</button>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
 			<div
 				v-if="addItineraryModal"
 				class="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm"
@@ -887,7 +736,6 @@ import { clean } from "profanity-cleaner";
 import { XIcon, ThumbsUpIcon } from "lucide-vue-next";
 import {
 	ChatBubbleLeftIcon,
-	HeartIcon,
 	PencilSquareIcon,
 	XMarkIcon,
 	CheckIcon,
@@ -901,6 +749,7 @@ import {
 
 import {
 	PlusIcon,
+	HeartIcon,
 	DocumentIcon,
 	CurrencyDollarIcon,
 	StarIcon,
@@ -914,7 +763,7 @@ const isDark = useDark();
 const toggleDark = useToggle(isDark);
 const user = computed(() => store.state.user.data);
 
-const posts = computed(() => store.getters.getPosts); // Reactive array to store posts
+const posts = computed(() => store.getters.getPosts.reverse()); // Reactive array to store posts
 const post_profile_display = ref(null);
 const selectedImageUrl = ref(null);
 const picture = ref(null);
@@ -975,7 +824,6 @@ const englishBadWords = [
 	"bitch",
 	"cunt",
 	"damn",
-	"hell",
 	"whore",
 	"dick",
 	"piss",
@@ -1078,7 +926,8 @@ const fetchUser = async () => {
 		const res = await store.dispatch("fetchUserData");
 
 		post_profile_display.value = res.profile?.user_photo;
-		auth_user.value = res.user.id;
+		auth_user.value = res?.user.id;
+		itineraries.value = res?.itineraries;
 	} catch (error) {
 		console.error("Error fetching user:", error);
 	}
@@ -1106,7 +955,6 @@ const fetchPosts = async () => {
 			page: page.value,
 			perPage,
 		});
-		console.log("MORE POSTS : ", store.getters.getPosts);
 
 		if (!morePosts) {
 			hasMore.value = false; // No more data available
@@ -1186,7 +1034,15 @@ const timesince = (date) => {
 const likePost = async (postId) => {
 	try {
 		await store.dispatch("likePost", postId);
-		await fetchPosts();
+		// Update the posts array
+		posts.value = posts.value.map((post) => {
+			if (post._id === postId) {
+				post.is_liked = !post.is_liked;
+				post.like_count += post.is_liked ? 1 : -1;
+			}
+			return post;
+		});
+		// await fetchPosts();
 	} catch (error) {
 		console.error("Error liking the post:", error);
 	}
@@ -1283,15 +1139,15 @@ const submitReply = async () => {
 	}
 };
 
-const fetchSavedItineraries = async () => {
-	try {
-		await store.dispatch("fetchItineraries");
-		itineraries.value = store.getters.getItineraries;
-		// console.log("ITINERARIES: ", itineraries.value);
-	} catch (error) {
-		console.error("Error fetching saved itineraries:", error);
-	}
-};
+// const fetchSavedItineraries = async () => {
+// 	try {
+// 		await store.dispatch("fetchItineraries");
+// 		itineraries.value = store.getters.getItineraries;
+// 		// console.log("ITINERARIES: ", itineraries.value);
+// 	} catch (error) {
+// 		console.error("Error fetching saved itineraries:", error);
+// 	}
+// };
 
 const selectItinerary = (itinerary) => {
 	selectedItinerary.value = itinerary;
@@ -1351,9 +1207,9 @@ onMounted(async () => {
 	});
 	await fetchUser();
 	await fetchPosts();
-	await fetchSavedItineraries();
+	// await fetchSavedItineraries();
 	initializeAutocompleteCountry();
-	setInterval(fetchSavedItineraries, 5000);
+	// setInterval(fetchSavedItineraries, 5000);
 });
 </script>
 

@@ -144,7 +144,7 @@ urlpatterns = [
     ),
     path(
         "culturauser/<int:id>/",
-        views.CulturaUserDetails.as_view(),
+        views.CulturaUserAdminView.as_view(),
         name="culturauser-detail",
     ),
     path("view_user/<int:pk>/", views.UserDetailView.as_view(), name="user-detail"),

@@ -16,7 +16,10 @@ const store = createStore({
 		unreadCount: 0,
 		searchResults: [],
 		posts: [],
+		postIds: new Set(),
 		itineraries: [],
+		itineraryIds: new Set(), // Track itinerary IDs to avoid duplicates
+
 		itineraryDetails: {},
 		likeNotifications: [],
 		followNotifications: [],
@@ -79,6 +82,19 @@ const store = createStore({
 		},
 	},
 	mutations: {
+		updatePostLikes(state, { postId, newIsLiked, newLikeCount, newLikes }) {
+			const postIndex = state.posts.findIndex(
+				(post) => post._id === postId
+			);
+			if (postIndex !== -1) {
+				state.posts[postIndex] = {
+					...state.posts[postIndex],
+					is_liked: newIsLiked,
+					like_count: newLikeCount,
+					likes: newLikes,
+				};
+			}
+		},
 		SET_SURVEYS(state, surveys) {
 			state.surveys = surveys;
 		},
@@ -108,16 +124,30 @@ const store = createStore({
 
 		setPosts(state, posts) {
 			state.posts = posts;
+			state.postIds = new Set(posts.map((post) => post._id));
 		},
 		appendPosts(state, posts) {
-			state.posts = [...state.posts, ...posts];
-		},
-		setItineraries(state, itineraries) {
-			state.itineraries = itineraries;
+			posts.forEach((post) => {
+				if (!state.postIds.has(post._id)) {
+					state.posts.push(post);
+					state.postIds.add(post._id);
+				}
+			});
 		},
 
+		setItineraries(state, itineraries) {
+			state.itineraries = itineraries;
+			state.itineraryIds = new Set(
+				itineraries.map((itinerary) => itinerary.id)
+			);
+		},
 		appendItineraries(state, itineraries) {
-			state.itineraries = [...state.itineraries, ...itineraries];
+			itineraries.forEach((itinerary) => {
+				if (!state.itineraryIds.has(itinerary.id)) {
+					state.itineraries.push(itinerary);
+					state.itineraryIds.add(itinerary.id);
+				}
+			});
 		},
 		setItineraryDetails(state, itineraryDetails) {
 			state.itineraryDetails = itineraryDetails;
@@ -292,11 +322,11 @@ const store = createStore({
 		},
 		async deleteCulturaUser({ commit, state }, id) {
 			return axiosClient
-				.delete(`culturausers/${id}/`, {
+				.delete(`culturauser/${id}/`, {
 					headers: { Authorization: `Token ${state.user.token}` },
 				})
 				.then(() => {
-					commit("setCulturaUser", null);
+					// commit("setCulturaUser", null);
 				})
 				.catch((error) => {
 					console.error("Error deleting CulturaUser:", error);
@@ -348,7 +378,30 @@ const store = createStore({
 					throw error;
 				});
 		},
-
+		async warnReport(
+			{ commit, state },
+			{ id, post_id, mark_as_warned, mark_as_reported }
+		) {
+			return axiosClient
+				.put(
+					`/reports/${id}/`,
+					{
+						post_id: post_id,
+						mark_as_warned,
+						mark_as_reported,
+					},
+					{
+						headers: { Authorization: `Token ${state.user.token}` },
+					}
+				)
+				.then((response) => {
+					return response.data;
+				})
+				.catch((error) => {
+					console.error(error);
+					throw error;
+				});
+		},
 		async updateReport({ commit, state }, { id }) {
 			return axiosClient
 				.delete(`/reports/${id}/`, {
@@ -423,35 +476,17 @@ const store = createStore({
 				throw error;
 			}
 		},
-		async markAllNotificationsAsRead({ dispatch, state }) {
+		async markAllNotificationsAsRead({ commit }) {
 			try {
-				// Assuming your API has an endpoint to mark all as read
-				await axiosClient.post("/mark-all-notifications-read");
-
-				// Update local state
-				const updatePromises = [
-					...state.likeNotifications.map((n) =>
-						dispatch("updateNotificationReadStatus", {
-							notificationType: "like",
-							notificationId: n.id || n._id,
-							isRead: true,
-						})
-					),
-					...state.followNotifications.map((n) =>
-						dispatch("updateNotificationReadStatus", {
-							notificationType: "follow",
-							notificationId: n.id || n._id,
-							isRead: true,
-						})
-					),
-				];
-				await Promise.all(updatePromises);
+				const response = await axiosClient.post(
+					"/mark-all-notifications-read/"
+				);
+				console.log("Notifications marked as read:", response.data);
 			} catch (error) {
 				console.error(
 					"Error marking all notifications as read:",
 					error
 				);
-				throw error;
 			}
 		},
 		//
@@ -477,7 +512,6 @@ const store = createStore({
 				const response = await axiosClient.get(
 					`/posts-list?page=${page}&page_size=${perPage}`
 				);
-				console.log("POSTS::", response.data);
 
 				const cleanedPosts = response.data.results.map((post) => {
 					return {
@@ -500,12 +534,12 @@ const store = createStore({
 				return false;
 			}
 		},
-		async fetchItineraries({ commit, state }, { page = 1, perPage = 6 }) {
+		async fetchItineraries({ commit, state }, { page = 1, perPage = 10 }) {
 			try {
 				const response = await axiosClient.get(
 					`/saved-itinerary?page=${page}&page_size=${perPage}`
 				);
-				console.log("ITINERARIES::", response.data);
+				// console.log("ITINERARIES::", response.data);
 
 				const cleanedItineraries = response.data.results.map(
 					(itinerary) => {
@@ -658,13 +692,15 @@ const store = createStore({
 				console.error("Error fetching saved itineraries:", error);
 			}
 		},
-		async likePost({ state }, post_id) {
+		async likePost({ commit, state }, postId) {
 			try {
-				await axiosClient.post(
-					`/like-posts/${post_id}/like_post/`,
+				const response = await axiosClient.post(
+					`/like-posts/${postId}/like_post/`,
 					null,
 					{}
 				);
+
+				return response.data;
 			} catch (error) {
 				console.error("Error liking the post:", error);
 			}
@@ -676,11 +712,14 @@ const store = createStore({
 				console.error("Error submitting reply:", error);
 			}
 		},
-		async deleteComment({ commit, state }, { _id }) {
+		async deleteComment({ commit, state }, { _id, audience }) {
 			try {
 				const response = await axiosClient.delete(
 					`/delete/${_id}/comment`,
 					{
+						params: {
+							audience: audience,
+						},
 						headers: {
 							Authorization: `Token ${state.user.token}`,
 						},
@@ -736,11 +775,13 @@ const store = createStore({
 				});
 		},
 
-		async verifyForgotPasswordOTP({ commit, state }, otp) {
+		async verifyForgotPasswordOTP({ commit, state }, { email, otp }) {
+			// console.log("OTP DATA:", otp, email);
+
 			return axiosClient
-				.post("/verify-fp-otp", {
+				.post("/fp-otp", {
 					otp,
-					email: state.otpData.email, // Assuming we stored the email when sending OTP
+					email: email, // Assuming we stored the email when sending OTP
 				})
 				.then((response) => {
 					return response.data;

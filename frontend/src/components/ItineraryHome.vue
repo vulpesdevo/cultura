@@ -3,7 +3,7 @@
 		class="relative flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-12 sm:pt-10 h-screen transition-colors duration-300"
 	>
 		<div
-			class="fixed top-0 w-full flex justify-start items-center mb-5 bg-field h-16 z-20"
+			class="fixed top-0 w-full flex justify-start items-center mb-5 bg-field dark:bg-notif h-16 z-20"
 		>
 			<button
 				@click="toggleMyItineraries"
@@ -104,29 +104,147 @@
 			</div>
 			<div
 				v-if="loading"
-				class="loading border border-gray-500 dark:border-blue-300 shadow rounded-md p-4 mb-3 max-w-sm sm:max-w-none w-full h-full mx-auto mt-10"
+				class="bg-transparent rounded-lg border-2 border-gray-400 dark:border-gray-300 overflow-hidden animate-pulse"
 			>
-				<div class="animate-pulse flex space-x-4">
+				<!-- Banner with heartbeat and wolf -->
+				<div
+					class="relative h-20 border-b border-gray-400 dark:border-gray-400"
+				>
 					<div
-						class="rounded-full bg-gray-500 dark:bg-slate-700 h-10 w-10"
-					></div>
-					<div class="flex-1 space-y-6 py-1">
+						class="absolute inset-0 flex items-center justify-center"
+					>
+						<!-- Heartbeat line -->
 						<div
-							class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+							class="w-full h-[1px] bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent animate-pulse"
 						></div>
-						<div class="space-y-3">
-							<div class="grid grid-cols-3 gap-4">
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-2"
-								></div>
-								<div
-									class="h-2 bg-gray-500 dark:bg-slate-700 rounded col-span-1"
-								></div>
-							</div>
+						<!-- Wolf silhouette outline -->
+						<div
+							class="absolute w-20 h-20 border-2 border-gray-400 dark:border-gray-300 rounded-full animate-pulse"
+						></div>
+					</div>
+				</div>
+
+				<!-- Content section -->
+				<div class="p-6 space-y-4">
+					<!-- Title and rating -->
+					<div class="flex items-start justify-between animate-pulse">
+						<div
+							class="h-8 w-1/3 rounded-md border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-6 w-16 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+					</div>
+
+					<!-- Author info -->
+					<div class="flex items-center space-x-4">
+						<div
+							class="h-12 w-12 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div class="space-y-2 flex-1">
 							<div
-								class="h-2 bg-gray-500 dark:bg-slate-700 rounded"
+								class="h-4 w-1/4 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+							></div>
+							<div
+								class="h-3 w-1/3 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
 							></div>
 						</div>
+					</div>
+
+					<!-- Description lines -->
+					<div class="space-y-3 pt-4">
+						<div
+							class="h-4 w-full rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-4 w-5/6 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-4 w-4/6 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+					</div>
+
+					<!-- Tags -->
+					<div class="flex space-x-2 pt-2">
+						<div
+							class="h-6 w-20 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-6 w-20 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+					</div>
+				</div>
+			</div>
+			<div
+				v-if="loading"
+				class="bg-transparent rounded-lg border-2 border-gray-400 dark:border-gray-300 overflow-hidden animate-pulse"
+			>
+				<!-- Banner with heartbeat and wolf -->
+				<div
+					class="relative h-20 border-b border-gray-400 dark:border-gray-400"
+				>
+					<div
+						class="absolute inset-0 flex items-center justify-center"
+					>
+						<!-- Heartbeat line -->
+						<div
+							class="w-full h-[1px] bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent animate-pulse"
+						></div>
+						<!-- Wolf silhouette outline -->
+						<div
+							class="absolute w-20 h-20 border-2 border-gray-400 dark:border-gray-300 rounded-full animate-pulse"
+						></div>
+					</div>
+				</div>
+
+				<!-- Content section -->
+				<div class="p-6 space-y-4">
+					<!-- Title and rating -->
+					<div class="flex items-start justify-between animate-pulse">
+						<div
+							class="h-8 w-1/3 rounded-md border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-6 w-16 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+					</div>
+
+					<!-- Author info -->
+					<div class="flex items-center space-x-4">
+						<div
+							class="h-12 w-12 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div class="space-y-2 flex-1">
+							<div
+								class="h-4 w-1/4 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+							></div>
+							<div
+								class="h-3 w-1/3 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+							></div>
+						</div>
+					</div>
+
+					<!-- Description lines -->
+					<div class="space-y-3 pt-4">
+						<div
+							class="h-4 w-full rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-4 w-5/6 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-4 w-4/6 rounded border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+					</div>
+
+					<!-- Tags -->
+					<div class="flex space-x-2 pt-2">
+						<div
+							class="h-6 w-20 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
+						<div
+							class="h-6 w-20 rounded-full border border-gray-400 dark:border-gray-300 animate-pulse"
+						></div>
 					</div>
 				</div>
 			</div>

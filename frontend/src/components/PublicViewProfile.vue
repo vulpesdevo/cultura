@@ -357,15 +357,17 @@
 					<div class="relative group">
 						<button
 							@click="likePost(post._id)"
-							class="flex items-center space-x-1"
-							:class="
-								post.is_liked
-									? 'text-second'
-									: 'text-gray-500 hover:text-second'
-							"
+							class="flex items-center space-x-1 text-gray-500 hover:text-second"
 						>
-							<HeartIcon v-if="post.is_liked" class="size-4" />
-							<HeartIcon v-else class="size-4" />
+							<HeartIcon
+								:class="[
+									'h-5 w-5',
+									{
+										'text-second fill-current':
+											post.is_liked,
+									},
+								]"
+							/>
 							<span>{{ formatLikeCount(post.like_count) }}</span>
 						</button>
 						<div
@@ -720,6 +722,7 @@ import {
 	UserIcon,
 	PhotoIcon,
 	TrophyIcon,
+	HeartIcon,
 	ArrowLeftIcon,
 	UserPlusIcon,
 	UserMinusIcon,
@@ -727,7 +730,6 @@ import {
 
 import {
 	ChatBubbleLeftIcon,
-	HeartIcon,
 	PencilSquareIcon,
 	XMarkIcon,
 	CheckIcon,
@@ -875,16 +877,21 @@ const timesince = (date) => {
 	return moment(date).fromNow();
 };
 
-const likePost = (postId) => {
-	axiosClient
-		.post(`/like-posts/${postId}/like_post/`)
-		.then((response) => {
-			// console.log(response.data);
-			fetchPosts(id_get_post.value);
-		})
-		.catch((error) => {
-			console.error("Error liking the post:", error);
+const likePost = async (postId) => {
+	try {
+		await store.dispatch("likePost", postId);
+		// Update the posts array
+		posts.value = posts.value.map((post) => {
+			if (post._id === postId) {
+				post.is_liked = !post.is_liked;
+				post.like_count += post.is_liked ? 1 : -1;
+			}
+			return post;
 		});
+		// await fetchPosts();
+	} catch (error) {
+		console.error("Error liking the post:", error);
+	}
 };
 
 const selectPost = (post) => {

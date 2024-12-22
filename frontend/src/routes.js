@@ -102,12 +102,6 @@ const routes = [
 	},
 	{
 		path: "/",
-		name: "landing-page",
-		component: LandingPage,
-		meta: { isGuest: true },
-	},
-	{
-		path: "/login",
 		name: "login",
 		component: Login,
 		meta: { isGuest: true },

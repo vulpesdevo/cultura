@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col sm:flex-row min-h-screen w-screen bg-white dark:bg-dark-interface transition-colors duration-300 shadow-lg"
+		class="flex flex-col sm:flex-row h-screen w-screen bg-white dark:bg-dark-interface transition-colors duration-300 shadow-lg"
 	>
 		<!-- Topbar (mobile only) -->
 		<div
@@ -19,10 +19,9 @@
 					class="w-full pl-10 h-9 outline-none text-black dark:text-dark-prime dark:bg-dark-second-dark rounded-full shadow-md"
 					v-model="searchQuery"
 				/>
-				<span
-					class="material-icons-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700 dark:text-dark-prime"
-					>search</span
-				>
+				<XMarkIcon
+					class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+				/>
 			</div>
 			<div class="flex items-center">
 				<img
@@ -50,7 +49,7 @@
 				/>
 				<div class="relative w-full mb-4">
 					<input
-						type="search"
+						type="text"
 						:class="{ 'has-input': searchQuery }"
 						placeholder="Search..."
 						class="w-full pl-10 h-9 outline-none text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-full shadow-sm"
@@ -236,6 +235,7 @@ import {
 	Cog6ToothIcon,
 	ArrowRightOnRectangleIcon,
 	MagnifyingGlassIcon,
+	XMarkIcon,
 	ChevronUpIcon,
 	DocumentChartBarIcon,
 	UserIcon,
@@ -265,6 +265,7 @@ onMounted(async () => {
 		isAdmin.value = user.value.profile.is_admin;
 	} catch (error) {
 		console.error("Error fetching user data:", error);
+		sessionStorage.removeItem("TOKEN");
 	}
 });
 
@@ -289,7 +290,10 @@ watch(searchQuery, (newQuery) => {
 			if (searchQuery.value) {
 				router.replace({
 					name: "search-result",
-					query: { q: JSON.stringify(response) },
+					query: {
+						q: JSON.stringify(response),
+						searchTerm: searchQuery.value,
+					},
 				});
 			} else {
 				router.go(-1);

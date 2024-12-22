@@ -1,9 +1,9 @@
 <template>
 	<div
-		class="h-screen bg-gray-900 flex justify-center items-center px-4 py-12"
+		class="min-h-screen bg-gray-50 dark:bg-notif flex justify-center items-center px-4 py-12"
 	>
 		<div
-			class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden"
+			class="w-full max-w-3xl bg-white dark:bg-dark-field rounded-lg shadow-xl overflow-hidden"
 		>
 			<div class="p-8">
 				<h2
