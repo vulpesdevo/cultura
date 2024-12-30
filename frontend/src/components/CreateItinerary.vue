@@ -36,13 +36,12 @@
 							class="mb-2 text-sm text-gray-500 dark:text-gray-400"
 						>
 							<span class="font-semibold">Click to upload</span>
-							or drag and drop
 						</p>
 						<p
 							v-if="!selectedImageUrl"
 							class="text-xs text-gray-500 dark:text-gray-400"
 						>
-							SVG, PNG, JPG or GIF (MAX. 800x400px)
+							SVG, PNG or JPG (MAX. 800x400px)
 						</p>
 					</div>
 				</label>
@@ -439,7 +438,7 @@
 					>
 						Cancel
 					</button>
-					<<button
+					<button
 						@click="deleteItinerary"
 						:disabled="isDeleting"
 						class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center"

@@ -530,7 +530,7 @@ const store = createStore({
 				commit("appendPosts", cleanedPosts);
 				return response.data !== null; // Return whether there are more posts to load
 			} catch (error) {
-				console.error("Error fetching posts:", error);
+				// console.error("Error fetching posts:", error);
 				return false;
 			}
 		},

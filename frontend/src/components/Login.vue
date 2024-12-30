@@ -1098,7 +1098,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { useDark, useToggle } from "@vueuse/core";
@@ -1177,15 +1177,14 @@ const repassword = ref("");
 const fpemail = ref("");
 const fp_newpassword = ref("");
 const fp_confirmpassword = ref("");
-
+const autocompletecountry = ref(null);
 const initializeAutocompleteCountry = () => {
-	const inputElement = document.getElementById("country-autocomplete");
-	if (
-		inputElement &&
-		window.google &&
-		window.google.maps &&
-		window.google.maps.places
-	) {
+	const inputElement = autocompletecountry.value;
+	console.log("Input element: ", inputElement);
+
+	if (inputElement) {
+		console.log("Autocomplete initialized");
+
 		const autocomplete = new google.maps.places.Autocomplete(inputElement, {
 			types: ["(regions)"],
 		});
@@ -1195,8 +1194,18 @@ const initializeAutocompleteCountry = () => {
 				rcountry.value = place.formatted_address;
 			}
 		});
+	} else {
+		console.log("Autocomplete not initialized");
 	}
 };
+watch(showModal, async (newVal) => {
+	if (newVal) {
+		console.log("Modal opened");
+		await nextTick(); // Wait for the DOM to update
+
+		initializeAutocompleteCountry();
+	}
+});
 
 // Computed properties
 const isGmailEmail = computed(() => {

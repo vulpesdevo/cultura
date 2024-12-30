@@ -429,31 +429,71 @@ UserModel = get_user_model()
 class EditUserInformation(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
+    def put(self, request):
         data = request.data
         user = request.user
-        # fullname = data["fullname"].strip()
         password = data["password"].strip()
         country = data["country"].strip()
         email = data["email"].strip()
-        # cultura_user.fullname = fullname
-        cultura_user = CulturaUser.objects.get(user=user)
-        # print(user.check_password(password))
+        fullname = data["fullname"].strip()
+        username = data["username"].strip()
+
+        print("put data: ", data)
+
+        try:
+            cultura_user = CulturaUser.objects.get(user=user.id)
+        except CulturaUser.DoesNotExist:
+            return Response(
+                {"error": "CulturaUser not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            print(f"Error retrieving CulturaUser: {str(e)}")
+            return Response(
+                {"error": f"Error retrieving CulturaUser: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
         if not user.check_password(password):
             return Response(
                 {"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if UserModel.objects.filter(email=email).exists():
+
+        try:
+            if email != user.email and UserModel.objects.filter(email=email).exists():
+                return Response(
+                    {"error": "Choose another email"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if (
+                username != user.username
+                and UserModel.objects.filter(username=username).exists()
+            ):
+                return Response(
+                    {"error": "Choose another username"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            user.email = email
+            user.username = username
+            user.save()
+        except Exception as e:
+            print(f"")
             return Response(
-                {"error": "Choose another email"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Choose another email"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user.email = email
-        user.save()
+        try:
+            cultura_user.email = email
+            cultura_user.country = country
+            cultura_user.fullname = fullname
+            cultura_user.save()
+        except Exception as e:
+            print(f"Error saving user information: {str(e)}")
+            return Response(
+                {"error": f"Error saving user information: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
-        cultura_user.email = email
-        cultura_user.country = country
-        cultura_user.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -1727,12 +1767,15 @@ class SaveItineraryListView(APIView):
                 abs_main_image_url = request.build_absolute_uri(main_image)
                 itinerary_data["main_image"] = abs_main_image_url
 
-            for user_data in user_serializer.data:
-                image = user_data.get("user_photo", None)
-                if image:
-                    abs_image_url = request.build_absolute_uri(image)
-                    itinerary_data["user_photo"] = abs_image_url
-
+            owner_id = itinerary_data.get("owner", None)
+            if owner_id:
+                user = get_object_or_404(UserModel, id=owner_id)
+                culturauser = get_object_or_404(CulturaUser, user=user)
+                user_photo = culturauser.user_photo
+                if user_photo:
+                    abs_user_photo_url = request.build_absolute_uri(user_photo.url)
+                    itinerary_data["user_photo"] = abs_user_photo_url
+                itinerary_data["user"] = UserSerializer(user).data
         return paginator.get_paginated_response(serializer.data)
 
 

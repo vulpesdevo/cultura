@@ -41,56 +41,34 @@
 						class="profile-desc text-xm sm:text-base flex items-end justify-center sm:items-start flex-col sm:justify-between w-full sm:w-1/3"
 					>
 						<small
+							v-for="(label, index) in labels"
+							:key="index"
 							class="font-montserrat text-prime dark:text-gray-400"
-							>Username:</small
 						>
-						<small
-							class="font-montserrat text-prime dark:text-gray-400"
-							>Email:</small
-						>
-						<small
-							class="font-montserrat text-prime dark:text-gray-400"
-							>Country:</small
-						>
+							{{ label }}:
+						</small>
 					</div>
 
 					<div
 						class="profile-info text-xm sm:text-base flex items-start justify-center sm:items-start flex-col sm:justify-between w-full sm:w-1/2"
 					>
-						<div
-							v-if="!user.user?.username"
-							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-						></div>
-						<small
-							class="font-montserrat text-prime dark:text-dark-second h-4"
-						>
-							@{{ user.user?.username }}
-						</small>
-
-						<div
-							v-if="!user.email"
-							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-						></div>
-						<small
-							class="font-montserrat text-prime dark:text-dark-second h-4"
-						>
-							{{ user.email }}
-						</small>
-
-						<div
-							v-if="!user.country"
-							class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
-						></div>
-						<small
-							class="font-montserrat text-prime dark:text-dark-second mb"
-						>
-							{{ user.country }}
-						</small>
+						<div v-for="(field, index) in fields" :key="index">
+							<div
+								v-if="!user || !user[field]"
+								class="animate-pulse bg-gray-400 bg-opacity-40 h-4 w-40 sm:w-48 rounded-lg"
+							></div>
+							<small
+								v-else
+								class="font-montserrat text-prime dark:text-dark-second h-4"
+							>
+								{{ user[field] || "N/A" }}
+							</small>
+						</div>
 					</div>
 				</div>
 			</div>
 			<div
-				class="flex w-full items-center justify-center sm:justify-end sm:items-end mb-5 space-x-2 sm:space-x-4"
+				class="sm:absolute sm:bottom-0 sm:-left-10 flex w-full items-center justify-center sm:justify-end sm:items-end mb-5 space-x-2 sm:space-x-4"
 			>
 				<!-- Enhanced Followers Count -->
 				<div
@@ -431,19 +409,19 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div
-			v-else
-			class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center"
-		>
-			<h2
-				class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+			<div
+				v-else
+				class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 text-center"
 			>
-				Private Account
-			</h2>
-			<p class="text-gray-600 dark:text-gray-300">
-				This account is private. Follow to see their posts.
-			</p>
+				<h2
+					class="text-xl font-semibold mb-4 text-gray-900 dark:text-white"
+				>
+					Private Account
+				</h2>
+				<p class="text-gray-600 dark:text-gray-300">
+					This account is private. Follow to see their posts.
+				</p>
+			</div>
 		</div>
 
 		<div
@@ -802,6 +780,7 @@ const countryPost = ref("");
 
 const posts = ref([]);
 const user = ref([]);
+
 const userId = ref(0);
 const selectedPost = ref([]);
 const repliedTo = ref("");
@@ -818,9 +797,17 @@ const userID = ref(route.query.id);
 const checkedAfterDelay = ref(false);
 let client;
 const id_get_post = ref(null);
+
+const labels = ["Username", "Email", "Country"];
+const fields = ["username", "email", "country"];
+
 const fetchUser = async () => {
 	const res = await store.dispatch("viewCulturaUser", userID.value);
-	user.value = res;
+	user.value = {
+		...res,
+		username: res.user.username,
+	};
+
 	id_get_post.value = user.value.user.id;
 	fetchPosts(id_get_post.value);
 };

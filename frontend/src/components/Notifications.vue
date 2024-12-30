@@ -318,7 +318,7 @@ const handleNotificationClick = async (notification) => {
 onMounted(async () => {
 	await fetchLikenotification();
 	await fetchFollownotification();
-	setupWebSocket();
+	// setupWebSocket();
 });
 
 // onUnmounted(() => {

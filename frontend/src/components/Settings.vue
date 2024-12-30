@@ -109,7 +109,36 @@
 									placeholder="name@flowbite.com"
 								/>
 							</div>
-
+							<div class="mb-6 mt-7 sm:mt-2">
+								<label
+									for="setusername"
+									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									>Username</label
+								>
+								<input
+									type="text"
+									id="setusername"
+									v-model="setusername"
+									class="text-prime text-sm rounded-3xl w-full p-2.5 pl-10 outline-none bg-field dark:bg-dark-second-dark dark:text-interface"
+									placeholder="Username"
+									:disabled="!editing"
+								/>
+							</div>
+							<div class="mb-6 mt-7 sm:mt-2">
+								<label
+									for="setfullname"
+									class="hidden sm:flex mb-2 text-sm font-medium text-prime dark:text-dark-prime"
+									>Fullname</label
+								>
+								<input
+									type="text"
+									id="setfullname"
+									v-model="setfullname"
+									class="text-prime text-sm rounded-3xl w-full p-2.5 pl-10 outline-none bg-field dark:bg-dark-second-dark dark:text-interface"
+									placeholder="Fullname"
+									:disabled="!editing"
+								/>
+							</div>
 							<div class="mb-6 mt-7 sm:mt-2">
 								<label
 									for="country"
@@ -243,7 +272,10 @@
 								class="flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
 								role="alert"
 							>
-								<div class="ms-3 text-sm font-medium">
+								<div
+									v-if="error"
+									class="ms-3 text-sm font-medium"
+								>
 									{{ error }}
 								</div>
 								<button
@@ -500,7 +532,7 @@
 										!isValidConfirmPassword
 											? 'cursor-not-allowed'
 											: 'cursor-pointer',
-										'bg-second rounded-3xl text-white flex items-center justify-center  w-16 ml-6 h-9 sm:ml-6 px-3 sm:px-6 py-1 sm:py-3',
+										'bg-second rounded-3xl text-white flex items-center justify-center  w-16 ml-6 h-9  px-3  py-1',
 									]"
 									:disabled="
 										!isValidNewPassword ||
@@ -694,14 +726,18 @@ const store = useStore();
 const router = useRouter();
 import axios from "axios";
 
+const user = computed(() => store.getters.getUser.data);
+
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
 const accordionOpen = ref(false);
 const changePassOpen = ref(false);
 
-const setemail = ref("");
-const setcountry = ref("");
+const setemail = ref(user.value.email);
+const setcountry = ref(user.value.country);
+const setfullname = ref(user.value.fullname);
+const setusername = ref(user.value.user?.username);
 const setpassword = ref("");
 const old_password = ref("");
 const new_password = ref("");
@@ -800,12 +836,15 @@ const client = axios.create({
 
 const changeInformation = async () => {
 	try {
-		const response = await axiosClient.post("/update-information", {
+		const response = await axiosClient.put("/update-information", {
 			password: setpassword.value,
 			email: setemail.value,
 			country: setcountry.value,
+			fullname: setfullname.value,
+			username: setusername.value,
 		});
 		createToast("Information updated successfully.", "success");
+		await store.dispatch("fetchUserData");
 		editing.value = false;
 		setpassword.value = "";
 	} catch (error) {
@@ -828,10 +867,14 @@ const changePassword = async () => {
 		resetPasswordFields();
 	} catch (error) {
 		console.error("Error changing password:", error);
-		oldPasswordInvalid.value = true;
-		error.value = error.response?.data?.error || "An error occurred";
+		// oldPasswordInvalid.value = true;
+		// error.value = error.response?.data?.error || "An error occurred";
+		createToast(
+			error.response?.data?.error || "An error occurred",
+			"error"
+		);
 		setTimeout(() => {
-			oldPasswordInvalid.value = false;
+			// oldPasswordInvalid.value = false;
 		}, 5000);
 	}
 };
@@ -844,7 +887,7 @@ const resetPasswordFields = () => {
 
 const createToast = (message, type) => {
 	const toast = document.createElement("div");
-	toast.className = `fixed bottom-4 right-4 p-4 rounded-md text-white ${
+	toast.className = `fixed sm:bottom-4 bottom-16 sm:right-4 p-4 rounded-md text-white z-50 ${
 		type === "success" ? "bg-green-500" : "bg-red-500"
 	} transition-opacity duration-300 opacity-0`;
 	toast.textContent = message;

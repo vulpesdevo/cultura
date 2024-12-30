@@ -101,19 +101,50 @@
 					</span>
 				</router-link>
 			</nav>
-			<div class="hidden sm:flex items-center px-4 mt-auto mb-4">
+			<div
+				class="hidden sm:flex items-center justify-center px-4 mt-auto mb-4"
+			>
+				<span
+					v-if="!user.profile.user_photo"
+					class="flex items-center w-10 h-10 justify-center"
+				>
+					<svg
+						class="animate-spin h-5 w-5 dark:text-white"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<circle
+							class="opacity-25"
+							cx="12"
+							cy="12"
+							r="10"
+							stroke="currentColor"
+							stroke-width="4"
+						></circle>
+						<path
+							class="opacity-75"
+							fill="currentColor"
+							d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+						></path>
+					</svg>
+				</span>
+
 				<img
+					v-else
 					:src="user.profile?.user_photo"
 					alt="Profile"
-					class="w-10 h-10 rounded-full mr-3"
+					class="w-10 h-10 rounded-full mr-3 ring-1 ring-second"
 				/>
+
 				<div class="flex-1">
 					<p
-						class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate"
+						class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate whitespace-nowrap w-36"
 					>
 						{{ user.profile.fullname }}
 					</p>
 					<p
+						v-if="user.username"
 						class="text-xs text-gray-500 dark:text-gray-400 truncate"
 					>
 						@{{ user.username }}

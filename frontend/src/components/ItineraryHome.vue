@@ -3,7 +3,7 @@
 		class="relative flex flex-col w-full px-5 py-5 overflow-auto bg-field dark:bg-dark-notif sm:px-12 sm:pt-10 h-screen transition-colors duration-300"
 	>
 		<div
-			class="fixed top-0 w-full flex justify-start items-center mb-5 bg-field dark:bg-notif h-16 z-20"
+			class="sm:fixed sm:top-0 w-full flex justify-start items-center mb-5 bg-field dark:bg-notif h-16 z-20"
 		>
 			<button
 				@click="toggleMyItineraries"
@@ -87,13 +87,13 @@
 						<img
 							:src="itinerary.user_photo"
 							:alt="itinerary.creator_name"
-							class="w-12 h-12 rounded-full object-cover"
+							class="w-12 h-12 rounded-full object-cover ring-1 ring-second"
 						/>
 						<div class="flex items-center gap-2">
 							<span
 								class="text-prime dark:text-gray-300 text-xs border-r-2 pr-2"
 							>
-								@{{ itinerary.creator_name }}
+								@{{ itinerary?.user.username }}
 							</span>
 							<span class="text-second text-xs">
 								{{ formatDate(itinerary.date_posted) }}
@@ -265,6 +265,7 @@ const showMyItineraries = ref(false);
 const isFullTextShown = ref({});
 
 const allItineraries = computed(() => store.getters.getItineraries.reverse());
+
 const currentUserId = computed(() => store.state.user.data.user.id);
 
 const filteredItineraries = computed(() => {
@@ -310,7 +311,6 @@ const fetchItineraries = async () => {
 			page: page.value,
 			perPage,
 		});
-		console.log("MORE ITINERARIES : ", store.getters.getItineraries);
 
 		if (!moreItineraries) {
 			hasMore.value = false; // No more data available

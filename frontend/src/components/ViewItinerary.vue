@@ -1351,9 +1351,10 @@ const fetchSavedItineraries = async () => {
 			);
 
 			itineraries.value = response;
-			// console.log("ITINERARIES", itineraries.value);
+			console.log("ITINERAasdsdsdRIES", itineraries.value);
 
-			itineraryDetails.creator_name = response.creator_name;
+			itineraryDetails.creator_name =
+				response.cultura_user?.user.username;
 			itineraryDetails.user_photo = response.cultura_user.user_photo;
 			currency_save.value = response.currency;
 			itineraryDetails.date_posted = response.date_posted;

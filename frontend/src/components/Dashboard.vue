@@ -60,13 +60,15 @@
 			</div>
 			<div class="for-content flex flex-col w-full mt-3">
 				<div class="flex sm:space-x-2">
-					<div class="hidden sm:flex size-14 rounded-full">
+					<div
+						class="hidden sm:flex size-14 rounded-full ring-1 ring-second"
+					>
 						<span
 							v-if="!post_profile_display"
-							class="flex items-center"
+							class="flex items-center justify-center w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700"
 						>
 							<svg
-								class="animate-spin h-5 w-5 mr-3 dark:text-white"
+								class="animate-spin h-5 w-5 dark:text-white"
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
 								viewBox="0 0 24 24"
@@ -86,12 +88,17 @@
 								></path>
 							</svg>
 						</span>
-						<img
+
+						<span
 							v-else
-							:src="post_profile_display"
-							alt="Profile"
-							class="object-cover rounded-full cursor-pointer"
-						/>
+							class="flex items-center justify-center w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700"
+						>
+							<img
+								:src="post_profile_display"
+								alt="Profile"
+								class="object-cover w-14 h-14 rounded-full cursor-pointer"
+							/>
+						</span>
 					</div>
 					<textarea
 						class="w-full rounded-lg resize-none p-4 outline-none ring-1 ring-gray-600 dark:bg-dark-field dark:text-dark-prime"
@@ -763,7 +770,9 @@ const isDark = useDark();
 const toggleDark = useToggle(isDark);
 const user = computed(() => store.state.user.data);
 
-const posts = computed(() => store.getters.getPosts.reverse()); // Reactive array to store posts
+const posts = computed(() => {
+	return [...store.getters.getPosts].reverse();
+});
 const post_profile_display = ref(null);
 const selectedImageUrl = ref(null);
 const picture = ref(null);
@@ -961,20 +970,19 @@ const fetchPosts = async () => {
 		}
 		page.value++;
 	} catch (error) {
-		console.error("Error fetching posts:", error);
+		showMessage("No more post available.", "error");
 	} finally {
 		loading.value = false;
 	}
 };
-
 // Handle scroll event
-const onScroll = (event) => {
+const onScroll = async (event) => {
 	const container = event.target;
 	if (
 		container.scrollTop + container.clientHeight >=
 		container.scrollHeight - 10
 	) {
-		fetchPosts(); // Load more data when scrolled to the bottom
+		await fetchPosts(); // Load more data when scrolled to the bottom
 	}
 };
 const updateDisplayedPosts = () => {
